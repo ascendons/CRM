@@ -28,4 +28,10 @@ public class UserService {
     public Optional<User> findById(String id) {
         return userRepository.findById(id);
     }
+
+    public String getUserFullName(String userId) {
+        return findById(userId)
+                .map(User::getFullName)
+                .orElse("Unknown User");
+    }
 }
