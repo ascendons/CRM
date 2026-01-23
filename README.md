@@ -309,11 +309,17 @@ curl -X POST http://localhost:8080/api/v1/auth/login \
 - Statistics dashboard
 - See `PHASE_3_COMPLETE.md` for detailed documentation
 
-### 🔲 Phase 4: Opportunity Management - UPCOMING
-- Track sales opportunities
-- Pipeline management
-- Revenue forecasting
-- Win/loss tracking
+### ✅ Phase 4: Opportunity Management - COMPLETE
+- Full CRUD operations for Opportunities
+- 7-stage sales pipeline (Prospecting → Closed Won/Lost)
+- Pipeline statistics with win rate and weighted value
+- Filter by stage, account, contact
+- Search functionality
+- Financial tracking (amount, probability, forecast)
+- Competition tracking
+- Engagement metrics
+- Stage history tracking
+- See `PHASE_4_COMPLETE.md` for detailed documentation
 
 ### 🔲 Phase 5+: Advanced Features - FUTURE
 - Activity tracking (emails, calls, meetings)
