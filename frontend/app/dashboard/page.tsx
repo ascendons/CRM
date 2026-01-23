@@ -2,12 +2,16 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { authService } from '@/lib/auth';
 import { User } from '@/types/auth';
+import { leadsService } from '@/lib/leads';
+import { LeadStatistics } from '@/types/lead';
 
 export default function DashboardPage() {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
+  const [statistics, setStatistics] = useState<LeadStatistics | null>(null);
 
   useEffect(() => {
     if (!authService.isAuthenticated()) {
@@ -17,7 +21,19 @@ export default function DashboardPage() {
 
     const currentUser = authService.getUser();
     setUser(currentUser);
+
+    // Load lead statistics
+    loadStatistics();
   }, [router]);
+
+  const loadStatistics = async () => {
+    try {
+      const stats = await leadsService.getStatistics();
+      setStatistics(stats);
+    } catch (err) {
+      console.error('Failed to load statistics:', err);
+    }
+  };
 
   const handleLogout = () => {
     authService.logout();
@@ -105,13 +121,97 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            <div className="mt-8 p-4 bg-gray-50 rounded-lg">
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Next Steps</h3>
-              <ul className="list-disc list-inside space-y-2 text-sm text-gray-600">
-                <li>CRM modules will be implemented here after authentication is confirmed</li>
-                <li>Lead Management, Contact Management, and other features will follow</li>
-                <li>Protected routes are automatically secured with JWT validation</li>
-              </ul>
+            {/* Lead Statistics */}
+            {statistics && (
+              <div className="mt-8">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-lg font-semibold text-gray-900">Lead Statistics</h3>
+                  <Link
+                    href="/leads"
+                    className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+                  >
+                    View All Leads →
+                  </Link>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+                  <div className="bg-blue-50 p-4 rounded-lg">
+                    <div className="text-sm font-medium text-blue-700">Total Leads</div>
+                    <div className="mt-2 text-3xl font-bold text-blue-900">
+                      {statistics.totalLeads}
+                    </div>
+                  </div>
+                  <div className="bg-indigo-50 p-4 rounded-lg">
+                    <div className="text-sm font-medium text-indigo-700">New</div>
+                    <div className="mt-2 text-3xl font-bold text-indigo-900">
+                      {statistics.newLeads}
+                    </div>
+                  </div>
+                  <div className="bg-yellow-50 p-4 rounded-lg">
+                    <div className="text-sm font-medium text-yellow-700">Contacted</div>
+                    <div className="mt-2 text-3xl font-bold text-yellow-900">
+                      {statistics.contactedLeads}
+                    </div>
+                  </div>
+                  <div className="bg-green-50 p-4 rounded-lg">
+                    <div className="text-sm font-medium text-green-700">Qualified</div>
+                    <div className="mt-2 text-3xl font-bold text-green-900">
+                      {statistics.qualifiedLeads}
+                    </div>
+                  </div>
+                  <div className="bg-emerald-50 p-4 rounded-lg">
+                    <div className="text-sm font-medium text-emerald-700">Converted</div>
+                    <div className="mt-2 text-3xl font-bold text-emerald-900">
+                      {statistics.convertedLeads}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Quick Actions */}
+            <div className="mt-8">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <Link
+                  href="/leads/new"
+                  className="flex items-center p-4 bg-white border-2 border-blue-200 rounded-lg hover:border-blue-400 hover:shadow-md transition-all"
+                >
+                  <div className="flex-shrink-0 h-12 w-12 bg-blue-500 rounded-lg flex items-center justify-center text-white text-2xl">
+                    +
+                  </div>
+                  <div className="ml-4">
+                    <div className="text-sm font-medium text-gray-900">Create New Lead</div>
+                    <div className="text-xs text-gray-500">Add a new lead to your CRM</div>
+                  </div>
+                </Link>
+
+                <Link
+                  href="/leads"
+                  className="flex items-center p-4 bg-white border-2 border-gray-200 rounded-lg hover:border-gray-400 hover:shadow-md transition-all"
+                >
+                  <div className="flex-shrink-0 h-12 w-12 bg-gray-500 rounded-lg flex items-center justify-center text-white">
+                    <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                    </svg>
+                  </div>
+                  <div className="ml-4">
+                    <div className="text-sm font-medium text-gray-900">View All Leads</div>
+                    <div className="text-xs text-gray-500">Manage your lead pipeline</div>
+                  </div>
+                </Link>
+
+                <div className="flex items-center p-4 bg-white border-2 border-gray-200 rounded-lg opacity-50 cursor-not-allowed">
+                  <div className="flex-shrink-0 h-12 w-12 bg-gray-300 rounded-lg flex items-center justify-center text-white">
+                    <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                  </div>
+                  <div className="ml-4">
+                    <div className="text-sm font-medium text-gray-500">Contacts (Coming Soon)</div>
+                    <div className="text-xs text-gray-400">Manage contacts & accounts</div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
