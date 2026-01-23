@@ -1,11 +1,19 @@
 package com.ultron.backend.service;
 
+import com.ultron.backend.domain.entity.Account;
+import com.ultron.backend.domain.entity.Contact;
 import com.ultron.backend.domain.entity.Lead;
 import com.ultron.backend.domain.enums.LeadStatus;
+import com.ultron.backend.dto.request.CreateAccountRequest;
+import com.ultron.backend.dto.request.CreateContactRequest;
 import com.ultron.backend.dto.request.CreateLeadRequest;
 import com.ultron.backend.dto.request.UpdateLeadRequest;
+import com.ultron.backend.dto.response.AccountResponse;
+import com.ultron.backend.dto.response.ContactResponse;
 import com.ultron.backend.dto.response.LeadResponse;
 import com.ultron.backend.exception.UserAlreadyExistsException;
+import com.ultron.backend.repository.AccountRepository;
+import com.ultron.backend.repository.ContactRepository;
 import com.ultron.backend.repository.LeadRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +33,10 @@ public class LeadService {
     private final LeadIdGeneratorService leadIdGenerator;
     private final LeadScoringService scoringService;
     private final UserService userService;
+    private final ContactService contactService;
+    private final AccountService accountService;
+    private final ContactRepository contactRepository;
+    private final AccountRepository accountRepository;
 
     /**
      * Create a new lead
@@ -363,20 +375,80 @@ public class LeadService {
             throw new RuntimeException("Lead qualification score must be at least 60 to convert");
         }
 
-        // Update lead status
+        // Create Account from lead company information
+        log.info("Creating Account from Lead {}", lead.getLeadId());
+        CreateAccountRequest accountRequest = CreateAccountRequest.builder()
+                .accountName(lead.getCompanyName())
+                .industry(lead.getIndustry())
+                .companySize(lead.getCompanySize())
+                .annualRevenue(lead.getAnnualRevenue())
+                .numberOfEmployees(lead.getNumberOfEmployees())
+                .website(lead.getWebsite())
+                .billingStreet(lead.getStreetAddress())
+                .billingCity(lead.getCity())
+                .billingState(lead.getState())
+                .billingPostalCode(lead.getPostalCode())
+                .billingCountry(lead.getCountry())
+                .description(lead.getDescription())
+                .tags(lead.getTags())
+                .build();
+
+        AccountResponse account = accountService.createAccount(accountRequest, convertedByUserId);
+        log.info("Account {} created from lead conversion", account.getAccountId());
+
+        // Create Contact from lead personal information and link to Account
+        log.info("Creating Contact from Lead {}", lead.getLeadId());
+        CreateContactRequest contactRequest = CreateContactRequest.builder()
+                .firstName(lead.getFirstName())
+                .lastName(lead.getLastName())
+                .email(lead.getEmail())
+                .phone(lead.getPhone())
+                .mobilePhone(lead.getMobilePhone())
+                .workPhone(lead.getWorkPhone())
+                .jobTitle(lead.getJobTitle())
+                .department(lead.getDepartment())
+                .linkedInProfile(lead.getLinkedInProfile())
+                .website(lead.getWebsite())
+                .accountId(account.getId())
+                .isPrimaryContact(true)
+                .mailingStreet(lead.getStreetAddress())
+                .mailingCity(lead.getCity())
+                .mailingState(lead.getState())
+                .mailingPostalCode(lead.getPostalCode())
+                .mailingCountry(lead.getCountry())
+                .description(lead.getDescription())
+                .tags(lead.getTags())
+                .build();
+
+        ContactResponse contact = contactService.createContact(contactRequest, convertedByUserId);
+        log.info("Contact {} created from lead conversion", contact.getContactId());
+
+        // Update Contact and Account to reference the original lead
+        Contact contactEntity = contactRepository.findById(contact.getId())
+                .orElseThrow(() -> new RuntimeException("Contact not found after creation"));
+        contactEntity.setConvertedFromLeadId(lead.getId());
+        contactEntity.setConvertedDate(LocalDateTime.now());
+        contactRepository.save(contactEntity);
+
+        Account accountEntity = accountRepository.findById(account.getId())
+                .orElseThrow(() -> new RuntimeException("Account not found after creation"));
+        accountEntity.setConvertedFromLeadId(lead.getId());
+        accountEntity.setConvertedDate(LocalDateTime.now());
+        accountRepository.save(accountEntity);
+
+        log.info("Updated Contact and Account with lead reference: {}", lead.getLeadId());
+
+        // Update lead status and conversion references
         lead.setLeadStatus(LeadStatus.CONVERTED);
         lead.setConvertedDate(LocalDateTime.now());
+        lead.setConvertedToContactId(contact.getId());
+        lead.setConvertedToAccountId(account.getId());
         lead.setLastModifiedAt(LocalDateTime.now());
         lead.setLastModifiedBy(convertedByUserId);
 
-        // TODO: Create Opportunity, Contact, Account entities
-        // For now, just mark as converted
-        // lead.setConvertedToOpportunityId(opportunityId);
-        // lead.setConvertedToContactId(contactId);
-        // lead.setConvertedToAccountId(accountId);
-
         Lead converted = leadRepository.save(lead);
-        log.info("Lead {} converted to opportunity by user {}", id, convertedByUserId);
+        log.info("Lead {} converted successfully - Contact: {}, Account: {}",
+                lead.getLeadId(), contact.getContactId(), account.getAccountId());
 
         return mapToResponse(converted);
     }
