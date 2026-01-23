@@ -1,0 +1,22 @@
+package com.ultron.backend.domain.enums;
+
+public enum Industry {
+    TECHNOLOGY,
+    MANUFACTURING,
+    HEALTHCARE,
+    FINANCE,
+    RETAIL,
+    EDUCATION,
+    REAL_ESTATE,
+    E_COMMERCE,
+    CONSULTING,
+    PROFESSIONAL_SERVICES,
+    TELECOMMUNICATIONS,
+    TRANSPORTATION,
+    HOSPITALITY,
+    AGRICULTURE,
+    ENERGY,
+    GOVERNMENT,
+    NON_PROFIT,
+    OTHER
+}
