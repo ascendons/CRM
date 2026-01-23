@@ -17,10 +17,13 @@ export const authService = {
   logout(): void {
     localStorage.removeItem('auth_token');
     localStorage.removeItem('user');
+    // Remove cookie
+    document.cookie = 'auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
     window.location.href = '/login';
   },
 
   setAuth(authResponse: AuthResponse): void {
+    // Store in localStorage
     localStorage.setItem('auth_token', authResponse.token);
     const user: User = {
       userId: authResponse.userId,
@@ -29,6 +32,12 @@ export const authService = {
       role: authResponse.role,
     };
     localStorage.setItem('user', JSON.stringify(user));
+
+    // Also store token in cookie for middleware to access
+    // Set cookie with 7 days expiration
+    const expirationDate = new Date();
+    expirationDate.setDate(expirationDate.getDate() + 7);
+    document.cookie = `auth_token=${authResponse.token}; path=/; expires=${expirationDate.toUTCString()}; SameSite=Strict`;
   },
 
   getToken(): string | null {
@@ -46,6 +55,16 @@ export const authService = {
   },
 
   isAuthenticated(): boolean {
-    return !!this.getToken();
+    const token = this.getToken();
+    if (token) {
+      // Ensure cookie is also set (for existing logged-in users)
+      if (!document.cookie.includes('auth_token=')) {
+        const expirationDate = new Date();
+        expirationDate.setDate(expirationDate.getDate() + 7);
+        document.cookie = `auth_token=${token}; path=/; expires=${expirationDate.toUTCString()}; SameSite=Strict`;
+      }
+      return true;
+    }
+    return false;
   },
 };

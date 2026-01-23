@@ -3,6 +3,7 @@ package com.ultron.backend.service;
 import com.ultron.backend.domain.entity.Lead;
 import com.ultron.backend.domain.enums.LeadStatus;
 import com.ultron.backend.dto.request.CreateLeadRequest;
+import com.ultron.backend.dto.request.UpdateLeadRequest;
 import com.ultron.backend.dto.response.LeadResponse;
 import com.ultron.backend.exception.UserAlreadyExistsException;
 import com.ultron.backend.repository.LeadRepository;
@@ -167,6 +168,167 @@ public class LeadService {
 
         Lead updated = leadRepository.save(lead);
         return mapToResponse(updated);
+    }
+
+    /**
+     * Update lead information
+     * Only updates fields that are provided (not null)
+     */
+    public LeadResponse updateLead(String id, UpdateLeadRequest request, String updatedByUserId) {
+        log.info("Updating lead {} by user {}", id, updatedByUserId);
+
+        Lead lead = leadRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Lead not found with id: " + id));
+
+        // Check if email is being updated and if it's unique
+        if (request.getEmail() != null && !request.getEmail().equals(lead.getEmail())) {
+            if (leadRepository.existsByEmailAndIsDeletedFalse(request.getEmail())) {
+                throw new UserAlreadyExistsException("Lead with email " + request.getEmail() + " already exists");
+            }
+        }
+
+        // Track if fields affecting score are updated
+        boolean scoreRelevantFieldsUpdated = false;
+
+        // Update basic information
+        if (request.getFirstName() != null) {
+            lead.setFirstName(request.getFirstName());
+        }
+        if (request.getLastName() != null) {
+            lead.setLastName(request.getLastName());
+        }
+        if (request.getEmail() != null) {
+            lead.setEmail(request.getEmail());
+        }
+        if (request.getPhone() != null) {
+            lead.setPhone(request.getPhone());
+        }
+        if (request.getCompanyName() != null) {
+            lead.setCompanyName(request.getCompanyName());
+        }
+
+        // Update contact details
+        if (request.getJobTitle() != null) {
+            lead.setJobTitle(request.getJobTitle());
+            scoreRelevantFieldsUpdated = true;
+        }
+        if (request.getDepartment() != null) {
+            lead.setDepartment(request.getDepartment());
+        }
+        if (request.getMobilePhone() != null) {
+            lead.setMobilePhone(request.getMobilePhone());
+        }
+        if (request.getWorkPhone() != null) {
+            lead.setWorkPhone(request.getWorkPhone());
+        }
+        if (request.getLinkedInProfile() != null) {
+            lead.setLinkedInProfile(request.getLinkedInProfile());
+        }
+        if (request.getWebsite() != null) {
+            lead.setWebsite(request.getWebsite());
+        }
+
+        // Update company information
+        if (request.getIndustry() != null) {
+            lead.setIndustry(request.getIndustry());
+            scoreRelevantFieldsUpdated = true;
+        }
+        if (request.getCompanySize() != null) {
+            lead.setCompanySize(request.getCompanySize());
+            scoreRelevantFieldsUpdated = true;
+        }
+        if (request.getAnnualRevenue() != null) {
+            lead.setAnnualRevenue(request.getAnnualRevenue());
+        }
+        if (request.getNumberOfEmployees() != null) {
+            lead.setNumberOfEmployees(request.getNumberOfEmployees());
+        }
+
+        // Update address information
+        if (request.getCountry() != null) {
+            lead.setCountry(request.getCountry());
+        }
+        if (request.getState() != null) {
+            lead.setState(request.getState());
+        }
+        if (request.getCity() != null) {
+            lead.setCity(request.getCity());
+        }
+        if (request.getStreetAddress() != null) {
+            lead.setStreetAddress(request.getStreetAddress());
+        }
+        if (request.getPostalCode() != null) {
+            lead.setPostalCode(request.getPostalCode());
+        }
+
+        // Update lead classification
+        if (request.getLeadSource() != null) {
+            lead.setLeadSource(request.getLeadSource());
+        }
+        if (request.getLeadStatus() != null) {
+            lead.setLeadStatus(request.getLeadStatus());
+        }
+        if (request.getLeadOwnerId() != null) {
+            lead.setLeadOwnerId(request.getLeadOwnerId());
+        }
+        if (request.getExpectedRevenue() != null) {
+            lead.setExpectedRevenue(request.getExpectedRevenue());
+        }
+        if (request.getExpectedCloseDate() != null) {
+            lead.setExpectedCloseDate(request.getExpectedCloseDate());
+        }
+
+        // Update BANT qualification
+        if (request.getHasBudget() != null) {
+            lead.setHasBudget(request.getHasBudget());
+        }
+        if (request.getBudgetAmount() != null) {
+            lead.setBudgetAmount(request.getBudgetAmount());
+        }
+        if (request.getBudgetTimeframe() != null) {
+            lead.setBudgetTimeframe(request.getBudgetTimeframe());
+        }
+        if (request.getIsDecisionMaker() != null) {
+            lead.setIsDecisionMaker(request.getIsDecisionMaker());
+        }
+        if (request.getDecisionMakerName() != null) {
+            lead.setDecisionMakerName(request.getDecisionMakerName());
+        }
+        if (request.getBusinessProblem() != null) {
+            lead.setBusinessProblem(request.getBusinessProblem());
+        }
+        if (request.getPainPoints() != null) {
+            lead.setPainPoints(request.getPainPoints());
+        }
+        if (request.getExpectedPurchaseDate() != null) {
+            lead.setExpectedPurchaseDate(request.getExpectedPurchaseDate());
+        }
+        if (request.getUrgencyLevel() != null) {
+            lead.setUrgencyLevel(request.getUrgencyLevel());
+        }
+
+        // Update additional information
+        if (request.getDescription() != null) {
+            lead.setDescription(request.getDescription());
+        }
+        if (request.getTags() != null) {
+            lead.setTags(request.getTags());
+        }
+
+        // Recalculate lead score if relevant fields were updated
+        if (scoreRelevantFieldsUpdated) {
+            scoringService.calculateLeadScore(lead);
+        }
+
+        // Update system fields
+        lead.setLastModifiedAt(LocalDateTime.now());
+        lead.setLastModifiedBy(updatedByUserId);
+
+        // Save and return
+        Lead updatedLead = leadRepository.save(lead);
+        log.info("Lead {} updated successfully", id);
+
+        return mapToResponse(updatedLead);
     }
 
     /**

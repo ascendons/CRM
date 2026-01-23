@@ -2,6 +2,7 @@ package com.ultron.backend.controller;
 
 import com.ultron.backend.domain.enums.LeadStatus;
 import com.ultron.backend.dto.request.CreateLeadRequest;
+import com.ultron.backend.dto.request.UpdateLeadRequest;
 import com.ultron.backend.dto.response.ApiResponse;
 import com.ultron.backend.dto.response.LeadResponse;
 import com.ultron.backend.service.LeadService;
@@ -176,6 +177,28 @@ public class LeadController {
                         .success(true)
                         .message("Search results retrieved successfully")
                         .data(leads)
+                        .build());
+    }
+
+    /**
+     * Update lead information
+     * PUT /api/v1/leads/{id}
+     */
+    @PutMapping("/{id}")
+    public ResponseEntity<ApiResponse<LeadResponse>> updateLead(
+            @PathVariable String id,
+            @Valid @RequestBody UpdateLeadRequest request) {
+
+        String currentUserId = getCurrentUserId();
+        log.info("User {} updating lead {}", currentUserId, id);
+
+        LeadResponse lead = leadService.updateLead(id, request, currentUserId);
+
+        return ResponseEntity.ok(
+                ApiResponse.<LeadResponse>builder()
+                        .success(true)
+                        .message("Lead updated successfully")
+                        .data(lead)
                         .build());
     }
 

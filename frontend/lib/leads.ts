@@ -2,6 +2,7 @@ import { api } from './api-client';
 import {
   Lead,
   CreateLeadRequest,
+  UpdateLeadRequest,
   LeadStatistics,
   LeadStatus,
 } from '@/types/lead';
@@ -54,6 +55,13 @@ export const leadsService = {
    */
   async searchLeads(searchTerm: string): Promise<Lead[]> {
     return await api.get<Lead[]>(`/leads/search?q=${encodeURIComponent(searchTerm)}`);
+  },
+
+  /**
+   * Update lead information
+   */
+  async updateLead(id: string, data: UpdateLeadRequest): Promise<Lead> {
+    return await api.put<Lead>(`/leads/${id}`, data);
   },
 
   /**

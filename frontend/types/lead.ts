@@ -150,6 +150,53 @@ export interface CreateLeadRequest {
   tags?: string[];
 }
 
+export interface UpdateLeadRequest {
+  // All fields optional - only provided fields will be updated
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  phone?: string;
+  companyName?: string;
+
+  jobTitle?: string;
+  department?: string;
+  mobilePhone?: string;
+  workPhone?: string;
+  linkedInProfile?: string;
+  website?: string;
+
+  industry?: Industry;
+  companySize?: CompanySize;
+  annualRevenue?: number;
+  numberOfEmployees?: number;
+
+  country?: string;
+  state?: string;
+  city?: string;
+  streetAddress?: string;
+  postalCode?: string;
+
+  leadSource?: LeadSource;
+  leadStatus?: LeadStatus;
+  leadOwnerId?: string;
+  expectedRevenue?: number;
+  expectedCloseDate?: string;
+
+  // BANT Qualification
+  hasBudget?: boolean;
+  budgetAmount?: number;
+  budgetTimeframe?: string;
+  isDecisionMaker?: boolean;
+  decisionMakerName?: string;
+  businessProblem?: string;
+  painPoints?: string;
+  expectedPurchaseDate?: string;
+  urgencyLevel?: string;
+
+  description?: string;
+  tags?: string[];
+}
+
 export interface LeadStatistics {
   totalLeads: number;
   newLeads: number;
