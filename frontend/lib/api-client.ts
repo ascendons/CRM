@@ -1,0 +1,92 @@
+import { ApiResponse } from '@/types/auth';
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api/v1';
+
+export class ApiError extends Error {
+  constructor(
+    message: string,
+    public status: number,
+    public errors?: Record<string, string>
+  ) {
+    super(message);
+    this.name = 'ApiError';
+  }
+}
+
+export async function apiRequest<T>(
+  endpoint: string,
+  options: RequestInit = {}
+): Promise<T> {
+  const token = localStorage.getItem('auth_token');
+
+  const headers: HeadersInit = {
+    'Content-Type': 'application/json',
+    ...options.headers,
+  };
+
+  if (token && !endpoint.includes('/auth/')) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
+  const config: RequestInit = {
+    ...options,
+    headers,
+    credentials: 'include',
+  };
+
+  try {
+    const response = await fetch(`${API_URL}${endpoint}`, config);
+
+    const data: ApiResponse<T> = await response.json();
+
+    if (!response.ok) {
+      if (response.status === 401) {
+        localStorage.removeItem('auth_token');
+        localStorage.removeItem('user');
+        if (typeof window !== 'undefined') {
+          window.location.href = '/login';
+        }
+      }
+
+      throw new ApiError(
+        data.message || 'An error occurred',
+        response.status,
+        data.errors
+      );
+    }
+
+    return data.data as T;
+  } catch (error) {
+    if (error instanceof ApiError) {
+      throw error;
+    }
+
+    throw new ApiError('Network error occurred', 500);
+  }
+}
+
+export const api = {
+  get: <T>(endpoint: string) =>
+    apiRequest<T>(endpoint, { method: 'GET' }),
+
+  post: <T>(endpoint: string, data: unknown) =>
+    apiRequest<T>(endpoint, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  put: <T>(endpoint: string, data: unknown) =>
+    apiRequest<T>(endpoint, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    }),
+
+  patch: <T>(endpoint: string, data: unknown) =>
+    apiRequest<T>(endpoint, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    }),
+
+  delete: <T>(endpoint: string) =>
+    apiRequest<T>(endpoint, { method: 'DELETE' }),
+};
