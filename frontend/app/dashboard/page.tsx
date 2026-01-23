@@ -7,11 +7,15 @@ import { authService } from '@/lib/auth';
 import { User } from '@/types/auth';
 import { leadsService } from '@/lib/leads';
 import { LeadStatistics } from '@/types/lead';
+import { contactsService } from '@/lib/contacts';
+import { accountsService } from '@/lib/accounts';
 
 export default function DashboardPage() {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [statistics, setStatistics] = useState<LeadStatistics | null>(null);
+  const [contactCount, setContactCount] = useState<number>(0);
+  const [accountCount, setAccountCount] = useState<number>(0);
 
   useEffect(() => {
     if (!authService.isAuthenticated()) {
@@ -28,8 +32,14 @@ export default function DashboardPage() {
 
   const loadStatistics = async () => {
     try {
-      const stats = await leadsService.getStatistics();
+      const [stats, contacts, accounts] = await Promise.all([
+        leadsService.getStatistics(),
+        contactsService.getContactCount(),
+        accountsService.getAccountCount(),
+      ]);
       setStatistics(stats);
+      setContactCount(contacts);
+      setAccountCount(accounts);
     } catch (err) {
       console.error('Failed to load statistics:', err);
     }
@@ -132,11 +142,59 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            {/* Lead Statistics */}
+            {/* Overall Statistics */}
+            <div className="mt-8">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">CRM Overview</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <Link href="/leads" className="bg-blue-50 p-6 rounded-lg hover:bg-blue-100 transition-colors">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="text-sm font-medium text-blue-700">Total Leads</div>
+                      <div className="mt-2 text-4xl font-bold text-blue-900">
+                        {statistics?.totalLeads || 0}
+                      </div>
+                    </div>
+                    <svg className="h-12 w-12 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                    </svg>
+                  </div>
+                </Link>
+
+                <Link href="/contacts" className="bg-purple-50 p-6 rounded-lg hover:bg-purple-100 transition-colors">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="text-sm font-medium text-purple-700">Total Contacts</div>
+                      <div className="mt-2 text-4xl font-bold text-purple-900">
+                        {contactCount}
+                      </div>
+                    </div>
+                    <svg className="h-12 w-12 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                  </div>
+                </Link>
+
+                <Link href="/accounts" className="bg-green-50 p-6 rounded-lg hover:bg-green-100 transition-colors">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="text-sm font-medium text-green-700">Total Accounts</div>
+                      <div className="mt-2 text-4xl font-bold text-green-900">
+                        {accountCount}
+                      </div>
+                    </div>
+                    <svg className="h-12 w-12 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    </svg>
+                  </div>
+                </Link>
+              </div>
+            </div>
+
+            {/* Lead Statistics Breakdown */}
             {statistics && (
               <div className="mt-8">
                 <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-lg font-semibold text-gray-900">Lead Statistics</h3>
+                  <h3 className="text-lg font-semibold text-gray-900">Lead Pipeline</h3>
                   <Link
                     href="/leads"
                     className="text-sm text-blue-600 hover:text-blue-700 font-medium"

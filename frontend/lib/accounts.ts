@@ -130,6 +130,23 @@ class AccountService {
       throw new Error(error.message || 'Failed to delete account');
     }
   }
+
+  async getAccountCount(): Promise<number> {
+    const response = await fetch(`${API_URL}/accounts/statistics/count`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        ...this.getAuthHeader(),
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch account count');
+    }
+
+    const result: ApiResponse<number> = await response.json();
+    return result.data;
+  }
 }
 
 export const accountsService = new AccountService();

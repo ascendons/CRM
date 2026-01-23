@@ -142,6 +142,19 @@ public class ContactController {
                         .build());
     }
 
+    @GetMapping("/statistics/count")
+    public ResponseEntity<ApiResponse<Long>> getContactCount() {
+        log.info("Fetching contact count");
+        long count = contactService.getContactCount();
+
+        return ResponseEntity.ok(
+                ApiResponse.<Long>builder()
+                        .success(true)
+                        .message("Contact count retrieved successfully")
+                        .data(count)
+                        .build());
+    }
+
     private String getCurrentUserId() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return authentication.getName();

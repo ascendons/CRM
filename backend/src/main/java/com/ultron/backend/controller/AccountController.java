@@ -128,6 +128,19 @@ public class AccountController {
                         .build());
     }
 
+    @GetMapping("/statistics/count")
+    public ResponseEntity<ApiResponse<Long>> getAccountCount() {
+        log.info("Fetching account count");
+        long count = accountService.getAccountCount();
+
+        return ResponseEntity.ok(
+                ApiResponse.<Long>builder()
+                        .success(true)
+                        .message("Account count retrieved successfully")
+                        .data(count)
+                        .build());
+    }
+
     private String getCurrentUserId() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return authentication.getName();

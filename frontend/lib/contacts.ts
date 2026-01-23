@@ -147,6 +147,23 @@ class ContactService {
       throw new Error(error.message || 'Failed to delete contact');
     }
   }
+
+  async getContactCount(): Promise<number> {
+    const response = await fetch(`${API_URL}/contacts/statistics/count`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        ...this.getAuthHeader(),
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch contact count');
+    }
+
+    const result: ApiResponse<number> = await response.json();
+    return result.data;
+  }
 }
 
 export const contactsService = new ContactService();
