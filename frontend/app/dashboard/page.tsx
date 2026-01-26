@@ -174,6 +174,7 @@ export default function DashboardPage() {
                 >
                   View All Leads →
                 </Link>
+              </div>
 
               <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
                 <div className="bg-slate-50 p-4 rounded-xl">
