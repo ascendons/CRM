@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Lead Conversion Workflow - CRM Enterprise</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#3780f6",
+                        "background-light": "#f5f7f8",
+                        "background-dark": "#101722",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark min-h-screen text-[#0d131c] dark:text-white font-display">
+<!-- Top Navigation Bar -->
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-[#e7ecf4] dark:border-slate-800 bg-white dark:bg-slate-900 px-6 py-3 sticky top-0 z-50">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-3 text-primary">
+<div class="size-8">
+<svg fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path clip-rule="evenodd" d="M24 18.4228L42 11.475V34.3663C42 34.7796 41.7457 35.1504 41.3601 35.2992L24 42V18.4228Z" fill="currentColor" fill-rule="evenodd"></path>
+<path clip-rule="evenodd" d="M24 8.18819L33.4123 11.574L24 15.2071L14.5877 11.574L24 8.18819ZM9 15.8487L21 20.4805V37.6263L9 32.9945V15.8487ZM27 37.6263V20.4805L39 15.8487V32.9945L27 37.6263ZM25.354 2.29885C24.4788 1.98402 23.5212 1.98402 22.646 2.29885L4.98454 8.65208C3.7939 9.08038 3 10.2097 3 11.475V34.3663C3 36.0196 4.01719 37.5026 5.55962 38.098L22.9197 44.7987C23.6149 45.0671 24.3851 45.0671 25.0803 44.7987L42.4404 38.098C43.9828 37.5026 45 36.0196 45 34.3663V11.475C45 10.2097 44.2061 9.08038 43.0155 8.65208L25.354 2.29885Z" fill="currentColor" fill-rule="evenodd"></path>
+</svg>
+</div>
+<h2 class="text-[#0d131c] dark:text-white text-lg font-bold leading-tight tracking-tight">CRM Enterprise</h2>
+</div>
+<nav class="hidden md:flex items-center gap-6">
+<a class="text-slate-600 dark:text-slate-400 text-sm font-medium hover:text-primary transition-colors" href="#">Leads</a>
+<a class="text-slate-600 dark:text-slate-400 text-sm font-medium hover:text-primary transition-colors" href="#">Contacts</a>
+<a class="text-slate-600 dark:text-slate-400 text-sm font-medium hover:text-primary transition-colors" href="#">Companies</a>
+<a class="text-slate-600 dark:text-slate-400 text-sm font-medium hover:text-primary transition-colors" href="#">Deals</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative hidden sm:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xl">search</span>
+<input class="bg-[#e7ecf4] dark:bg-slate-800 border-none rounded-lg pl-10 pr-4 py-2 text-sm w-64 focus:ring-2 focus:ring-primary/50" placeholder="Search workflow..." type="text"/>
+</div>
+<button class="p-2 bg-[#e7ecf4] dark:bg-slate-800 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+<span class="material-symbols-outlined text-xl">notifications</span>
+</button>
+<div class="size-9 rounded-full bg-primary/20 border-2 border-primary flex items-center justify-center font-bold text-primary overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Profile picture of CRM administrator" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBRvmva8EY-rHB7BTnqbrWh6A399So_WHE_k8agLfQfHzfWTT3qoLkPQt7iJdEWUE9vrSGXc8xMj4bRbVzOqvJpRJnLLk0qqVnPaL6eL136sRYARBVqmS9tImdsEMEtnwo1-pkyfxzr3tD9KT1xxXz7K8cVJryO0DXfZYGpBBt7jvlrqvDDaEq7ojnQ2_jTde6eZZiwBD7kHPJUwhuKpr1neO5-y85Q-30dFp8pLLCsDBHunc4UD0rSirJsSuXl9PxMDHlf8jqFxIs"/>
+</div>
+</div>
+</header>
+<main class="max-w-[1100px] mx-auto py-8 px-6">
+<!-- Headline and Stats Summary -->
+<div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+<div>
+<h1 class="text-[#0d131c] dark:text-white text-3xl font-bold leading-tight">Convert Lead: Alex Rivera</h1>
+<p class="text-slate-500 dark:text-slate-400 mt-1">Transforming qualified lead into workspace entities.</p>
+</div>
+<div class="flex min-w-[180px] flex-col gap-1 rounded-xl p-5 border border-primary/20 bg-primary/5">
+<p class="text-primary text-xs font-bold uppercase tracking-wider">Lead Quality Score</p>
+<div class="flex items-end gap-2">
+<p class="text-[#0d131c] dark:text-white tracking-tight text-3xl font-bold leading-tight">92</p>
+<p class="text-slate-400 text-sm mb-1 pb-1">/ 100</p>
+<span class="material-symbols-outlined text-green-500 mb-1 ml-1">trending_up</span>
+</div>
+</div>
+</div>
+<!-- Progress Stepper -->
+<div class="mb-10 bg-white dark:bg-slate-900 rounded-xl p-6 border border-[#e7ecf4] dark:border-slate-800 shadow-sm">
+<div class="flex items-center justify-between relative">
+<!-- Line Background -->
+<div class="absolute top-1/2 left-0 w-full h-1 bg-[#ced8e9] dark:bg-slate-700 -translate-y-1/2 z-0"></div>
+<div class="absolute top-1/2 left-0 w-2/3 h-1 bg-primary -translate-y-1/2 z-0"></div>
+<!-- Steps -->
+<div class="z-10 flex flex-col items-center gap-2">
+<div class="size-10 rounded-full bg-primary text-white flex items-center justify-center ring-4 ring-white dark:ring-slate-900">
+<span class="material-symbols-outlined text-xl">check</span>
+</div>
+<span class="text-sm font-semibold text-primary">Identify</span>
+</div>
+<div class="z-10 flex flex-col items-center gap-2">
+<div class="size-10 rounded-full bg-primary text-white flex items-center justify-center ring-4 ring-white dark:ring-slate-900">
+<span class="material-symbols-outlined text-xl">map</span>
+</div>
+<span class="text-sm font-semibold text-primary">Map Fields</span>
+</div>
+<div class="z-10 flex flex-col items-center gap-2">
+<div class="size-10 rounded-full bg-white dark:bg-slate-800 border-2 border-primary text-primary flex items-center justify-center ring-4 ring-white dark:ring-slate-900">
+<span class="material-symbols-outlined text-xl">sync_alt</span>
+</div>
+<span class="text-sm font-semibold text-primary">Convert</span>
+</div>
+</div>
+<div class="mt-8">
+<div class="flex gap-2 justify-between mb-2">
+<p class="text-slate-600 dark:text-slate-400 text-sm font-medium">Conversion Readiness</p>
+<p class="text-primary text-sm font-bold">Step 3 of 3</p>
+</div>
+<div class="h-2.5 w-full bg-[#ced8e9] dark:bg-slate-800 rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full transition-all duration-500" style="width: 66%;"></div>
+</div>
+</div>
+</div>
+<!-- Main Conversion Sections -->
+<div class="grid grid-cols-1 gap-8 lg:grid-cols-3 mb-10">
+<!-- Create Contact Card -->
+<section class="flex flex-col bg-white dark:bg-slate-900 rounded-xl border border-[#e7ecf4] dark:border-slate-800 shadow-sm overflow-hidden">
+<div class="p-5 border-b border-[#e7ecf4] dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 flex items-center gap-3">
+<span class="material-symbols-outlined text-primary">person_add</span>
+<h2 class="text-lg font-bold">1. Contact Info</h2>
+</div>
+<div class="p-6 space-y-4">
+<div>
+<label class="block text-xs font-bold text-slate-500 uppercase mb-1">Full Name</label>
+<input class="w-full bg-background-light dark:bg-slate-800 border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:ring-primary focus:border-primary" type="text" value="Alex Rivera"/>
+</div>
+<div>
+<label class="block text-xs font-bold text-slate-500 uppercase mb-1">Email Address</label>
+<input class="w-full bg-background-light dark:bg-slate-800 border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:ring-primary focus:border-primary" type="email" value="alex.rivera@techflow.io"/>
+</div>
+<div>
+<label class="block text-xs font-bold text-slate-500 uppercase mb-1">Phone</label>
+<input class="w-full bg-background-light dark:bg-slate-800 border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:ring-primary focus:border-primary" type="text" value="+1 (555) 012-3456"/>
+</div>
+<div class="pt-2 flex items-center gap-2 text-green-600">
+<span class="material-symbols-outlined text-sm">auto_fix_high</span>
+<span class="text-xs font-medium">Auto-mapped from Lead record</span>
+</div>
+</div>
+</section>
+<!-- Create Company Card -->
+<section class="flex flex-col bg-white dark:bg-slate-900 rounded-xl border border-[#e7ecf4] dark:border-slate-800 shadow-sm overflow-hidden">
+<div class="p-5 border-b border-[#e7ecf4] dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 flex items-center gap-3">
+<span class="material-symbols-outlined text-primary">business</span>
+<h2 class="text-lg font-bold">2. Company Entity</h2>
+</div>
+<div class="p-6 space-y-4">
+<div class="flex gap-2 p-1 bg-slate-100 dark:bg-slate-800 rounded-lg mb-4">
+<button class="flex-1 py-1.5 text-xs font-bold rounded bg-white dark:bg-slate-700 shadow-sm text-primary">CREATE NEW</button>
+<button class="flex-1 py-1.5 text-xs font-bold text-slate-500">LINK EXISTING</button>
+</div>
+<div>
+<label class="block text-xs font-bold text-slate-500 uppercase mb-1">Company Name</label>
+<input class="w-full bg-background-light dark:bg-slate-800 border-slate-200 dark:border-slate-700 rounded-lg text-sm" type="text" value="TechFlow Solutions"/>
+</div>
+<div>
+<label class="block text-xs font-bold text-slate-500 uppercase mb-1">Website</label>
+<div class="flex">
+<span class="inline-flex items-center px-3 rounded-l-lg border border-r-0 border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-500 text-sm">https://</span>
+<input class="w-full bg-background-light dark:bg-slate-800 border-slate-200 dark:border-slate-700 rounded-r-lg text-sm border-l-0" type="text" value="techflow.io"/>
+</div>
+</div>
+<div>
+<label class="block text-xs font-bold text-slate-500 uppercase mb-1">Industry</label>
+<select class="w-full bg-background-light dark:bg-slate-800 border-slate-200 dark:border-slate-700 rounded-lg text-sm">
+<option>SaaS / Technology</option>
+<option>Manufacturing</option>
+<option>Health Care</option>
+</select>
+</div>
+</div>
+</section>
+<!-- Create Deal Card -->
+<section class="flex flex-col bg-white dark:bg-slate-900 rounded-xl border-2 border-primary shadow-lg overflow-hidden relative">
+<div class="absolute top-2 right-2">
+<div class="flex items-center gap-2 px-2 py-1 bg-primary/10 rounded-full">
+<span class="relative flex h-2 w-2">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+</span>
+<span class="text-[10px] font-bold text-primary">CREATING DEAL</span>
+</div>
+</div>
+<div class="p-5 border-b border-[#e7ecf4] dark:border-slate-800 bg-primary/5 flex items-center gap-3">
+<span class="material-symbols-outlined text-primary">handshake</span>
+<h2 class="text-lg font-bold">3. New Deal</h2>
+</div>
+<div class="p-6 space-y-4">
+<div class="flex items-center justify-between">
+<span class="text-sm font-medium">Create deal on convert?</span>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+<div>
+<label class="block text-xs font-bold text-slate-500 uppercase mb-1">Deal Name</label>
+<input class="w-full bg-background-light dark:bg-slate-800 border-slate-200 dark:border-slate-700 rounded-lg text-sm" placeholder="e.g. Q4 Platform Licensing" type="text"/>
+</div>
+<div class="grid grid-cols-2 gap-3">
+<div>
+<label class="block text-xs font-bold text-slate-500 uppercase mb-1">Stage</label>
+<select class="w-full bg-background-light dark:bg-slate-800 border-slate-200 dark:border-slate-700 rounded-lg text-sm">
+<option>Discovery</option>
+<option>Qualification</option>
+<option>Proposal</option>
+</select>
+</div>
+<div>
+<label class="block text-xs font-bold text-slate-500 uppercase mb-1">Value ($)</label>
+<input class="w-full bg-background-light dark:bg-slate-800 border-slate-200 dark:border-slate-700 rounded-lg text-sm" type="number" value="12500"/>
+</div>
+</div>
+<div>
+<label class="block text-xs font-bold text-slate-500 uppercase mb-1">Expected Close</label>
+<input class="w-full bg-background-light dark:bg-slate-800 border-slate-200 dark:border-slate-700 rounded-lg text-sm" type="date"/>
+</div>
+</div>
+</section>
+</div>
+<!-- Sticky Bottom Actions -->
+<div class="sticky bottom-8 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-[#e7ecf4] dark:border-slate-800 p-4 rounded-2xl flex items-center justify-between shadow-2xl">
+<div class="flex items-center gap-4 ml-2">
+<button class="text-slate-500 font-bold text-sm hover:text-slate-800 dark:hover:text-white transition-colors">Cancel &amp; Keep as Lead</button>
+</div>
+<div class="flex gap-3">
+<button class="px-6 py-3 bg-slate-100 dark:bg-slate-800 text-[#0d131c] dark:text-white rounded-xl font-bold text-sm hover:bg-slate-200 dark:hover:bg-slate-700 transition-all">Save Draft</button>
+<button class="px-8 py-3 bg-primary text-white rounded-xl font-bold text-sm flex items-center gap-2 hover:bg-primary/90 transition-all shadow-lg shadow-primary/25">
+<span class="material-symbols-outlined text-xl">rocket_launch</span>
+                    Finish Conversion
+                </button>
+</div>
+</div>
+<!-- Footnote Info -->
+<div class="mt-8 text-center">
+<p class="text-xs text-slate-400">By converting this lead, ownership will be transferred to the Account Manager assigned. <br/> Existing activities and notes will be moved to the new Deal record.</p>
+</div>
+</main>
+</body></html>

@@ -2,14 +2,14 @@ export interface User {
   userId: string;
   email: string;
   fullName: string;
-  role: 'ADMIN' | 'MANAGER' | 'SALES_REP' | 'USER';
+  role: "ADMIN" | "MANAGER" | "SALES_REP" | "USER";
 }
 
 export interface AuthResponse {
   userId: string;
   email: string;
   fullName: string;
-  role: 'ADMIN' | 'MANAGER' | 'SALES_REP' | 'USER';
+  role: "ADMIN" | "MANAGER" | "SALES_REP" | "USER";
   token: string;
 }
 

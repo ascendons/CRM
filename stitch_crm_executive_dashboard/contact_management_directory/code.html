@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Contact Management Directory</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#3780f6",
+                        "background-light": "#f5f7f8",
+                        "background-dark": "#101722",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-[#0d131c] dark:text-gray-100 min-h-screen">
+<!-- Top Navigation Bar -->
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-[#e7ecf4] dark:border-gray-800 bg-white dark:bg-gray-900 px-6 py-3 sticky top-0 z-50">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-4 text-primary">
+<div class="size-6">
+<svg fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path clip-rule="evenodd" d="M47.2426 24L24 47.2426L0.757355 24L24 0.757355L47.2426 24ZM12.2426 21H35.7574L24 9.24264L12.2426 21Z" fill="currentColor" fill-rule="evenodd"></path>
+</svg>
+</div>
+<h2 class="text-[#0d131c] dark:text-white text-lg font-bold leading-tight tracking-[-0.015em]">CRM Direct</h2>
+</div>
+<nav class="hidden md:flex items-center gap-6">
+<a class="text-primary text-sm font-semibold border-b-2 border-primary pb-1" href="#">Contacts</a>
+<a class="text-[#48699d] dark:text-gray-400 text-sm font-medium hover:text-primary transition-colors" href="#">Deals</a>
+<a class="text-[#48699d] dark:text-gray-400 text-sm font-medium hover:text-primary transition-colors" href="#">Tasks</a>
+<a class="text-[#48699d] dark:text-gray-400 text-sm font-medium hover:text-primary transition-colors" href="#">Analytics</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 text-[#48699d] dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-9 border border-gray-200 dark:border-gray-700" data-alt="User profile avatar" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBYJ1tbNXXScGQCl4cC_t8OG0l-EYmi3lsQxnGSECWTFVPCnGqkC4YhiNjs1uzzwa_JXfrUZAykAiGNS6-s7Ql8uL3kOOFpEg-yjTeIFsdgfledtciKrQOdBKuQoLQLoY89oswp6SBnnU18JUalSytXZj7RAqfPR8b2h8F34dCjeLg_SnQK4vVwehheSsRtbp51xCswEVqI6VuxDhuJjiA_0DxxmXB2SGHyCholM2Nfv1j7bSbVX3D68xzNyvLY3uGJJ8t3yEDMtjc");'></div>
+</div>
+</header>
+<main class="flex flex-row overflow-hidden h-[calc(100vh-64px)]">
+<!-- Left Side: Main Content Area -->
+<div class="flex-1 flex flex-col overflow-y-auto">
+<!-- Page Heading & Actions -->
+<div class="px-8 pt-8 pb-4">
+<div class="flex flex-wrap justify-between items-end gap-3 mb-6">
+<div class="flex flex-col gap-1">
+<h1 class="text-[#0d131c] dark:text-white text-3xl font-black leading-tight tracking-tight">Contact Directory</h1>
+<p class="text-[#48699d] dark:text-gray-400 text-sm">Managing 1,247 enterprise leads in your pipeline.</p>
+</div>
+<div class="flex gap-2">
+<button class="flex items-center gap-2 px-4 h-10 rounded-lg border border-[#e7ecf4] dark:border-gray-700 bg-white dark:bg-gray-800 text-[#0d131c] dark:text-white text-sm font-bold hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+<span class="material-symbols-outlined text-lg">upload</span> Export
+                        </button>
+<button class="flex items-center gap-2 px-4 h-10 rounded-lg bg-primary text-white text-sm font-bold shadow-lg shadow-primary/20 hover:bg-blue-600 transition-all">
+<span class="material-symbols-outlined text-lg">add</span> Create Contact
+                        </button>
+</div>
+</div>
+<!-- Filters & Search -->
+<div class="flex flex-col md:flex-row gap-3 items-center mb-4">
+<div class="flex-1 w-full">
+<label class="flex items-stretch rounded-lg h-10 bg-white dark:bg-gray-800 border border-[#e7ecf4] dark:border-gray-700 focus-within:ring-2 focus-within:ring-primary/50 transition-all overflow-hidden">
+<div class="text-[#48699d] flex items-center justify-center pl-3">
+<span class="material-symbols-outlined">search</span>
+</div>
+<input class="w-full border-none bg-transparent focus:ring-0 text-[#0d131c] dark:text-white placeholder:text-[#48699d] px-3 text-sm" placeholder="Search by name, email, or company..."/>
+</label>
+</div>
+<div class="flex gap-2 shrink-0">
+<button class="flex h-10 items-center justify-center gap-x-2 rounded-lg bg-white dark:bg-gray-800 border border-[#e7ecf4] dark:border-gray-700 px-4 hover:border-primary transition-colors">
+<p class="text-[#0d131c] dark:text-white text-sm font-medium">Lifecycle Stage</p>
+<span class="material-symbols-outlined text-sm">keyboard_arrow_down</span>
+</button>
+<button class="flex h-10 items-center justify-center gap-x-2 rounded-lg bg-white dark:bg-gray-800 border border-[#e7ecf4] dark:border-gray-700 px-4 hover:border-primary transition-colors">
+<p class="text-[#0d131c] dark:text-white text-sm font-medium">Owner</p>
+<span class="material-symbols-outlined text-sm">keyboard_arrow_down</span>
+</button>
+<button class="flex h-10 items-center justify-center gap-x-2 rounded-lg bg-[#e7ecf4] dark:bg-gray-700 px-4 text-primary font-bold text-sm">
+<span class="material-symbols-outlined text-sm">settings_input_component</span> Filters
+                        </button>
+</div>
+</div>
+<!-- Bulk Actions -->
+<div class="flex items-center gap-4 py-2 border-t border-[#e7ecf4] dark:border-gray-800">
+<div class="flex h-8 items-center rounded-lg bg-[#e7ecf4] dark:bg-gray-700 p-0.5">
+<button class="px-3 h-full rounded-[0.35rem] bg-white dark:bg-gray-800 text-xs font-bold text-primary shadow-sm">Selected (3)</button>
+<button class="px-3 h-full rounded-[0.35rem] text-xs font-medium text-[#48699d] dark:text-gray-400">Clear</button>
+</div>
+<div class="flex gap-4">
+<button class="text-xs font-semibold text-primary hover:underline">Bulk Edit</button>
+<button class="text-xs font-semibold text-primary hover:underline">Move Stage</button>
+<button class="text-xs font-semibold text-red-500 hover:underline">Delete</button>
+</div>
+</div>
+</div>
+<!-- Data Table -->
+<div class="px-8 flex-1">
+<div class="bg-white dark:bg-gray-900 border border-[#e7ecf4] dark:border-gray-800 rounded-xl overflow-hidden shadow-sm">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-gray-50 dark:bg-gray-800/50 border-b border-[#e7ecf4] dark:border-gray-800">
+<th class="py-3 px-4 w-10">
+<input class="rounded border-gray-300 dark:border-gray-600 text-primary focus:ring-primary" type="checkbox"/>
+</th>
+<th class="py-3 px-4 text-xs font-bold uppercase tracking-wider text-[#48699d] dark:text-gray-400">Name</th>
+<th class="py-3 px-4 text-xs font-bold uppercase tracking-wider text-[#48699d] dark:text-gray-400">Email</th>
+<th class="py-3 px-4 text-xs font-bold uppercase tracking-wider text-[#48699d] dark:text-gray-400">Company</th>
+<th class="py-3 px-4 text-xs font-bold uppercase tracking-wider text-[#48699d] dark:text-gray-400">Lead Score</th>
+<th class="py-3 px-4 text-xs font-bold uppercase tracking-wider text-[#48699d] dark:text-gray-400">Last Contact</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-[#e7ecf4] dark:divide-gray-800">
+<!-- Row 1: Active Selected -->
+<tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50 bg-primary/5 transition-colors cursor-pointer group">
+<td class="py-3 px-4"><input checked="" class="rounded border-gray-300 dark:border-gray-600 text-primary focus:ring-primary" type="checkbox"/></td>
+<td class="py-3 px-4">
+<div class="flex items-center gap-3">
+<div class="size-8 rounded-full bg-blue-100 flex items-center justify-center text-primary font-bold text-xs" data-alt="Avatar for Alex Rivera">AR</div>
+<span class="text-sm font-semibold text-[#0d131c] dark:text-white">Alex Rivera</span>
+</div>
+</td>
+<td class="py-3 px-4 text-sm text-[#48699d] dark:text-gray-400">alex.r@enterprise.com</td>
+<td class="py-3 px-4 text-sm font-medium text-primary">Acme Corp</td>
+<td class="py-3 px-4">
+<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
+                                        95 (Hot)
+                                    </span>
+</td>
+<td class="py-3 px-4 text-sm text-[#48699d] dark:text-gray-400">2 hours ago</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors cursor-pointer">
+<td class="py-3 px-4"><input class="rounded border-gray-300 dark:border-gray-600 text-primary focus:ring-primary" type="checkbox"/></td>
+<td class="py-3 px-4">
+<div class="flex items-center gap-3">
+<div class="size-8 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 font-bold text-xs" data-alt="Avatar for Jordan Smith">JS</div>
+<span class="text-sm font-semibold text-[#0d131c] dark:text-white">Jordan Smith</span>
+</div>
+</td>
+<td class="py-3 px-4 text-sm text-[#48699d] dark:text-gray-400">j.smith@cloudsoft.io</td>
+<td class="py-3 px-4 text-sm font-medium text-primary">CloudSoft</td>
+<td class="py-3 px-4">
+<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
+                                        72 (Warm)
+                                    </span>
+</td>
+<td class="py-3 px-4 text-sm text-[#48699d] dark:text-gray-400">1 day ago</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors cursor-pointer">
+<td class="py-3 px-4"><input class="rounded border-gray-300 dark:border-gray-600 text-primary focus:ring-primary" type="checkbox"/></td>
+<td class="py-3 px-4">
+<div class="flex items-center gap-3">
+<div class="size-8 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 font-bold text-xs" data-alt="Avatar for Sarah Chen">SC</div>
+<span class="text-sm font-semibold text-[#0d131c] dark:text-white">Sarah Chen</span>
+</div>
+</td>
+<td class="py-3 px-4 text-sm text-[#48699d] dark:text-gray-400">schen@globex.com</td>
+<td class="py-3 px-4 text-sm font-medium text-primary">Globex Inc</td>
+<td class="py-3 px-4">
+<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400">
+                                        24 (Cold)
+                                    </span>
+</td>
+<td class="py-3 px-4 text-sm text-[#48699d] dark:text-gray-400">3 days ago</td>
+</tr>
+<!-- Skeleton Row (Loading state example) -->
+<tr class="animate-pulse">
+<td class="py-3 px-4"><div class="size-4 bg-gray-200 dark:bg-gray-800 rounded"></div></td>
+<td class="py-3 px-4"><div class="flex items-center gap-3"><div class="size-8 rounded-full bg-gray-200 dark:bg-gray-800"></div><div class="h-4 w-24 bg-gray-200 dark:bg-gray-800 rounded"></div></div></td>
+<td class="py-3 px-4"><div class="h-4 w-32 bg-gray-200 dark:bg-gray-800 rounded"></div></td>
+<td class="py-3 px-4"><div class="h-4 w-20 bg-gray-200 dark:bg-gray-800 rounded"></div></td>
+<td class="py-3 px-4"><div class="h-6 w-16 bg-gray-200 dark:bg-gray-800 rounded-full"></div></td>
+<td class="py-3 px-4"><div class="h-4 w-20 bg-gray-200 dark:bg-gray-800 rounded"></div></td>
+</tr>
+<tr class="animate-pulse">
+<td class="py-3 px-4"><div class="size-4 bg-gray-200 dark:bg-gray-800 rounded"></div></td>
+<td class="py-3 px-4"><div class="flex items-center gap-3"><div class="size-8 rounded-full bg-gray-200 dark:bg-gray-800"></div><div class="h-4 w-24 bg-gray-200 dark:bg-gray-800 rounded"></div></div></td>
+<td class="py-3 px-4"><div class="h-4 w-32 bg-gray-200 dark:bg-gray-800 rounded"></div></td>
+<td class="py-3 px-4"><div class="h-4 w-20 bg-gray-200 dark:bg-gray-800 rounded"></div></td>
+<td class="py-3 px-4"><div class="h-6 w-16 bg-gray-200 dark:bg-gray-800 rounded-full"></div></td>
+<td class="py-3 px-4"><div class="h-4 w-20 bg-gray-200 dark:bg-gray-800 rounded"></div></td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Server-side Pagination -->
+<div class="flex items-center justify-between py-6">
+<p class="text-sm text-[#48699d] dark:text-gray-400">Showing <span class="font-bold text-[#0d131c] dark:text-white">1-20</span> of <span class="font-bold text-[#0d131c] dark:text-white">1,247</span> results</p>
+<div class="flex gap-2">
+<button class="h-9 px-4 rounded-lg border border-[#e7ecf4] dark:border-gray-700 bg-white dark:bg-gray-800 text-sm font-medium text-[#48699d] dark:text-gray-400 hover:bg-gray-50 disabled:opacity-50" disabled="">Previous</button>
+<div class="flex items-center gap-1">
+<button class="size-9 rounded-lg bg-primary text-white text-sm font-bold">1</button>
+<button class="size-9 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-sm font-medium">2</button>
+<button class="size-9 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-sm font-medium">3</button>
+<span class="px-2">...</span>
+<button class="size-9 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-sm font-medium">63</button>
+</div>
+<button class="h-9 px-4 rounded-lg border border-[#e7ecf4] dark:border-gray-700 bg-white dark:bg-gray-800 text-sm font-medium text-[#48699d] hover:bg-gray-50">Next</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Side: ContactDetailPanel (Slide-out) -->
+<aside class="w-[420px] bg-white dark:bg-gray-900 border-l border-[#e7ecf4] dark:border-gray-800 shadow-2xl flex flex-col">
+<div class="p-6 border-b border-[#e7ecf4] dark:border-gray-800 flex justify-between items-start">
+<div class="flex flex-col gap-1">
+<div class="size-16 rounded-2xl bg-blue-100 flex items-center justify-center text-primary font-bold text-2xl mb-2" data-alt="Alex Rivera detail avatar">AR</div>
+<h2 class="text-xl font-bold text-[#0d131c] dark:text-white">Alex Rivera</h2>
+<p class="text-sm text-[#48699d] dark:text-gray-400">Head of Procurement @ Acme Corp</p>
+</div>
+<button class="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg text-[#48699d]">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<div class="p-6 overflow-y-auto flex-1 space-y-8">
+<!-- Lifecycle Progress -->
+<div>
+<div class="flex justify-between items-center mb-4">
+<span class="text-xs font-bold uppercase text-[#48699d]">Lifecycle Stage</span>
+<span class="text-xs font-bold text-primary">Opportunity</span>
+</div>
+<div class="flex gap-1 h-2">
+<div class="flex-1 rounded-full bg-primary"></div>
+<div class="flex-1 rounded-full bg-primary"></div>
+<div class="flex-1 rounded-full bg-primary"></div>
+<div class="flex-1 rounded-full bg-gray-200 dark:bg-gray-800"></div>
+<div class="flex-1 rounded-full bg-gray-200 dark:bg-gray-800"></div>
+</div>
+</div>
+<!-- Quick Actions -->
+<div class="grid grid-cols-4 gap-2">
+<button class="flex flex-col items-center gap-1 p-3 rounded-xl border border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+<span class="material-symbols-outlined text-primary">mail</span>
+<span class="text-[10px] font-bold">Email</span>
+</button>
+<button class="flex flex-col items-center gap-1 p-3 rounded-xl border border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+<span class="material-symbols-outlined text-primary">call</span>
+<span class="text-[10px] font-bold">Call</span>
+</button>
+<button class="flex flex-col items-center gap-1 p-3 rounded-xl border border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+<span class="material-symbols-outlined text-primary">event</span>
+<span class="text-[10px] font-bold">Meeting</span>
+</button>
+<button class="flex flex-col items-center gap-1 p-3 rounded-xl border border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+<span class="material-symbols-outlined text-primary">more_horiz</span>
+<span class="text-[10px] font-bold">More</span>
+</button>
+</div>
+<!-- Contact Info -->
+<div class="space-y-4">
+<h3 class="text-sm font-bold text-[#0d131c] dark:text-white border-b border-gray-100 dark:border-gray-800 pb-2">Properties</h3>
+<div class="grid grid-cols-2 gap-y-4">
+<div>
+<p class="text-[10px] font-bold uppercase text-[#48699d]">Contact Owner</p>
+<p class="text-sm font-medium mt-1">Michael Scott</p>
+</div>
+<div>
+<p class="text-[10px] font-bold uppercase text-[#48699d]">Lead Score</p>
+<p class="text-sm font-medium mt-1">95</p>
+</div>
+<div>
+<p class="text-[10px] font-bold uppercase text-[#48699d]">Phone</p>
+<p class="text-sm font-medium mt-1">+1 (555) 012-3456</p>
+</div>
+<div>
+<p class="text-[10px] font-bold uppercase text-[#48699d]">Last Contact</p>
+<p class="text-sm font-medium mt-1">Today, 2:45 PM</p>
+</div>
+</div>
+</div>
+<!-- Recent Activity -->
+<div class="space-y-4">
+<h3 class="text-sm font-bold text-[#0d131c] dark:text-white border-b border-gray-100 dark:border-gray-800 pb-2">Recent Activity</h3>
+<div class="relative pl-6 space-y-6 before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-[2px] before:bg-gray-100 dark:before:bg-gray-800">
+<div class="relative">
+<div class="absolute -left-[19px] top-1 size-3 rounded-full bg-primary border-2 border-white dark:border-gray-900"></div>
+<p class="text-xs font-bold text-[#0d131c] dark:text-white">Sent "Product Demo" follow-up email</p>
+<p class="text-[10px] text-[#48699d] dark:text-gray-500 mt-0.5">2 hours ago • By Alex Rivera</p>
+</div>
+<div class="relative">
+<div class="absolute -left-[19px] top-1 size-3 rounded-full bg-gray-300 dark:bg-gray-700 border-2 border-white dark:border-gray-900"></div>
+<p class="text-xs font-bold text-[#0d131c] dark:text-white">Call with Jordan regarding pricing</p>
+<p class="text-[10px] text-[#48699d] dark:text-gray-500 mt-0.5">Yesterday • By Michael Scott</p>
+</div>
+</div>
+</div>
+</div>
+<div class="p-4 border-t border-[#e7ecf4] dark:border-gray-800 bg-gray-50 dark:bg-gray-800/30">
+<button class="w-full h-11 rounded-lg bg-primary text-white text-sm font-bold hover:bg-blue-600 transition-colors">
+                    View Full Profile
+                </button>
+</div>
+</aside>
+</main>
+</body></html>

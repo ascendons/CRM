@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useRouter, useParams } from 'next/navigation';
-import Link from 'next/link';
-import { leadsService } from '@/lib/leads';
+import { useState, useEffect } from "react";
+import { useRouter, useParams } from "next/navigation";
+import Link from "next/link";
+import { leadsService } from "@/lib/leads";
 import {
   Lead,
   LeadStatus,
@@ -11,7 +11,7 @@ import {
   getLeadGradeColor,
   formatLeadName,
   formatCompanySize,
-} from '@/types/lead';
+} from "@/types/lead";
 
 export default function LeadDetailPage() {
   const router = useRouter();
@@ -21,7 +21,7 @@ export default function LeadDetailPage() {
   const [lead, setLead] = useState<Lead | null>(null);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [showStatusModal, setShowStatusModal] = useState(false);
   const [newStatus, setNewStatus] = useState<LeadStatus>(LeadStatus.NEW);
 
@@ -35,8 +35,8 @@ export default function LeadDetailPage() {
       const data = await leadsService.getLeadById(id);
       setLead(data);
       setNewStatus(data.leadStatus);
-    } catch (err: any) {
-      setError(err.message || 'Failed to load lead');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to load lead");
     } finally {
       setLoading(false);
     }
@@ -50,8 +50,8 @@ export default function LeadDetailPage() {
       const updated = await leadsService.updateLeadStatus(lead.id, newStatus);
       setLead(updated);
       setShowStatusModal(false);
-    } catch (err: any) {
-      setError(err.message || 'Failed to update status');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to update status");
     } finally {
       setUpdating(false);
     }
@@ -61,18 +61,18 @@ export default function LeadDetailPage() {
     if (!lead) return;
 
     if (lead.leadStatus !== LeadStatus.QUALIFIED) {
-      alert('Only qualified leads can be converted');
+      alert("Only qualified leads can be converted");
       return;
     }
 
-    if (confirm('Are you sure you want to convert this lead to an opportunity?')) {
+    if (confirm("Are you sure you want to convert this lead to an opportunity?")) {
       try {
         setUpdating(true);
         const converted = await leadsService.convertLead(lead.id);
         setLead(converted);
-        alert('Lead converted successfully!');
-      } catch (err: any) {
-        alert(err.message || 'Failed to convert lead');
+        alert("Lead converted successfully!");
+      } catch (err) {
+        alert(err instanceof Error ? err.message : "Failed to convert lead");
       } finally {
         setUpdating(false);
       }
@@ -82,13 +82,13 @@ export default function LeadDetailPage() {
   const handleDelete = async () => {
     if (!lead) return;
 
-    if (confirm('Are you sure you want to delete this lead? This action cannot be undone.')) {
+    if (confirm("Are you sure you want to delete this lead? This action cannot be undone.")) {
       try {
         setUpdating(true);
         await leadsService.deleteLead(lead.id);
-        router.push('/leads');
-      } catch (err: any) {
-        alert(err.message || 'Failed to delete lead');
+        router.push("/leads");
+      } catch (err) {
+        alert(err instanceof Error ? err.message : "Failed to delete lead");
         setUpdating(false);
       }
     }
@@ -109,7 +109,7 @@ export default function LeadDetailPage() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
-          <p className="text-red-600 mb-4">{error || 'Lead not found'}</p>
+          <p className="text-red-600 mb-4">{error || "Lead not found"}</p>
           <Link href="/leads" className="text-blue-600 hover:underline">
             ← Back to Leads
           </Link>
@@ -126,19 +126,17 @@ export default function LeadDetailPage() {
           <div className="flex justify-between items-start">
             <div className="flex-1">
               <div className="flex items-center gap-3">
-                <h1 className="text-3xl font-bold text-gray-900">
-                  {formatLeadName(lead)}
-                </h1>
+                <h1 className="text-3xl font-bold text-gray-900">{formatLeadName(lead)}</h1>
                 <span
                   className={`px-3 py-1 rounded-full text-sm font-semibold ${getLeadStatusColor(
                     lead.leadStatus
                   )}`}
                 >
-                  {lead.leadStatus.replace('_', ' ')}
+                  {lead.leadStatus.replace("_", " ")}
                 </span>
                 <span
                   className={`w-10 h-10 flex items-center justify-center rounded-full text-sm font-bold ${getLeadGradeColor(
-                    lead.leadGrade || 'D'
+                    lead.leadGrade || "D"
                   )}`}
                 >
                   {lead.leadGrade}
@@ -194,9 +192,7 @@ export default function LeadDetailPage() {
           <div className="lg:col-span-2 space-y-6">
             {/* Contact Information */}
             <div className="bg-white rounded-lg shadow p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">
-                Contact Information
-              </h2>
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">Contact Information</h2>
               <dl className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <dt className="text-sm font-medium text-gray-500">Email</dt>
@@ -261,9 +257,7 @@ export default function LeadDetailPage() {
 
             {/* Company Information */}
             <div className="bg-white rounded-lg shadow p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">
-                Company Information
-              </h2>
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">Company Information</h2>
               <dl className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <dt className="text-sm font-medium text-gray-500">Company Name</dt>
@@ -273,7 +267,7 @@ export default function LeadDetailPage() {
                   <div>
                     <dt className="text-sm font-medium text-gray-500">Industry</dt>
                     <dd className="mt-1 text-sm text-gray-900">
-                      {lead.industry.replace('_', ' ')}
+                      {lead.industry.replace("_", " ")}
                     </dd>
                   </div>
                 )}
@@ -287,9 +281,7 @@ export default function LeadDetailPage() {
                 )}
                 {lead.numberOfEmployees && (
                   <div>
-                    <dt className="text-sm font-medium text-gray-500">
-                      Number of Employees
-                    </dt>
+                    <dt className="text-sm font-medium text-gray-500">Number of Employees</dt>
                     <dd className="mt-1 text-sm text-gray-900">
                       {lead.numberOfEmployees.toLocaleString()}
                     </dd>
@@ -299,7 +291,7 @@ export default function LeadDetailPage() {
                   <div>
                     <dt className="text-sm font-medium text-gray-500">Annual Revenue</dt>
                     <dd className="mt-1 text-sm text-gray-900">
-                      ${lead.annualRevenue.toLocaleString()}
+                      ₹{lead.annualRevenue.toLocaleString()}
                     </dd>
                   </div>
                 )}
@@ -312,11 +304,7 @@ export default function LeadDetailPage() {
                 <h2 className="text-lg font-semibold text-gray-900 mb-4">Address</h2>
                 <address className="text-sm text-gray-900 not-italic">
                   {lead.streetAddress && <div>{lead.streetAddress}</div>}
-                  <div>
-                    {[lead.city, lead.state, lead.postalCode]
-                      .filter(Boolean)
-                      .join(', ')}
-                  </div>
+                  <div>{[lead.city, lead.state, lead.postalCode].filter(Boolean).join(", ")}</div>
                   {lead.country && <div>{lead.country}</div>}
                 </address>
               </div>
@@ -325,12 +313,8 @@ export default function LeadDetailPage() {
             {/* Description */}
             {lead.description && (
               <div className="bg-white rounded-lg shadow p-6">
-                <h2 className="text-lg font-semibold text-gray-900 mb-4">
-                  Description / Notes
-                </h2>
-                <p className="text-sm text-gray-700 whitespace-pre-wrap">
-                  {lead.description}
-                </p>
+                <h2 className="text-lg font-semibold text-gray-900 mb-4">Description / Notes</h2>
+                <p className="text-sm text-gray-700 whitespace-pre-wrap">{lead.description}</p>
               </div>
             )}
           </div>
@@ -344,14 +328,12 @@ export default function LeadDetailPage() {
                 <div className="text-center">
                   <div
                     className={`w-24 h-24 flex items-center justify-center rounded-full text-4xl font-bold ${getLeadGradeColor(
-                      lead.leadGrade || 'D'
+                      lead.leadGrade || "D"
                     )}`}
                   >
                     {lead.leadScore || 0}
                   </div>
-                  <p className="mt-2 text-sm text-gray-600">
-                    Grade: {lead.leadGrade || 'D'}
-                  </p>
+                  <p className="mt-2 text-sm text-gray-600">Grade: {lead.leadGrade || "D"}</p>
                 </div>
               </div>
               <div className="mt-4 space-y-2">
@@ -374,7 +356,7 @@ export default function LeadDetailPage() {
                   <div>
                     <dt className="text-sm font-medium text-gray-500">Source</dt>
                     <dd className="mt-1 text-sm text-gray-900">
-                      {lead.leadSource.replace('_', ' ')}
+                      {lead.leadSource.replace("_", " ")}
                     </dd>
                   </div>
                 )}
@@ -386,19 +368,15 @@ export default function LeadDetailPage() {
                 )}
                 {lead.expectedRevenue && (
                   <div>
-                    <dt className="text-sm font-medium text-gray-500">
-                      Expected Revenue
-                    </dt>
+                    <dt className="text-sm font-medium text-gray-500">Expected Revenue</dt>
                     <dd className="mt-1 text-sm text-gray-900">
-                      ${lead.expectedRevenue.toLocaleString()}
+                      ₹{lead.expectedRevenue.toLocaleString()}
                     </dd>
                   </div>
                 )}
                 {lead.expectedCloseDate && (
                   <div>
-                    <dt className="text-sm font-medium text-gray-500">
-                      Expected Close Date
-                    </dt>
+                    <dt className="text-sm font-medium text-gray-500">Expected Close Date</dt>
                     <dd className="mt-1 text-sm text-gray-900">
                       {new Date(lead.expectedCloseDate).toLocaleDateString()}
                     </dd>
@@ -428,13 +406,9 @@ export default function LeadDetailPage() {
       {showStatusModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              Update Lead Status
-            </h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Update Lead Status</h3>
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                New Status
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">New Status</label>
               <select
                 value={newStatus}
                 onChange={(e) => setNewStatus(e.target.value as LeadStatus)}
@@ -442,7 +416,7 @@ export default function LeadDetailPage() {
               >
                 {Object.values(LeadStatus).map((status) => (
                   <option key={status} value={status}>
-                    {status.replace('_', ' ')}
+                    {status.replace("_", " ")}
                   </option>
                 ))}
               </select>
@@ -460,7 +434,7 @@ export default function LeadDetailPage() {
                 disabled={updating}
                 className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-blue-300"
               >
-                {updating ? 'Updating...' : 'Update Status'}
+                {updating ? "Updating..." : "Update Status"}
               </button>
             </div>
           </div>

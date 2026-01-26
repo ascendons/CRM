@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { CreateContactRequest } from '@/types/contact';
-import { contactsService } from '@/lib/contacts';
-import { accountsService } from '@/lib/accounts';
-import { Account } from '@/types/account';
-import { authService } from '@/lib/auth';
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { CreateContactRequest } from "@/types/contact";
+import { contactsService } from "@/lib/contacts";
+import { accountsService } from "@/lib/accounts";
+import { Account } from "@/types/account";
+import { authService } from "@/lib/auth";
 
 export default function NewContactPage() {
   const router = useRouter();
@@ -15,58 +15,59 @@ export default function NewContactPage() {
   const [error, setError] = useState<string | null>(null);
 
   const [formData, setFormData] = useState<CreateContactRequest>({
-    firstName: '',
-    lastName: '',
-    email: '',
-    phone: '',
-    mobilePhone: '',
-    workPhone: '',
-    homePhone: '',
-    salutation: '',
-    jobTitle: '',
-    department: '',
-    reportsTo: '',
-    birthdate: '',
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    mobilePhone: "",
+    workPhone: "",
+    homePhone: "",
+    salutation: "",
+    jobTitle: "",
+    department: "",
+    reportsTo: "",
+    birthdate: "",
     emailOptOut: false,
-    linkedInProfile: '',
-    twitterHandle: '',
-    facebookProfile: '',
-    website: '',
-    skypeId: '',
-    accountId: '',
+    linkedInProfile: "",
+    twitterHandle: "",
+    facebookProfile: "",
+    website: "",
+    skypeId: "",
+    accountId: "",
     isPrimaryContact: false,
-    mailingStreet: '',
-    mailingCity: '',
-    mailingState: '',
-    mailingPostalCode: '',
-    mailingCountry: '',
-    otherStreet: '',
-    otherCity: '',
-    otherState: '',
-    otherPostalCode: '',
-    otherCountry: '',
-    description: '',
-    assistantName: '',
-    assistantPhone: '',
+    mailingStreet: "",
+    mailingCity: "",
+    mailingState: "",
+    mailingPostalCode: "",
+    mailingCountry: "",
+    otherStreet: "",
+    otherCity: "",
+    otherState: "",
+    otherPostalCode: "",
+    otherCountry: "",
+    description: "",
+    assistantName: "",
+    assistantPhone: "",
     tags: [],
   });
-
-  useEffect(() => {
-    if (!authService.isAuthenticated()) {
-      router.push('/login');
-      return;
-    }
-    loadAccounts();
-  }, [router]);
 
   const loadAccounts = async () => {
     try {
       const data = await accountsService.getAllAccounts();
       setAccounts(data);
     } catch (err) {
-      console.error('Failed to load accounts:', err);
+      console.error("Failed to load accounts:", err);
     }
   };
+
+  useEffect(() => {
+    if (!authService.isAuthenticated()) {
+      router.push("/login");
+      return;
+    }
+    loadAccounts();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -77,22 +78,27 @@ export default function NewContactPage() {
       const contact = await contactsService.createContact(formData);
       router.push(`/contacts/${contact.id}`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create contact');
+      setError(err instanceof Error ? err.message : "Failed to create contact");
       setLoading(false);
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
     const { name, value, type } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value,
+      [name]: type === "checkbox" ? (e.target as HTMLInputElement).checked : value,
     }));
   };
 
   const handleTagsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const tags = e.target.value.split(',').map(tag => tag.trim()).filter(tag => tag);
-    setFormData(prev => ({ ...prev, tags }));
+    const tags = e.target.value
+      .split(",")
+      .map((tag) => tag.trim())
+      .filter((tag) => tag);
+    setFormData((prev) => ({ ...prev, tags }));
   };
 
   return (
@@ -115,9 +121,7 @@ export default function NewContactPage() {
             <h2 className="text-xl font-semibold text-gray-900 mb-4">Basic Information</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Salutation
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Salutation</label>
                 <select
                   name="salutation"
                   value={formData.salutation}
@@ -178,9 +182,7 @@ export default function NewContactPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Phone
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Phone</label>
                 <input
                   type="tel"
                   name="phone"
@@ -191,9 +193,7 @@ export default function NewContactPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Mobile Phone
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Mobile Phone</label>
                 <input
                   type="tel"
                   name="mobilePhone"
@@ -204,9 +204,7 @@ export default function NewContactPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Work Phone
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Work Phone</label>
                 <input
                   type="tel"
                   name="workPhone"
@@ -217,9 +215,7 @@ export default function NewContactPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Home Phone
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Home Phone</label>
                 <input
                   type="tel"
                   name="homePhone"
@@ -236,9 +232,7 @@ export default function NewContactPage() {
             <h2 className="text-xl font-semibold text-gray-900 mb-4">Professional Information</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Job Title
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Job Title</label>
                 <input
                   type="text"
                   name="jobTitle"
@@ -249,9 +243,7 @@ export default function NewContactPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Department
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Department</label>
                 <input
                   type="text"
                   name="department"
@@ -262,9 +254,7 @@ export default function NewContactPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Reports To
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Reports To</label>
                 <input
                   type="text"
                   name="reportsTo"
@@ -275,9 +265,7 @@ export default function NewContactPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Birthdate
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Birthdate</label>
                 <input
                   type="date"
                   name="birthdate"
@@ -294,9 +282,7 @@ export default function NewContactPage() {
             <h2 className="text-xl font-semibold text-gray-900 mb-4">Account Relationship</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Account
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Account</label>
                 <select
                   name="accountId"
                   value={formData.accountId}
@@ -304,7 +290,7 @@ export default function NewContactPage() {
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">Select Account...</option>
-                  {accounts.map(account => (
+                  {accounts.map((account) => (
                     <option key={account.id} value={account.id}>
                       {account.accountName}
                     </option>
@@ -374,9 +360,7 @@ export default function NewContactPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Website
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Website</label>
                 <input
                   type="url"
                   name="website"
@@ -388,9 +372,7 @@ export default function NewContactPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Skype ID
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Skype ID</label>
                 <input
                   type="text"
                   name="skypeId"
@@ -407,9 +389,7 @@ export default function NewContactPage() {
             <h2 className="text-xl font-semibold text-gray-900 mb-4">Mailing Address</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Street
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Street</label>
                 <input
                   type="text"
                   name="mailingStreet"
@@ -420,9 +400,7 @@ export default function NewContactPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  City
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">City</label>
                 <input
                   type="text"
                   name="mailingCity"
@@ -446,9 +424,7 @@ export default function NewContactPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Postal Code
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Postal Code</label>
                 <input
                   type="text"
                   name="mailingPostalCode"
@@ -459,9 +435,7 @@ export default function NewContactPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Country
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Country</label>
                 <input
                   type="text"
                   name="mailingCountry"
@@ -478,9 +452,7 @@ export default function NewContactPage() {
             <h2 className="text-xl font-semibold text-gray-900 mb-4">Other Address</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Street
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Street</label>
                 <input
                   type="text"
                   name="otherStreet"
@@ -491,9 +463,7 @@ export default function NewContactPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  City
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">City</label>
                 <input
                   type="text"
                   name="otherCity"
@@ -517,9 +487,7 @@ export default function NewContactPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Postal Code
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Postal Code</label>
                 <input
                   type="text"
                   name="otherPostalCode"
@@ -530,9 +498,7 @@ export default function NewContactPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Country
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Country</label>
                 <input
                   type="text"
                   name="otherCountry"
@@ -575,9 +541,7 @@ export default function NewContactPage() {
               </div>
 
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Description
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
                 <textarea
                   name="description"
                   value={formData.description}
@@ -607,9 +571,7 @@ export default function NewContactPage() {
                   onChange={handleChange}
                   className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                 />
-                <label className="ml-2 block text-sm text-gray-700">
-                  Email Opt Out
-                </label>
+                <label className="ml-2 block text-sm text-gray-700">Email Opt Out</label>
               </div>
             </div>
           </div>
@@ -621,7 +583,7 @@ export default function NewContactPage() {
               disabled={loading}
               className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
             >
-              {loading ? 'Creating...' : 'Create Contact'}
+              {loading ? "Creating..." : "Create Contact"}
             </button>
             <button
               type="button"

@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Roles &amp; Permissions Management - CRM Enterprise</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#3780f6",
+                        "background-light": "#f5f7f8",
+                        "background-dark": "#101722",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .active-tab {
+            border-bottom: 3px solid #3780f6;
+            color: #0d131c;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-[#0d131c] dark:text-[#f8f9fc] min-h-screen">
+<div class="flex flex-col min-h-screen">
+<!-- Top Navigation Bar -->
+<header class="flex items-center justify-between border-b border-solid border-[#e7ecf4] dark:border-gray-800 bg-white dark:bg-background-dark px-10 py-3 sticky top-0 z-50">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-4 text-primary">
+<div class="size-8">
+<svg fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path clip-rule="evenodd" d="M24 18.4228L42 11.475V34.3663C42 34.7796 41.7457 35.1504 41.3601 35.2992L24 42V18.4228Z" fill="currentColor" fill-rule="evenodd"></path>
+<path clip-rule="evenodd" d="M24 8.18819L33.4123 11.574L24 15.2071L14.5877 11.574L24 8.18819ZM9 15.8487L21 20.4805V37.6263L9 32.9945V15.8487ZM27 37.6263V20.4805L39 15.8487V32.9945L27 37.6263ZM25.354 2.29885C24.4788 1.98402 23.5212 1.98402 22.646 2.29885L4.98454 8.65208C3.7939 9.08038 3 10.2097 3 11.475V34.3663C3 36.0196 4.01719 37.5026 5.55962 38.098L22.9197 44.7987C23.6149 45.0671 24.3851 45.0671 25.0803 44.7987L42.4404 38.098C43.9828 37.5026 45 36.0196 45 34.3663V11.475C45 10.2097 44.2061 9.08038 43.0155 8.65208L25.354 2.29885Z" fill="currentColor" fill-rule="evenodd"></path>
+</svg>
+</div>
+<h2 class="text-[#0d131c] dark:text-white text-lg font-bold leading-tight tracking-[-0.015em]">CRM Enterprise</h2>
+</div>
+<nav class="flex items-center gap-9">
+<a class="text-[#48699d] dark:text-gray-400 text-sm font-medium hover:text-primary transition-colors" href="#">Dashboard</a>
+<a class="text-[#48699d] dark:text-gray-400 text-sm font-medium hover:text-primary transition-colors" href="#">Leads</a>
+<a class="text-[#48699d] dark:text-gray-400 text-sm font-medium hover:text-primary transition-colors" href="#">Deals</a>
+<a class="text-[#48699d] dark:text-gray-400 text-sm font-medium hover:text-primary transition-colors" href="#">Analytics</a>
+<a class="text-primary text-sm font-bold border-b-2 border-primary pb-1" href="#">Settings</a>
+</nav>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-2">
+<button class="p-2 rounded-lg bg-[#e7ecf4] dark:bg-gray-800 text-[#0d131c] dark:text-white">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-2 rounded-lg bg-[#e7ecf4] dark:bg-gray-800 text-[#0d131c] dark:text-white">
+<span class="material-symbols-outlined">help_outline</span>
+</button>
+</div>
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 border border-gray-200" data-alt="User avatar for Sarah Jenkins Admin" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBgpTU5PJ_Uos5S1eUQercbz1DwUBEtUGZaw1-D3YBlQoFIdymq8jJbrxsbWEnFrxvo5Gpf5kBHxuVRYWxL7imZJez1lShbTBK_Ojs2Wp5lY373vngb1zxD2FbABdZj5VEWnG36YpEX2TYxP4tH74Y7WbmvyVHpHcEOmG9lNm9mF3UeT30lkonBTK301WA7BbWjI2asm2SqtvaahQKcsdyZG2plLlUofhWFEO8Gs-ujZTOuceyOwfjojmjVtN_Ls0dLVQKekEjLh7s");'></div>
+</div>
+</header>
+<main class="flex flex-1 overflow-hidden">
+<!-- Sidebar: Roles List -->
+<aside class="w-80 border-r border-[#e7ecf4] dark:border-gray-800 bg-white dark:bg-background-dark flex flex-col">
+<div class="p-6 flex flex-col gap-6">
+<div>
+<h1 class="text-[#0d131c] dark:text-white text-xl font-bold">Roles &amp; Permissions</h1>
+<p class="text-[#48699d] dark:text-gray-400 text-sm">Manage system access levels</p>
+</div>
+<button class="flex w-full items-center justify-center gap-2 rounded-lg h-11 bg-primary text-white text-sm font-bold tracking-wide hover:bg-blue-600 transition-colors">
+<span class="material-symbols-outlined text-lg">add</span>
+<span>Add New Role</span>
+</button>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-2.5 text-[#48699d] text-xl">search</span>
+<input class="w-full bg-[#f8f9fc] dark:bg-gray-800 border-none rounded-lg pl-10 pr-4 py-2 text-sm focus:ring-2 focus:ring-primary/50 text-[#0d131c] dark:text-white" placeholder="Search roles..." type="text"/>
+</div>
+<div class="flex flex-col gap-1">
+<!-- Role Item Active -->
+<div class="flex items-center justify-between gap-3 px-4 py-3 rounded-xl bg-primary/10 border border-primary/20 cursor-pointer">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary">shield</span>
+<div>
+<p class="text-primary text-sm font-bold leading-none">Admin</p>
+<p class="text-primary/70 text-xs mt-1">Full access</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-primary text-lg">chevron_right</span>
+</div>
+<!-- Role Items -->
+<div class="flex items-center justify-between gap-3 px-4 py-3 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer transition-colors group">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[#48699d] dark:text-gray-400">group</span>
+<div>
+<p class="text-[#0d131c] dark:text-white text-sm font-medium leading-none">Sales Manager</p>
+<p class="text-[#48699d] dark:text-gray-400 text-xs mt-1">Team management</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-gray-300 dark:text-gray-600 text-lg opacity-0 group-hover:opacity-100">chevron_right</span>
+</div>
+<div class="flex items-center justify-between gap-3 px-4 py-3 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer transition-colors group">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[#48699d] dark:text-gray-400">work</span>
+<div>
+<p class="text-[#0d131c] dark:text-white text-sm font-medium leading-none">Sales Rep</p>
+<p class="text-[#48699d] dark:text-gray-400 text-xs mt-1">Direct pipeline</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-gray-300 dark:text-gray-600 text-lg opacity-0 group-hover:opacity-100">chevron_right</span>
+</div>
+<div class="flex items-center justify-between gap-3 px-4 py-3 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer transition-colors group">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[#48699d] dark:text-gray-400">campaign</span>
+<div>
+<p class="text-[#0d131c] dark:text-white text-sm font-medium leading-none">Marketing Ops</p>
+<p class="text-[#48699d] dark:text-gray-400 text-xs mt-1">Campaign control</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-gray-300 dark:text-gray-600 text-lg opacity-0 group-hover:opacity-100">chevron_right</span>
+</div>
+<div class="flex items-center justify-between gap-3 px-4 py-3 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer transition-colors group">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[#48699d] dark:text-gray-400">person_outline</span>
+<div>
+<p class="text-[#0d131c] dark:text-white text-sm font-medium leading-none">Junior Associate</p>
+<p class="text-[#48699d] dark:text-gray-400 text-xs mt-1">Entry level access</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-gray-300 dark:text-gray-600 text-lg opacity-0 group-hover:opacity-100">chevron_right</span>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<section class="flex-1 flex flex-col overflow-hidden bg-[#f8f9fc] dark:bg-background-dark">
+<!-- Header with Action -->
+<div class="flex items-center justify-between p-8 bg-white dark:bg-background-dark border-b border-[#e7ecf4] dark:border-gray-800">
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-2">
+<span class="text-4xl font-black text-[#0d131c] dark:text-white tracking-tight">Role: Admin</span>
+<span class="px-2 py-0.5 bg-green-100 text-green-700 text-xs font-bold rounded uppercase">System Default</span>
+</div>
+<p class="text-[#48699d] dark:text-gray-400 text-base">Full system access, configuration capabilities, and user management.</p>
+</div>
+<div class="flex gap-3">
+<button class="px-6 h-11 bg-[#e7ecf4] dark:bg-gray-800 text-[#0d131c] dark:text-white rounded-lg font-bold text-sm hover:bg-gray-200 dark:hover:bg-gray-700">Discard</button>
+<button class="px-8 h-11 bg-primary text-white rounded-lg font-bold text-sm shadow-lg shadow-primary/20 hover:bg-blue-600">Save Changes</button>
+</div>
+</div>
+<!-- Tabbed Interface -->
+<div class="bg-white dark:bg-background-dark px-8 border-b border-[#e7ecf4] dark:border-gray-800">
+<div class="flex gap-8">
+<a class="flex items-center h-14 border-b-[3px] border-transparent text-[#48699d] dark:text-gray-400 font-bold text-sm" href="#">General Info</a>
+<a class="flex items-center h-14 border-b-[3px] border-primary text-[#0d131c] dark:text-white font-bold text-sm" href="#">Object Permissions</a>
+<a class="flex items-center h-14 border-b-[3px] border-transparent text-[#48699d] dark:text-gray-400 font-bold text-sm" href="#">Field-level Security</a>
+<a class="flex items-center h-14 border-b-[3px] border-transparent text-[#48699d] dark:text-gray-400 font-bold text-sm" href="#">Feature Access</a>
+</div>
+</div>
+<!-- Scrollable Content -->
+<div class="flex-1 overflow-y-auto p-8 flex flex-col gap-6">
+<!-- Permission Search Bar -->
+<div class="relative w-full max-w-2xl">
+<span class="material-symbols-outlined absolute left-4 top-3 text-[#48699d]">search</span>
+<input class="w-full h-12 bg-white dark:bg-gray-800 border border-[#e7ecf4] dark:border-gray-700 rounded-xl pl-12 pr-4 text-base focus:ring-2 focus:ring-primary/50 text-[#0d131c] dark:text-white outline-none" placeholder="Search permissions or CRM objects..." type="text"/>
+</div>
+<!-- Object Permissions Table -->
+<div class="bg-white dark:bg-gray-800 rounded-2xl border border-[#e7ecf4] dark:border-gray-700 shadow-sm overflow-hidden">
+<table class="w-full text-left border-collapse">
+<thead class="bg-[#f8f9fc] dark:bg-gray-900 border-b border-[#e7ecf4] dark:border-gray-700">
+<tr>
+<th class="px-6 py-4 text-xs font-bold text-[#48699d] uppercase tracking-wider">CRM Object</th>
+<th class="px-4 py-4 text-xs font-bold text-[#48699d] uppercase tracking-wider text-center">Read</th>
+<th class="px-4 py-4 text-xs font-bold text-[#48699d] uppercase tracking-wider text-center">Create</th>
+<th class="px-4 py-4 text-xs font-bold text-[#48699d] uppercase tracking-wider text-center">Edit</th>
+<th class="px-4 py-4 text-xs font-bold text-[#48699d] uppercase tracking-wider text-center">Delete</th>
+<th class="px-4 py-4 text-xs font-bold text-[#48699d] uppercase tracking-wider text-center">View All</th>
+<th class="px-6 py-4 text-xs font-bold text-[#48699d] uppercase tracking-wider text-center">Modify All</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-[#e7ecf4] dark:divide-gray-700">
+<!-- Table Row 1 -->
+<tr class="hover:bg-[#f8f9fc] dark:hover:bg-gray-800/50 transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[#48699d] text-lg">person</span>
+<span class="text-sm font-bold text-[#0d131c] dark:text-white">Contacts</span>
+</div>
+</td>
+<td class="px-4 py-4 text-center"><input checked="" class="rounded text-primary focus:ring-primary border-gray-300" type="checkbox"/></td>
+<td class="px-4 py-4 text-center"><input checked="" class="rounded text-primary focus:ring-primary border-gray-300" type="checkbox"/></td>
+<td class="px-4 py-4 text-center"><input checked="" class="rounded text-primary focus:ring-primary border-gray-300" type="checkbox"/></td>
+<td class="px-4 py-4 text-center"><input checked="" class="rounded text-primary focus:ring-primary border-gray-300" type="checkbox"/></td>
+<td class="px-4 py-4 text-center"><input checked="" class="rounded text-primary focus:ring-primary border-gray-300" type="checkbox"/></td>
+<td class="px-6 py-4 text-center"><input checked="" class="rounded text-primary focus:ring-primary border-gray-300" type="checkbox"/></td>
+</tr>
+<!-- Table Row 2 -->
+<tr class="hover:bg-[#f8f9fc] dark:hover:bg-gray-800/50 transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[#48699d] text-lg">apartment</span>
+<span class="text-sm font-bold text-[#0d131c] dark:text-white">Companies</span>
+</div>
+</td>
+<td class="px-4 py-4 text-center"><input checked="" class="rounded text-primary focus:ring-primary border-gray-300" type="checkbox"/></td>
+<td class="px-4 py-4 text-center"><input checked="" class="rounded text-primary focus:ring-primary border-gray-300" type="checkbox"/></td>
+<td class="px-4 py-4 text-center"><input checked="" class="rounded text-primary focus:ring-primary border-gray-300" type="checkbox"/></td>
+<td class="px-4 py-4 text-center"><input checked="" class="rounded text-primary focus:ring-primary border-gray-300" type="checkbox"/></td>
+<td class="px-4 py-4 text-center"><input checked="" class="rounded text-primary focus:ring-primary border-gray-300" type="checkbox"/></td>
+<td class="px-6 py-4 text-center"><input checked="" class="rounded text-primary focus:ring-primary border-gray-300" type="checkbox"/></td>
+</tr>
+<!-- Table Row 3 -->
+<tr class="hover:bg-[#f8f9fc] dark:hover:bg-gray-800/50 transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[#48699d] text-lg">handshake</span>
+<span class="text-sm font-bold text-[#0d131c] dark:text-white">Deals</span>
+</div>
+</td>
+<td class="px-4 py-4 text-center"><input checked="" class="rounded text-primary focus:ring-primary border-gray-300" type="checkbox"/></td>
+<td class="px-4 py-4 text-center"><input checked="" class="rounded text-primary focus:ring-primary border-gray-300" type="checkbox"/></td>
+<td class="px-4 py-4 text-center"><input checked="" class="rounded text-primary focus:ring-primary border-gray-300" type="checkbox"/></td>
+<td class="px-4 py-4 text-center"><input checked="" class="rounded text-primary focus:ring-primary border-gray-300" type="checkbox"/></td>
+<td class="px-4 py-4 text-center"><input checked="" class="rounded text-primary focus:ring-primary border-gray-300" type="checkbox"/></td>
+<td class="px-6 py-4 text-center"><input checked="" class="rounded text-primary focus:ring-primary border-gray-300" type="checkbox"/></td>
+</tr>
+<!-- Table Row 4 -->
+<tr class="hover:bg-[#f8f9fc] dark:hover:bg-gray-800/50 transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[#48699d] text-lg">task_alt</span>
+<span class="text-sm font-bold text-[#0d131c] dark:text-white">Tasks</span>
+</div>
+</td>
+<td class="px-4 py-4 text-center"><input checked="" class="rounded text-primary focus:ring-primary border-gray-300" type="checkbox"/></td>
+<td class="px-4 py-4 text-center"><input checked="" class="rounded text-primary focus:ring-primary border-gray-300" type="checkbox"/></td>
+<td class="px-4 py-4 text-center"><input checked="" class="rounded text-primary focus:ring-primary border-gray-300" type="checkbox"/></td>
+<td class="px-4 py-4 text-center"><input checked="" class="rounded text-primary focus:ring-primary border-gray-300" type="checkbox"/></td>
+<td class="px-4 py-4 text-center"><input checked="" class="rounded text-primary focus:ring-primary border-gray-300" type="checkbox"/></td>
+<td class="px-6 py-4 text-center"><input checked="" class="rounded text-primary focus:ring-primary border-gray-300" type="checkbox"/></td>
+</tr>
+<!-- Table Row 5 -->
+<tr class="hover:bg-[#f8f9fc] dark:hover:bg-gray-800/50 transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[#48699d] text-lg">description</span>
+<span class="text-sm font-bold text-[#0d131c] dark:text-white">Documents</span>
+</div>
+</td>
+<td class="px-4 py-4 text-center"><input checked="" class="rounded text-primary focus:ring-primary border-gray-300" type="checkbox"/></td>
+<td class="px-4 py-4 text-center"><input checked="" class="rounded text-primary focus:ring-primary border-gray-300" type="checkbox"/></td>
+<td class="px-4 py-4 text-center"><input checked="" class="rounded text-primary focus:ring-primary border-gray-300" type="checkbox"/></td>
+<td class="px-4 py-4 text-center"><input checked="" class="rounded text-primary focus:ring-primary border-gray-300" type="checkbox"/></td>
+<td class="px-4 py-4 text-center"><input checked="" class="rounded text-primary focus:ring-primary border-gray-300" type="checkbox"/></td>
+<td class="px-6 py-4 text-center"><input checked="" class="rounded text-primary focus:ring-primary border-gray-300" type="checkbox"/></td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- System Feature Access -->
+<div class="flex flex-col gap-4">
+<h3 class="text-[#0d131c] dark:text-white text-lg font-bold">Quick Feature Toggle</h3>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+<div class="bg-white dark:bg-gray-800 p-4 rounded-xl border border-[#e7ecf4] dark:border-gray-700 flex items-center justify-between">
+<div class="flex flex-col">
+<span class="text-sm font-bold text-[#0d131c] dark:text-white">Bulk Export</span>
+<span class="text-xs text-[#48699d] dark:text-gray-400">Allow mass CSV/PDF export</span>
+</div>
+<div class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary"></div>
+</div>
+</div>
+<div class="bg-white dark:bg-gray-800 p-4 rounded-xl border border-[#e7ecf4] dark:border-gray-700 flex items-center justify-between">
+<div class="flex flex-col">
+<span class="text-sm font-bold text-[#0d131c] dark:text-white">API Access</span>
+<span class="text-xs text-[#48699d] dark:text-gray-400">Generate developer tokens</span>
+</div>
+<div class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary"></div>
+</div>
+</div>
+<div class="bg-white dark:bg-gray-800 p-4 rounded-xl border border-[#e7ecf4] dark:border-gray-700 flex items-center justify-between">
+<div class="flex flex-col">
+<span class="text-sm font-bold text-[#0d131c] dark:text-white">Delete Audit Logs</span>
+<span class="text-xs text-[#48699d] dark:text-gray-400">Clear historical activity</span>
+</div>
+<div class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+</div>
+</body></html>

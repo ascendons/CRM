@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { Opportunity, OpportunityStage } from '@/types/opportunity';
-import { opportunitiesService } from '@/lib/opportunities';
-import { authService } from '@/lib/auth';
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { Opportunity, OpportunityStage } from "@/types/opportunity";
+import { opportunitiesService } from "@/lib/opportunities";
+import { authService } from "@/lib/auth";
 
 export default function OpportunityDetailPage({ params }: { params: { id: string } }) {
   const router = useRouter();
@@ -14,7 +14,7 @@ export default function OpportunityDetailPage({ params }: { params: { id: string
 
   useEffect(() => {
     if (!authService.isAuthenticated()) {
-      router.push('/login');
+      router.push("/login");
       return;
     }
     loadOpportunity();
@@ -26,50 +26,50 @@ export default function OpportunityDetailPage({ params }: { params: { id: string
       const data = await opportunitiesService.getOpportunityById(params.id);
       setOpportunity(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load opportunity');
+      setError(err instanceof Error ? err.message : "Failed to load opportunity");
     } finally {
       setLoading(false);
     }
   };
 
   const handleDelete = async () => {
-    if (!confirm('Are you sure you want to delete this opportunity?')) {
+    if (!confirm("Are you sure you want to delete this opportunity?")) {
       return;
     }
 
     try {
       await opportunitiesService.deleteOpportunity(params.id);
-      router.push('/opportunities');
+      router.push("/opportunities");
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to delete opportunity');
+      setError(err instanceof Error ? err.message : "Failed to delete opportunity");
     }
   };
 
   const formatCurrency = (value: number | undefined) => {
-    if (!value) return '-';
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value);
+    if (!value) return "-";
+    return new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR" }).format(value);
   };
 
   const formatDate = (dateString: string | undefined) => {
-    if (!dateString) return '-';
+    if (!dateString) return "-";
     return new Date(dateString).toLocaleDateString();
   };
 
   const getStageBadgeColor = (stage: OpportunityStage) => {
     const colors = {
-      [OpportunityStage.PROSPECTING]: 'bg-blue-100 text-blue-800',
-      [OpportunityStage.QUALIFICATION]: 'bg-indigo-100 text-indigo-800',
-      [OpportunityStage.NEEDS_ANALYSIS]: 'bg-yellow-100 text-yellow-800',
-      [OpportunityStage.PROPOSAL]: 'bg-purple-100 text-purple-800',
-      [OpportunityStage.NEGOTIATION]: 'bg-orange-100 text-orange-800',
-      [OpportunityStage.CLOSED_WON]: 'bg-green-100 text-green-800',
-      [OpportunityStage.CLOSED_LOST]: 'bg-red-100 text-red-800',
+      [OpportunityStage.PROSPECTING]: "bg-blue-100 text-blue-800",
+      [OpportunityStage.QUALIFICATION]: "bg-indigo-100 text-indigo-800",
+      [OpportunityStage.NEEDS_ANALYSIS]: "bg-yellow-100 text-yellow-800",
+      [OpportunityStage.PROPOSAL]: "bg-purple-100 text-purple-800",
+      [OpportunityStage.NEGOTIATION]: "bg-orange-100 text-orange-800",
+      [OpportunityStage.CLOSED_WON]: "bg-green-100 text-green-800",
+      [OpportunityStage.CLOSED_LOST]: "bg-red-100 text-red-800",
     };
-    return colors[stage] || 'bg-gray-100 text-gray-800';
+    return colors[stage] || "bg-gray-100 text-gray-800";
   };
 
   const getStageLabel = (stage: OpportunityStage) => {
-    return stage.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+    return stage.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
   };
 
   const getStageProgress = (stage: OpportunityStage) => {
@@ -101,9 +101,9 @@ export default function OpportunityDetailPage({ params }: { params: { id: string
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <p className="text-red-600">{error || 'Opportunity not found'}</p>
+          <p className="text-red-600">{error || "Opportunity not found"}</p>
           <button
-            onClick={() => router.push('/opportunities')}
+            onClick={() => router.push("/opportunities")}
             className="mt-4 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600"
           >
             Back to Opportunities
@@ -120,11 +120,17 @@ export default function OpportunityDetailPage({ params }: { params: { id: string
     </div>
   );
 
-  const DetailRow = ({ label, value }: { label: string; value: string | number | boolean | undefined | null }) => (
+  const DetailRow = ({
+    label,
+    value,
+  }: {
+    label: string;
+    value: string | number | boolean | undefined | null;
+  }) => (
     <div className="py-3 border-b border-gray-200 last:border-0">
       <dt className="text-sm font-medium text-gray-500 mb-1">{label}</dt>
       <dd className="text-sm text-gray-900">
-        {value !== undefined && value !== null && value !== '' ? String(value) : '-'}
+        {value !== undefined && value !== null && value !== "" ? String(value) : "-"}
       </dd>
     </div>
   );
@@ -136,10 +142,10 @@ export default function OpportunityDetailPage({ params }: { params: { id: string
         <div className="mb-8 flex justify-between items-start">
           <div>
             <div className="flex items-center gap-4 mb-2">
-              <h1 className="text-3xl font-bold text-gray-900">
-                {opportunity.opportunityName}
-              </h1>
-              <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getStageBadgeColor(opportunity.stage)}`}>
+              <h1 className="text-3xl font-bold text-gray-900">{opportunity.opportunityName}</h1>
+              <span
+                className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getStageBadgeColor(opportunity.stage)}`}
+              >
                 {getStageLabel(opportunity.stage)}
               </span>
             </div>
@@ -162,7 +168,7 @@ export default function OpportunityDetailPage({ params }: { params: { id: string
               Delete
             </button>
             <button
-              onClick={() => router.push('/opportunities')}
+              onClick={() => router.push("/opportunities")}
               className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
             >
               Back to List
@@ -180,7 +186,9 @@ export default function OpportunityDetailPage({ params }: { params: { id: string
                 style={{ width: `${getStageProgress(opportunity.stage)}%` }}
               ></div>
             </div>
-            <p className="text-sm text-gray-600 mt-2">{getStageProgress(opportunity.stage).toFixed(0)}% Complete</p>
+            <p className="text-sm text-gray-600 mt-2">
+              {getStageProgress(opportunity.stage).toFixed(0)}% Complete
+            </p>
           </div>
         )}
 
@@ -202,7 +210,9 @@ export default function OpportunityDetailPage({ params }: { params: { id: string
           </div>
           <div className="bg-white rounded-lg shadow p-6">
             <p className="text-sm text-gray-600 mb-1">Close Date</p>
-            <p className="text-2xl font-bold text-gray-900">{formatDate(opportunity.expectedCloseDate)}</p>
+            <p className="text-2xl font-bold text-gray-900">
+              {formatDate(opportunity.expectedCloseDate)}
+            </p>
           </div>
         </div>
 
@@ -214,8 +224,14 @@ export default function OpportunityDetailPage({ params }: { params: { id: string
               <DetailRow label="Stage" value={getStageLabel(opportunity.stage)} />
               <DetailRow label="Amount" value={formatCurrency(opportunity.amount)} />
               <DetailRow label="Probability" value={`${opportunity.probability}%`} />
-              <DetailRow label="Expected Close Date" value={formatDate(opportunity.expectedCloseDate)} />
-              <DetailRow label="Actual Close Date" value={formatDate(opportunity.actualCloseDate)} />
+              <DetailRow
+                label="Expected Close Date"
+                value={formatDate(opportunity.expectedCloseDate)}
+              />
+              <DetailRow
+                label="Actual Close Date"
+                value={formatDate(opportunity.actualCloseDate)}
+              />
               <DetailRow label="Days in Stage" value={opportunity.daysInStage} />
             </dl>
           </DetailSection>
@@ -228,7 +244,10 @@ export default function OpportunityDetailPage({ params }: { params: { id: string
               {opportunity.convertedFromLeadId && (
                 <>
                   <DetailRow label="Converted From Lead" value={opportunity.convertedFromLeadId} />
-                  <DetailRow label="Conversion Date" value={formatDate(opportunity.convertedDate)} />
+                  <DetailRow
+                    label="Conversion Date"
+                    value={formatDate(opportunity.convertedDate)}
+                  />
                 </>
               )}
             </dl>
@@ -249,9 +268,15 @@ export default function OpportunityDetailPage({ params }: { params: { id: string
           <DetailSection title="Financial Details">
             <dl className="divide-y divide-gray-200">
               <DetailRow label="Amount" value={formatCurrency(opportunity.amount)} />
-              <DetailRow label="Forecast Amount" value={formatCurrency(opportunity.forecastAmount)} />
+              <DetailRow
+                label="Forecast Amount"
+                value={formatCurrency(opportunity.forecastAmount)}
+              />
               <DetailRow label="Currency" value={opportunity.currency} />
-              <DetailRow label="Discount Amount" value={formatCurrency(opportunity.discountAmount)} />
+              <DetailRow
+                label="Discount Amount"
+                value={formatCurrency(opportunity.discountAmount)}
+              />
               <DetailRow label="Total Amount" value={formatCurrency(opportunity.totalAmount)} />
             </dl>
           </DetailSection>
@@ -261,11 +286,19 @@ export default function OpportunityDetailPage({ params }: { params: { id: string
             <dl className="divide-y divide-gray-200">
               <DetailRow
                 label="Products"
-                value={opportunity.products && opportunity.products.length > 0 ? opportunity.products.join(', ') : undefined}
+                value={
+                  opportunity.products && opportunity.products.length > 0
+                    ? opportunity.products.join(", ")
+                    : undefined
+                }
               />
               <DetailRow
                 label="Services"
-                value={opportunity.services && opportunity.services.length > 0 ? opportunity.services.join(', ') : undefined}
+                value={
+                  opportunity.services && opportunity.services.length > 0
+                    ? opportunity.services.join(", ")
+                    : undefined
+                }
               />
               <DetailRow label="Solution Offered" value={opportunity.solutionOffered} />
             </dl>
@@ -276,7 +309,11 @@ export default function OpportunityDetailPage({ params }: { params: { id: string
             <dl className="divide-y divide-gray-200">
               <DetailRow
                 label="Competitors"
-                value={opportunity.competitors && opportunity.competitors.length > 0 ? opportunity.competitors.join(', ') : undefined}
+                value={
+                  opportunity.competitors && opportunity.competitors.length > 0
+                    ? opportunity.competitors.join(", ")
+                    : undefined
+                }
               />
               <DetailRow label="Competitive Advantage" value={opportunity.competitiveAdvantage} />
               {opportunity.lossReason && (
@@ -298,7 +335,10 @@ export default function OpportunityDetailPage({ params }: { params: { id: string
           {/* Engagement */}
           <DetailSection title="Engagement">
             <dl className="divide-y divide-gray-200">
-              <DetailRow label="Last Activity Date" value={formatDate(opportunity.lastActivityDate)} />
+              <DetailRow
+                label="Last Activity Date"
+                value={formatDate(opportunity.lastActivityDate)}
+              />
               <DetailRow label="Total Activities" value={opportunity.totalActivities} />
               <DetailRow label="Emails Sent" value={opportunity.emailsSent} />
               <DetailRow label="Calls Made" value={opportunity.callsMade} />
@@ -312,7 +352,11 @@ export default function OpportunityDetailPage({ params }: { params: { id: string
               <DetailRow label="Owner" value={opportunity.ownerName} />
               <DetailRow
                 label="Team Members"
-                value={opportunity.teamMembers && opportunity.teamMembers.length > 0 ? opportunity.teamMembers.join(', ') : undefined}
+                value={
+                  opportunity.teamMembers && opportunity.teamMembers.length > 0
+                    ? opportunity.teamMembers.join(", ")
+                    : undefined
+                }
               />
             </dl>
           </DetailSection>
@@ -324,7 +368,11 @@ export default function OpportunityDetailPage({ params }: { params: { id: string
               <DetailRow label="Payment Terms" value={opportunity.paymentTerms} />
               <DetailRow
                 label="Tags"
-                value={opportunity.tags && opportunity.tags.length > 0 ? opportunity.tags.join(', ') : undefined}
+                value={
+                  opportunity.tags && opportunity.tags.length > 0
+                    ? opportunity.tags.join(", ")
+                    : undefined
+                }
               />
               <DetailRow label="Notes" value={opportunity.notes} />
             </dl>
@@ -334,8 +382,14 @@ export default function OpportunityDetailPage({ params }: { params: { id: string
           <DetailSection title="Stage History">
             <dl className="divide-y divide-gray-200">
               <DetailRow label="Prospecting Date" value={formatDate(opportunity.prospectingDate)} />
-              <DetailRow label="Qualification Date" value={formatDate(opportunity.qualificationDate)} />
-              <DetailRow label="Needs Analysis Date" value={formatDate(opportunity.needsAnalysisDate)} />
+              <DetailRow
+                label="Qualification Date"
+                value={formatDate(opportunity.qualificationDate)}
+              />
+              <DetailRow
+                label="Needs Analysis Date"
+                value={formatDate(opportunity.needsAnalysisDate)}
+              />
               <DetailRow label="Proposal Date" value={formatDate(opportunity.proposalDate)} />
               <DetailRow label="Negotiation Date" value={formatDate(opportunity.negotiationDate)} />
               <DetailRow label="Closed Date" value={formatDate(opportunity.closedDate)} />
@@ -346,9 +400,15 @@ export default function OpportunityDetailPage({ params }: { params: { id: string
           <DetailSection title="System Information">
             <dl className="divide-y divide-gray-200">
               <DetailRow label="Created By" value={opportunity.createdByName} />
-              <DetailRow label="Created At" value={new Date(opportunity.createdAt).toLocaleString()} />
+              <DetailRow
+                label="Created At"
+                value={new Date(opportunity.createdAt).toLocaleString()}
+              />
               <DetailRow label="Last Modified By" value={opportunity.lastModifiedByName} />
-              <DetailRow label="Last Modified At" value={new Date(opportunity.lastModifiedAt).toLocaleString()} />
+              <DetailRow
+                label="Last Modified At"
+                value={new Date(opportunity.lastModifiedAt).toLocaleString()}
+              />
             </dl>
           </DetailSection>
         </div>

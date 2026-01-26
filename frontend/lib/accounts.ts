@@ -1,20 +1,20 @@
-import { Account, CreateAccountRequest, UpdateAccountRequest } from '@/types/account';
-import { ApiResponse } from '@/types/api';
-import { authService } from './auth';
+import { Account, CreateAccountRequest, UpdateAccountRequest } from "@/types/account";
+import { ApiResponse } from "@/types/api";
+import { authService } from "./auth";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api/v1';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api/v1";
 
 class AccountService {
   private getAuthHeader() {
     const token = authService.getToken();
-    return token ? { 'Authorization': `Bearer ${token}` } : {};
+    return token ? { Authorization: `Bearer ${token}` } : {};
   }
 
   async createAccount(request: CreateAccountRequest): Promise<Account> {
     const response = await fetch(`${API_URL}/accounts`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
         ...this.getAuthHeader(),
       },
       body: JSON.stringify(request),
@@ -22,7 +22,7 @@ class AccountService {
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.message || 'Failed to create account');
+      throw new Error(error.message || "Failed to create account");
     }
 
     const result: ApiResponse<Account> = await response.json();
@@ -31,15 +31,15 @@ class AccountService {
 
   async getAllAccounts(): Promise<Account[]> {
     const response = await fetch(`${API_URL}/accounts`, {
-      method: 'GET',
+      method: "GET",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
         ...this.getAuthHeader(),
       },
     });
 
     if (!response.ok) {
-      throw new Error('Failed to fetch accounts');
+      throw new Error("Failed to fetch accounts");
     }
 
     const result: ApiResponse<Account[]> = await response.json();
@@ -48,15 +48,15 @@ class AccountService {
 
   async getAccountById(id: string): Promise<Account> {
     const response = await fetch(`${API_URL}/accounts/${id}`, {
-      method: 'GET',
+      method: "GET",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
         ...this.getAuthHeader(),
       },
     });
 
     if (!response.ok) {
-      throw new Error('Failed to fetch account');
+      throw new Error("Failed to fetch account");
     }
 
     const result: ApiResponse<Account> = await response.json();
@@ -65,15 +65,15 @@ class AccountService {
 
   async getAccountByAccountId(accountId: string): Promise<Account> {
     const response = await fetch(`${API_URL}/accounts/code/${accountId}`, {
-      method: 'GET',
+      method: "GET",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
         ...this.getAuthHeader(),
       },
     });
 
     if (!response.ok) {
-      throw new Error('Failed to fetch account');
+      throw new Error("Failed to fetch account");
     }
 
     const result: ApiResponse<Account> = await response.json();
@@ -82,15 +82,15 @@ class AccountService {
 
   async searchAccounts(query: string): Promise<Account[]> {
     const response = await fetch(`${API_URL}/accounts/search?q=${encodeURIComponent(query)}`, {
-      method: 'GET',
+      method: "GET",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
         ...this.getAuthHeader(),
       },
     });
 
     if (!response.ok) {
-      throw new Error('Failed to search accounts');
+      throw new Error("Failed to search accounts");
     }
 
     const result: ApiResponse<Account[]> = await response.json();
@@ -99,9 +99,9 @@ class AccountService {
 
   async updateAccount(id: string, request: UpdateAccountRequest): Promise<Account> {
     const response = await fetch(`${API_URL}/accounts/${id}`, {
-      method: 'PUT',
+      method: "PUT",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
         ...this.getAuthHeader(),
       },
       body: JSON.stringify(request),
@@ -109,7 +109,7 @@ class AccountService {
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.message || 'Failed to update account');
+      throw new Error(error.message || "Failed to update account");
     }
 
     const result: ApiResponse<Account> = await response.json();
@@ -118,30 +118,30 @@ class AccountService {
 
   async deleteAccount(id: string): Promise<void> {
     const response = await fetch(`${API_URL}/accounts/${id}`, {
-      method: 'DELETE',
+      method: "DELETE",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
         ...this.getAuthHeader(),
       },
     });
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.message || 'Failed to delete account');
+      throw new Error(error.message || "Failed to delete account");
     }
   }
 
   async getAccountCount(): Promise<number> {
     const response = await fetch(`${API_URL}/accounts/statistics/count`, {
-      method: 'GET',
+      method: "GET",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
         ...this.getAuthHeader(),
       },
     });
 
     if (!response.ok) {
-      throw new Error('Failed to fetch account count');
+      throw new Error("Failed to fetch account count");
     }
 
     const result: ApiResponse<number> = await response.json();

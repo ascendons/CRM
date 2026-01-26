@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Lead Scoring &amp; Routing Rules - CRM Enterprise</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#3780f6",
+                        "background-light": "#f5f7f8",
+                        "background-dark": "#101722",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen">
+<div class="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden">
+<div class="layout-container flex h-full grow flex-col">
+<!-- Top Navigation Bar -->
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-slate-200 dark:border-[#223149] px-10 py-3 bg-white dark:bg-background-dark sticky top-0 z-50">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-4 text-primary">
+<div class="size-8">
+<svg fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path clip-rule="evenodd" d="M24 18.4228L42 11.475V34.3663C42 34.7796 41.7457 35.1504 41.3601 35.2992L24 42V18.4228Z" fill="currentColor" fill-rule="evenodd"></path>
+<path clip-rule="evenodd" d="M24 8.18819L33.4123 11.574L24 15.2071L14.5877 11.574L24 8.18819ZM9 15.8487L21 20.4805V37.6263L9 32.9945V15.8487ZM27 37.6263V20.4805L39 15.8487V32.9945L27 37.6263ZM25.354 2.29885C24.4788 1.98402 23.5212 1.98402 22.646 2.29885L4.98454 8.65208C3.7939 9.08038 3 10.2097 3 11.475V34.3663C3 36.0196 4.01719 37.5026 5.55962 38.098L22.9197 44.7987C23.6149 45.0671 24.3851 45.0671 25.0803 44.7987L42.4404 38.098C43.9828 37.5026 45 36.0196 45 34.3663V11.475C45 10.2097 44.2061 9.08038 43.0155 8.65208L25.354 2.29885Z" fill="currentColor" fill-rule="evenodd"></path>
+</svg>
+</div>
+<h2 class="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em]">CRM Enterprise</h2>
+</div>
+<div class="flex items-center gap-6">
+<a class="text-slate-600 dark:text-slate-300 text-sm font-medium hover:text-primary transition-colors" href="#">Leads</a>
+<a class="text-slate-600 dark:text-slate-300 text-sm font-medium hover:text-primary transition-colors" href="#">Deals</a>
+<a class="text-slate-600 dark:text-slate-300 text-sm font-medium hover:text-primary transition-colors" href="#">Analytics</a>
+<a class="text-primary text-sm font-bold border-b-2 border-primary py-1" href="#">Settings</a>
+</div>
+</div>
+<div class="flex flex-1 justify-end gap-4">
+<label class="flex flex-col min-w-40 !h-10 max-w-64">
+<div class="flex w-full flex-1 items-stretch rounded-lg h-full overflow-hidden">
+<div class="text-slate-400 flex border-none bg-slate-100 dark:bg-[#223149] items-center justify-center pl-4 rounded-l-lg" data-icon="search">
+<span class="material-symbols-outlined text-[20px]">search</span>
+</div>
+<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-slate-900 dark:text-white focus:outline-0 focus:ring-0 border-none bg-slate-100 dark:bg-[#223149] focus:border-none h-full placeholder:text-slate-500 dark:placeholder:text-[#8fa6cc] px-4 rounded-l-none border-l-0 pl-2 text-sm font-normal" placeholder="Search rules..." value=""/>
+</div>
+</label>
+<div class="flex gap-2">
+<button class="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-slate-100 dark:bg-[#223149] text-slate-900 dark:text-white text-sm font-bold gap-2 transition-all hover:bg-slate-200 dark:hover:bg-slate-700">
+<span class="material-symbols-outlined text-[20px]">play_circle</span>
+<span class="truncate">Test Rules</span>
+</button>
+<button class="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold gap-2 transition-all hover:bg-primary/90 shadow-md">
+<span class="material-symbols-outlined text-[20px]">save</span>
+<span class="truncate">Save Changes</span>
+</button>
+</div>
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 border border-slate-200 dark:border-slate-700" data-alt="User profile avatar" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDd7bQYdNQ47Al56YlEyp-BbXRqMUs-cn-FKDyyNOKA9ZO11L98UA68FHzOBFMy7MsCIDToRNmKCwoWIFk427VG66gXydXhc9skuDQBOk6gwwVU8qayHIGFV5By1PPwrHBdlcHLB8tmkwfGhetH_kwA4aZK6CnXQAQ7fg1TtCHv6lSIrwLTDjnjkvw_Fti0fF1aMNy53PjBns_rH38lX8gQ7AfU__1siRz9B0RuzoUBc3XrxEyViTps9ROxZ68sApLMcfnemrmjsPA");'></div>
+</div>
+</header>
+<main class="flex-1 overflow-y-auto">
+<div class="mx-auto max-w-[1200px] w-full px-6 py-8">
+<!-- Page Heading -->
+<div class="flex flex-wrap justify-between gap-3 mb-8">
+<div class="flex min-w-72 flex-col gap-1">
+<h1 class="text-slate-900 dark:text-white text-3xl font-black leading-tight tracking-tight">Lead Scoring &amp; Routing Rules</h1>
+<p class="text-slate-500 dark:text-[#8fa6cc] text-base font-normal">Configure behavioral weights and geographic assignment logic for incoming leads.</p>
+</div>
+</div>
+<!-- Scoring Rules Section -->
+<div class="mb-12">
+<div class="flex items-center justify-between mb-4 px-1">
+<h2 class="text-slate-900 dark:text-white text-xl font-bold flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">analytics</span>
+                                Scoring Rules
+                            </h2>
+<span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Section 1 of 2</span>
+</div>
+<div class="rounded-xl border border-slate-200 dark:border-[#304669] bg-white dark:bg-[#101723] overflow-hidden shadow-sm">
+<div class="@container">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-slate-50 dark:bg-[#182334] border-b border-slate-200 dark:border-[#304669]">
+<th class="px-6 py-4 text-slate-700 dark:text-white text-xs font-semibold uppercase tracking-wider">Criteria</th>
+<th class="px-6 py-4 text-slate-700 dark:text-white text-xs font-semibold uppercase tracking-wider">Operator</th>
+<th class="px-6 py-4 text-slate-700 dark:text-white text-xs font-semibold uppercase tracking-wider">Value</th>
+<th class="px-6 py-4 text-slate-700 dark:text-white text-xs font-semibold uppercase tracking-wider">Points</th>
+<th class="px-6 py-4 text-slate-400 text-xs font-semibold uppercase tracking-wider text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-100 dark:divide-[#304669]">
+<tr class="hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
+<td class="px-6 py-4 text-slate-900 dark:text-white text-sm font-medium">Job Title</td>
+<td class="px-6 py-4">
+<button class="flex items-center justify-between gap-2 rounded-lg bg-slate-100 dark:bg-[#223149] px-3 py-1.5 text-slate-900 dark:text-white text-sm font-medium w-32">
+<span>Contains</span>
+<span class="material-symbols-outlined text-sm">expand_more</span>
+</button>
+</td>
+<td class="px-6 py-4 text-slate-600 dark:text-[#8fa6cc] text-sm">Director, VP, CXO</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<span class="inline-flex items-center rounded-md bg-green-100 dark:bg-green-900/30 px-2 py-1 text-sm font-bold text-green-700 dark:text-green-400">
+                                                        +25
+                                                    </span>
+</div>
+</td>
+<td class="px-6 py-4 text-right">
+<div class="flex justify-end gap-2">
+<button class="p-1.5 rounded-lg text-slate-400 hover:text-primary hover:bg-primary/10 transition-colors">
+<span class="material-symbols-outlined">edit</span>
+</button>
+<button class="p-1.5 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-500/10 transition-colors">
+<span class="material-symbols-outlined">delete</span>
+</button>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
+<td class="px-6 py-4 text-slate-900 dark:text-white text-sm font-medium">Website Visit</td>
+<td class="px-6 py-4">
+<button class="flex items-center justify-between gap-2 rounded-lg bg-slate-100 dark:bg-[#223149] px-3 py-1.5 text-slate-900 dark:text-white text-sm font-medium w-32">
+<span>Frequency</span>
+<span class="material-symbols-outlined text-sm">expand_more</span>
+</button>
+</td>
+<td class="px-6 py-4 text-slate-600 dark:text-[#8fa6cc] text-sm">&gt; 5 in 30 days</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<span class="inline-flex items-center rounded-md bg-green-100 dark:bg-green-900/30 px-2 py-1 text-sm font-bold text-green-700 dark:text-green-400">
+                                                        +10
+                                                    </span>
+</div>
+</td>
+<td class="px-6 py-4 text-right">
+<div class="flex justify-end gap-2">
+<button class="p-1.5 rounded-lg text-slate-400 hover:text-primary hover:bg-primary/10 transition-colors">
+<span class="material-symbols-outlined">edit</span>
+</button>
+<button class="p-1.5 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-500/10 transition-colors">
+<span class="material-symbols-outlined">delete</span>
+</button>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
+<td class="px-6 py-4 text-slate-900 dark:text-white text-sm font-medium">Industry</td>
+<td class="px-6 py-4">
+<button class="flex items-center justify-between gap-2 rounded-lg bg-slate-100 dark:bg-[#223149] px-3 py-1.5 text-slate-900 dark:text-white text-sm font-medium w-32">
+<span>Is</span>
+<span class="material-symbols-outlined text-sm">expand_more</span>
+</button>
+</td>
+<td class="px-6 py-4 text-slate-600 dark:text-[#8fa6cc] text-sm">Software, Fintech</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<span class="inline-flex items-center rounded-md bg-green-100 dark:bg-green-900/30 px-2 py-1 text-sm font-bold text-green-700 dark:text-green-400">
+                                                        +15
+                                                    </span>
+</div>
+</td>
+<td class="px-6 py-4 text-right">
+<div class="flex justify-end gap-2">
+<button class="p-1.5 rounded-lg text-slate-400 hover:text-primary hover:bg-primary/10 transition-colors">
+<span class="material-symbols-outlined">edit</span>
+</button>
+<button class="p-1.5 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-500/10 transition-colors">
+<span class="material-symbols-outlined">delete</span>
+</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="bg-slate-50/50 dark:bg-white/5 px-4 py-3">
+<button class="flex items-center gap-2 px-3 py-2 text-primary text-sm font-bold hover:bg-primary/10 rounded-lg transition-colors group">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">add_circle</span>
+                                    Add Scoring Rule
+                                </button>
+</div>
+</div>
+</div>
+<!-- Routing Rules Section -->
+<div>
+<div class="flex items-center justify-between mb-4 px-1">
+<h2 class="text-slate-900 dark:text-white text-xl font-bold flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">route</span>
+                                Assignment &amp; Routing Logic
+                            </h2>
+<span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Section 2 of 2</span>
+</div>
+<div class="rounded-xl border border-slate-200 dark:border-[#304669] bg-white dark:bg-[#101723] overflow-hidden shadow-sm">
+<div class="@container">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-slate-50 dark:bg-[#182334] border-b border-slate-200 dark:border-[#304669]">
+<th class="px-6 py-4 text-slate-700 dark:text-white text-xs font-semibold uppercase tracking-wider w-12 text-center">#</th>
+<th class="px-6 py-4 text-slate-700 dark:text-white text-xs font-semibold uppercase tracking-wider">Conditions (IF)</th>
+<th class="px-6 py-4 text-slate-700 dark:text-white text-xs font-semibold uppercase tracking-wider">Assign To (THEN)</th>
+<th class="px-6 py-4 text-slate-700 dark:text-white text-xs font-semibold uppercase tracking-wider">Method</th>
+<th class="px-6 py-4 text-slate-400 text-xs font-semibold uppercase tracking-wider text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-100 dark:divide-[#304669]">
+<tr class="hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
+<td class="px-6 py-4 text-slate-400 font-mono text-xs text-center">01</td>
+<td class="px-6 py-4">
+<div class="flex flex-wrap gap-2 items-center">
+<span class="px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 text-xs font-medium border border-blue-200 dark:border-blue-800">Source: LinkedIn Ads</span>
+<span class="text-[10px] font-black text-slate-300 dark:text-slate-600">AND</span>
+<span class="px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 text-xs font-medium border border-blue-200 dark:border-blue-800">Region: US-West</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<div class="size-6 rounded-full bg-primary/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-[14px] text-primary">groups</span>
+</div>
+<span class="text-slate-900 dark:text-white text-sm font-semibold">West Coast Sales Team</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="text-slate-600 dark:text-[#8fa6cc] text-xs font-medium px-2 py-1 rounded-full bg-slate-100 dark:bg-[#223149]">Round Robin</span>
+</td>
+<td class="px-6 py-4 text-right">
+<div class="flex justify-end gap-2">
+<span class="material-symbols-outlined text-slate-300 cursor-grab">drag_indicator</span>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
+<td class="px-6 py-4 text-slate-400 font-mono text-xs text-center">02</td>
+<td class="px-6 py-4">
+<div class="flex flex-wrap gap-2 items-center">
+<span class="px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 text-xs font-medium border border-blue-200 dark:border-blue-800">Score &gt; 80</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<div class="size-6 rounded-full bg-primary/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-[14px] text-primary">person</span>
+</div>
+<span class="text-slate-900 dark:text-white text-sm font-semibold">Sarah Connor (Account Exec)</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="text-slate-600 dark:text-[#8fa6cc] text-xs font-medium px-2 py-1 rounded-full bg-slate-100 dark:bg-[#223149]">Direct Assign</span>
+</td>
+<td class="px-6 py-4 text-right">
+<div class="flex justify-end gap-2">
+<span class="material-symbols-outlined text-slate-300 cursor-grab">drag_indicator</span>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
+<td class="px-6 py-4 text-slate-400 font-mono text-xs text-center">03</td>
+<td class="px-6 py-4">
+<div class="flex flex-wrap gap-2 items-center">
+<span class="italic text-slate-400 text-xs">Default (All other leads)</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<div class="size-6 rounded-full bg-primary/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-[14px] text-primary">mail</span>
+</div>
+<span class="text-slate-900 dark:text-white text-sm font-semibold">General Nurture Queue</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="text-slate-600 dark:text-[#8fa6cc] text-xs font-medium px-2 py-1 rounded-full bg-slate-100 dark:bg-[#223149]">Queue</span>
+</td>
+<td class="px-6 py-4 text-right">
+<div class="flex justify-end gap-2 text-slate-300">
+<span class="material-symbols-outlined">lock</span>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="bg-slate-50/50 dark:bg-white/5 px-4 py-3">
+<button class="flex items-center gap-2 px-3 py-2 text-primary text-sm font-bold hover:bg-primary/10 rounded-lg transition-colors group">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">add_circle</span>
+                                    Add Assignment Rule
+                                </button>
+</div>
+</div>
+</div>
+<!-- Footer Help -->
+<div class="mt-12 p-6 rounded-xl bg-primary/5 border border-primary/20 flex gap-4 items-start">
+<div class="p-2 rounded-lg bg-primary/20 text-primary">
+<span class="material-symbols-outlined">info</span>
+</div>
+<div>
+<h4 class="text-slate-900 dark:text-white font-bold text-sm">How rules are processed</h4>
+<p class="text-slate-500 dark:text-slate-400 text-sm mt-1">Assignment rules are evaluated from top to bottom (Priority 01 first). Once a lead matches a rule's condition, it is assigned and no further rules are evaluated. Scoring rules are cumulative and apply to all leads simultaneously.</p>
+</div>
+</div>
+</div>
+</main>
+</div>
+</div>
+</body></html>

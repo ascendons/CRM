@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { Contact } from '@/types/contact';
-import { contactsService } from '@/lib/contacts';
-import { authService } from '@/lib/auth';
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { Contact } from "@/types/contact";
+import { contactsService } from "@/lib/contacts";
+import { authService } from "@/lib/auth";
 
 export default function ContactDetailPage({ params }: { params: { id: string } }) {
   const router = useRouter();
@@ -12,36 +12,37 @@ export default function ContactDetailPage({ params }: { params: { id: string } }
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (!authService.isAuthenticated()) {
-      router.push('/login');
-      return;
-    }
-    loadContact();
-  }, [params.id, router]);
-
   const loadContact = async () => {
     try {
       setLoading(true);
       const data = await contactsService.getContactById(params.id);
       setContact(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load contact');
+      setError(err instanceof Error ? err.message : "Failed to load contact");
     } finally {
       setLoading(false);
     }
   };
 
+  useEffect(() => {
+    if (!authService.isAuthenticated()) {
+      router.push("/login");
+      return;
+    }
+    loadContact();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [params.id, router]);
+
   const handleDelete = async () => {
-    if (!confirm('Are you sure you want to delete this contact?')) {
+    if (!confirm("Are you sure you want to delete this contact?")) {
       return;
     }
 
     try {
       await contactsService.deleteContact(params.id);
-      router.push('/contacts');
+      router.push("/contacts");
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to delete contact');
+      setError(err instanceof Error ? err.message : "Failed to delete contact");
     }
   };
 
@@ -60,9 +61,9 @@ export default function ContactDetailPage({ params }: { params: { id: string } }
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <p className="text-red-600">{error || 'Contact not found'}</p>
+          <p className="text-red-600">{error || "Contact not found"}</p>
           <button
-            onClick={() => router.push('/contacts')}
+            onClick={() => router.push("/contacts")}
             className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
           >
             Back to Contacts
@@ -79,11 +80,17 @@ export default function ContactDetailPage({ params }: { params: { id: string } }
     </div>
   );
 
-  const DetailRow = ({ label, value }: { label: string; value: string | number | boolean | undefined | null }) => (
+  const DetailRow = ({
+    label,
+    value,
+  }: {
+    label: string;
+    value: string | number | boolean | undefined | null;
+  }) => (
     <div className="py-3 border-b border-gray-200 last:border-0">
       <dt className="text-sm font-medium text-gray-500 mb-1">{label}</dt>
       <dd className="text-sm text-gray-900">
-        {value !== undefined && value !== null && value !== '' ? String(value) : '-'}
+        {value !== undefined && value !== null && value !== "" ? String(value) : "-"}
       </dd>
     </div>
   );
@@ -105,9 +112,7 @@ export default function ContactDetailPage({ params }: { params: { id: string } }
               )}
             </div>
             <p className="text-gray-600">Contact ID: {contact.contactId}</p>
-            <p className="text-sm text-gray-500 mt-1">
-              Owner: {contact.ownerName}
-            </p>
+            <p className="text-sm text-gray-500 mt-1">Owner: {contact.ownerName}</p>
           </div>
           <div className="flex gap-3">
             <button
@@ -123,7 +128,7 @@ export default function ContactDetailPage({ params }: { params: { id: string } }
               Delete
             </button>
             <button
-              onClick={() => router.push('/contacts')}
+              onClick={() => router.push("/contacts")}
               className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
             >
               Back to List
@@ -135,14 +140,17 @@ export default function ContactDetailPage({ params }: { params: { id: string } }
           {/* Basic Information */}
           <DetailSection title="Basic Information">
             <dl className="divide-y divide-gray-200">
-              <DetailRow label="Full Name" value={`${contact.salutation || ''} ${contact.firstName} ${contact.lastName}`.trim()} />
+              <DetailRow
+                label="Full Name"
+                value={`${contact.salutation || ""} ${contact.firstName} ${contact.lastName}`.trim()}
+              />
               <DetailRow label="Email" value={contact.email} />
               <DetailRow label="Phone" value={contact.phone} />
               <DetailRow label="Mobile Phone" value={contact.mobilePhone} />
               <DetailRow label="Work Phone" value={contact.workPhone} />
               <DetailRow label="Home Phone" value={contact.homePhone} />
               <DetailRow label="Fax" value={contact.fax} />
-              <DetailRow label="Email Opt Out" value={contact.emailOptOut ? 'Yes' : 'No'} />
+              <DetailRow label="Email Opt Out" value={contact.emailOptOut ? "Yes" : "No"} />
             </dl>
           </DetailSection>
 
@@ -160,7 +168,7 @@ export default function ContactDetailPage({ params }: { params: { id: string } }
           <DetailSection title="Account Relationship">
             <dl className="divide-y divide-gray-200">
               <DetailRow label="Account" value={contact.accountName} />
-              <DetailRow label="Primary Contact" value={contact.isPrimaryContact ? 'Yes' : 'No'} />
+              <DetailRow label="Primary Contact" value={contact.isPrimaryContact ? "Yes" : "No"} />
               {contact.convertedFromLeadId && (
                 <>
                   <DetailRow label="Converted From Lead" value={contact.convertedFromLeadId} />
@@ -232,7 +240,9 @@ export default function ContactDetailPage({ params }: { params: { id: string } }
               <DetailRow label="Description" value={contact.description} />
               <DetailRow
                 label="Tags"
-                value={contact.tags && contact.tags.length > 0 ? contact.tags.join(', ') : undefined}
+                value={
+                  contact.tags && contact.tags.length > 0 ? contact.tags.join(", ") : undefined
+                }
               />
             </dl>
           </DetailSection>
@@ -243,7 +253,10 @@ export default function ContactDetailPage({ params }: { params: { id: string } }
               <DetailRow label="Created By" value={contact.createdByName} />
               <DetailRow label="Created At" value={new Date(contact.createdAt).toLocaleString()} />
               <DetailRow label="Last Modified By" value={contact.lastModifiedByName} />
-              <DetailRow label="Last Modified At" value={new Date(contact.lastModifiedAt).toLocaleString()} />
+              <DetailRow
+                label="Last Modified At"
+                value={new Date(contact.lastModifiedAt).toLocaleString()}
+              />
             </dl>
           </DetailSection>
         </div>

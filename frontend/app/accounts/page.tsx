@@ -1,22 +1,22 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { Account } from '@/types/account';
-import { accountsService } from '@/lib/accounts';
-import { authService } from '@/lib/auth';
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { Account } from "@/types/account";
+import { accountsService } from "@/lib/accounts";
+import { authService } from "@/lib/auth";
 
 export default function AccountsPage() {
   const router = useRouter();
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [filteredAccounts, setFilteredAccounts] = useState<Account[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!authService.isAuthenticated()) {
-      router.push('/login');
+      router.push("/login");
       return;
     }
     loadAccounts();
@@ -30,7 +30,7 @@ export default function AccountsPage() {
       setAccounts(data);
       setFilteredAccounts(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load accounts');
+      setError(err instanceof Error ? err.message : "Failed to load accounts");
     } finally {
       setLoading(false);
     }
@@ -47,12 +47,12 @@ export default function AccountsPage() {
       const results = await accountsService.searchAccounts(query);
       setFilteredAccounts(results);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Search failed');
+      setError(err instanceof Error ? err.message : "Search failed");
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this account?')) {
+    if (!confirm("Are you sure you want to delete this account?")) {
       return;
     }
 
@@ -60,160 +60,180 @@ export default function AccountsPage() {
       await accountsService.deleteAccount(id);
       loadAccounts();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to delete account');
+      setError(err instanceof Error ? err.message : "Failed to delete account");
     }
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-background-light flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading accounts...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4 text-slate-700">Loading accounts...</p>
         </div>
       </div>
     );
   }
 
   const formatCurrency = (value: number | undefined) => {
-    if (!value) return '-';
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value);
+    if (!value) return "-";
+    return new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR" }).format(value);
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Accounts</h1>
-          <p className="mt-2 text-gray-600">Manage your company accounts</p>
-        </div>
-
-        {/* Actions Bar */}
-        <div className="mb-6 flex flex-col sm:flex-row gap-4">
-          <div className="flex-1">
-            <input
-              type="text"
-              placeholder="Search accounts by name or website..."
-              value={searchQuery}
-              onChange={(e) => handleSearch(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
+    <div className="min-h-screen bg-background-light">
+      <main className="flex-1 overflow-y-auto">
+        <div className="p-8 max-w-7xl mx-auto w-full space-y-8">
+          {/* Page Header */}
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <h2 className="text-3xl font-extrabold tracking-tight text-slate-900">
+                Account Management
+              </h2>
+              <p className="text-slate-700">Manage your company accounts and relationships.</p>
+            </div>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => router.push("/accounts/new")}
+                className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg text-sm font-bold shadow-lg shadow-primary/20 hover:bg-primary/90 transition-all"
+              >
+                <span className="material-symbols-outlined text-lg">add</span>
+                New Account
+              </button>
+            </div>
           </div>
-          <button
-            onClick={() => router.push('/accounts/new')}
-            className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors whitespace-nowrap"
-          >
-            + New Account
-          </button>
-        </div>
 
-        {error && (
-          <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-            <p className="text-red-600">{error}</p>
+          {/* Search Bar */}
+          <div className="bg-white rounded-xl p-4">
+            <div className="relative">
+              <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">
+                search
+              </span>
+              <input
+                type="text"
+                placeholder="Search accounts by name or website..."
+                value={searchQuery}
+                onChange={(e) => handleSearch(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 bg-slate-100 border-none rounded-lg text-sm focus:ring-2 focus:ring-primary transition-all"
+              />
+            </div>
           </div>
-        )}
 
-        {/* Accounts Table */}
-        <div className="bg-white rounded-lg shadow overflow-hidden">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Account
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Industry
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Website
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Revenue
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Contacts
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Owner
-                </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {filteredAccounts.length === 0 ? (
-                <tr>
-                  <td colSpan={8} className="px-6 py-12 text-center text-gray-500">
-                    {searchQuery ? 'No accounts found matching your search' : 'No accounts yet. Create your first account!'}
-                  </td>
-                </tr>
-              ) : (
-                filteredAccounts.map((account) => (
-                  <tr key={account.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div>
-                        <div className="text-sm font-medium text-gray-900">{account.accountName}</div>
-                        <div className="text-sm text-gray-500">{account.accountId}</div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">{account.industry || '-'}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">{account.website || '-'}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">{formatCurrency(account.totalRevenue)}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">{account.totalContacts}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                        ${account.accountStatus === 'Active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
-                        {account.accountStatus}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">{account.ownerName}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <button
-                        onClick={() => router.push(`/accounts/${account.id}`)}
-                        className="text-blue-600 hover:text-blue-900 mr-4"
-                      >
-                        View
-                      </button>
-                      <button
-                        onClick={() => router.push(`/accounts/${account.id}/edit`)}
-                        className="text-indigo-600 hover:text-indigo-900 mr-4"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => handleDelete(account.id)}
-                        className="text-red-600 hover:text-red-900"
-                      >
-                        Delete
-                      </button>
-                    </td>
+          {error && <div className="bg-rose-50">{error}</div>}
+
+          {/* Accounts Table */}
+          <div className="bg-white rounded-xl overflow-hidden">
+            <div className="overflow-x-auto p-6">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-slate-50">
+                    <th className="px-6 py-3 text-xs font-bold uppercase tracking-wider text-slate-700">
+                      Account
+                    </th>
+                    <th className="px-6 py-3 text-xs font-bold uppercase tracking-wider text-slate-700">
+                      Industry
+                    </th>
+                    <th className="px-6 py-3 text-xs font-bold uppercase tracking-wider text-slate-700">
+                      Website
+                    </th>
+                    <th className="px-6 py-3 text-xs font-bold uppercase tracking-wider text-slate-700">
+                      Revenue
+                    </th>
+                    <th className="px-6 py-3 text-xs font-bold uppercase tracking-wider text-slate-700">
+                      Contacts
+                    </th>
+                    <th className="px-6 py-3 text-xs font-bold uppercase tracking-wider text-slate-700">
+                      Status
+                    </th>
+                    <th className="px-6 py-3 text-xs font-bold uppercase tracking-wider text-slate-700">
+                      Owner
+                    </th>
+                    <th className="px-6 py-3 text-xs font-bold uppercase tracking-wider text-slate-700">
+                      Actions
+                    </th>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {filteredAccounts.length === 0 ? (
+                    <tr>
+                      <td colSpan={8} className="px-6 py-12 text-center text-slate-700">
+                        {searchQuery
+                          ? "No accounts found matching your search"
+                          : "No accounts yet. Create your first account!"}
+                      </td>
+                    </tr>
+                  ) : (
+                    filteredAccounts.map((account) => (
+                      <tr key={account.id} className="hover:bg-slate-50">
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded bg-emerald-100">
+                              {account.accountName[0]}
+                            </div>
+                            <div>
+                              <p className="text-sm font-semibold text-slate-900">
+                                {account.accountName}
+                              </p>
+                              <p className="text-xs text-slate-700">{account.accountId}</p>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 text-sm text-slate-900">
+                          {account.industry || "-"}
+                        </td>
+                        <td className="px-6 py-4 text-sm text-slate-900">
+                          {account.website || "-"}
+                        </td>
+                        <td className="px-6 py-4 text-sm font-bold text-slate-900">
+                          {formatCurrency(account.totalRevenue)}
+                        </td>
+                        <td className="px-6 py-4 text-sm text-slate-900">
+                          {account.totalContacts}
+                        </td>
+                        <td className="px-6 py-4">
+                          <span
+                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                              account.accountStatus === "Active" ? "bg-emerald-50" : "bg-slate-100"
+                            }`}
+                          >
+                            {account.accountStatus}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-sm text-slate-900">{account.ownerName}</td>
+                        <td className="px-6 py-4 text-right text-sm font-medium">
+                          <button
+                            onClick={() => router.push(`/accounts/${account.id}`)}
+                            className="text-primary hover:text-primary/90 mr-4 transition-colors"
+                          >
+                            View
+                          </button>
+                          <button
+                            onClick={() => router.push(`/accounts/${account.id}/edit`)}
+                            className="text-primary hover:text-primary/90 mr-4 transition-colors"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleDelete(account.id)}
+                            className="text-rose-600"
+                          >
+                            Delete
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
 
-        {/* Stats */}
-        <div className="mt-4 text-sm text-gray-600">
-          Showing {filteredAccounts.length} of {accounts.length} accounts
+          {/* Stats */}
+          <div className="text-sm text-slate-700">
+            Showing {filteredAccounts.length} of {accounts.length} accounts
+          </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 }
