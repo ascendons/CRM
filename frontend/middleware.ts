@@ -10,7 +10,8 @@ export function middleware(request: NextRequest) {
                           pathname.startsWith('/leads') ||
                           pathname.startsWith('/contacts') ||
                           pathname.startsWith('/accounts') ||
-                          pathname.startsWith('/opportunities');
+                          pathname.startsWith('/opportunities') ||
+                          pathname.startsWith('/activities');
 
   if (isProtectedPage && !token) {
     return NextResponse.redirect(new URL('/login', request.url));
@@ -32,5 +33,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/', '/login', '/register', '/dashboard/:path*', '/leads/:path*', '/contacts/:path*', '/accounts/:path*', '/opportunities/:path*'],
+  matcher: ['/', '/login', '/register', '/dashboard/:path*', '/leads/:path*', '/contacts/:path*', '/accounts/:path*', '/opportunities/:path*', '/activities/:path*'],
 };

@@ -321,9 +321,21 @@ curl -X POST http://localhost:8080/api/v1/auth/login \
 - Stage history tracking
 - See `PHASE_4_COMPLETE.md` for detailed documentation
 
-### 🔲 Phase 5+: Advanced Features - FUTURE
-- Activity tracking (emails, calls, meetings)
-- Task management
+### ✅ Phase 5: Activity Management - COMPLETE (Backend + Core UI)
+- Full CRUD operations for Activities
+- 5 activity types (Task, Email, Call, Meeting, Note)
+- Link activities to leads, contacts, accounts, and opportunities
+- Scheduling with due dates and reminders
+- Status tracking (Pending, In Progress, Completed, Cancelled)
+- Priority levels (Low, Medium, High, Urgent)
+- Filter by type, status, priority, and related entities
+- Overdue activity detection
+- Comprehensive statistics
+- See `PHASE_5_COMPLETE.md` for detailed documentation
+
+### 🔲 Phase 6+: Advanced Features - FUTURE
+- Complete Activity UI pages (Create, Detail, Edit)
+- Activity Timeline widgets
 - Analytics and reports
 - Email integration
 - Document management

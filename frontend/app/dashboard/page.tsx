@@ -10,6 +10,7 @@ import { LeadStatistics } from '@/types/lead';
 import { contactsService } from '@/lib/contacts';
 import { accountsService } from '@/lib/accounts';
 import { opportunitiesService } from '@/lib/opportunities';
+import { activitiesService } from '@/lib/activities';
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -18,6 +19,7 @@ export default function DashboardPage() {
   const [contactCount, setContactCount] = useState<number>(0);
   const [accountCount, setAccountCount] = useState<number>(0);
   const [opportunityCount, setOpportunityCount] = useState<number>(0);
+  const [activityCount, setActivityCount] = useState<number>(0);
 
   useEffect(() => {
     if (!authService.isAuthenticated()) {
@@ -34,16 +36,18 @@ export default function DashboardPage() {
 
   const loadStatistics = async () => {
     try {
-      const [stats, contacts, accounts, opportunities] = await Promise.all([
+      const [stats, contacts, accounts, opportunities, activities] = await Promise.all([
         leadsService.getStatistics(),
         contactsService.getContactCount(),
         accountsService.getAccountCount(),
         opportunitiesService.getOpportunityCount(),
+        activitiesService.getActivityCount(),
       ]);
       setStatistics(stats);
       setContactCount(contacts);
       setAccountCount(accounts);
       setOpportunityCount(opportunities);
+      setActivityCount(activities);
     } catch (err) {
       console.error('Failed to load statistics:', err);
     }
@@ -83,6 +87,9 @@ export default function DashboardPage() {
                 </Link>
                 <Link href="/opportunities" className="text-gray-700 hover:text-orange-600 px-3 py-2 text-sm font-medium">
                   Opportunities
+                </Link>
+                <Link href="/activities" className="text-gray-700 hover:text-teal-600 px-3 py-2 text-sm font-medium">
+                  Activities
                 </Link>
               </div>
             </div>
@@ -152,7 +159,7 @@ export default function DashboardPage() {
             {/* Overall Statistics */}
             <div className="mt-8">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">CRM Overview</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
                 <Link href="/leads" className="bg-blue-50 p-6 rounded-lg hover:bg-blue-100 transition-colors">
                   <div className="flex items-center justify-between">
                     <div>
@@ -205,6 +212,20 @@ export default function DashboardPage() {
                     </div>
                     <svg className="h-12 w-12 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                </Link>
+
+                <Link href="/activities" className="bg-teal-50 p-6 rounded-lg hover:bg-teal-100 transition-colors">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="text-sm font-medium text-teal-700">Total Activities</div>
+                      <div className="mt-2 text-4xl font-bold text-teal-900">
+                        {activityCount}
+                      </div>
+                    </div>
+                    <svg className="h-12 w-12 text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
                     </svg>
                   </div>
                 </Link>
@@ -261,7 +282,7 @@ export default function DashboardPage() {
             {/* Quick Actions */}
             <div className="mt-8">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
                 <Link
                   href="/leads/new"
                   className="flex items-center p-4 bg-white border-2 border-blue-200 rounded-lg hover:border-blue-400 hover:shadow-md transition-all"
@@ -371,6 +392,34 @@ export default function DashboardPage() {
                   <div className="ml-4">
                     <div className="text-sm font-medium text-gray-900">Manage Opportunities</div>
                     <div className="text-xs text-gray-500">View and manage sales pipeline</div>
+                  </div>
+                </Link>
+
+                <Link
+                  href="/activities/new"
+                  className="flex items-center p-4 bg-white border-2 border-teal-200 rounded-lg hover:border-teal-400 hover:shadow-md transition-all"
+                >
+                  <div className="flex-shrink-0 h-12 w-12 bg-teal-500 rounded-lg flex items-center justify-center text-white text-2xl">
+                    +
+                  </div>
+                  <div className="ml-4">
+                    <div className="text-sm font-medium text-gray-900">Create New Activity</div>
+                    <div className="text-xs text-gray-500">Log a task, call, or meeting</div>
+                  </div>
+                </Link>
+
+                <Link
+                  href="/activities"
+                  className="flex items-center p-4 bg-white border-2 border-teal-200 rounded-lg hover:border-teal-400 hover:shadow-md transition-all"
+                >
+                  <div className="flex-shrink-0 h-12 w-12 bg-teal-500 rounded-lg flex items-center justify-center text-white">
+                    <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                    </svg>
+                  </div>
+                  <div className="ml-4">
+                    <div className="text-sm font-medium text-gray-900">Manage Activities</div>
+                    <div className="text-xs text-gray-500">View and track all activities</div>
                   </div>
                 </Link>
               </div>
