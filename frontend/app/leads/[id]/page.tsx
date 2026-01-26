@@ -12,6 +12,8 @@ import {
   formatLeadName,
   formatCompanySize,
 } from "@/types/lead";
+import { showToast } from "@/lib/toast";
+import ConfirmModal from "@/components/ConfirmModal";
 
 export default function LeadDetailPage() {
   const router = useRouter();
@@ -24,6 +26,8 @@ export default function LeadDetailPage() {
   const [error, setError] = useState("");
   const [showStatusModal, setShowStatusModal] = useState(false);
   const [newStatus, setNewStatus] = useState<LeadStatus>(LeadStatus.NEW);
+  const [showConvertModal, setShowConvertModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   useEffect(() => {
     loadLead();
@@ -50,47 +54,61 @@ export default function LeadDetailPage() {
       const updated = await leadsService.updateLeadStatus(lead.id, newStatus);
       setLead(updated);
       setShowStatusModal(false);
+      showToast.success("Lead status updated successfully");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to update status");
+      const errorMessage = err instanceof Error ? err.message : "Failed to update status";
+      setError(errorMessage);
+      showToast.error(errorMessage);
     } finally {
       setUpdating(false);
     }
   };
 
-  const handleConvert = async () => {
+  const handleConvertClick = () => {
     if (!lead) return;
 
     if (lead.leadStatus !== LeadStatus.QUALIFIED) {
-      alert("Only qualified leads can be converted");
+      showToast.warning("Only qualified leads can be converted");
       return;
     }
 
-    if (confirm("Are you sure you want to convert this lead to an opportunity?")) {
-      try {
-        setUpdating(true);
-        const converted = await leadsService.convertLead(lead.id);
-        setLead(converted);
-        alert("Lead converted successfully!");
-      } catch (err) {
-        alert(err instanceof Error ? err.message : "Failed to convert lead");
-      } finally {
-        setUpdating(false);
-      }
+    setShowConvertModal(true);
+  };
+
+  const handleConvertConfirm = async () => {
+    if (!lead) return;
+
+    try {
+      setUpdating(true);
+      const converted = await leadsService.convertLead(lead.id);
+      setLead(converted);
+      setShowConvertModal(false);
+      showToast.success("Lead converted successfully!");
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "Failed to convert lead";
+      showToast.error(errorMessage);
+    } finally {
+      setUpdating(false);
     }
   };
 
-  const handleDelete = async () => {
+  const handleDeleteClick = () => {
+    setShowDeleteModal(true);
+  };
+
+  const handleDeleteConfirm = async () => {
     if (!lead) return;
 
-    if (confirm("Are you sure you want to delete this lead? This action cannot be undone.")) {
-      try {
-        setUpdating(true);
-        await leadsService.deleteLead(lead.id);
-        router.push("/leads");
-      } catch (err) {
-        alert(err instanceof Error ? err.message : "Failed to delete lead");
-        setUpdating(false);
-      }
+    try {
+      setUpdating(true);
+      await leadsService.deleteLead(lead.id);
+      showToast.success("Lead deleted successfully");
+      router.push("/leads");
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "Failed to delete lead";
+      showToast.error(errorMessage);
+      setUpdating(false);
+      setShowDeleteModal(false);
     }
   };
 
@@ -167,7 +185,7 @@ export default function LeadDetailPage() {
               </button>
               {lead.leadStatus === LeadStatus.QUALIFIED && (
                 <button
-                  onClick={handleConvert}
+                  onClick={handleConvertClick}
                   disabled={updating}
                   className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-green-300"
                 >
@@ -175,7 +193,7 @@ export default function LeadDetailPage() {
                 </button>
               )}
               <button
-                onClick={handleDelete}
+                onClick={handleDeleteClick}
                 disabled={updating}
                 className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:bg-red-300"
               >
@@ -440,6 +458,32 @@ export default function LeadDetailPage() {
           </div>
         </div>
       )}
+
+      {/* Convert Confirmation Modal */}
+      <ConfirmModal
+        isOpen={showConvertModal}
+        title="Convert Lead"
+        message="Are you sure you want to convert this lead to a contact and account? This will create new contact and account records."
+        confirmLabel="Convert"
+        cancelLabel="Cancel"
+        confirmButtonClass="bg-green-600 hover:bg-green-700"
+        onConfirm={handleConvertConfirm}
+        onCancel={() => setShowConvertModal(false)}
+        isLoading={updating}
+      />
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmModal
+        isOpen={showDeleteModal}
+        title="Delete Lead"
+        message="Are you sure you want to delete this lead? This action cannot be undone."
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+        confirmButtonClass="bg-red-600 hover:bg-red-700"
+        onConfirm={handleDeleteConfirm}
+        onCancel={() => setShowDeleteModal(false)}
+        isLoading={updating}
+      />
     </div>
   );
 }

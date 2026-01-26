@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Opportunity, OpportunityStage } from "@/types/opportunity";
 import { opportunitiesService } from "@/lib/opportunities";
 import { authService } from "@/lib/auth";
+import EmptyState from "@/components/EmptyState";
 
 export default function OpportunitiesPage() {
   const router = useRouter();
@@ -95,8 +96,8 @@ export default function OpportunitiesPage() {
     }
   };
 
-  const formatCurrency = (value: number | undefined) => {
-    if (!value) return "-";
+  const formatCurrency = (value: number | undefined | null) => {
+    if (value === null || value === undefined || value === 0) return "-";
     return new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR" }).format(value);
   };
 
@@ -224,10 +225,21 @@ export default function OpportunitiesPage() {
                 <tbody className="divide-y divide-slate-100">
                   {filteredOpportunities.length === 0 ? (
                     <tr>
-                      <td colSpan={7} className="px-6 py-12 text-center text-slate-700">
-                        {searchQuery || stageFilter
-                          ? "No opportunities found matching your filters"
-                          : "No opportunities yet. Create your first opportunity!"}
+                      <td colSpan={7} className="p-0">
+                        {searchQuery || stageFilter ? (
+                          <EmptyState
+                            icon="search_off"
+                            title="No opportunities found"
+                            description="No opportunities match your current filters. Try adjusting your search or stage filter."
+                          />
+                        ) : (
+                          <EmptyState
+                            icon="handshake"
+                            title="No opportunities yet"
+                            description="Get started by creating your first sales opportunity to track deals in your pipeline."
+                            action={{ label: "Create Your First Opportunity", href: "/opportunities/new" }}
+                          />
+                        )}
                       </td>
                     </tr>
                   ) : (
@@ -235,8 +247,8 @@ export default function OpportunitiesPage() {
                       <tr key={opportunity.id} className="hover:bg-slate-50 transition-colors">
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded bg-blue-100">
-                              {opportunity.accountName[0]}
+                            <div className="w-8 h-8 rounded bg-blue-100 flex items-center justify-center text-blue-700 font-semibold text-sm">
+                              {opportunity.accountName?.[0]?.toUpperCase() || "O"}
                             </div>
                             <div>
                               <p className="text-sm font-semibold text-slate-900">
@@ -251,7 +263,7 @@ export default function OpportunitiesPage() {
                         </td>
                         <td className="px-6 py-4">
                           <span
-                            className={`px-2 py-1 ${getStageColor(opportunity.stage)} text-slate-900 rounded text-xs font-medium`}
+                            className={`px-2 py-1 ${getStageBadgeColor(opportunity.stage)} text-slate-900 rounded text-xs font-medium`}
                           >
                             {getStageLabel(opportunity.stage)}
                           </span>

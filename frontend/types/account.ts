@@ -58,12 +58,12 @@ export interface Account {
   currency?: string;
 
   // Metrics
-  totalOpportunities: number;
-  wonOpportunities: number;
-  lostOpportunities: number;
-  totalRevenue: number;
-  lifetimeValue: number;
-  totalContacts: number;
+  totalOpportunities?: number;
+  wonOpportunities?: number;
+  lostOpportunities?: number;
+  totalRevenue?: number;
+  lifetimeValue?: number;
+  totalContacts?: number;
 
   // Owner Information
   ownerId: string;

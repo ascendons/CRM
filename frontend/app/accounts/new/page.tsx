@@ -175,13 +175,32 @@ export default function NewAccountPage() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Industry</label>
-                <input
-                  type="text"
+                <select
                   name="industry"
                   value={formData.industry}
                   onChange={handleChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                />
+                >
+                  <option value="">Select...</option>
+                  <option value="TECHNOLOGY">Technology</option>
+                  <option value="MANUFACTURING">Manufacturing</option>
+                  <option value="HEALTHCARE">Healthcare</option>
+                  <option value="FINANCE">Finance</option>
+                  <option value="RETAIL">Retail</option>
+                  <option value="EDUCATION">Education</option>
+                  <option value="REAL_ESTATE">Real Estate</option>
+                  <option value="E_COMMERCE">E-Commerce</option>
+                  <option value="CONSULTING">Consulting</option>
+                  <option value="PROFESSIONAL_SERVICES">Professional Services</option>
+                  <option value="TELECOMMUNICATIONS">Telecommunications</option>
+                  <option value="TRANSPORTATION">Transportation</option>
+                  <option value="HOSPITALITY">Hospitality</option>
+                  <option value="AGRICULTURE">Agriculture</option>
+                  <option value="ENERGY">Energy</option>
+                  <option value="GOVERNMENT">Government</option>
+                  <option value="NON_PROFIT">Non-Profit</option>
+                  <option value="OTHER">Other</option>
+                </select>
               </div>
 
               <div>
@@ -193,12 +212,11 @@ export default function NewAccountPage() {
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">Select...</option>
-                  <option value="1-10">1-10</option>
-                  <option value="11-50">11-50</option>
-                  <option value="51-200">51-200</option>
-                  <option value="201-500">201-500</option>
-                  <option value="501-1000">501-1000</option>
-                  <option value="1000+">1000+</option>
+                  <option value="MICRO">Micro (1-10 employees)</option>
+                  <option value="SMALL">Small (11-50 employees)</option>
+                  <option value="MEDIUM">Medium (51-200 employees)</option>
+                  <option value="LARGE">Large (201-500 employees)</option>
+                  <option value="ENTERPRISE">Enterprise (500+ employees)</option>
                 </select>
               </div>
 

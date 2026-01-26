@@ -16,6 +16,28 @@ export default function RegisterPage() {
   const [error, setError] = useState<string>("");
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+
+  // Calculate password strength
+  const getPasswordStrength = (password: string) => {
+    let strength = 0;
+    if (password.length >= 8) strength++;
+    if (/[A-Z]/.test(password)) strength++;
+    if (/[a-z]/.test(password)) strength++;
+    if (/[0-9]/.test(password)) strength++;
+    if (/[@$!%*?&]/.test(password)) strength++;
+    return strength;
+  };
+
+  const passwordStrength = getPasswordStrength(formData.password);
+  const strengthLabel = ['Very Weak', 'Weak', 'Fair', 'Good', 'Strong'][passwordStrength] || 'Very Weak';
+  const strengthColor = [
+    'bg-red-500',
+    'bg-orange-500',
+    'bg-yellow-500',
+    'bg-lime-500',
+    'bg-green-500'
+  ][passwordStrength] || 'bg-red-500';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -70,8 +92,11 @@ export default function RegisterPage() {
 
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           {error && (
-            <div className="rounded-lg bg-rose-50">
-              <p className="text-sm text-rose-800">{error}</p>
+            <div className="rounded-lg bg-rose-50 border border-rose-200 p-4">
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-rose-600 text-sm">error</span>
+                <p className="text-sm text-rose-800">{error}</p>
+              </div>
             </div>
           )}
 
@@ -124,22 +149,52 @@ export default function RegisterPage() {
               <label htmlFor="password" className="block text-sm font-medium text-slate-900">
                 Password
               </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="new-password"
-                required
-                value={formData.password}
-                onChange={handleChange}
-                className={`appearance-none relative block w-full px-3 py-2 border input ${
-                  fieldErrors.password ? "border-rose-300" : "border-slate-300"
-                } placeholder-slate-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary focus:z-10 sm:text-sm transition-all`}
-                placeholder="Min. 8 chars with upper, lower, number & special char"
-              />
+              <div className="relative">
+                <input
+                  id="password"
+                  name="password"
+                  type={showPassword ? "text" : "password"}
+                  autoComplete="new-password"
+                  required
+                  value={formData.password}
+                  onChange={handleChange}
+                  className={`appearance-none relative block w-full px-3 py-2 pr-10 border input ${
+                    fieldErrors.password ? "border-rose-300" : "border-slate-300"
+                  } placeholder-slate-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary focus:z-10 sm:text-sm transition-all`}
+                  placeholder="Min. 8 chars with upper, lower, number & special char"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-700 focus:outline-none"
+                  tabIndex={-1}
+                >
+                  <span className="material-symbols-outlined text-sm">
+                    {showPassword ? "visibility_off" : "visibility"}
+                  </span>
+                </button>
+              </div>
               {fieldErrors.password && (
                 <p className="mt-1 text-sm text-rose-600">{fieldErrors.password}</p>
               )}
+
+              {/* Password Strength Indicator */}
+              {formData.password && (
+                <div className="mt-2">
+                  <div className="flex items-center gap-2 mb-1">
+                    <div className="flex-1 h-2 bg-slate-200 rounded-full overflow-hidden">
+                      <div
+                        className={`h-full transition-all duration-300 ${strengthColor}`}
+                        style={{ width: `${(passwordStrength / 5) * 100}%` }}
+                      />
+                    </div>
+                    <span className="text-xs font-medium text-slate-700 min-w-[70px]">
+                      {strengthLabel}
+                    </span>
+                  </div>
+                </div>
+              )}
+
               <p className="mt-1 text-xs text-slate-700">
                 Must contain at least 8 characters with uppercase, lowercase, number, and special
                 character

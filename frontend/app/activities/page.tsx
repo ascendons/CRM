@@ -5,6 +5,9 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { activitiesService } from '@/lib/activities';
 import { Activity, ActivityType, ActivityStatus, ActivityPriority } from '@/types/activity';
+import { showToast } from '@/lib/toast';
+import ConfirmModal from '@/components/ConfirmModal';
+import EmptyState from '@/components/EmptyState';
 
 export default function ActivitiesPage() {
   const router = useRouter();
@@ -15,6 +18,10 @@ export default function ActivitiesPage() {
   const [typeFilter, setTypeFilter] = useState<string>('');
   const [statusFilter, setStatusFilter] = useState<string>('');
   const [priorityFilter, setPriorityFilter] = useState<string>('');
+  const [error, setError] = useState<string>('');
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [activityToDelete, setActivityToDelete] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     loadActivities();
@@ -26,11 +33,14 @@ export default function ActivitiesPage() {
 
   const loadActivities = async () => {
     try {
+      setError('');
       const data = await activitiesService.getAllActivities();
       setActivities(data);
       setFilteredActivities(data);
     } catch (error) {
-      console.error('Failed to load activities:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to load activities';
+      setError(errorMessage);
+      showToast.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -61,18 +71,32 @@ export default function ActivitiesPage() {
     setFilteredActivities(filtered);
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this activity?')) {
-      return;
-    }
+  const handleDeleteClick = (id: string) => {
+    setActivityToDelete(id);
+    setShowDeleteModal(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!activityToDelete) return;
 
     try {
-      await activitiesService.deleteActivity(id);
+      setIsDeleting(true);
+      await activitiesService.deleteActivity(activityToDelete);
+      showToast.success('Activity deleted successfully');
+      setShowDeleteModal(false);
+      setActivityToDelete(null);
       loadActivities();
     } catch (error) {
-      console.error('Failed to delete activity:', error);
-      alert('Failed to delete activity');
+      const errorMessage = error instanceof Error ? error.message : 'Failed to delete activity';
+      showToast.error(errorMessage);
+    } finally {
+      setIsDeleting(false);
     }
+  };
+
+  const handleDeleteCancel = () => {
+    setShowDeleteModal(false);
+    setActivityToDelete(null);
   };
 
   const getTypeBadgeColor = (type: ActivityType) => {
@@ -130,6 +154,33 @@ export default function ActivitiesPage() {
               Create Activity
             </Link>
           </div>
+
+          {/* Error Banner */}
+          {error && (
+            <div className="bg-red-50 border-l-4 border-red-400 p-4 mb-6 rounded-r">
+              <div className="flex">
+                <span className="material-symbols-outlined text-red-400 mr-3">error</span>
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-red-800">{error}</p>
+                  <button
+                    onClick={() => {
+                      setError('');
+                      loadActivities();
+                    }}
+                    className="mt-2 text-xs text-red-600 hover:text-red-800 underline font-medium"
+                  >
+                    Try Again
+                  </button>
+                </div>
+                <button
+                  onClick={() => setError('')}
+                  className="ml-3 text-red-400 hover:text-red-600"
+                >
+                  <span className="material-symbols-outlined text-sm">close</span>
+                </button>
+              </div>
+            </div>
+          )}
 
           <div className="bg-white shadow rounded-lg p-6 mb-6">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -209,59 +260,88 @@ export default function ActivitiesPage() {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {filteredActivities.map((activity) => (
-                  <tr key={activity.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">{activity.subject}</div>
-                      <div className="text-sm text-gray-500">{activity.activityId}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getTypeBadgeColor(activity.type)}`}>
-                        {activity.type}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusBadgeColor(activity.status)}`}>
-                        {activity.status.replace('_', ' ')}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getPriorityBadgeColor(activity.priority)}`}>
-                        {activity.priority}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {activity.leadName || activity.contactName || activity.accountName || activity.opportunityName || '-'}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {activity.dueDate ? new Date(activity.dueDate).toLocaleDateString() : '-'}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <Link href={`/activities/${activity.id}`} className="text-teal-600 hover:text-teal-900 mr-3">
-                        View
-                      </Link>
-                      <Link href={`/activities/${activity.id}/edit`} className="text-blue-600 hover:text-blue-900 mr-3">
-                        Edit
-                      </Link>
-                      <button
-                        onClick={() => handleDelete(activity.id)}
-                        className="text-red-600 hover:text-red-900"
-                      >
-                        Delete
-                      </button>
+                {filteredActivities.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} className="p-0">
+                      {searchQuery || typeFilter || statusFilter || priorityFilter ? (
+                        <EmptyState
+                          icon="search_off"
+                          title="No activities found"
+                          description="No activities match your current filters. Try adjusting your search criteria or filters."
+                        />
+                      ) : (
+                        <EmptyState
+                          icon="event_busy"
+                          title="No activities yet"
+                          description="Get started by creating your first activity to track tasks, meetings, calls, and more."
+                          action={{ label: "Create Activity", href: "/activities/new" }}
+                        />
+                      )}
                     </td>
                   </tr>
-                ))}
+                ) : (
+                  filteredActivities.map((activity) => (
+                    <tr key={activity.id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm font-medium text-gray-900">{activity.subject}</div>
+                        <div className="text-sm text-gray-500">{activity.activityId}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getTypeBadgeColor(activity.type)}`}>
+                          {activity.type}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusBadgeColor(activity.status)}`}>
+                          {activity.status.replace('_', ' ')}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getPriorityBadgeColor(activity.priority)}`}>
+                          {activity.priority}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {activity.leadName || activity.contactName || activity.accountName || activity.opportunityName || '-'}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {activity.dueDate ? new Date(activity.dueDate).toLocaleDateString() : '-'}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <Link href={`/activities/${activity.id}`} className="text-teal-600 hover:text-teal-900 mr-3">
+                          View
+                        </Link>
+                        <Link href={`/activities/${activity.id}/edit`} className="text-blue-600 hover:text-blue-900 mr-3">
+                          Edit
+                        </Link>
+                        <button
+                          onClick={() => handleDeleteClick(activity.id)}
+                          className="text-red-600 hover:text-red-900"
+                        >
+                          Delete
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
-            {filteredActivities.length === 0 && (
-              <div className="text-center py-12">
-                <p className="text-gray-500">No activities found</p>
-              </div>
-            )}
           </div>
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmModal
+        isOpen={showDeleteModal}
+        title="Delete Activity"
+        message="Are you sure you want to delete this activity? This action cannot be undone."
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+        confirmButtonClass="bg-red-600 hover:bg-red-700"
+        onConfirm={handleDeleteConfirm}
+        onCancel={handleDeleteCancel}
+        isLoading={isDeleting}
+      />
     </div>
   );
 }

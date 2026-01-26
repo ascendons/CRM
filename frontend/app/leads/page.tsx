@@ -13,6 +13,9 @@ import {
   getLeadGradeColor,
   formatLeadName,
 } from "@/types/lead";
+import EmptyState from "@/components/EmptyState";
+import ConfirmModal from "@/components/ConfirmModal";
+import { showToast } from "@/lib/toast";
 
 export default function LeadsPage() {
   const router = useRouter();
@@ -23,6 +26,19 @@ export default function LeadsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<LeadStatus | "ALL">("ALL");
   const [error, setError] = useState("");
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(10);
+
+  // Sorting state
+  const [sortColumn, setSortColumn] = useState<string>("createdAt");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
+
+  // Bulk actions state
+  const [selectedLeads, setSelectedLeads] = useState<string[]>([]);
+  const [showBulkDeleteModal, setShowBulkDeleteModal] = useState(false);
+  const [bulkActionLoading, setBulkActionLoading] = useState(false);
 
   useEffect(() => {
     // Check authentication
@@ -87,11 +103,117 @@ export default function LeadsPage() {
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
+    setCurrentPage(1); // Reset to first page when search changes
   };
 
   const handleStatusFilter = (status: LeadStatus | "ALL") => {
     setStatusFilter(status);
+    setCurrentPage(1); // Reset to first page when filter changes
   };
+
+  const handleSort = (column: string) => {
+    if (sortColumn === column) {
+      // Toggle direction if same column
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+    } else {
+      // New column, default to ascending
+      setSortColumn(column);
+      setSortDirection("asc");
+    }
+    setCurrentPage(1); // Reset to first page when sorting changes
+  };
+
+  const getSortedLeads = (leadsToSort: Lead[]) => {
+    return [...leadsToSort].sort((a, b) => {
+      let aValue: any;
+      let bValue: any;
+
+      switch (sortColumn) {
+        case "name":
+          aValue = `${a.firstName} ${a.lastName}`.toLowerCase();
+          bValue = `${b.firstName} ${b.lastName}`.toLowerCase();
+          break;
+        case "company":
+          aValue = a.companyName.toLowerCase();
+          bValue = b.companyName.toLowerCase();
+          break;
+        case "score":
+          aValue = a.leadScore || 0;
+          bValue = b.leadScore || 0;
+          break;
+        case "status":
+          aValue = a.leadStatus;
+          bValue = b.leadStatus;
+          break;
+        case "createdAt":
+          aValue = new Date(a.createdAt).getTime();
+          bValue = new Date(b.createdAt).getTime();
+          break;
+        default:
+          return 0;
+      }
+
+      if (aValue < bValue) return sortDirection === "asc" ? -1 : 1;
+      if (aValue > bValue) return sortDirection === "asc" ? 1 : -1;
+      return 0;
+    });
+  };
+
+  // Get sorted and paginated leads
+  const sortedLeads = getSortedLeads(filteredLeads);
+  const totalPages = Math.ceil(sortedLeads.length / itemsPerPage);
+  const paginatedLeads = sortedLeads.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  // Bulk actions handlers
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedLeads(paginatedLeads.map((lead) => lead.id));
+    } else {
+      setSelectedLeads([]);
+    }
+  };
+
+  const handleSelectLead = (leadId: string, checked: boolean) => {
+    if (checked) {
+      setSelectedLeads([...selectedLeads, leadId]);
+    } else {
+      setSelectedLeads(selectedLeads.filter((id) => id !== leadId));
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    try {
+      setBulkActionLoading(true);
+
+      // Delete all selected leads
+      await Promise.all(
+        selectedLeads.map((leadId) => leadsService.deleteLead(leadId))
+      );
+
+      showToast.success(`Successfully deleted ${selectedLeads.length} lead(s)`);
+      setShowBulkDeleteModal(false);
+      setSelectedLeads([]);
+
+      // Reload leads
+      await loadLeads();
+      await loadStatistics();
+    } catch (err) {
+      showToast.error("Failed to delete some leads. Please try again.");
+    } finally {
+      setBulkActionLoading(false);
+    }
+  };
+
+  const isAllSelected = paginatedLeads.length > 0 && selectedLeads.length === paginatedLeads.length;
+  const isSomeSelected = selectedLeads.length > 0 && selectedLeads.length < paginatedLeads.length;
 
   if (loading) {
     return (
@@ -191,35 +313,156 @@ export default function LeadsPage() {
             {/* Error Message */}
             {error && <div className="bg-rose-50">{error}</div>}
 
+            {/* Bulk Actions Toolbar */}
+            {selectedLeads.length > 0 && (
+              <div className="bg-blue-50 border-y border-blue-200 px-6 py-4 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <span className="material-symbols-outlined text-blue-600">check_circle</span>
+                  <span className="text-sm font-semibold text-blue-900">
+                    {selectedLeads.length} lead{selectedLeads.length > 1 ? 's' : ''} selected
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setSelectedLeads([])}
+                    className="px-3 py-1.5 text-sm font-medium text-blue-700 hover:text-blue-900 hover:bg-blue-100 rounded transition-colors"
+                  >
+                    Clear Selection
+                  </button>
+                  <button
+                    onClick={() => setShowBulkDeleteModal(true)}
+                    className="px-3 py-1.5 bg-red-600 text-white text-sm font-semibold rounded hover:bg-red-700 transition-colors flex items-center gap-1"
+                  >
+                    <span className="material-symbols-outlined text-sm">delete</span>
+                    Delete Selected
+                  </button>
+                </div>
+              </div>
+            )}
+
             {/* Data Table */}
             <div className="overflow-x-auto px-6 pb-6">
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="bg-slate-50">
-                    <th className="px-6 py-3 border-b border-slate-200">Lead Name</th>
-                    <th className="px-6 py-3 border-b border-slate-200">Company</th>
-                    <th className="px-6 py-3 border-b border-slate-200">Score</th>
-                    <th className="px-6 py-3 border-b border-slate-200">Status</th>
-                    <th className="px-6 py-3 border-b border-slate-200">Last Action</th>
+                    <th className="px-4 py-3 border-b border-slate-200 w-12">
+                      <input
+                        type="checkbox"
+                        checked={isAllSelected}
+                        ref={(el) => {
+                          if (el) el.indeterminate = isSomeSelected;
+                        }}
+                        onChange={(e) => handleSelectAll(e.target.checked)}
+                        className="w-4 h-4 text-primary bg-white border-slate-300 rounded focus:ring-primary focus:ring-2 cursor-pointer"
+                      />
+                    </th>
+                    <th
+                      className="px-6 py-3 border-b border-slate-200 cursor-pointer hover:bg-slate-100 transition-colors group"
+                      onClick={() => handleSort("name")}
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-semibold text-slate-700 uppercase tracking-wider">Lead Name</span>
+                        <span className="material-symbols-outlined text-sm text-slate-400 group-hover:text-slate-600">
+                          {sortColumn === "name"
+                            ? (sortDirection === "asc" ? "arrow_upward" : "arrow_downward")
+                            : "unfold_more"}
+                        </span>
+                      </div>
+                    </th>
+                    <th
+                      className="px-6 py-3 border-b border-slate-200 cursor-pointer hover:bg-slate-100 transition-colors group"
+                      onClick={() => handleSort("company")}
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-semibold text-slate-700 uppercase tracking-wider">Company</span>
+                        <span className="material-symbols-outlined text-sm text-slate-400 group-hover:text-slate-600">
+                          {sortColumn === "company"
+                            ? (sortDirection === "asc" ? "arrow_upward" : "arrow_downward")
+                            : "unfold_more"}
+                        </span>
+                      </div>
+                    </th>
+                    <th
+                      className="px-6 py-3 border-b border-slate-200 cursor-pointer hover:bg-slate-100 transition-colors group"
+                      onClick={() => handleSort("score")}
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-semibold text-slate-700 uppercase tracking-wider">Score</span>
+                        <span className="material-symbols-outlined text-sm text-slate-400 group-hover:text-slate-600">
+                          {sortColumn === "score"
+                            ? (sortDirection === "asc" ? "arrow_upward" : "arrow_downward")
+                            : "unfold_more"}
+                        </span>
+                      </div>
+                    </th>
+                    <th
+                      className="px-6 py-3 border-b border-slate-200 cursor-pointer hover:bg-slate-100 transition-colors group"
+                      onClick={() => handleSort("status")}
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-semibold text-slate-700 uppercase tracking-wider">Status</span>
+                        <span className="material-symbols-outlined text-sm text-slate-400 group-hover:text-slate-600">
+                          {sortColumn === "status"
+                            ? (sortDirection === "asc" ? "arrow_upward" : "arrow_downward")
+                            : "unfold_more"}
+                        </span>
+                      </div>
+                    </th>
+                    <th
+                      className="px-6 py-3 border-b border-slate-200 cursor-pointer hover:bg-slate-100 transition-colors group"
+                      onClick={() => handleSort("createdAt")}
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-semibold text-slate-700 uppercase tracking-wider">Created</span>
+                        <span className="material-symbols-outlined text-sm text-slate-400 group-hover:text-slate-600">
+                          {sortColumn === "createdAt"
+                            ? (sortDirection === "asc" ? "arrow_upward" : "arrow_downward")
+                            : "unfold_more"}
+                        </span>
+                      </div>
+                    </th>
                     <th className="px-6 py-3 border-b border-slate-200"></th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
-                  {filteredLeads.length === 0 ? (
+                  {sortedLeads.length === 0 ? (
                     <tr>
-                      <td colSpan={6} className="p-12 text-center text-slate-700">
-                        {searchTerm || statusFilter !== "ALL"
-                          ? "No leads match your filters"
-                          : "No leads found. Create your first lead!"}
+                      <td colSpan={7} className="p-0">
+                        {searchTerm || statusFilter !== "ALL" ? (
+                          <EmptyState
+                            icon="search_off"
+                            title="No leads found"
+                            description="No leads match your current filters. Try adjusting your search criteria or filters."
+                          />
+                        ) : (
+                          <EmptyState
+                            icon="person_add"
+                            title="No leads yet"
+                            description="Get started by adding your first lead to the CRM. Track prospects and convert them into customers."
+                            action={{
+                              label: "Add Your First Lead",
+                              href: "/leads/new",
+                            }}
+                          />
+                        )}
                       </td>
                     </tr>
                   ) : (
-                    filteredLeads.map((lead) => (
+                    paginatedLeads.map((lead) => (
                       <tr
                         key={lead.id}
-                        className="hover:bg-slate-50 transition-colors cursor-pointer group"
+                        className="hover:bg-slate-50 transition-colors group"
                       >
-                        <td className="px-6 py-4">
+                        <td className="px-4 py-4">
+                          <input
+                            type="checkbox"
+                            checked={selectedLeads.includes(lead.id)}
+                            onChange={(e) => handleSelectLead(lead.id, e.target.checked)}
+                            onClick={(e) => e.stopPropagation()}
+                            className="w-4 h-4 text-primary bg-white border-slate-300 rounded focus:ring-primary focus:ring-2 cursor-pointer"
+                          />
+                        </td>
+                        <td className="px-6 py-4 cursor-pointer" onClick={() => router.push(`/leads/${lead.id}`)}>
                           <div className="flex items-center gap-3">
                             <div className="size-8 rounded-full bg-blue-100">
                               {lead.firstName[0]}
@@ -233,10 +476,10 @@ export default function LeadsPage() {
                             </div>
                           </div>
                         </td>
-                        <td className="px-6 py-4 text-sm font-medium text-slate-900">
+                        <td className="px-6 py-4 text-sm font-medium text-slate-900 cursor-pointer" onClick={() => router.push(`/leads/${lead.id}`)}>
                           {lead.companyName}
                         </td>
-                        <td className="px-6 py-4">
+                        <td className="px-6 py-4 cursor-pointer" onClick={() => router.push(`/leads/${lead.id}`)}>
                           <div className="flex items-center gap-2">
                             <span className="size-2 rounded-full bg-green-500"></span>
                             <span className="text-sm font-bold text-green-600">
@@ -244,14 +487,14 @@ export default function LeadsPage() {
                             </span>
                           </div>
                         </td>
-                        <td className="px-6 py-4">
+                        <td className="px-6 py-4 cursor-pointer" onClick={() => router.push(`/leads/${lead.id}`)}>
                           <span
                             className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-bold ${getLeadStatusColor(lead.leadStatus)}`}
                           >
                             {lead.leadStatus.replace("_", " ")}
                           </span>
                         </td>
-                        <td className="px-6 py-4 text-xs text-slate-700">
+                        <td className="px-6 py-4 text-xs text-slate-700 cursor-pointer" onClick={() => router.push(`/leads/${lead.id}`)}>
                           Created {new Date(lead.createdAt).toLocaleDateString()}
                         </td>
                         <td className="px-6 py-4 text-right">
@@ -270,12 +513,119 @@ export default function LeadsPage() {
             </div>
           </div>
 
-          {/* Stats */}
-          <div className="text-sm text-slate-700">
-            Showing {filteredLeads.length} of {leads.length} leads
-          </div>
+          {/* Pagination Controls */}
+          {sortedLeads.length > 0 && (
+            <div className="bg-white border-t border-slate-200 px-6 py-4 flex items-center justify-between">
+              <div className="flex-1 flex justify-between items-center sm:hidden">
+                <button
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  className="relative inline-flex items-center px-4 py-2 border border-slate-300 text-sm font-medium rounded-md text-slate-700 bg-white hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Previous
+                </button>
+                <div className="text-sm text-slate-700">
+                  Page {currentPage} of {totalPages}
+                </div>
+                <button
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  className="ml-3 relative inline-flex items-center px-4 py-2 border border-slate-300 text-sm font-medium rounded-md text-slate-700 bg-white hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Next
+                </button>
+              </div>
+
+              <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                <div>
+                  <p className="text-sm text-slate-700">
+                    Showing{" "}
+                    <span className="font-medium">
+                      {(currentPage - 1) * itemsPerPage + 1}
+                    </span>{" "}
+                    to{" "}
+                    <span className="font-medium">
+                      {Math.min(currentPage * itemsPerPage, sortedLeads.length)}
+                    </span>{" "}
+                    of <span className="font-medium">{sortedLeads.length}</span>{" "}
+                    results
+                  </p>
+                </div>
+                <div>
+                  <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                    <button
+                      onClick={() => handlePageChange(currentPage - 1)}
+                      disabled={currentPage === 1}
+                      className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-slate-300 bg-white text-sm font-medium text-slate-500 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <span className="sr-only">Previous</span>
+                      <span className="material-symbols-outlined text-sm">chevron_left</span>
+                    </button>
+
+                    {/* Page Numbers */}
+                    {Array.from({ length: totalPages }, (_, i) => i + 1)
+                      .filter((page) => {
+                        // Show first page, last page, current page, and pages around current
+                        return (
+                          page === 1 ||
+                          page === totalPages ||
+                          (page >= currentPage - 1 && page <= currentPage + 1)
+                        );
+                      })
+                      .map((page, index, array) => {
+                        // Add ellipsis if there's a gap
+                        const prevPage = array[index - 1];
+                        const showEllipsis = prevPage && page - prevPage > 1;
+
+                        return (
+                          <div key={page} className="inline-flex">
+                            {showEllipsis && (
+                              <span className="relative inline-flex items-center px-4 py-2 border border-slate-300 bg-white text-sm font-medium text-slate-700">
+                                ...
+                              </span>
+                            )}
+                            <button
+                              onClick={() => handlePageChange(page)}
+                              className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
+                                currentPage === page
+                                  ? "z-10 bg-primary border-primary text-white"
+                                  : "bg-white border-slate-300 text-slate-700 hover:bg-slate-50"
+                              }`}
+                            >
+                              {page}
+                            </button>
+                          </div>
+                        );
+                      })}
+
+                    <button
+                      onClick={() => handlePageChange(currentPage + 1)}
+                      disabled={currentPage === totalPages}
+                      className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-slate-300 bg-white text-sm font-medium text-slate-500 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <span className="sr-only">Next</span>
+                      <span className="material-symbols-outlined text-sm">chevron_right</span>
+                    </button>
+                  </nav>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </main>
+
+      {/* Bulk Delete Confirmation Modal */}
+      <ConfirmModal
+        isOpen={showBulkDeleteModal}
+        title="Delete Multiple Leads"
+        message={`Are you sure you want to delete ${selectedLeads.length} lead${selectedLeads.length > 1 ? 's' : ''}? This action cannot be undone.`}
+        confirmLabel={`Delete ${selectedLeads.length} Lead${selectedLeads.length > 1 ? 's' : ''}`}
+        cancelLabel="Cancel"
+        confirmButtonClass="bg-red-600 hover:bg-red-700"
+        onConfirm={handleBulkDelete}
+        onCancel={() => setShowBulkDeleteModal(false)}
+        isLoading={bulkActionLoading}
+      />
     </div>
   );
 }

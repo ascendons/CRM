@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Contact } from "@/types/contact";
 import { contactsService } from "@/lib/contacts";
 import { authService } from "@/lib/auth";
+import EmptyState from "@/components/EmptyState";
 
 export default function ContactsPage() {
   const router = useRouter();
@@ -150,10 +151,21 @@ export default function ContactsPage() {
                 <tbody className="divide-y divide-slate-100">
                   {filteredContacts.length === 0 ? (
                     <tr>
-                      <td colSpan={7} className="px-6 py-12 text-center text-slate-700">
-                        {searchQuery
-                          ? "No contacts found matching your search"
-                          : "No contacts yet. Create your first contact!"}
+                      <td colSpan={7} className="p-0">
+                        {searchQuery ? (
+                          <EmptyState
+                            icon="search_off"
+                            title="No contacts found"
+                            description="No contacts match your current search. Try adjusting your search criteria."
+                          />
+                        ) : (
+                          <EmptyState
+                            icon="contacts"
+                            title="No contacts yet"
+                            description="Get started by adding your first contact to manage customer relationships."
+                            action={{ label: "Add Your First Contact", href: "/contacts/new" }}
+                          />
+                        )}
                       </td>
                     </tr>
                   ) : (
@@ -161,9 +173,9 @@ export default function ContactsPage() {
                       <tr key={contact.id} className="hover:bg-slate-50 transition-colors">
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
-                            <div className="size-8 rounded-full bg-purple-100">
-                              {contact.firstName[0]}
-                              {contact.lastName[0]}
+                            <div className="size-8 rounded-full bg-purple-100 flex items-center justify-center text-purple-700 font-semibold text-xs">
+                              {contact.firstName?.[0]?.toUpperCase() || ""}
+                              {contact.lastName?.[0]?.toUpperCase() || "C"}
                             </div>
                             <div>
                               <p className="text-sm font-semibold text-slate-900">

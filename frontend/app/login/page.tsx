@@ -15,6 +15,7 @@ export default function LoginPage() {
   const [error, setError] = useState<string>("");
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -69,8 +70,11 @@ export default function LoginPage() {
 
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           {error && (
-            <div className="rounded-lg bg-rose-50">
-              <p className="text-sm text-rose-800">{error}</p>
+            <div className="rounded-lg bg-rose-50 border border-rose-200 p-4">
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-rose-600 text-sm">error</span>
+                <p className="text-sm text-rose-800">{error}</p>
+              </div>
             </div>
           )}
 
@@ -101,22 +105,39 @@ export default function LoginPage() {
               <label htmlFor="password" className="block text-sm font-medium text-dark-primary">
                 Password
               </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="current-password"
-                required
-                value={formData.password}
-                onChange={handleChange}
-                className={`appearance-none relative block w-full px-3 py-2 border input ${
-                  fieldErrors.password ? "border-rose-300" : "border-slate-300"
-                } placeholder-slate-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary focus:z-10 sm:text-sm transition-all`}
-                placeholder="Enter your password"
-              />
+              <div className="relative">
+                <input
+                  id="password"
+                  name="password"
+                  type={showPassword ? "text" : "password"}
+                  autoComplete="current-password"
+                  required
+                  value={formData.password}
+                  onChange={handleChange}
+                  className={`appearance-none relative block w-full px-3 py-2 pr-10 border input ${
+                    fieldErrors.password ? "border-rose-300" : "border-slate-300"
+                  } placeholder-slate-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary focus:z-10 sm:text-sm transition-all`}
+                  placeholder="Enter your password"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-700 focus:outline-none"
+                  tabIndex={-1}
+                >
+                  <span className="material-symbols-outlined text-sm">
+                    {showPassword ? "visibility_off" : "visibility"}
+                  </span>
+                </button>
+              </div>
               {fieldErrors.password && (
                 <p className="mt-1 text-sm text-rose-600">{fieldErrors.password}</p>
               )}
+              <div className="text-right mt-2">
+                <Link href="/forgot-password" className="text-sm text-primary hover:text-primary/90 font-medium">
+                  Forgot password?
+                </Link>
+              </div>
             </div>
           </div>
 

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Account } from "@/types/account";
 import { accountsService } from "@/lib/accounts";
 import { authService } from "@/lib/auth";
+import EmptyState from "@/components/EmptyState";
 
 export default function AccountsPage() {
   const router = useRouter();
@@ -75,8 +76,8 @@ export default function AccountsPage() {
     );
   }
 
-  const formatCurrency = (value: number | undefined) => {
-    if (!value) return "-";
+  const formatCurrency = (value: number | undefined | null) => {
+    if (value === null || value === undefined || value === 0) return "-";
     return new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR" }).format(value);
   };
 
@@ -156,10 +157,21 @@ export default function AccountsPage() {
                 <tbody className="divide-y divide-slate-100">
                   {filteredAccounts.length === 0 ? (
                     <tr>
-                      <td colSpan={8} className="px-6 py-12 text-center text-slate-700">
-                        {searchQuery
-                          ? "No accounts found matching your search"
-                          : "No accounts yet. Create your first account!"}
+                      <td colSpan={8} className="p-0">
+                        {searchQuery ? (
+                          <EmptyState
+                            icon="search_off"
+                            title="No accounts found"
+                            description="No accounts match your current search. Try adjusting your search criteria."
+                          />
+                        ) : (
+                          <EmptyState
+                            icon="business"
+                            title="No accounts yet"
+                            description="Get started by adding your first company account to manage business relationships."
+                            action={{ label: "Add Your First Account", href: "/accounts/new" }}
+                          />
+                        )}
                       </td>
                     </tr>
                   ) : (
@@ -167,8 +179,8 @@ export default function AccountsPage() {
                       <tr key={account.id} className="hover:bg-slate-50">
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded bg-emerald-100">
-                              {account.accountName[0]}
+                            <div className="w-8 h-8 rounded bg-emerald-100 flex items-center justify-center text-emerald-700 font-semibold text-sm">
+                              {account.accountName?.[0]?.toUpperCase() || "A"}
                             </div>
                             <div>
                               <p className="text-sm font-semibold text-slate-900">
@@ -188,15 +200,15 @@ export default function AccountsPage() {
                           {formatCurrency(account.totalRevenue)}
                         </td>
                         <td className="px-6 py-4 text-sm text-slate-900">
-                          {account.totalContacts}
+                          {account.totalContacts ?? 0}
                         </td>
                         <td className="px-6 py-4">
                           <span
                             className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                              account.accountStatus === "Active" ? "bg-emerald-50" : "bg-slate-100"
+                              account.accountStatus === "Active" ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-700"
                             }`}
                           >
-                            {account.accountStatus}
+                            {account.accountStatus || "Inactive"}
                           </span>
                         </td>
                         <td className="px-6 py-4 text-sm text-slate-900">{account.ownerName}</td>
