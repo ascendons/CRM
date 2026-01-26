@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Contact } from "@/types/contact";
 import { contactsService } from "@/lib/contacts";
 import { authService } from "@/lib/auth";
 
-export default function ContactDetailPage({ params }: { params: { id: string } }) {
+export default function ContactDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params);
   const router = useRouter();
   const [contact, setContact] = useState<Contact | null>(null);
   const [loading, setLoading] = useState(true);
@@ -15,7 +16,7 @@ export default function ContactDetailPage({ params }: { params: { id: string } }
   const loadContact = async () => {
     try {
       setLoading(true);
-      const data = await contactsService.getContactById(params.id);
+      const data = await contactsService.getContactById(id);
       setContact(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load contact");
@@ -31,7 +32,7 @@ export default function ContactDetailPage({ params }: { params: { id: string } }
     }
     loadContact();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [params.id, router]);
+  }, [id, router]);
 
   const handleDelete = async () => {
     if (!confirm("Are you sure you want to delete this contact?")) {
@@ -39,7 +40,7 @@ export default function ContactDetailPage({ params }: { params: { id: string } }
     }
 
     try {
-      await contactsService.deleteContact(params.id);
+      await contactsService.deleteContact(id);
       router.push("/contacts");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to delete contact");

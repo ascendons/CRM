@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { use, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Opportunity, UpdateOpportunityRequest, OpportunityStage } from "@/types/opportunity";
 import { opportunitiesService } from "@/lib/opportunities";
@@ -10,7 +10,8 @@ import { Account } from "@/types/account";
 import { Contact } from "@/types/contact";
 import { authService } from "@/lib/auth";
 
-export default function EditOpportunityPage({ params }: { params: { id: string } }) {
+export default function EditOpportunityPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params);
   const router = useRouter();
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [contacts, setContacts] = useState<Contact[]>([]);
@@ -58,13 +59,13 @@ export default function EditOpportunityPage({ params }: { params: { id: string }
       return;
     }
     loadData();
-  }, [params.id, router]);
+  }, [id, router]);
 
   const loadData = async () => {
     try {
       setLoading(true);
       const [opportunityData, accountsData, contactsData] = await Promise.all([
-        opportunitiesService.getOpportunityById(params.id),
+        opportunitiesService.getOpportunityById(id),
         accountsService.getAllAccounts(),
         contactsService.getAllContacts(),
       ]);
@@ -119,8 +120,8 @@ export default function EditOpportunityPage({ params }: { params: { id: string }
     setError(null);
 
     try {
-      await opportunitiesService.updateOpportunity(params.id, formData);
-      router.push(`/opportunities/${params.id}`);
+      await opportunitiesService.updateOpportunity(id, formData);
+      router.push(`/opportunities/${id}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to update opportunity");
       setSubmitting(false);

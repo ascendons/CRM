@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Account } from "@/types/account";
 import { accountsService } from "@/lib/accounts";
 import { authService } from "@/lib/auth";
 
-export default function AccountDetailPage({ params }: { params: { id: string } }) {
+export default function AccountDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params);
   const router = useRouter();
   const [account, setAccount] = useState<Account | null>(null);
   const [loading, setLoading] = useState(true);
@@ -19,12 +20,12 @@ export default function AccountDetailPage({ params }: { params: { id: string } }
     }
     loadAccount();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [params.id, router]);
+  }, [id, router]);
 
   const loadAccount = async () => {
     try {
       setLoading(true);
-      const data = await accountsService.getAccountById(params.id);
+      const data = await accountsService.getAccountById(id);
       setAccount(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load account");
@@ -39,7 +40,7 @@ export default function AccountDetailPage({ params }: { params: { id: string } }
     }
 
     try {
-      await accountsService.deleteAccount(params.id);
+      await accountsService.deleteAccount(id);
       router.push("/accounts");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to delete account");

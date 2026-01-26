@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Opportunity, OpportunityStage } from "@/types/opportunity";
 import { opportunitiesService } from "@/lib/opportunities";
 import { authService } from "@/lib/auth";
 
-export default function OpportunityDetailPage({ params }: { params: { id: string } }) {
+export default function OpportunityDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params);
   const router = useRouter();
   const [opportunity, setOpportunity] = useState<Opportunity | null>(null);
   const [loading, setLoading] = useState(true);
@@ -18,12 +19,12 @@ export default function OpportunityDetailPage({ params }: { params: { id: string
       return;
     }
     loadOpportunity();
-  }, [params.id, router]);
+  }, [id, router]);
 
   const loadOpportunity = async () => {
     try {
       setLoading(true);
-      const data = await opportunitiesService.getOpportunityById(params.id);
+      const data = await opportunitiesService.getOpportunityById(id);
       setOpportunity(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load opportunity");
@@ -38,7 +39,7 @@ export default function OpportunityDetailPage({ params }: { params: { id: string
     }
 
     try {
-      await opportunitiesService.deleteOpportunity(params.id);
+      await opportunitiesService.deleteOpportunity(id);
       router.push("/opportunities");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to delete opportunity");

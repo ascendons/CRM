@@ -1,12 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { use, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Account, UpdateAccountRequest } from "@/types/account";
 import { accountsService } from "@/lib/accounts";
 import { authService } from "@/lib/auth";
 
-export default function EditAccountPage({ params }: { params: { id: string } }) {
+export default function EditAccountPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params);
   const router = useRouter();
   const [account, setAccount] = useState<Account | null>(null);
   const [parentAccounts, setParentAccounts] = useState<Account[]>([]);
@@ -16,7 +17,7 @@ export default function EditAccountPage({ params }: { params: { id: string } }) 
 
   const loadAccount = async () => {
     try {
-      const data = await accountsService.getAccountById(params.id);
+      const data = await accountsService.getAccountById(id);
       setAccount(data);
       // Pre-populate form
       setFormData({
@@ -82,7 +83,7 @@ export default function EditAccountPage({ params }: { params: { id: string } }) 
     loadAccount();
     loadParentAccounts();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [params.id, router]);
+  }, [id, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -90,7 +91,7 @@ export default function EditAccountPage({ params }: { params: { id: string } }) 
     setError(null);
 
     try {
-      const updated = await accountsService.updateAccount(params.id, formData);
+      const updated = await accountsService.updateAccount(id, formData);
       router.push(`/accounts/${updated.id}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to update account");

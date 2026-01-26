@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { use, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Contact, UpdateContactRequest } from "@/types/contact";
 import { contactsService } from "@/lib/contacts";
@@ -8,7 +8,8 @@ import { accountsService } from "@/lib/accounts";
 import { Account } from "@/types/account";
 import { authService } from "@/lib/auth";
 
-export default function EditContactPage({ params }: { params: { id: string } }) {
+export default function EditContactPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params);
   const router = useRouter();
   const [contact, setContact] = useState<Contact | null>(null);
   const [accounts, setAccounts] = useState<Account[]>([]);
@@ -18,7 +19,7 @@ export default function EditContactPage({ params }: { params: { id: string } }) 
 
   const loadContact = async () => {
     try {
-      const data = await contactsService.getContactById(params.id);
+      const data = await contactsService.getContactById(id);
       setContact(data);
       // Pre-populate form
       setFormData({
@@ -79,7 +80,7 @@ export default function EditContactPage({ params }: { params: { id: string } }) 
     loadContact();
     loadAccounts();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [params.id, router]);
+  }, [id, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -87,7 +88,7 @@ export default function EditContactPage({ params }: { params: { id: string } }) 
     setError(null);
 
     try {
-      const updated = await contactsService.updateContact(params.id, formData);
+      const updated = await contactsService.updateContact(id, formData);
       router.push(`/contacts/${updated.id}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to update contact");
