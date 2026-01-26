@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Contact 360 Degree View - CRM</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#3780f6",
+                        "background-light": "#f5f7f8",
+                        "background-dark": "#101722",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-[#0d131c] dark:text-slate-200">
+<div class="flex h-screen flex-col">
+<!-- TopNavBar -->
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-slate-200 dark:border-slate-800 bg-white dark:bg-background-dark px-10 py-3 shrink-0">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-4 text-primary">
+<div class="size-8 flex items-center justify-center bg-primary rounded-lg text-white">
+<span class="material-symbols-outlined">hub</span>
+</div>
+<h2 class="text-[#0d131c] dark:text-white text-lg font-bold leading-tight tracking-[-0.015em]">Contact 360</h2>
+</div>
+<nav class="hidden md:flex items-center gap-9">
+<a class="text-[#0d131c] dark:text-slate-300 text-sm font-medium leading-normal hover:text-primary" href="#">Dashboard</a>
+<a class="text-[#0d131c] dark:text-slate-300 text-sm font-medium leading-normal hover:text-primary" href="#">Leads</a>
+<a class="text-primary text-sm font-bold leading-normal border-b-2 border-primary" href="#">Contacts</a>
+<a class="text-[#0d131c] dark:text-slate-300 text-sm font-medium leading-normal hover:text-primary" href="#">Deals</a>
+<a class="text-[#0d131c] dark:text-slate-300 text-sm font-medium leading-normal hover:text-primary" href="#">Reports</a>
+</nav>
+</div>
+<div class="flex flex-1 justify-end gap-4 max-w-md">
+<label class="flex flex-col flex-1 h-10">
+<div class="flex w-full flex-1 items-stretch rounded-lg h-full">
+<div class="text-[#48699d] flex border-none bg-slate-100 dark:bg-slate-800 items-center justify-center pl-4 rounded-l-lg border-r-0">
+<span class="material-symbols-outlined text-xl">search</span>
+</div>
+<input class="form-input flex w-full min-w-0 flex-1 rounded-lg text-[#0d131c] dark:text-white focus:outline-0 focus:ring-0 border-none bg-slate-100 dark:bg-slate-800 placeholder:text-[#48699d] px-4 rounded-l-none border-l-0 pl-2 text-sm font-normal" placeholder="Search across CRM..." value=""/>
+</div>
+</label>
+<div class="flex gap-2">
+<button class="flex items-center justify-center rounded-lg h-10 bg-slate-100 dark:bg-slate-800 text-[#0d131c] dark:text-white px-3">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="flex items-center justify-center rounded-lg h-10 bg-slate-100 dark:bg-slate-800 text-[#0d131c] dark:text-white px-3">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</div>
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10" data-alt="User profile avatar" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDQeMUTl5xWqe7w-UG5b0t93Y24AZSugwlhHjRYVEBCG4CkDcCBr1iQafd6xt3DYcHMwzLMogpg3VATmUioHFP4W_MKGSvptmeknmjNI4YqtoYzdvUAkN_KK0EWe02CWUTpUCzl6RHCBfRcEWV9Pzh3TLuPA5vD2U6Em_ls9VgFK_IyKpCGplLNMdiaOu8FHyTpNbS51DKliy1ebAT9Eu90GyKBuNkRHoJUVUDAM6b2cdt5YjIGYzQVNU3T6NB3hsmNHcSp7Pif6uw");'></div>
+</div>
+</header>
+<div class="flex flex-1 overflow-hidden">
+<!-- Sidebar: Contact Info -->
+<aside class="w-80 flex flex-col bg-white dark:bg-background-dark border-r border-slate-200 dark:border-slate-800 overflow-y-auto">
+<div class="p-6">
+<!-- Profile Header Component Style -->
+<div class="flex flex-col items-center text-center mb-8">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-32 mb-4 ring-4 ring-slate-100 dark:ring-slate-800" data-alt="John Doe contact portrait" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuC2qafz489zf5WVUc4IhiOoM04_KO-U3zOuRRdhbeqcRf0Zn7mgdpvB6H5esnFdiYtIAwB2QygpFwILTzywPIK4jC9ba6WIXIXoC71zoorCa-dwSj0FQ3-YOGWOxUyRzO6rU7udHcwVyFn7Ku6u7F2Ps1kHqOZ9WyXXuUa2eJKeCJx6hMiNnejdYzi-5A43LYStpQfKR4wXsWxFmWwMlcMLjLaekF8BdCWkj-_VlEHTnpnwIVBlWelbNEaZTOQCE5HvNAHIhDvJtwk");'></div>
+<h1 class="text-[#0d131c] dark:text-white text-xl font-bold leading-tight">John Doe</h1>
+<p class="text-[#48699d] dark:text-slate-400 text-sm mt-1">Senior VP of Engineering</p>
+<p class="text-primary text-sm font-semibold mt-1">TechCorp Solutions</p>
+</div>
+<!-- Chips/Tags -->
+<div class="flex flex-wrap gap-2 mb-8">
+<div class="flex items-center justify-center rounded-lg bg-primary/10 text-primary px-3 py-1 text-xs font-bold uppercase tracking-wider">
+                            VIP
+                        </div>
+<div class="flex items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-3 py-1 text-xs font-bold uppercase tracking-wider">
+                            Decision Maker
+                        </div>
+<div class="flex items-center justify-center rounded-lg bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 px-3 py-1 text-xs font-bold uppercase tracking-wider">
+                            High Priority
+                        </div>
+</div>
+<!-- Detailed Info -->
+<div class="space-y-6">
+<div>
+<p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">Contact Details</p>
+<div class="space-y-3">
+<div class="flex items-center gap-3 text-sm">
+<span class="material-symbols-outlined text-slate-400">mail</span>
+<a class="text-primary hover:underline" href="mailto:john.doe@techcorp.com">john.doe@techcorp.com</a>
+</div>
+<div class="flex items-center gap-3 text-sm text-slate-600 dark:text-slate-300">
+<span class="material-symbols-outlined text-slate-400">call</span>
+<span>+1 (555) 123-4567</span>
+</div>
+<div class="flex items-center gap-3 text-sm text-slate-600 dark:text-slate-300">
+<span class="material-symbols-outlined text-slate-400">location_on</span>
+<span>123 Tech Way, San Francisco, CA</span>
+</div>
+</div>
+</div>
+<div>
+<p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">Social Profiles</p>
+<div class="flex gap-3">
+<button class="size-8 flex items-center justify-center rounded bg-slate-100 dark:bg-slate-800 hover:bg-primary/20 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-lg">share</span>
+</button>
+<button class="size-8 flex items-center justify-center rounded bg-slate-100 dark:bg-slate-800 hover:bg-primary/20 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-lg">language</span>
+</button>
+<button class="size-8 flex items-center justify-center rounded bg-slate-100 dark:bg-slate-800 hover:bg-primary/20 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-lg">hub</span>
+</button>
+</div>
+</div>
+</div>
+<div class="mt-10">
+<button class="w-full flex items-center justify-center gap-2 rounded-lg h-10 bg-primary text-white text-sm font-bold tracking-[0.015em] hover:bg-primary/90 transition-colors">
+<span class="material-symbols-outlined text-xl">edit</span>
+<span>Edit Contact</span>
+</button>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 flex flex-col bg-background-light dark:bg-background-dark overflow-y-auto">
+<!-- Breadcrumbs -->
+<div class="px-8 py-4 bg-white dark:bg-background-dark/50 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center">
+<div class="flex items-center gap-2 text-sm">
+<a class="text-slate-500 hover:text-primary font-medium" href="#">Contacts</a>
+<span class="text-slate-300 font-medium">/</span>
+<span class="text-[#0d131c] dark:text-white font-bold">John Doe</span>
+</div>
+<div class="flex gap-2">
+<button class="flex items-center gap-2 rounded-lg h-9 px-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-sm font-medium">
+<span class="material-symbols-outlined text-lg">ios_share</span>
+                            Export
+                        </button>
+<button class="flex items-center gap-2 rounded-lg h-9 px-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-sm font-medium">
+<span class="material-symbols-outlined text-lg">more_horiz</span>
+</button>
+</div>
+</div>
+<!-- Tabs Navigation -->
+<div class="px-8 bg-white dark:bg-background-dark/50 border-b border-slate-200 dark:border-slate-800">
+<div class="flex gap-8">
+<button class="py-4 text-primary font-bold text-sm border-b-2 border-primary">Timeline</button>
+<button class="py-4 text-slate-500 dark:text-slate-400 font-medium text-sm hover:text-slate-800 dark:hover:text-slate-200">Deals (3)</button>
+<button class="py-4 text-slate-500 dark:text-slate-400 font-medium text-sm hover:text-slate-800 dark:hover:text-slate-200">Company</button>
+<button class="py-4 text-slate-500 dark:text-slate-400 font-medium text-sm hover:text-slate-800 dark:hover:text-slate-200">Files (12)</button>
+<button class="py-4 text-slate-500 dark:text-slate-400 font-medium text-sm hover:text-slate-800 dark:hover:text-slate-200">Settings</button>
+</div>
+</div>
+<div class="p-8 max-w-4xl mx-auto w-full">
+<!-- ActivityForm -->
+<div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden mb-8">
+<div class="flex border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
+<button class="px-6 py-3 text-sm font-bold text-primary flex items-center gap-2 border-b-2 border-primary">
+<span class="material-symbols-outlined text-lg">note_add</span>
+                                New Note
+                            </button>
+<button class="px-6 py-3 text-sm font-medium text-slate-500 dark:text-slate-400 flex items-center gap-2 hover:text-slate-700 dark:hover:text-slate-200">
+<span class="material-symbols-outlined text-lg">call</span>
+                                Log a Call
+                            </button>
+<button class="px-6 py-3 text-sm font-medium text-slate-500 dark:text-slate-400 flex items-center gap-2 hover:text-slate-700 dark:hover:text-slate-200">
+<span class="material-symbols-outlined text-lg">event</span>
+                                Meeting
+                            </button>
+</div>
+<div class="p-4">
+<textarea class="w-full border-none focus:ring-0 text-sm bg-transparent dark:text-white placeholder:text-slate-400 min-h-[100px] resize-none" placeholder="Write a note about John..."></textarea>
+</div>
+<div class="p-3 bg-slate-50 dark:bg-slate-800/30 flex justify-between items-center border-t border-slate-100 dark:border-slate-800">
+<div class="flex gap-2">
+<button class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300">
+<span class="material-symbols-outlined text-xl">attach_file</span>
+</button>
+<button class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300">
+<span class="material-symbols-outlined text-xl">alternate_email</span>
+</button>
+</div>
+<button class="bg-primary text-white px-5 py-2 rounded-lg text-sm font-bold hover:bg-primary/90 shadow-sm transition-all">
+                                Save Note
+                            </button>
+</div>
+</div>
+<!-- Contact Timeline -->
+<div class="space-y-6">
+<div class="flex items-center justify-between mb-2">
+<h3 class="text-lg font-bold dark:text-white">Activity History</h3>
+<button class="flex items-center gap-1 text-sm font-medium text-primary">
+<span class="material-symbols-outlined text-lg">filter_list</span>
+                                Filter
+                            </button>
+</div>
+<!-- Timeline Item 1 -->
+<div class="relative pl-10">
+<div class="absolute left-[15px] top-[40px] bottom-[-24px] w-0.5 bg-slate-100 dark:bg-slate-800"></div>
+<div class="absolute left-0 top-0 size-8 rounded-full bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 flex items-center justify-center ring-4 ring-background-light dark:ring-background-dark z-10">
+<span class="material-symbols-outlined text-lg">call</span>
+</div>
+<div class="bg-white dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+<div class="flex justify-between items-start mb-2">
+<p class="text-sm font-bold dark:text-white">Outgoing Call to John Doe</p>
+<span class="text-xs text-slate-400">2 hours ago</span>
+</div>
+<p class="text-sm text-slate-600 dark:text-slate-400 leading-relaxed mb-3">
+                                    Discussed the Q3 technical roadmap. John is specifically interested in the security features of the Enterprise tier. Requested a demo for his DevOps lead next Tuesday.
+                                </p>
+<div class="flex items-center gap-3">
+<span class="flex items-center gap-1 px-2 py-1 rounded bg-slate-100 dark:bg-slate-800 text-[10px] font-bold text-slate-500">
+<span class="material-symbols-outlined text-xs">timer</span> 12:45 min
+                                    </span>
+<span class="flex items-center gap-1 px-2 py-1 rounded bg-green-50 text-[10px] font-bold text-green-600 dark:bg-green-900/20 dark:text-green-400">
+<span class="material-symbols-outlined text-xs">check_circle</span> Connected
+                                    </span>
+</div>
+</div>
+</div>
+<!-- Timeline Item 2 -->
+<div class="relative pl-10">
+<div class="absolute left-[15px] top-[40px] bottom-[-24px] w-0.5 bg-slate-100 dark:bg-slate-800"></div>
+<div class="absolute left-0 top-0 size-8 rounded-full bg-purple-100 dark:bg-purple-900/40 text-purple-600 dark:text-purple-400 flex items-center justify-center ring-4 ring-background-light dark:ring-background-dark z-10">
+<span class="material-symbols-outlined text-lg">mail</span>
+</div>
+<div class="bg-white dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+<div class="flex justify-between items-start mb-2">
+<p class="text-sm font-bold dark:text-white">Email Received: "Re: Enterprise Pricing Quotation"</p>
+<span class="text-xs text-slate-400">Yesterday, 4:30 PM</span>
+</div>
+<p class="text-sm text-slate-600 dark:text-slate-400 leading-relaxed italic border-l-2 border-slate-200 dark:border-slate-700 pl-4 mb-4">
+                                    "Thanks for the breakdown, Sarah. We need to review this with our CFO but the numbers look in line with our budget..."
+                                </p>
+<button class="text-primary text-xs font-bold hover:underline">View full thread</button>
+</div>
+</div>
+<!-- Timeline Item 3 -->
+<div class="relative pl-10">
+<div class="absolute left-[15px] top-[40px] bottom-[-24px] w-0.5 bg-slate-100 dark:bg-slate-800"></div>
+<div class="absolute left-0 top-0 size-8 rounded-full bg-green-100 dark:bg-green-900/40 text-green-600 dark:text-green-400 flex items-center justify-center ring-4 ring-background-light dark:ring-background-dark z-10">
+<span class="material-symbols-outlined text-lg">description</span>
+</div>
+<div class="bg-white dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+<div class="flex justify-between items-start mb-2">
+<p class="text-sm font-bold dark:text-white">New Note Added</p>
+<span class="text-xs text-slate-400">Oct 24, 2023</span>
+</div>
+<p class="text-sm text-slate-600 dark:text-slate-400 leading-relaxed mb-3">
+                                    Met John at the TechSummit. He mentioned they are phasing out their legacy provider by EOY. High potential for a multi-year deal.
+                                </p>
+<div class="flex -space-x-2">
+<div class="size-6 rounded-full border-2 border-white dark:border-slate-900 bg-slate-400 flex items-center justify-center text-[10px] text-white" data-alt="Team member Sarah" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBUoFoVwRPzCfBD6Gi2Eo8i5r0d3jbnrHMW1VLnaG6Wtxuugy5ZZIw-p-eWk9WWqQl8DWZs3goxaCSFOGd4T4IFMCl03Z6TF24os6UBcEWBPFJ7chEQAaBDRjsvtXOIHF0rs9kAYqcUbZnINQitJkMy8QZFyRT8zd9Cz1WlYr-oGSTMzUrR2Fhu8FofyBCx4hOz6eEQ2xknqGIr2BEs_kIKRCciZoJkcyiVyV54T4jB6fTyIKairAY1OhwiGcA-QLw-haJs1sKG-k0'); background-size: cover;"></div>
+<div class="size-6 rounded-full border-2 border-white dark:border-slate-900 bg-primary flex items-center justify-center text-[10px] text-white font-bold">SM</div>
+</div>
+</div>
+</div>
+<!-- Timeline Item 4 -->
+<div class="relative pl-10">
+<div class="absolute left-0 top-0 size-8 rounded-full bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400 flex items-center justify-center ring-4 ring-background-light dark:ring-background-dark z-10">
+<span class="material-symbols-outlined text-lg">calendar_today</span>
+</div>
+<div class="bg-white dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+<div class="flex justify-between items-start mb-2">
+<p class="text-sm font-bold dark:text-white">On-site Meeting at TechCorp HQ</p>
+<span class="text-xs text-slate-400">Oct 20, 2023</span>
+</div>
+<p class="text-sm text-slate-600 dark:text-slate-400 leading-relaxed mb-4">
+                                    Finalized the initial technical requirements and compliance check.
+                                </p>
+<div class="flex gap-4">
+<div class="flex items-center gap-2 border border-slate-100 dark:border-slate-700 rounded p-2 flex-1">
+<span class="material-symbols-outlined text-red-500">picture_as_pdf</span>
+<span class="text-xs font-medium dark:text-slate-300">Technical_Requirements.pdf</span>
+<span class="text-[10px] text-slate-400 ml-auto">2.4 MB</span>
+</div>
+</div>
+</div>
+</div>
+<div class="py-10 text-center">
+<button class="text-primary text-sm font-bold hover:bg-primary/5 px-6 py-2 rounded-lg transition-colors">
+                                Load Older Activities
+                            </button>
+</div>
+</div>
+</div>
+</main>
+</div>
+</div>
+</body></html>

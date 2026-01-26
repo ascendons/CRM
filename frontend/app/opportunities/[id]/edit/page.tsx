@@ -1,14 +1,14 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { Opportunity, UpdateOpportunityRequest, OpportunityStage } from '@/types/opportunity';
-import { opportunitiesService } from '@/lib/opportunities';
-import { accountsService } from '@/lib/accounts';
-import { contactsService } from '@/lib/contacts';
-import { Account } from '@/types/account';
-import { Contact } from '@/types/contact';
-import { authService } from '@/lib/auth';
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { Opportunity, UpdateOpportunityRequest, OpportunityStage } from "@/types/opportunity";
+import { opportunitiesService } from "@/lib/opportunities";
+import { accountsService } from "@/lib/accounts";
+import { contactsService } from "@/lib/contacts";
+import { Account } from "@/types/account";
+import { Contact } from "@/types/contact";
+import { authService } from "@/lib/auth";
 
 export default function EditOpportunityPage({ params }: { params: { id: string } }) {
   const router = useRouter();
@@ -19,42 +19,42 @@ export default function EditOpportunityPage({ params }: { params: { id: string }
   const [error, setError] = useState<string | null>(null);
 
   const [formData, setFormData] = useState<UpdateOpportunityRequest>({
-    opportunityName: '',
+    opportunityName: "",
     stage: OpportunityStage.PROSPECTING,
-    accountId: '',
+    accountId: "",
     amount: 0,
     probability: 0,
-    expectedCloseDate: '',
-    actualCloseDate: '',
-    primaryContactId: '',
-    type: '',
-    leadSource: '',
-    campaignSource: '',
-    nextStep: '',
-    description: '',
+    expectedCloseDate: "",
+    actualCloseDate: "",
+    primaryContactId: "",
+    type: "",
+    leadSource: "",
+    campaignSource: "",
+    nextStep: "",
+    description: "",
     forecastAmount: 0,
-    currency: 'USD',
+    currency: "INR",
     discountAmount: 0,
     totalAmount: 0,
     products: [],
     services: [],
-    solutionOffered: '',
+    solutionOffered: "",
     competitors: [],
-    competitiveAdvantage: '',
-    lossReason: '',
-    decisionMaker: '',
-    decisionCriteria: '',
-    budgetConfirmed: '',
-    decisionTimeframe: '',
-    deliveryStatus: '',
-    paymentTerms: '',
+    competitiveAdvantage: "",
+    lossReason: "",
+    decisionMaker: "",
+    decisionCriteria: "",
+    budgetConfirmed: "",
+    decisionTimeframe: "",
+    deliveryStatus: "",
+    paymentTerms: "",
     tags: [],
-    notes: '',
+    notes: "",
   });
 
   useEffect(() => {
     if (!authService.isAuthenticated()) {
-      router.push('/login');
+      router.push("/login");
       return;
     }
     loadData();
@@ -79,35 +79,35 @@ export default function EditOpportunityPage({ params }: { params: { id: string }
         accountId: opportunityData.accountId,
         amount: opportunityData.amount,
         probability: opportunityData.probability,
-        expectedCloseDate: opportunityData.expectedCloseDate?.split('T')[0] || '',
-        actualCloseDate: opportunityData.actualCloseDate?.split('T')[0] || '',
-        primaryContactId: opportunityData.primaryContactId || '',
-        type: opportunityData.type || '',
-        leadSource: opportunityData.leadSource || '',
-        campaignSource: opportunityData.campaignSource || '',
-        nextStep: opportunityData.nextStep || '',
-        description: opportunityData.description || '',
+        expectedCloseDate: opportunityData.expectedCloseDate?.split("T")[0] || "",
+        actualCloseDate: opportunityData.actualCloseDate?.split("T")[0] || "",
+        primaryContactId: opportunityData.primaryContactId || "",
+        type: opportunityData.type || "",
+        leadSource: opportunityData.leadSource || "",
+        campaignSource: opportunityData.campaignSource || "",
+        nextStep: opportunityData.nextStep || "",
+        description: opportunityData.description || "",
         forecastAmount: opportunityData.forecastAmount || 0,
-        currency: opportunityData.currency || 'USD',
+        currency: opportunityData.currency || "INR",
         discountAmount: opportunityData.discountAmount || 0,
         totalAmount: opportunityData.totalAmount || 0,
         products: opportunityData.products || [],
         services: opportunityData.services || [],
-        solutionOffered: opportunityData.solutionOffered || '',
+        solutionOffered: opportunityData.solutionOffered || "",
         competitors: opportunityData.competitors || [],
-        competitiveAdvantage: opportunityData.competitiveAdvantage || '',
-        lossReason: opportunityData.lossReason || '',
-        decisionMaker: opportunityData.decisionMaker || '',
-        decisionCriteria: opportunityData.decisionCriteria || '',
-        budgetConfirmed: opportunityData.budgetConfirmed || '',
-        decisionTimeframe: opportunityData.decisionTimeframe || '',
-        deliveryStatus: opportunityData.deliveryStatus || '',
-        paymentTerms: opportunityData.paymentTerms || '',
+        competitiveAdvantage: opportunityData.competitiveAdvantage || "",
+        lossReason: opportunityData.lossReason || "",
+        decisionMaker: opportunityData.decisionMaker || "",
+        decisionCriteria: opportunityData.decisionCriteria || "",
+        budgetConfirmed: opportunityData.budgetConfirmed || "",
+        decisionTimeframe: opportunityData.decisionTimeframe || "",
+        deliveryStatus: opportunityData.deliveryStatus || "",
+        paymentTerms: opportunityData.paymentTerms || "",
         tags: opportunityData.tags || [],
-        notes: opportunityData.notes || '',
+        notes: opportunityData.notes || "",
       });
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load opportunity');
+      setError(err instanceof Error ? err.message : "Failed to load opportunity");
     } finally {
       setLoading(false);
     }
@@ -122,22 +122,27 @@ export default function EditOpportunityPage({ params }: { params: { id: string }
       await opportunitiesService.updateOpportunity(params.id, formData);
       router.push(`/opportunities/${params.id}`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to update opportunity');
+      setError(err instanceof Error ? err.message : "Failed to update opportunity");
       setSubmitting(false);
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
     const { name, value, type } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: type === 'number' ? parseFloat(value) || 0 : value,
+      [name]: type === "number" ? parseFloat(value) || 0 : value,
     }));
   };
 
   const handleArrayChange = (name: string, value: string) => {
-    const array = value.split(',').map(item => item.trim()).filter(item => item);
-    setFormData(prev => ({ ...prev, [name]: array }));
+    const array = value
+      .split(",")
+      .map((item) => item.trim())
+      .filter((item) => item);
+    setFormData((prev) => ({ ...prev, [name]: array }));
   };
 
   if (loading) {
@@ -282,7 +287,7 @@ export default function EditOpportunityPage({ params }: { params: { id: string }
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
                 >
                   <option value="">Select Account...</option>
-                  {accounts.map(account => (
+                  {accounts.map((account) => (
                     <option key={account.id} value={account.id}>
                       {account.accountName}
                     </option>
@@ -301,7 +306,7 @@ export default function EditOpportunityPage({ params }: { params: { id: string }
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
                 >
                   <option value="">Select Contact...</option>
-                  {contacts.map(contact => (
+                  {contacts.map((contact) => (
                     <option key={contact.id} value={contact.id}>
                       {contact.firstName} {contact.lastName}
                     </option>
@@ -316,9 +321,7 @@ export default function EditOpportunityPage({ params }: { params: { id: string }
             <h2 className="text-xl font-semibold text-gray-900 mb-4">Sales Information</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Type
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Type</label>
                 <select
                   name="type"
                   value={formData.type}
@@ -333,9 +336,7 @@ export default function EditOpportunityPage({ params }: { params: { id: string }
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Lead Source
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Lead Source</label>
                 <input
                   type="text"
                   name="leadSource"
@@ -359,9 +360,7 @@ export default function EditOpportunityPage({ params }: { params: { id: string }
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Next Step
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Next Step</label>
                 <input
                   type="text"
                   name="nextStep"
@@ -372,9 +371,7 @@ export default function EditOpportunityPage({ params }: { params: { id: string }
               </div>
 
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Description
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
                 <textarea
                   name="description"
                   value={formData.description}
@@ -406,9 +403,7 @@ export default function EditOpportunityPage({ params }: { params: { id: string }
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Currency
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Currency</label>
                 <input
                   type="text"
                   name="currency"
@@ -434,9 +429,7 @@ export default function EditOpportunityPage({ params }: { params: { id: string }
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Total Amount
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Total Amount</label>
                 <input
                   type="number"
                   name="totalAmount"
@@ -460,8 +453,8 @@ export default function EditOpportunityPage({ params }: { params: { id: string }
                 </label>
                 <input
                   type="text"
-                  defaultValue={formData.products?.join(', ')}
-                  onChange={(e) => handleArrayChange('products', e.target.value)}
+                  defaultValue={formData.products?.join(", ")}
+                  onChange={(e) => handleArrayChange("products", e.target.value)}
                   placeholder="Product A, Product B, Product C"
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
                 />
@@ -473,8 +466,8 @@ export default function EditOpportunityPage({ params }: { params: { id: string }
                 </label>
                 <input
                   type="text"
-                  defaultValue={formData.services?.join(', ')}
-                  onChange={(e) => handleArrayChange('services', e.target.value)}
+                  defaultValue={formData.services?.join(", ")}
+                  onChange={(e) => handleArrayChange("services", e.target.value)}
                   placeholder="Service A, Service B, Service C"
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
                 />
@@ -505,8 +498,8 @@ export default function EditOpportunityPage({ params }: { params: { id: string }
                 </label>
                 <input
                   type="text"
-                  defaultValue={formData.competitors?.join(', ')}
-                  onChange={(e) => handleArrayChange('competitors', e.target.value)}
+                  defaultValue={formData.competitors?.join(", ")}
+                  onChange={(e) => handleArrayChange("competitors", e.target.value)}
                   placeholder="Competitor A, Competitor B, Competitor C"
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
                 />
@@ -636,17 +629,15 @@ export default function EditOpportunityPage({ params }: { params: { id: string }
                 </label>
                 <input
                   type="text"
-                  defaultValue={formData.tags?.join(', ')}
-                  onChange={(e) => handleArrayChange('tags', e.target.value)}
+                  defaultValue={formData.tags?.join(", ")}
+                  onChange={(e) => handleArrayChange("tags", e.target.value)}
                   placeholder="tag1, tag2, tag3"
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
                 />
               </div>
 
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Notes
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Notes</label>
                 <textarea
                   name="notes"
                   value={formData.notes}
@@ -665,7 +656,7 @@ export default function EditOpportunityPage({ params }: { params: { id: string }
               disabled={submitting}
               className="px-6 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
             >
-              {submitting ? 'Updating...' : 'Update Opportunity'}
+              {submitting ? "Updating..." : "Update Opportunity"}
             </button>
             <button
               type="button"

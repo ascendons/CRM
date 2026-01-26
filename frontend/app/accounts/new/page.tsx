@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { CreateAccountRequest } from '@/types/account';
-import { accountsService } from '@/lib/accounts';
-import { authService } from '@/lib/auth';
-import { Account } from '@/types/account';
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { CreateAccountRequest } from "@/types/account";
+import { accountsService } from "@/lib/accounts";
+import { authService } from "@/lib/auth";
+import { Account } from "@/types/account";
 
 export default function NewAccountPage() {
   const router = useRouter();
@@ -14,62 +14,62 @@ export default function NewAccountPage() {
   const [error, setError] = useState<string | null>(null);
 
   const [formData, setFormData] = useState<CreateAccountRequest>({
-    accountName: '',
-    parentAccountId: '',
-    accountType: '',
-    industry: '',
-    companySize: '',
+    accountName: "",
+    parentAccountId: "",
+    accountType: "",
+    industry: "",
+    companySize: "",
     annualRevenue: undefined,
     numberOfEmployees: undefined,
-    ownership: '',
-    phone: '',
-    fax: '',
-    website: '',
-    email: '',
-    billingStreet: '',
-    billingCity: '',
-    billingState: '',
-    billingPostalCode: '',
-    billingCountry: '',
-    shippingStreet: '',
-    shippingCity: '',
-    shippingState: '',
-    shippingPostalCode: '',
-    shippingCountry: '',
-    tickerSymbol: '',
-    sicCode: '',
-    naicsCode: '',
-    dunsNumber: '',
-    taxId: '',
-    linkedInPage: '',
-    twitterHandle: '',
-    facebookPage: '',
-    paymentTerms: '',
-    creditStatus: '',
+    ownership: "",
+    phone: "",
+    fax: "",
+    website: "",
+    email: "",
+    billingStreet: "",
+    billingCity: "",
+    billingState: "",
+    billingPostalCode: "",
+    billingCountry: "",
+    shippingStreet: "",
+    shippingCity: "",
+    shippingState: "",
+    shippingPostalCode: "",
+    shippingCountry: "",
+    tickerSymbol: "",
+    sicCode: "",
+    naicsCode: "",
+    dunsNumber: "",
+    taxId: "",
+    linkedInPage: "",
+    twitterHandle: "",
+    facebookPage: "",
+    paymentTerms: "",
+    creditStatus: "",
     creditLimit: undefined,
-    currency: '',
-    description: '',
-    rating: '',
+    currency: "",
+    description: "",
+    rating: "",
     tags: [],
-    notes: '',
+    notes: "",
   });
-
-  useEffect(() => {
-    if (!authService.isAuthenticated()) {
-      router.push('/login');
-      return;
-    }
-    loadParentAccounts();
-  }, [router]);
 
   const loadParentAccounts = async () => {
     try {
       const data = await accountsService.getAllAccounts();
       setParentAccounts(data);
     } catch (err) {
-      console.error('Failed to load accounts:', err);
+      console.error("Failed to load accounts:", err);
     }
   };
+
+  useEffect(() => {
+    if (!authService.isAuthenticated()) {
+      router.push("/login");
+      return;
+    }
+    loadParentAccounts();
+  }, [router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -80,22 +80,27 @@ export default function NewAccountPage() {
       const account = await accountsService.createAccount(formData);
       router.push(`/accounts/${account.id}`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create account');
+      setError(err instanceof Error ? err.message : "Failed to create account");
       setLoading(false);
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
     const { name, value, type } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: type === 'number' ? (value ? parseFloat(value) : undefined) : value,
+      [name]: type === "number" ? (value ? parseFloat(value) : undefined) : value,
     }));
   };
 
   const handleTagsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const tags = e.target.value.split(',').map(tag => tag.trim()).filter(tag => tag);
-    setFormData(prev => ({ ...prev, tags }));
+    const tags = e.target.value
+      .split(",")
+      .map((tag) => tag.trim())
+      .filter((tag) => tag);
+    setFormData((prev) => ({ ...prev, tags }));
   };
 
   return (
@@ -142,7 +147,7 @@ export default function NewAccountPage() {
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">Select Parent Account...</option>
-                  {parentAccounts.map(account => (
+                  {parentAccounts.map((account) => (
                     <option key={account.id} value={account.id}>
                       {account.accountName}
                     </option>
@@ -151,9 +156,7 @@ export default function NewAccountPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Account Type
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Account Type</label>
                 <select
                   name="accountType"
                   value={formData.accountType}
@@ -171,9 +174,7 @@ export default function NewAccountPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Industry
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Industry</label>
                 <input
                   type="text"
                   name="industry"
@@ -184,9 +185,7 @@ export default function NewAccountPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Company Size
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Company Size</label>
                 <select
                   name="companySize"
                   value={formData.companySize}
@@ -210,7 +209,7 @@ export default function NewAccountPage() {
                 <input
                   type="number"
                   name="annualRevenue"
-                  value={formData.annualRevenue || ''}
+                  value={formData.annualRevenue || ""}
                   onChange={handleChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 />
@@ -223,7 +222,7 @@ export default function NewAccountPage() {
                 <input
                   type="number"
                   name="numberOfEmployees"
-                  value={formData.numberOfEmployees || ''}
+                  value={formData.numberOfEmployees || ""}
                   onChange={handleChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 />
@@ -236,9 +235,7 @@ export default function NewAccountPage() {
             <h2 className="text-xl font-semibold text-gray-900 mb-4">Contact Information</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Phone
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Phone</label>
                 <input
                   type="tel"
                   name="phone"
@@ -249,9 +246,7 @@ export default function NewAccountPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Website
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Website</label>
                 <input
                   type="url"
                   name="website"
@@ -263,9 +258,7 @@ export default function NewAccountPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Email
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
                 <input
                   type="email"
                   name="email"
@@ -282,9 +275,7 @@ export default function NewAccountPage() {
             <h2 className="text-xl font-semibold text-gray-900 mb-4">Billing Address</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Street
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Street</label>
                 <input
                   type="text"
                   name="billingStreet"
@@ -295,9 +286,7 @@ export default function NewAccountPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  City
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">City</label>
                 <input
                   type="text"
                   name="billingCity"
@@ -321,9 +310,7 @@ export default function NewAccountPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Postal Code
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Postal Code</label>
                 <input
                   type="text"
                   name="billingPostalCode"
@@ -334,9 +321,7 @@ export default function NewAccountPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Country
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Country</label>
                 <input
                   type="text"
                   name="billingCountry"
@@ -353,9 +338,7 @@ export default function NewAccountPage() {
             <h2 className="text-xl font-semibold text-gray-900 mb-4">Shipping Address</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Street
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Street</label>
                 <input
                   type="text"
                   name="shippingStreet"
@@ -366,9 +349,7 @@ export default function NewAccountPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  City
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">City</label>
                 <input
                   type="text"
                   name="shippingCity"
@@ -392,9 +373,7 @@ export default function NewAccountPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Postal Code
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Postal Code</label>
                 <input
                   type="text"
                   name="shippingPostalCode"
@@ -405,9 +384,7 @@ export default function NewAccountPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Country
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Country</label>
                 <input
                   type="text"
                   name="shippingCountry"
@@ -437,9 +414,7 @@ export default function NewAccountPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  SIC Code
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">SIC Code</label>
                 <input
                   type="text"
                   name="sicCode"
@@ -450,9 +425,7 @@ export default function NewAccountPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Tax ID
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Tax ID</label>
                 <input
                   type="text"
                   name="taxId"
@@ -541,22 +514,18 @@ export default function NewAccountPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Credit Limit
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Credit Limit</label>
                 <input
                   type="number"
                   name="creditLimit"
-                  value={formData.creditLimit || ''}
+                  value={formData.creditLimit || ""}
                   onChange={handleChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Currency
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Currency</label>
                 <select
                   name="currency"
                   value={formData.currency}
@@ -564,6 +533,7 @@ export default function NewAccountPage() {
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">Select...</option>
+                  <option value="INR">INR</option>
                   <option value="USD">USD</option>
                   <option value="EUR">EUR</option>
                   <option value="GBP">GBP</option>
@@ -580,9 +550,7 @@ export default function NewAccountPage() {
             <h2 className="text-xl font-semibold text-gray-900 mb-4">Additional Information</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Description
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
                 <textarea
                   name="description"
                   value={formData.description}
@@ -593,9 +561,7 @@ export default function NewAccountPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Rating
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Rating</label>
                 <select
                   name="rating"
                   value={formData.rating}
@@ -622,9 +588,7 @@ export default function NewAccountPage() {
               </div>
 
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Notes
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Notes</label>
                 <textarea
                   name="notes"
                   value={formData.notes}
@@ -643,7 +607,7 @@ export default function NewAccountPage() {
               disabled={loading}
               className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
             >
-              {loading ? 'Creating...' : 'Create Account'}
+              {loading ? "Creating..." : "Create Account"}
             </button>
             <button
               type="button"

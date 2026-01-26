@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { Account } from '@/types/account';
-import { accountsService } from '@/lib/accounts';
-import { authService } from '@/lib/auth';
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { Account } from "@/types/account";
+import { accountsService } from "@/lib/accounts";
+import { authService } from "@/lib/auth";
 
 export default function AccountDetailPage({ params }: { params: { id: string } }) {
   const router = useRouter();
@@ -14,10 +14,11 @@ export default function AccountDetailPage({ params }: { params: { id: string } }
 
   useEffect(() => {
     if (!authService.isAuthenticated()) {
-      router.push('/login');
+      router.push("/login");
       return;
     }
     loadAccount();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params.id, router]);
 
   const loadAccount = async () => {
@@ -26,22 +27,22 @@ export default function AccountDetailPage({ params }: { params: { id: string } }
       const data = await accountsService.getAccountById(params.id);
       setAccount(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load account');
+      setError(err instanceof Error ? err.message : "Failed to load account");
     } finally {
       setLoading(false);
     }
   };
 
   const handleDelete = async () => {
-    if (!confirm('Are you sure you want to delete this account?')) {
+    if (!confirm("Are you sure you want to delete this account?")) {
       return;
     }
 
     try {
       await accountsService.deleteAccount(params.id);
-      router.push('/accounts');
+      router.push("/accounts");
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to delete account');
+      setError(err instanceof Error ? err.message : "Failed to delete account");
     }
   };
 
@@ -60,9 +61,9 @@ export default function AccountDetailPage({ params }: { params: { id: string } }
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <p className="text-red-600">{error || 'Account not found'}</p>
+          <p className="text-red-600">{error || "Account not found"}</p>
           <button
-            onClick={() => router.push('/accounts')}
+            onClick={() => router.push("/accounts")}
             className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
           >
             Back to Accounts
@@ -79,11 +80,17 @@ export default function AccountDetailPage({ params }: { params: { id: string } }
     </div>
   );
 
-  const DetailRow = ({ label, value }: { label: string; value: string | number | boolean | undefined | null }) => (
+  const DetailRow = ({
+    label,
+    value,
+  }: {
+    label: string;
+    value: string | number | boolean | undefined | null;
+  }) => (
     <div className="py-3 border-b border-gray-200 last:border-0">
       <dt className="text-sm font-medium text-gray-500 mb-1">{label}</dt>
       <dd className="text-sm text-gray-900">
-        {value !== undefined && value !== null && value !== '' ? String(value) : '-'}
+        {value !== undefined && value !== null && value !== "" ? String(value) : "-"}
       </dd>
     </div>
   );
@@ -95,17 +102,13 @@ export default function AccountDetailPage({ params }: { params: { id: string } }
         <div className="mb-8 flex justify-between items-start">
           <div>
             <div className="flex items-center gap-4 mb-2">
-              <h1 className="text-3xl font-bold text-gray-900">
-                {account.accountName}
-              </h1>
+              <h1 className="text-3xl font-bold text-gray-900">{account.accountName}</h1>
               <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
                 {account.accountStatus}
               </span>
             </div>
             <p className="text-gray-600">Account ID: {account.accountId}</p>
-            <p className="text-sm text-gray-500 mt-1">
-              Owner: {account.ownerName}
-            </p>
+            <p className="text-sm text-gray-500 mt-1">Owner: {account.ownerName}</p>
           </div>
           <div className="flex gap-3">
             <button
@@ -121,7 +124,7 @@ export default function AccountDetailPage({ params }: { params: { id: string } }
               Delete
             </button>
             <button
-              onClick={() => router.push('/accounts')}
+              onClick={() => router.push("/accounts")}
               className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
             >
               Back to List
@@ -138,7 +141,12 @@ export default function AccountDetailPage({ params }: { params: { id: string } }
               <DetailRow label="Account Type" value={account.accountType} />
               <DetailRow label="Industry" value={account.industry} />
               <DetailRow label="Company Size" value={account.companySize} />
-              <DetailRow label="Annual Revenue" value={account.annualRevenue ? `$${account.annualRevenue.toLocaleString()}` : undefined} />
+              <DetailRow
+                label="Annual Revenue"
+                value={
+                  account.annualRevenue ? `₹${account.annualRevenue.toLocaleString()}` : undefined
+                }
+              />
               <DetailRow label="Number of Employees" value={account.numberOfEmployees} />
               <DetailRow label="Ownership" value={account.ownership} />
             </dl>
@@ -214,7 +222,10 @@ export default function AccountDetailPage({ params }: { params: { id: string } }
             <dl className="divide-y divide-gray-200">
               <DetailRow label="Payment Terms" value={account.paymentTerms} />
               <DetailRow label="Credit Status" value={account.creditStatus} />
-              <DetailRow label="Credit Limit" value={account.creditLimit ? `$${account.creditLimit.toLocaleString()}` : undefined} />
+              <DetailRow
+                label="Credit Limit"
+                value={account.creditLimit ? `₹${account.creditLimit.toLocaleString()}` : undefined}
+              />
               <DetailRow label="Currency" value={account.currency} />
             </dl>
           </DetailSection>
@@ -225,8 +236,14 @@ export default function AccountDetailPage({ params }: { params: { id: string } }
               <DetailRow label="Total Opportunities" value={account.totalOpportunities} />
               <DetailRow label="Won Opportunities" value={account.wonOpportunities} />
               <DetailRow label="Lost Opportunities" value={account.lostOpportunities} />
-              <DetailRow label="Total Revenue" value={`$${account.totalRevenue.toLocaleString()}`} />
-              <DetailRow label="Lifetime Value" value={`$${account.lifetimeValue.toLocaleString()}`} />
+              <DetailRow
+                label="Total Revenue"
+                value={`₹${account.totalRevenue.toLocaleString()}`}
+              />
+              <DetailRow
+                label="Lifetime Value"
+                value={`₹${account.lifetimeValue.toLocaleString()}`}
+              />
               <DetailRow label="Total Contacts" value={account.totalContacts} />
             </dl>
           </DetailSection>
@@ -247,7 +264,9 @@ export default function AccountDetailPage({ params }: { params: { id: string } }
               <DetailRow label="Rating" value={account.rating} />
               <DetailRow
                 label="Tags"
-                value={account.tags && account.tags.length > 0 ? account.tags.join(', ') : undefined}
+                value={
+                  account.tags && account.tags.length > 0 ? account.tags.join(", ") : undefined
+                }
               />
               <DetailRow label="Notes" value={account.notes} />
             </dl>
@@ -259,7 +278,10 @@ export default function AccountDetailPage({ params }: { params: { id: string } }
               <DetailRow label="Created By" value={account.createdByName} />
               <DetailRow label="Created At" value={new Date(account.createdAt).toLocaleString()} />
               <DetailRow label="Last Modified By" value={account.lastModifiedByName} />
-              <DetailRow label="Last Modified At" value={new Date(account.lastModifiedAt).toLocaleString()} />
+              <DetailRow
+                label="Last Modified At"
+                value={new Date(account.lastModifiedAt).toLocaleString()}
+              />
             </dl>
           </DetailSection>
         </div>

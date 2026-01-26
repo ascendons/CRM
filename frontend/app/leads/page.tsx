@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { leadsService } from '@/lib/leads';
-import { authService } from '@/lib/auth';
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { leadsService } from "@/lib/leads";
+import { authService } from "@/lib/auth";
 import {
   Lead,
   LeadStatus,
@@ -12,7 +12,7 @@ import {
   getLeadStatusColor,
   getLeadGradeColor,
   formatLeadName,
-} from '@/types/lead';
+} from "@/types/lead";
 
 export default function LeadsPage() {
   const router = useRouter();
@@ -20,14 +20,14 @@ export default function LeadsPage() {
   const [filteredLeads, setFilteredLeads] = useState<Lead[]>([]);
   const [statistics, setStatistics] = useState<LeadStatistics | null>(null);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<LeadStatus | 'ALL'>('ALL');
-  const [error, setError] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState<LeadStatus | "ALL">("ALL");
+  const [error, setError] = useState("");
 
   useEffect(() => {
     // Check authentication
     if (!authService.isAuthenticated()) {
-      router.push('/login');
+      router.push("/login");
       return;
     }
 
@@ -45,8 +45,8 @@ export default function LeadsPage() {
       const data = await leadsService.getAllLeads();
       setLeads(data);
       setFilteredLeads(data);
-    } catch (err: any) {
-      setError(err.message || 'Failed to load leads');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to load leads");
     } finally {
       setLoading(false);
     }
@@ -57,7 +57,7 @@ export default function LeadsPage() {
       const stats = await leadsService.getStatistics();
       setStatistics(stats);
     } catch (err) {
-      console.error('Failed to load statistics:', err);
+      console.error("Failed to load statistics:", err);
     }
   };
 
@@ -78,7 +78,7 @@ export default function LeadsPage() {
     }
 
     // Apply status filter
-    if (statusFilter !== 'ALL') {
+    if (statusFilter !== "ALL") {
       filtered = filtered.filter((lead) => lead.leadStatus === statusFilter);
     }
 
@@ -89,262 +89,203 @@ export default function LeadsPage() {
     setSearchTerm(e.target.value);
   };
 
-  const handleStatusFilter = (status: LeadStatus | 'ALL') => {
+  const handleStatusFilter = (status: LeadStatus | "ALL") => {
     setStatusFilter(status);
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center bg-background-light">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading leads...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4 text-slate-700">Loading leads...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white shadow">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex justify-between items-center">
+    <div className="min-h-screen bg-background-light">
+      <main className="flex-1 overflow-y-auto">
+        <div className="p-8 max-w-7xl mx-auto w-full space-y-8">
+          {/* Page Header */}
+          <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Lead Management</h1>
-              <p className="mt-1 text-sm text-gray-500">
-                Manage and track your sales leads
+              <h2 className="text-3xl font-extrabold tracking-tight text-slate-900">
+                Lead Prospecting Queue
+              </h2>
+              <p className="text-slate-700">
+                Filter and qualify raw incoming leads for the sales pipeline.
               </p>
             </div>
-            <div className="flex gap-3">
-              <Link
-                href="/dashboard"
-                className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
-              >
-                Dashboard
-              </Link>
+            <div className="flex items-center gap-3">
+              <button className="flex items-center gap-2 px-4 py-2 bg-white rounded-lg text-sm font-semibold hover:bg-slate-50">
+                <span className="material-symbols-outlined text-lg">file_download</span>
+                Export
+              </button>
               <Link
                 href="/leads/new"
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg text-sm font-bold shadow-lg shadow-primary/20 hover:bg-primary/90 transition-all"
               >
-                + New Lead
+                <span className="material-symbols-outlined text-lg">person_add</span>
+                Add Lead
               </Link>
             </div>
           </div>
-        </div>
-      </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Statistics Cards */}
-        {statistics && (
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
-            <StatCard
-              title="Total Leads"
-              value={statistics.totalLeads}
-              color="blue"
-            />
-            <StatCard
-              title="New"
-              value={statistics.newLeads}
-              color="indigo"
-            />
-            <StatCard
-              title="Contacted"
-              value={statistics.contactedLeads}
-              color="yellow"
-            />
-            <StatCard
-              title="Qualified"
-              value={statistics.qualifiedLeads}
-              color="green"
-            />
-            <StatCard
-              title="Converted"
-              value={statistics.convertedLeads}
-              color="emerald"
-            />
-          </div>
-        )}
-
-        {/* Filters */}
-        <div className="bg-white rounded-lg shadow p-6 mb-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Search */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Search
-              </label>
-              <input
-                type="text"
-                placeholder="Search by name, email, company, or lead ID..."
-                value={searchTerm}
-                onChange={handleSearch}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
+          {/* Tabs & Toolbar */}
+          <div className="bg-white rounded-xl overflow-hidden">
+            <div className="flex flex-wrap items-center justify-between border-b border-slate-200 px-4">
+              <div className="flex gap-6">
+                <button
+                  className={`px-2 py-4 text-sm font-bold ${statusFilter === "ALL" ? "text-primary border-b-2 border-primary" : "text-slate-700 hover:text-slate-900"}`}
+                  onClick={() => handleStatusFilter("ALL")}
+                >
+                  All Leads
+                </button>
+                <button
+                  className={`px-2 py-4 text-sm font-medium ${statusFilter === LeadStatus.NEW ? "text-primary border-b-2 border-primary" : "text-slate-700 hover:text-slate-900"}`}
+                  onClick={() => handleStatusFilter(LeadStatus.NEW)}
+                >
+                  New
+                </button>
+                <button
+                  className={`px-2 py-4 text-sm font-medium ${statusFilter === LeadStatus.CONTACTED ? "text-primary border-b-2 border-primary" : "text-slate-700 hover:text-slate-900"}`}
+                  onClick={() => handleStatusFilter(LeadStatus.CONTACTED)}
+                >
+                  Contacted
+                </button>
+                <button
+                  className={`px-2 py-4 text-sm font-medium ${statusFilter === LeadStatus.QUALIFIED ? "text-primary border-b-2 border-primary" : "text-slate-700 hover:text-slate-900"}`}
+                  onClick={() => handleStatusFilter(LeadStatus.QUALIFIED)}
+                >
+                  Qualified
+                </button>
+              </div>
+              <div className="flex items-center gap-2 py-3">
+                <div className="relative">
+                  <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">
+                    search
+                  </span>
+                  <input
+                    type="text"
+                    placeholder="Search prospects, companies, or activities..."
+                    value={searchTerm}
+                    onChange={handleSearch}
+                    className="pl-10 pr-4 py-2 bg-slate-100 border-none rounded-lg text-sm w-64 focus:ring-2 focus:ring-primary transition-all"
+                  />
+                </div>
+              </div>
             </div>
+            {/* Statistics Cards */}
+            {statistics && (
+              <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6 px-6 pt-6">
+                <StatCard title="Total Leads" value={statistics.totalLeads} color="blue" />
+                <StatCard title="New" value={statistics.newLeads} color="indigo" />
+                <StatCard title="Contacted" value={statistics.contactedLeads} color="yellow" />
+                <StatCard title="Qualified" value={statistics.qualifiedLeads} color="green" />
+                <StatCard title="Converted" value={statistics.convertedLeads} color="emerald" />
+              </div>
+            )}
 
-            {/* Status Filter */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Status Filter
-              </label>
-              <select
-                value={statusFilter}
-                onChange={(e) => handleStatusFilter(e.target.value as LeadStatus | 'ALL')}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value="ALL">All Statuses</option>
-                <option value={LeadStatus.NEW}>New</option>
-                <option value={LeadStatus.CONTACTED}>Contacted</option>
-                <option value={LeadStatus.QUALIFIED}>Qualified</option>
-                <option value={LeadStatus.PROPOSAL_SENT}>Proposal Sent</option>
-                <option value={LeadStatus.NEGOTIATION}>Negotiation</option>
-                <option value={LeadStatus.UNQUALIFIED}>Unqualified</option>
-                <option value={LeadStatus.LOST}>Lost</option>
-                <option value={LeadStatus.CONVERTED}>Converted</option>
-              </select>
+            {/* Error Message */}
+            {error && <div className="bg-rose-50">{error}</div>}
+
+            {/* Data Table */}
+            <div className="overflow-x-auto px-6 pb-6">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-slate-50">
+                    <th className="px-6 py-3 border-b border-slate-200">Lead Name</th>
+                    <th className="px-6 py-3 border-b border-slate-200">Company</th>
+                    <th className="px-6 py-3 border-b border-slate-200">Score</th>
+                    <th className="px-6 py-3 border-b border-slate-200">Status</th>
+                    <th className="px-6 py-3 border-b border-slate-200">Last Action</th>
+                    <th className="px-6 py-3 border-b border-slate-200"></th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {filteredLeads.length === 0 ? (
+                    <tr>
+                      <td colSpan={6} className="p-12 text-center text-slate-700">
+                        {searchTerm || statusFilter !== "ALL"
+                          ? "No leads match your filters"
+                          : "No leads found. Create your first lead!"}
+                      </td>
+                    </tr>
+                  ) : (
+                    filteredLeads.map((lead) => (
+                      <tr
+                        key={lead.id}
+                        className="hover:bg-slate-50 transition-colors cursor-pointer group"
+                      >
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-3">
+                            <div className="size-8 rounded-full bg-blue-100">
+                              {lead.firstName[0]}
+                              {lead.lastName[0]}
+                            </div>
+                            <div>
+                              <p className="text-sm font-semibold text-slate-900">
+                                {formatLeadName(lead)}
+                              </p>
+                              <p className="text-xs text-slate-700">{lead.email}</p>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 text-sm font-medium text-slate-900">
+                          {lead.companyName}
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-2">
+                            <span className="size-2 rounded-full bg-green-500"></span>
+                            <span className="text-sm font-bold text-green-600">
+                              {lead.leadScore || 0}
+                            </span>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <span
+                            className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-bold ${getLeadStatusColor(lead.leadStatus)}`}
+                          >
+                            {lead.leadStatus.replace("_", " ")}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-xs text-slate-700">
+                          Created {new Date(lead.createdAt).toLocaleDateString()}
+                        </td>
+                        <td className="px-6 py-4 text-right">
+                          <Link
+                            href={`/leads/${lead.id}`}
+                            className="material-symbols-outlined text-slate-700"
+                          >
+                            chevron_right
+                          </Link>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
             </div>
           </div>
 
-          <div className="mt-4 text-sm text-gray-600">
+          {/* Stats */}
+          <div className="text-sm text-slate-700">
             Showing {filteredLeads.length} of {leads.length} leads
           </div>
         </div>
-
-        {/* Error Message */}
-        {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
-            {error}
-          </div>
-        )}
-
-        {/* Leads Table */}
-        <div className="bg-white rounded-lg shadow overflow-hidden">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Lead
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Company
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Score
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Owner
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Created
-                </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {filteredLeads.length === 0 ? (
-                <tr>
-                  <td colSpan={7} className="px-6 py-12 text-center text-gray-500">
-                    {searchTerm || statusFilter !== 'ALL'
-                      ? 'No leads match your filters'
-                      : 'No leads found. Create your first lead!'}
-                  </td>
-                </tr>
-              ) : (
-                filteredLeads.map((lead) => (
-                  <tr key={lead.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4">
-                      <div className="flex items-center">
-                        <div>
-                          <div className="text-sm font-medium text-gray-900">
-                            {formatLeadName(lead)}
-                          </div>
-                          <div className="text-sm text-gray-500">{lead.email}</div>
-                          <div className="text-xs text-gray-400">{lead.leadId}</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="text-sm text-gray-900">{lead.companyName}</div>
-                      {lead.jobTitle && (
-                        <div className="text-sm text-gray-500">{lead.jobTitle}</div>
-                      )}
-                    </td>
-                    <td className="px-6 py-4">
-                      <span
-                        className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getLeadStatusColor(
-                          lead.leadStatus
-                        )}`}
-                      >
-                        {lead.leadStatus.replace('_', ' ')}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-2">
-                        <span
-                          className={`w-8 h-8 flex items-center justify-center rounded-full text-xs font-bold ${getLeadGradeColor(
-                            lead.leadGrade || 'D'
-                          )}`}
-                        >
-                          {lead.leadGrade}
-                        </span>
-                        <span className="text-sm text-gray-600">
-                          {lead.leadScore || 0}
-                        </span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-500">
-                      {lead.leadOwnerName || 'Unassigned'}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-500">
-                      {new Date(lead.createdAt).toLocaleDateString()}
-                    </td>
-                    <td className="px-6 py-4 text-right text-sm font-medium">
-                      <Link
-                        href={`/leads/${lead.id}`}
-                        className="text-blue-600 hover:text-blue-900"
-                      >
-                        View
-                      </Link>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      </main>
     </div>
   );
 }
 
 // Statistics Card Component
-function StatCard({
-  title,
-  value,
-  color,
-}: {
-  title: string;
-  value: number;
-  color: string;
-}) {
-  const colorClasses = {
-    blue: 'bg-blue-50 text-blue-700',
-    indigo: 'bg-indigo-50 text-indigo-700',
-    yellow: 'bg-yellow-50 text-yellow-700',
-    green: 'bg-green-50 text-green-700',
-    emerald: 'bg-emerald-50 text-emerald-700',
-  };
-
+function StatCard({ title, value, color }: { title: string; value: number; color: string }) {
   return (
-    <div className={`rounded-lg shadow p-6 ${colorClasses[color as keyof typeof colorClasses]}`}>
-      <div className="text-sm font-medium">{title}</div>
-      <div className="mt-2 text-3xl font-bold">{value}</div>
+    <div className="rounded-xl shadow-sm p-6 bg-white">
+      <div className="text-sm font-medium text-slate-700">{title}</div>
+      <div className="mt-2 text-3xl font-bold text-slate-900">{value}</div>
     </div>
   );
 }

@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useRouter, useParams } from 'next/navigation';
-import Link from 'next/link';
-import { leadsService } from '@/lib/leads';
-import { authService } from '@/lib/auth';
+import { useState, useEffect } from "react";
+import { useRouter, useParams } from "next/navigation";
+import Link from "next/link";
+import { leadsService } from "@/lib/leads";
+import { authService } from "@/lib/auth";
 import {
   Lead,
   UpdateLeadRequest,
@@ -12,8 +12,8 @@ import {
   Industry,
   CompanySize,
   LeadStatus,
-} from '@/types/lead';
-import { ApiError } from '@/lib/api-client';
+} from "@/types/lead";
+import { ApiError } from "@/lib/api-client";
 
 export default function EditLeadPage() {
   const router = useRouter();
@@ -23,7 +23,7 @@ export default function EditLeadPage() {
   const [lead, setLead] = useState<Lead | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const [formData, setFormData] = useState<UpdateLeadRequest>({});
@@ -31,7 +31,7 @@ export default function EditLeadPage() {
   useEffect(() => {
     // Check authentication
     if (!authService.isAuthenticated()) {
-      router.push('/login');
+      router.push("/login");
       return;
     }
 
@@ -50,30 +50,30 @@ export default function EditLeadPage() {
         email: data.email,
         phone: data.phone,
         companyName: data.companyName,
-        jobTitle: data.jobTitle || '',
-        department: data.department || '',
-        mobilePhone: data.mobilePhone || '',
-        workPhone: data.workPhone || '',
-        linkedInProfile: data.linkedInProfile || '',
-        website: data.website || '',
+        jobTitle: data.jobTitle || "",
+        department: data.department || "",
+        mobilePhone: data.mobilePhone || "",
+        workPhone: data.workPhone || "",
+        linkedInProfile: data.linkedInProfile || "",
+        website: data.website || "",
         industry: data.industry,
         companySize: data.companySize,
         annualRevenue: data.annualRevenue,
         numberOfEmployees: data.numberOfEmployees,
-        country: data.country || '',
-        state: data.state || '',
-        city: data.city || '',
-        streetAddress: data.streetAddress || '',
-        postalCode: data.postalCode || '',
+        country: data.country || "",
+        state: data.state || "",
+        city: data.city || "",
+        streetAddress: data.streetAddress || "",
+        postalCode: data.postalCode || "",
         leadSource: data.leadSource,
         leadStatus: data.leadStatus,
         expectedRevenue: data.expectedRevenue,
-        expectedCloseDate: data.expectedCloseDate || '',
-        description: data.description || '',
+        expectedCloseDate: data.expectedCloseDate || "",
+        description: data.description || "",
         tags: data.tags || [],
       });
-    } catch (err: any) {
-      setError(err.message || 'Failed to load lead');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to load lead");
     } finally {
       setLoading(false);
     }
@@ -97,21 +97,21 @@ export default function EditLeadPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
-    setError('');
+    setError("");
     setErrors({});
 
     try {
       const updated = await leadsService.updateLead(id, formData);
       // Redirect to detail page
       router.push(`/leads/${updated.id}`);
-    } catch (err: any) {
+    } catch (err) {
       if (err instanceof ApiError) {
         setError(err.message);
         if (err.errors) {
           setErrors(err.errors);
         }
       } else {
-        setError('An error occurred while updating the lead');
+        setError("An error occurred while updating the lead");
       }
     } finally {
       setSubmitting(false);
@@ -176,14 +176,16 @@ export default function EditLeadPage() {
                 <input
                   type="text"
                   name="firstName"
-                  value={formData.firstName || ''}
+                  value={formData.firstName || ""}
                   onChange={handleChange}
                   required
                   className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 ${
-                    errors.firstName ? 'border-red-500' : 'border-gray-300'
+                    errors.firstName ? "border-red-500" : "border-gray-300"
                   }`}
                 />
-                {errors.firstName && <p className="mt-1 text-sm text-red-600">{errors.firstName}</p>}
+                {errors.firstName && (
+                  <p className="mt-1 text-sm text-red-600">{errors.firstName}</p>
+                )}
               </div>
 
               <div>
@@ -193,11 +195,11 @@ export default function EditLeadPage() {
                 <input
                   type="text"
                   name="lastName"
-                  value={formData.lastName || ''}
+                  value={formData.lastName || ""}
                   onChange={handleChange}
                   required
                   className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 ${
-                    errors.lastName ? 'border-red-500' : 'border-gray-300'
+                    errors.lastName ? "border-red-500" : "border-gray-300"
                   }`}
                 />
                 {errors.lastName && <p className="mt-1 text-sm text-red-600">{errors.lastName}</p>}
@@ -210,11 +212,11 @@ export default function EditLeadPage() {
                 <input
                   type="email"
                   name="email"
-                  value={formData.email || ''}
+                  value={formData.email || ""}
                   onChange={handleChange}
                   required
                   className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 ${
-                    errors.email ? 'border-red-500' : 'border-gray-300'
+                    errors.email ? "border-red-500" : "border-gray-300"
                   }`}
                 />
                 {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
@@ -227,12 +229,12 @@ export default function EditLeadPage() {
                 <input
                   type="tel"
                   name="phone"
-                  value={formData.phone || ''}
+                  value={formData.phone || ""}
                   onChange={handleChange}
                   required
                   placeholder="+919876543210"
                   className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 ${
-                    errors.phone ? 'border-red-500' : 'border-gray-300'
+                    errors.phone ? "border-red-500" : "border-gray-300"
                   }`}
                 />
                 {errors.phone && <p className="mt-1 text-sm text-red-600">{errors.phone}</p>}
@@ -245,14 +247,16 @@ export default function EditLeadPage() {
                 <input
                   type="text"
                   name="companyName"
-                  value={formData.companyName || ''}
+                  value={formData.companyName || ""}
                   onChange={handleChange}
                   required
                   className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 ${
-                    errors.companyName ? 'border-red-500' : 'border-gray-300'
+                    errors.companyName ? "border-red-500" : "border-gray-300"
                   }`}
                 />
-                {errors.companyName && <p className="mt-1 text-sm text-red-600">{errors.companyName}</p>}
+                {errors.companyName && (
+                  <p className="mt-1 text-sm text-red-600">{errors.companyName}</p>
+                )}
               </div>
             </div>
           </div>
@@ -266,7 +270,7 @@ export default function EditLeadPage() {
                 <input
                   type="text"
                   name="jobTitle"
-                  value={formData.jobTitle || ''}
+                  value={formData.jobTitle || ""}
                   onChange={handleChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 />
@@ -277,18 +281,20 @@ export default function EditLeadPage() {
                 <input
                   type="text"
                   name="department"
-                  value={formData.department || ''}
+                  value={formData.department || ""}
                   onChange={handleChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">LinkedIn Profile</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  LinkedIn Profile
+                </label>
                 <input
                   type="url"
                   name="linkedInProfile"
-                  value={formData.linkedInProfile || ''}
+                  value={formData.linkedInProfile || ""}
                   onChange={handleChange}
                   placeholder="https://linkedin.com/in/..."
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
@@ -300,7 +306,7 @@ export default function EditLeadPage() {
                 <input
                   type="url"
                   name="website"
-                  value={formData.website || ''}
+                  value={formData.website || ""}
                   onChange={handleChange}
                   placeholder="https://..."
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
@@ -317,14 +323,14 @@ export default function EditLeadPage() {
                 <label className="block text-sm font-medium text-gray-700 mb-2">Industry</label>
                 <select
                   name="industry"
-                  value={formData.industry || ''}
+                  value={formData.industry || ""}
                   onChange={handleChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">Select Industry</option>
                   {Object.values(Industry).map((ind) => (
                     <option key={ind} value={ind}>
-                      {ind.replace('_', ' ')}
+                      {ind.replace("_", " ")}
                     </option>
                   ))}
                 </select>
@@ -334,7 +340,7 @@ export default function EditLeadPage() {
                 <label className="block text-sm font-medium text-gray-700 mb-2">Company Size</label>
                 <select
                   name="companySize"
-                  value={formData.companySize || ''}
+                  value={formData.companySize || ""}
                   onChange={handleChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 >
@@ -348,22 +354,26 @@ export default function EditLeadPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Number of Employees</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Number of Employees
+                </label>
                 <input
                   type="number"
                   name="numberOfEmployees"
-                  value={formData.numberOfEmployees || ''}
+                  value={formData.numberOfEmployees || ""}
                   onChange={handleChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Annual Revenue</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Annual Revenue
+                </label>
                 <input
                   type="number"
                   name="annualRevenue"
-                  value={formData.annualRevenue || ''}
+                  value={formData.annualRevenue || ""}
                   onChange={handleChange}
                   placeholder="0"
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
@@ -380,14 +390,14 @@ export default function EditLeadPage() {
                 <label className="block text-sm font-medium text-gray-700 mb-2">Lead Source</label>
                 <select
                   name="leadSource"
-                  value={formData.leadSource || ''}
+                  value={formData.leadSource || ""}
                   onChange={handleChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">Select Source</option>
                   {Object.values(LeadSource).map((source) => (
                     <option key={source} value={source}>
-                      {source.replace('_', ' ')}
+                      {source.replace("_", " ")}
                     </option>
                   ))}
                 </select>
@@ -397,24 +407,26 @@ export default function EditLeadPage() {
                 <label className="block text-sm font-medium text-gray-700 mb-2">Lead Status</label>
                 <select
                   name="leadStatus"
-                  value={formData.leadStatus || ''}
+                  value={formData.leadStatus || ""}
                   onChange={handleChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 >
                   {Object.values(LeadStatus).map((status) => (
                     <option key={status} value={status}>
-                      {status.replace('_', ' ')}
+                      {status.replace("_", " ")}
                     </option>
                   ))}
                 </select>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Expected Revenue</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Expected Revenue
+                </label>
                 <input
                   type="number"
                   name="expectedRevenue"
-                  value={formData.expectedRevenue || ''}
+                  value={formData.expectedRevenue || ""}
                   onChange={handleChange}
                   placeholder="0"
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
@@ -422,11 +434,13 @@ export default function EditLeadPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Expected Close Date</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Expected Close Date
+                </label>
                 <input
                   type="date"
                   name="expectedCloseDate"
-                  value={formData.expectedCloseDate || ''}
+                  value={formData.expectedCloseDate || ""}
                   onChange={handleChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 />
@@ -443,18 +457,20 @@ export default function EditLeadPage() {
                 <input
                   type="text"
                   name="country"
-                  value={formData.country || ''}
+                  value={formData.country || ""}
                   onChange={handleChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">State/Province</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  State/Province
+                </label>
                 <input
                   type="text"
                   name="state"
-                  value={formData.state || ''}
+                  value={formData.state || ""}
                   onChange={handleChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 />
@@ -465,7 +481,7 @@ export default function EditLeadPage() {
                 <input
                   type="text"
                   name="city"
-                  value={formData.city || ''}
+                  value={formData.city || ""}
                   onChange={handleChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 />
@@ -476,18 +492,20 @@ export default function EditLeadPage() {
                 <input
                   type="text"
                   name="postalCode"
-                  value={formData.postalCode || ''}
+                  value={formData.postalCode || ""}
                   onChange={handleChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Street Address</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Street Address
+                </label>
                 <input
                   type="text"
                   name="streetAddress"
-                  value={formData.streetAddress || ''}
+                  value={formData.streetAddress || ""}
                   onChange={handleChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 />
@@ -504,7 +522,7 @@ export default function EditLeadPage() {
               </label>
               <textarea
                 name="description"
-                value={formData.description || ''}
+                value={formData.description || ""}
                 onChange={handleChange}
                 rows={6}
                 maxLength={2000}
@@ -512,7 +530,7 @@ export default function EditLeadPage() {
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
               />
               <p className="mt-1 text-sm text-gray-500">
-                {(formData.description || '').length} / 2000 characters
+                {(formData.description || "").length} / 2000 characters
               </p>
             </div>
           </div>
@@ -530,7 +548,7 @@ export default function EditLeadPage() {
               disabled={submitting}
               className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-blue-300"
             >
-              {submitting ? 'Saving...' : 'Save Changes'}
+              {submitting ? "Saving..." : "Save Changes"}
             </button>
           </div>
         </form>

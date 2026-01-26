@@ -1,26 +1,397 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Primary Colors */
+  --primary: #3780f6;
+  --primary-hover: #2d6fd8;
+
+  /* Background Colors */
+  --background-light: #f5f7f8;
+  --background-dark: #101722;
+
+  /* Text Colors */
+  --text-primary-light: #0d131c;
+  --text-primary-dark: #e2e8f0;
+  --text-secondary-light: #64748b;
+  --text-secondary-dark: #94a3b8;
+
+  /* Border Colors */
+  --border-light: #e2e8f0;
+  --border-dark: #1e293b;
+
+  /* Card Colors */
+  --card-light: #ffffff;
+  --card-dark: #0f172a;
+
+  /* Standard theme variables for compatibility */
+  --background: var(--background-light);
+  --foreground: var(--text-primary-light);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+@theme {
+  /* Primary Color */
+  --color-primary: #3780f6;
+
+  /* Background Colors - using slate as base but with custom values */
+  --color-background-light: #f5f7f8;
+  --color-background-dark: #101722;
+
+  /* Text Colors */
+  --color-text-primary: #0d131c;
+  --color-text-secondary: #64748b;
+
+  /* Border Colors */
+  --color-border: #e2e8f0;
+
+  /* Card Colors */
+  --color-card: #ffffff;
+
+  /* Font Family */
+  --font-sans: var(--font-inter);
+  --font-display: var(--font-inter);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* Dark mode styles - only applied when .dark class is on html element */
+.dark {
+  --background: var(--background-dark);
+  --foreground: var(--text-primary-dark);
+  --color-text-primary: #e2e8f0;
+  --color-text-secondary: #94a3b8;
+  --color-border: #1e293b;
+  --color-card: #0f172a;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: #f5f7f8;
+  color: #0d131c;
+  font-family:
+    var(--font-inter),
+    "Inter",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+}
+
+.dark body {
+  background: #101722;
+  color: #e2e8f0;
+}
+
+/* Material Symbols Icons */
+.material-symbols-outlined {
+  font-variation-settings:
+    "FILL" 0,
+    "wght" 400,
+    "GRAD" 0,
+    "opsz" 24;
+  vertical-align: middle;
+}
+
+/* Utility classes for theme colors */
+.bg-background-light {
+  background-color: #f5f7f8;
+}
+
+.bg-background-dark {
+  background-color: #101722;
+}
+
+.bg-card-light {
+  background-color: #ffffff;
+}
+
+.bg-card-dark {
+  background-color: #0f172a;
+}
+
+.text-text-primary-light {
+  color: #0d131c;
+}
+
+.text-text-primary-dark {
+  color: #e2e8f0;
+}
+
+.text-text-secondary-light {
+  color: #64748b;
+}
+
+.text-text-secondary-dark {
+  color: #94a3b8;
+}
+
+.border-border-light {
+  border-color: #e2e8f0;
+}
+
+.border-border-dark {
+  border-color: #1e293b;
+}
+
+.bg-primary {
+  background-color: #3780f6;
+}
+
+.text-primary {
+  color: #3780f6;
+}
+
+.border-primary {
+  border-color: #3780f6;
+}
+
+/* Container Styles - Light backgrounds for light mode */
+.container-light {
+  background-color: #ffffff;
+}
+
+.container-subtle {
+  background-color: #f8fafc; /* slate-50 */
+}
+
+.container-muted {
+  background-color: #f1f5f9; /* slate-100 */
+}
+
+.dark .container-light {
+  background-color: #0f172a; /* slate-900 */
+}
+
+.dark .container-subtle {
+  background-color: #1e293b; /* slate-800 */
+}
+
+.dark .container-muted {
+  background-color: #334155; /* slate-700 */
+}
+
+/* Text Styles - Dark text for light mode */
+.text-dark-primary {
+  color: #0f172a; /* slate-900 */
+}
+
+.text-dark-secondary {
+  color: #334155; /* slate-700 */
+}
+
+.text-dark-tertiary {
+  color: #475569; /* slate-600 */
+}
+
+.dark .text-dark-primary {
+  color: #f8fafc; /* white/slate-50 */
+}
+
+.dark .text-dark-secondary {
+  color: #cbd5e1; /* slate-300 */
+}
+
+.dark .text-dark-tertiary {
+  color: #94a3b8; /* slate-400 */
+}
+
+/* Border Styles */
+.border-light {
+  border-color: #e2e8f0; /* slate-200 */
+}
+
+.border-subtle {
+  border-color: #cbd5e1; /* slate-300 */
+}
+
+.dark .border-light {
+  border-color: #334155; /* slate-700 */
+}
+
+.dark .border-subtle {
+  border-color: #475569; /* slate-600 */
+}
+
+/* Card Styles */
+.card {
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.dark .card {
+  background-color: #0f172a;
+  border-color: #1e293b;
+}
+
+.card-subtle {
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.75rem;
+}
+
+.dark .card-subtle {
+  background-color: #1e293b;
+  border-color: #334155;
+}
+
+/* Button Styles */
+.btn-primary {
+  background-color: #3780f6;
+  color: #ffffff;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.btn-primary:hover {
+  background-color: #2d6fd8;
+}
+
+.btn-secondary {
+  background-color: #ffffff;
+  color: #334155;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.btn-secondary:hover {
+  background-color: #f8fafc;
+}
+
+.dark .btn-secondary {
+  background-color: #0f172a;
+  color: #cbd5e1;
+  border-color: #334155;
+}
+
+.dark .btn-secondary:hover {
+  background-color: #1e293b;
+}
+
+/* Input Styles */
+.input {
+  background-color: #ffffff;
+  color: #0f172a;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
+}
+
+.input:focus {
+  outline: none;
+  border-color: #3780f6;
+  box-shadow: 0 0 0 3px rgba(55, 128, 246, 0.1);
+}
+
+.dark .input {
+  background-color: #1e293b;
+  color: #f8fafc;
+  border-color: #334155;
+}
+
+.dark .input:focus {
+  border-color: #3780f6;
+  box-shadow: 0 0 0 3px rgba(55, 128, 246, 0.2);
+}
+
+/* Table Styles */
+.table-header {
+  background-color: #f8fafc;
+  color: #334155;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+}
+
+.dark .table-header {
+  background-color: #1e293b;
+  color: #cbd5e1;
+}
+
+.table-row {
+  background-color: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.table-row:hover {
+  background-color: #f8fafc;
+}
+
+.dark .table-row {
+  background-color: #0f172a;
+  border-bottom-color: #334155;
+}
+
+.dark .table-row:hover {
+  background-color: #1e293b;
+}
+
+/* Badge/Status Styles */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.badge-success {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.badge-warning {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.badge-error {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+.badge-info {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.dark .badge-success {
+  background-color: rgba(16, 185, 129, 0.2);
+  color: #6ee7b7;
+}
+
+.dark .badge-warning {
+  background-color: rgba(245, 158, 11, 0.2);
+  color: #fcd34d;
+}
+
+.dark .badge-error {
+  background-color: rgba(239, 68, 68, 0.2);
+  color: #fca5a5;
+}
+
+.dark .badge-info {
+  background-color: rgba(59, 130, 246, 0.2);
+  color: #93c5fd;
+}
+
+/* Custom scrollbar styling */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+
+.dark .custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #475569;
 }

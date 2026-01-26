@@ -1,20 +1,20 @@
-import { Contact, CreateContactRequest, UpdateContactRequest } from '@/types/contact';
-import { ApiResponse } from '@/types/api';
-import { authService } from './auth';
+import { Contact, CreateContactRequest, UpdateContactRequest } from "@/types/contact";
+import { ApiResponse } from "@/types/api";
+import { authService } from "./auth";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api/v1';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api/v1";
 
 class ContactService {
   private getAuthHeader() {
     const token = authService.getToken();
-    return token ? { 'Authorization': `Bearer ${token}` } : {};
+    return token ? { Authorization: `Bearer ${token}` } : {};
   }
 
   async createContact(request: CreateContactRequest): Promise<Contact> {
     const response = await fetch(`${API_URL}/contacts`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
         ...this.getAuthHeader(),
       },
       body: JSON.stringify(request),
@@ -22,7 +22,7 @@ class ContactService {
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.message || 'Failed to create contact');
+      throw new Error(error.message || "Failed to create contact");
     }
 
     const result: ApiResponse<Contact> = await response.json();
@@ -31,15 +31,15 @@ class ContactService {
 
   async getAllContacts(): Promise<Contact[]> {
     const response = await fetch(`${API_URL}/contacts`, {
-      method: 'GET',
+      method: "GET",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
         ...this.getAuthHeader(),
       },
     });
 
     if (!response.ok) {
-      throw new Error('Failed to fetch contacts');
+      throw new Error("Failed to fetch contacts");
     }
 
     const result: ApiResponse<Contact[]> = await response.json();
@@ -48,15 +48,15 @@ class ContactService {
 
   async getContactById(id: string): Promise<Contact> {
     const response = await fetch(`${API_URL}/contacts/${id}`, {
-      method: 'GET',
+      method: "GET",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
         ...this.getAuthHeader(),
       },
     });
 
     if (!response.ok) {
-      throw new Error('Failed to fetch contact');
+      throw new Error("Failed to fetch contact");
     }
 
     const result: ApiResponse<Contact> = await response.json();
@@ -65,15 +65,15 @@ class ContactService {
 
   async getContactByContactId(contactId: string): Promise<Contact> {
     const response = await fetch(`${API_URL}/contacts/code/${contactId}`, {
-      method: 'GET',
+      method: "GET",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
         ...this.getAuthHeader(),
       },
     });
 
     if (!response.ok) {
-      throw new Error('Failed to fetch contact');
+      throw new Error("Failed to fetch contact");
     }
 
     const result: ApiResponse<Contact> = await response.json();
@@ -82,15 +82,15 @@ class ContactService {
 
   async getContactsByAccount(accountId: string): Promise<Contact[]> {
     const response = await fetch(`${API_URL}/contacts/account/${accountId}`, {
-      method: 'GET',
+      method: "GET",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
         ...this.getAuthHeader(),
       },
     });
 
     if (!response.ok) {
-      throw new Error('Failed to fetch contacts');
+      throw new Error("Failed to fetch contacts");
     }
 
     const result: ApiResponse<Contact[]> = await response.json();
@@ -99,15 +99,15 @@ class ContactService {
 
   async searchContacts(query: string): Promise<Contact[]> {
     const response = await fetch(`${API_URL}/contacts/search?q=${encodeURIComponent(query)}`, {
-      method: 'GET',
+      method: "GET",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
         ...this.getAuthHeader(),
       },
     });
 
     if (!response.ok) {
-      throw new Error('Failed to search contacts');
+      throw new Error("Failed to search contacts");
     }
 
     const result: ApiResponse<Contact[]> = await response.json();
@@ -116,9 +116,9 @@ class ContactService {
 
   async updateContact(id: string, request: UpdateContactRequest): Promise<Contact> {
     const response = await fetch(`${API_URL}/contacts/${id}`, {
-      method: 'PUT',
+      method: "PUT",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
         ...this.getAuthHeader(),
       },
       body: JSON.stringify(request),
@@ -126,7 +126,7 @@ class ContactService {
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.message || 'Failed to update contact');
+      throw new Error(error.message || "Failed to update contact");
     }
 
     const result: ApiResponse<Contact> = await response.json();
@@ -135,30 +135,30 @@ class ContactService {
 
   async deleteContact(id: string): Promise<void> {
     const response = await fetch(`${API_URL}/contacts/${id}`, {
-      method: 'DELETE',
+      method: "DELETE",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
         ...this.getAuthHeader(),
       },
     });
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.message || 'Failed to delete contact');
+      throw new Error(error.message || "Failed to delete contact");
     }
   }
 
   async getContactCount(): Promise<number> {
     const response = await fetch(`${API_URL}/contacts/statistics/count`, {
-      method: 'GET',
+      method: "GET",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
         ...this.getAuthHeader(),
       },
     });
 
     if (!response.ok) {
-      throw new Error('Failed to fetch contact count');
+      throw new Error("Failed to fetch contact count");
     }
 
     const result: ApiResponse<number> = await response.json();

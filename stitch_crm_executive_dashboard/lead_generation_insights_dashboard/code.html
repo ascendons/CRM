@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Lead Generation Insights Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#3780f6",
+                        "background-light": "#f5f7f8",
+                        "background-dark": "#101722",
+                        "card-dark": "#1a2332",
+                        "border-dark": "#304669",
+                        "text-muted": "#8fa6cc"
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .donut-segment {
+            transition: stroke-dashoffset 0.35s;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white min-h-screen">
+<div class="flex h-screen overflow-hidden">
+<!-- Sidebar Navigation -->
+<aside class="w-64 border-r border-slate-200 dark:border-border-dark flex flex-col bg-white dark:bg-background-dark">
+<div class="p-6 border-b border-slate-200 dark:border-border-dark flex items-center gap-3">
+<div class="size-8 bg-primary rounded-lg flex items-center justify-center text-white">
+<span class="material-symbols-outlined">analytics</span>
+</div>
+<h1 class="font-bold text-lg tracking-tight">CRM Insights</h1>
+</div>
+<nav class="flex-1 p-4 flex flex-col gap-1 overflow-y-auto">
+<div class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-primary/10 text-primary group cursor-pointer">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="text-sm font-semibold">Dashboard</span>
+</div>
+<div class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-slate-100 dark:hover:bg-card-dark text-slate-600 dark:text-text-muted cursor-pointer transition-colors">
+<span class="material-symbols-outlined">target</span>
+<span class="text-sm font-medium">Leads</span>
+</div>
+<div class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-slate-100 dark:hover:bg-card-dark text-slate-600 dark:text-text-muted cursor-pointer transition-colors">
+<span class="material-symbols-outlined">handshake</span>
+<span class="text-sm font-medium">Deals</span>
+</div>
+<div class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-slate-100 dark:hover:bg-card-dark text-slate-600 dark:text-text-muted cursor-pointer transition-colors">
+<span class="material-symbols-outlined">campaign</span>
+<span class="text-sm font-medium">Marketing</span>
+</div>
+<div class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-slate-100 dark:hover:bg-card-dark text-slate-600 dark:text-text-muted cursor-pointer transition-colors">
+<span class="material-symbols-outlined">bar_chart</span>
+<span class="text-sm font-medium">Reports</span>
+</div>
+<div class="mt-8 px-3">
+<p class="text-[10px] uppercase font-bold tracking-widest text-slate-400 dark:text-slate-500 mb-2">Team</p>
+<div class="flex items-center gap-3 py-2">
+<div class="size-6 rounded-full bg-slate-200 dark:bg-card-dark flex items-center justify-center">
+<span class="material-symbols-outlined text-xs">group</span>
+</div>
+<span class="text-xs font-medium dark:text-text-muted">Marketing Dept</span>
+</div>
+</div>
+</nav>
+<div class="p-4 border-t border-slate-200 dark:border-border-dark">
+<div class="flex items-center gap-3 px-3 py-2">
+<img alt="User profile avatar" class="size-9 rounded-full" data-alt="Profile photo of the current user" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBVZJKtfVOQ1He_41FuULOwQ3PVJV0HaHcUiQ-0r09fbGBFEL6oXRveuQgZJKG5UJrlB18Vse-4v0Dcpl4y_kMvd6-QyyaiykXRGeQ1NgKqPNU1v6QfGIsbPd4-2VxHsF0tWWvmAN94sD1pmkNrorWa2bqekv7jjjnwZJlTbFAJSzyjLoT05d1Bv_R11KK3wBztLeEIJfQN61izRr7miyDY-LicYfttzP3bCAsctzcKIvIYZ7iVkn6Oj8582eXSX1uxVSLS9awg7vM"/>
+<div class="flex flex-col">
+<span class="text-xs font-bold">Alex Rivera</span>
+<span class="text-[10px] text-slate-500 dark:text-text-muted uppercase tracking-tighter">Admin</span>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 overflow-y-auto bg-background-light dark:bg-background-dark">
+<!-- Top Navigation / Header -->
+<header class="sticky top-0 z-10 bg-white/80 dark:bg-background-dark/80 backdrop-blur-md border-b border-slate-200 dark:border-border-dark px-8 py-4 flex items-center justify-between">
+<div class="flex items-center gap-6">
+<div class="flex flex-col">
+<h2 class="text-2xl font-black tracking-tight">Lead Generation Insights</h2>
+<p class="text-sm text-slate-500 dark:text-text-muted">Real-time performance metrics for inbound marketing</p>
+</div>
+<div class="hidden md:flex items-center bg-slate-100 dark:bg-card-dark rounded-lg p-1">
+<button class="px-3 py-1 text-xs font-bold rounded bg-white dark:bg-primary shadow-sm">Last 30 Days</button>
+<button class="px-3 py-1 text-xs font-medium text-slate-500 dark:text-text-muted">Last 90 Days</button>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<div class="relative hidden sm:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">search</span>
+<input class="pl-10 pr-4 py-2 bg-slate-100 dark:bg-card-dark border-none rounded-lg text-sm focus:ring-1 focus:ring-primary w-64" placeholder="Search analytics..." type="text"/>
+</div>
+<button class="flex items-center gap-2 bg-primary hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-bold transition-all">
+<span class="material-symbols-outlined text-sm">add_circle</span>
+<span>Quick Capture</span>
+</button>
+</div>
+</header>
+<div class="p-8">
+<!-- Stats Row -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+<div class="bg-white dark:bg-card-dark border border-slate-200 dark:border-border-dark rounded-xl p-6 shadow-sm">
+<div class="flex items-center justify-between mb-2">
+<span class="text-sm font-medium text-slate-500 dark:text-text-muted">Total Inbound Leads</span>
+<span class="text-green-500 text-xs font-bold flex items-center">+12% <span class="material-symbols-outlined text-[14px]">trending_up</span></span>
+</div>
+<div class="text-3xl font-black">12,450</div>
+</div>
+<div class="bg-white dark:bg-card-dark border border-slate-200 dark:border-border-dark rounded-xl p-6 shadow-sm">
+<div class="flex items-center justify-between mb-2">
+<span class="text-sm font-medium text-slate-500 dark:text-text-muted">Web Form Conversions</span>
+<span class="text-green-500 text-xs font-bold flex items-center">+2.4% <span class="material-symbols-outlined text-[14px]">trending_up</span></span>
+</div>
+<div class="text-3xl font-black">8.2%</div>
+</div>
+<div class="bg-white dark:bg-card-dark border border-slate-200 dark:border-border-dark rounded-xl p-6 shadow-sm">
+<div class="flex items-center justify-between mb-2">
+<span class="text-sm font-medium text-slate-500 dark:text-text-muted">Lead-to-MQL Rate</span>
+<span class="text-orange-500 text-xs font-bold flex items-center">-1.5% <span class="material-symbols-outlined text-[14px]">trending_down</span></span>
+</div>
+<div class="text-3xl font-black">24%</div>
+</div>
+<div class="bg-white dark:bg-card-dark border border-slate-200 dark:border-border-dark rounded-xl p-6 shadow-sm">
+<div class="flex items-center justify-between mb-2">
+<span class="text-sm font-medium text-slate-500 dark:text-text-muted">Avg. Lead Score</span>
+<span class="text-green-500 text-xs font-bold flex items-center">+5% <span class="material-symbols-outlined text-[14px]">trending_up</span></span>
+</div>
+<div class="text-3xl font-black">68</div>
+</div>
+</div>
+<!-- Main Analytics Section -->
+<div class="grid grid-cols-12 gap-8 mb-8">
+<!-- Leads Over Time Line Chart -->
+<div class="col-span-12 lg:col-span-8 bg-white dark:bg-card-dark border border-slate-200 dark:border-border-dark rounded-xl p-6 shadow-sm">
+<div class="flex items-center justify-between mb-6">
+<div>
+<h3 class="font-bold text-lg">Leads Over Time</h3>
+<p class="text-sm text-slate-500 dark:text-text-muted">Lead acquisition trend across the last 30 days</p>
+</div>
+<button class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors">
+<span class="material-symbols-outlined text-slate-400">more_vert</span>
+</button>
+</div>
+<div class="h-64 relative flex items-end justify-between px-2">
+<svg class="absolute inset-0 w-full h-full" preserveaspectratio="none" viewbox="0 0 100 40">
+<defs>
+<lineargradient id="chartGradient" x1="0%" x2="0%" y1="0%" y2="100%">
+<stop offset="0%" stop-color="#3780f6" stop-opacity="0.3"></stop>
+<stop offset="100%" stop-color="#3780f6" stop-opacity="0"></stop>
+</lineargradient>
+</defs>
+<!-- Area chart path -->
+<path d="M0,40 L0,30 Q10,15 20,25 T40,20 T60,10 T80,18 T100,5 L100,40 Z" fill="url(#chartGradient)"></path>
+<!-- Line chart path -->
+<path d="M0,30 Q10,15 20,25 T40,20 T60,10 T80,18 T100,5" fill="none" stroke="#3780f6" stroke-width="1" vector-effect="non-scaling-stroke"></path>
+</svg>
+<!-- Y-Axis labels (Faked) -->
+<div class="absolute left-0 h-full flex flex-col justify-between text-[10px] text-slate-400 pointer-events-none">
+<span>1,000</span>
+<span>750</span>
+<span>500</span>
+<span>250</span>
+<span>0</span>
+</div>
+</div>
+<div class="flex justify-between mt-4 px-2">
+<span class="text-xs text-slate-400 font-medium">May 01</span>
+<span class="text-xs text-slate-400 font-medium">May 10</span>
+<span class="text-xs text-slate-400 font-medium">May 20</span>
+<span class="text-xs text-slate-400 font-medium">May 30</span>
+</div>
+</div>
+<!-- Lead Source Donut Chart -->
+<div class="col-span-12 lg:col-span-4 bg-white dark:bg-card-dark border border-slate-200 dark:border-border-dark rounded-xl p-6 shadow-sm">
+<h3 class="font-bold text-lg mb-1">Lead Source Distribution</h3>
+<p class="text-sm text-slate-500 dark:text-text-muted mb-8">Performance by channel</p>
+<div class="relative flex justify-center mb-8">
+<!-- Circular SVG for donut -->
+<svg class="w-48 h-48">
+<!-- Direct -->
+<circle class="text-primary" cx="96" cy="96" fill="transparent" r="70" stroke="currentColor" stroke-dasharray="70 100" stroke-linecap="round" stroke-width="12"></circle>
+<!-- Social -->
+<circle class="text-indigo-400" cx="96" cy="96" fill="transparent" r="70" stroke="currentColor" stroke-dasharray="45 100" stroke-dashoffset="-72" stroke-linecap="round" stroke-width="12"></circle>
+<!-- Referral -->
+<circle class="text-cyan-400" cx="96" cy="96" fill="transparent" r="70" stroke="currentColor" stroke-dasharray="25 100" stroke-dashoffset="-119" stroke-linecap="round" stroke-width="12"></circle>
+<!-- Ads -->
+<circle class="text-slate-200 dark:text-border-dark" cx="96" cy="96" fill="transparent" r="70" stroke="currentColor" stroke-dasharray="15 100" stroke-dashoffset="-146" stroke-linecap="round" stroke-width="12"></circle>
+</svg>
+<div class="absolute inset-0 flex flex-col items-center justify-center">
+<span class="text-3xl font-black">12.4k</span>
+<span class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Total</span>
+</div>
+</div>
+<div class="space-y-3">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<div class="size-2.5 rounded-full bg-primary"></div>
+<span class="text-sm font-medium">Direct</span>
+</div>
+<span class="text-sm font-bold">45%</span>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<div class="size-2.5 rounded-full bg-indigo-400"></div>
+<span class="text-sm font-medium">Social</span>
+</div>
+<span class="text-sm font-bold">28%</span>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<div class="size-2.5 rounded-full bg-cyan-400"></div>
+<span class="text-sm font-medium">Referral</span>
+</div>
+<span class="text-sm font-bold">18%</span>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<div class="size-2.5 rounded-full bg-slate-200 dark:bg-border-dark"></div>
+<span class="text-sm font-medium">Ads</span>
+</div>
+<span class="text-sm font-bold">9%</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Bottom Section: Lead Magnets -->
+<div class="grid grid-cols-12 gap-8">
+<div class="col-span-12 bg-white dark:bg-card-dark border border-slate-200 dark:border-border-dark rounded-xl shadow-sm overflow-hidden">
+<div class="p-6 border-b border-slate-200 dark:border-border-dark flex items-center justify-between">
+<div>
+<h3 class="font-bold text-lg">Top Performing Lead Magnets</h3>
+<p class="text-sm text-slate-500 dark:text-text-muted">Conversion breakdown by asset type</p>
+</div>
+<button class="text-primary text-sm font-bold hover:underline">View All Magnets</button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left">
+<thead class="bg-slate-50 dark:bg-slate-900/50">
+<tr>
+<th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-400">Asset Name</th>
+<th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-400">Type</th>
+<th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-400 text-center">Conversions</th>
+<th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-400">Growth</th>
+<th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-400">Trend</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-100 dark:divide-border-dark">
+<tr class="hover:bg-slate-50 dark:hover:bg-slate-900/30 transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="size-8 bg-blue-100 dark:bg-blue-900/40 rounded flex items-center justify-center text-blue-600">
+<span class="material-symbols-outlined text-sm">description</span>
+</div>
+<span class="text-sm font-bold">2024 SaaS Trends Whitepaper</span>
+</div>
+</td>
+<td class="px-6 py-4 text-sm text-slate-500 dark:text-text-muted">PDF Report</td>
+<td class="px-6 py-4 text-sm font-bold text-center">1,248</td>
+<td class="px-6 py-4">
+<span class="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 text-[10px] font-black rounded-full uppercase">+18.2%</span>
+</td>
+<td class="px-6 py-4">
+<div class="w-24 h-4 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full" style="width: 85%"></div>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-slate-50 dark:hover:bg-slate-900/30 transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="size-8 bg-purple-100 dark:bg-purple-900/40 rounded flex items-center justify-center text-purple-600">
+<span class="material-symbols-outlined text-sm">videocam</span>
+</div>
+<span class="text-sm font-bold">Advanced CRM Implementation Webinar</span>
+</div>
+</td>
+<td class="px-6 py-4 text-sm text-slate-500 dark:text-text-muted">Webinar</td>
+<td class="px-6 py-4 text-sm font-bold text-center">942</td>
+<td class="px-6 py-4">
+<span class="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 text-[10px] font-black rounded-full uppercase">+5.4%</span>
+</td>
+<td class="px-6 py-4">
+<div class="w-24 h-4 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full" style="width: 65%"></div>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-slate-50 dark:hover:bg-slate-900/30 transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="size-8 bg-orange-100 dark:bg-orange-900/40 rounded flex items-center justify-center text-orange-600">
+<span class="material-symbols-outlined text-sm">quiz</span>
+</div>
+<span class="text-sm font-bold">Marketing Maturity Assessment Quiz</span>
+</div>
+</td>
+<td class="px-6 py-4 text-sm text-slate-500 dark:text-text-muted">Interactive</td>
+<td class="px-6 py-4 text-sm font-bold text-center">812</td>
+<td class="px-6 py-4">
+<span class="px-2 py-1 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 text-[10px] font-black rounded-full uppercase">-2.1%</span>
+</td>
+<td class="px-6 py-4">
+<div class="w-24 h-4 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full" style="width: 55%"></div>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-slate-50 dark:hover:bg-slate-900/30 transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="size-8 bg-emerald-100 dark:bg-emerald-900/40 rounded flex items-center justify-center text-emerald-600">
+<span class="material-symbols-outlined text-sm">terminal</span>
+</div>
+<span class="text-sm font-bold">API Documentation Cheat Sheet</span>
+</div>
+</td>
+<td class="px-6 py-4 text-sm text-slate-500 dark:text-text-muted">Checklist</td>
+<td class="px-6 py-4 text-sm font-bold text-center">620</td>
+<td class="px-6 py-4">
+<span class="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 text-[10px] font-black rounded-full uppercase">+12.0%</span>
+</td>
+<td class="px-6 py-4">
+<div class="w-24 h-4 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full" style="width: 45%"></div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

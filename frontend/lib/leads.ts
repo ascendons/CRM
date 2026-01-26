@@ -1,25 +1,25 @@
-import { api } from './api-client';
+import { api } from "./api-client";
 import {
   Lead,
   CreateLeadRequest,
   UpdateLeadRequest,
   LeadStatistics,
   LeadStatus,
-} from '@/types/lead';
+} from "@/types/lead";
 
 export const leadsService = {
   /**
    * Create a new lead
    */
   async createLead(data: CreateLeadRequest): Promise<Lead> {
-    return await api.post<Lead>('/leads', data);
+    return await api.post<Lead>("/leads", data);
   },
 
   /**
    * Get all leads
    */
   async getAllLeads(): Promise<Lead[]> {
-    return await api.get<Lead[]>('/leads');
+    return await api.get<Lead[]>("/leads");
   },
 
   /**
@@ -40,7 +40,7 @@ export const leadsService = {
    * Get my leads (current user)
    */
   async getMyLeads(): Promise<Lead[]> {
-    return await api.get<Lead[]>('/leads/my-leads');
+    return await api.get<Lead[]>("/leads/my-leads");
   },
 
   /**
@@ -89,6 +89,6 @@ export const leadsService = {
    * Get lead statistics
    */
   async getStatistics(): Promise<LeadStatistics> {
-    return await api.get<LeadStatistics>('/leads/stats');
+    return await api.get<LeadStatistics>("/leads/stats");
   },
 };

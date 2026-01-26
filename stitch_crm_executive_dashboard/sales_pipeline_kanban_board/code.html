@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sales Pipeline Kanban Board</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#3780f6",
+                        "background-light": "#f5f7f8",
+                        "background-dark": "#101722",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .kanban-column {
+            min-width: 320px;
+            max-width: 320px;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            height: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-[#0d131c] dark:text-slate-200 antialiased min-h-screen flex flex-col">
+<!-- Top Navigation Bar -->
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-[#e7ecf4] dark:border-slate-800 bg-white dark:bg-slate-900 px-6 py-3 z-30">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-3">
+<div class="size-8 bg-primary rounded-lg flex items-center justify-center text-white">
+<span class="material-symbols-outlined">account_tree</span>
+</div>
+<h2 class="text-[#0d131c] dark:text-white text-lg font-bold leading-tight tracking-tight">Sales Pipeline</h2>
+</div>
+<div class="h-8 w-[1px] bg-slate-200 dark:bg-slate-700 mx-2"></div>
+<div class="flex items-center gap-4">
+<label class="flex flex-col min-w-48 !h-10">
+<div class="flex w-full flex-1 items-stretch rounded-lg h-full relative">
+<select class="form-input flex w-full min-w-0 flex-1 rounded-lg text-[#0d131c] dark:text-slate-200 focus:outline-0 focus:ring-2 focus:ring-primary/20 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 h-full px-3 text-sm font-medium leading-normal appearance-none">
+<option>Enterprise Global SaaS</option>
+<option>Mid-Market Direct</option>
+<option>Partners &amp; Channels</option>
+</select>
+<div class="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+<span class="material-symbols-outlined text-sm">unfold_more</span>
+</div>
+</div>
+</label>
+</div>
+</div>
+<div class="flex flex-1 justify-end gap-6 items-center">
+<nav class="hidden lg:flex items-center gap-6">
+<a class="text-primary text-sm font-semibold leading-normal border-b-2 border-primary pb-1" href="#">Deals</a>
+<a class="text-slate-500 dark:text-slate-400 text-sm font-medium leading-normal hover:text-primary" href="#">Leads</a>
+<a class="text-slate-500 dark:text-slate-400 text-sm font-medium leading-normal hover:text-primary" href="#">Activities</a>
+<a class="text-slate-500 dark:text-slate-400 text-sm font-medium leading-normal hover:text-primary" href="#">Forecasting</a>
+</nav>
+<div class="h-8 w-[1px] bg-slate-200 dark:bg-slate-700"></div>
+<button class="flex min-w-[120px] cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal shadow-sm hover:bg-blue-600 transition-colors">
+<span class="material-symbols-outlined text-sm">add</span>
+<span class="truncate">New Deal</span>
+</button>
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 border-2 border-slate-100 dark:border-slate-700" data-alt="User profile avatar" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDCfPKWVLXtp0dPZP3_lRmJ0XidtuNZ7NiXNSINivtexiS-Eoh7zY4Z7XZBdlZK6kVmcYNEHeU8q37QnAj2WhDLnwaTs9fUHUOd131sp6VRuPOmCsD2F3r-LMdjj6jRzkS1utErjqBhU1bxERby5ynNqCkAShkqZs_HXUpdY4iyPeqOXJ_MTfiNsEHA9XLnHlK2Kf_bsUNOFWMND246duDo_ylwWRhc-yLziJwlRArdNMOBT3GBLOJQRqu3WQvpslJHlrRLM35rYkA");'></div>
+</div>
+</header>
+<!-- Toolbar & Filters -->
+<div class="bg-white dark:bg-slate-900 border-b border-[#e7ecf4] dark:border-slate-800 px-6 py-2 flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg">search</span>
+<input class="pl-10 pr-4 py-1.5 bg-background-light dark:bg-slate-800 border-none rounded-lg text-sm w-64 focus:ring-2 focus:ring-primary/20" placeholder="Search deals..." type="text"/>
+</div>
+<button class="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors">
+<span class="material-symbols-outlined text-sm">filter_list</span>
+                Filters
+            </button>
+<div class="flex -space-x-2">
+<div class="size-7 rounded-full border-2 border-white dark:border-slate-900 bg-slate-200 bg-cover" data-alt="Owner 1" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAhzsl4Toh8zYQQRVCXAMHftn4nhZeZ-3lTHNVMlgDUSgfdqC7cSGUJ-olm6GQGjJjIlLGh2Od_wIbgN6ANUpFgDVzAaaRn--sj_Ed5yrR34oXXRw-7WZzcWphelF7dWAlixO-vT0DbICltxrrz0AnWjEQybjwT-EMogSr9CHetAlUUund1sVLT9KgpRtZD8qQFI_phEQernv6OulGyNrtn3hZVtcrtDfaZbvBjyB5Vn0lm7G2-t3r_Di3txbigHxaT9x7pGLPnMzE')"></div>
+<div class="size-7 rounded-full border-2 border-white dark:border-slate-900 bg-slate-200 bg-cover" data-alt="Owner 2" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuB0Jhwn0tqAYg-fCZvN7Mmd26t2iR2huhApJVlNen8xCgaebskbvgtxIIytBcMgsuBU6OGOFSxuAJxxGpknJqZ-G0-IKDf3vvuMMpVv3A9E6xPu1Y5chpgCpTLgRfYnmSrBMTEpkecZ0zRyrECqaLvPHX1ceC8I9EzCZLc38pYbWJSA03Eirj-5qOiIax1JtTwN_cAz00OFIPy9-8s3N7GyMZZngmV_puJU-pn971U2toBlb_Oc3CkmP3ODD4zLSb7tIFcIrE3DG90')"></div>
+<div class="size-7 rounded-full border-2 border-white dark:border-slate-900 bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-[10px] font-bold text-slate-500">+4</div>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex items-center bg-slate-100 dark:bg-slate-800 p-1 rounded-lg">
+<button class="px-3 py-1 bg-white dark:bg-slate-700 shadow-sm rounded-md text-xs font-bold text-primary">Kanban</button>
+<button class="px-3 py-1 text-xs font-medium text-slate-500">List</button>
+<button class="px-3 py-1 text-xs font-medium text-slate-500">Charts</button>
+</div>
+<button class="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg">
+<span class="material-symbols-outlined text-sm">calendar_today</span>
+<span>Oct 1, 2023 - Dec 31, 2023</span>
+</button>
+</div>
+</div>
+<!-- Kanban Board -->
+<main class="flex-1 overflow-x-auto custom-scrollbar p-6 bg-background-light dark:bg-background-dark">
+<div class="flex gap-6 h-full items-start">
+<!-- Qualification Column -->
+<div class="kanban-column flex flex-col h-full shrink-0">
+<div class="flex flex-col mb-4">
+<div class="flex items-center justify-between mb-1">
+<div class="flex items-center gap-2">
+<h3 class="font-bold text-sm uppercase tracking-wider text-slate-500 dark:text-slate-400">Qualification</h3>
+<span class="px-2 py-0.5 bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded text-[10px] font-bold">4</span>
+</div>
+<button class="text-slate-400 hover:text-primary"><span class="material-symbols-outlined text-lg">more_horiz</span></button>
+</div>
+<div class="flex flex-col">
+<span class="text-xs font-medium text-slate-400">Weighted: $145,000</span>
+<div class="w-full bg-slate-200 dark:bg-slate-800 h-1 rounded-full mt-2 overflow-hidden">
+<div class="bg-primary h-full w-1/4"></div>
+</div>
+</div>
+</div>
+<div class="flex-1 flex flex-col gap-3">
+<!-- Deal Card 1 -->
+<div class="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow cursor-pointer group">
+<div class="flex justify-between items-start mb-2">
+<h4 class="font-bold text-[#0d131c] dark:text-white group-hover:text-primary transition-colors">Acme Corporation</h4>
+<span class="material-symbols-outlined text-sm text-slate-300 group-hover:text-slate-400">open_in_new</span>
+</div>
+<div class="flex flex-col gap-3">
+<div>
+<p class="text-lg font-bold text-primary">$45,000</p>
+<p class="text-[10px] text-slate-400 uppercase font-semibold">Enterprise SaaS Suite</p>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1.5 text-slate-500 dark:text-slate-400">
+<span class="material-symbols-outlined text-base">event</span>
+<span class="text-xs font-medium">Nov 12, 2023</span>
+</div>
+<div class="size-7 rounded-full bg-cover border-2 border-white dark:border-slate-800" data-alt="Owner avatar" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBdV0Fnndjfh1MR4gWUaXoIcOat6usx_A8Pdx-Dl0lL4wSgvJr9AyVnv242Ac9fhtwsIIDPb4YSP7kFZu1lRcv0xd0dKoNH-JsI3TQRZKD6haDaPgsszrO7IMCo4oB6sJtZvQnY6cX0yW3JMbFrHAEMI4qjPgb9YBxLTMjhg-aAwu1-rjP7c1b5opwdIm8k4B8-ydLAuXsD1JlghIvZXdkyFE4_qKZqAMmM9HNBpliclU5H0xn7tC8wY-TDgRQWG7qtwq1i_sKhc_8')"></div>
+</div>
+</div>
+</div>
+<!-- Deal Card 2 (Rotting) -->
+<div class="bg-white dark:bg-slate-900 p-4 rounded-xl border-l-4 border-l-red-500 border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow cursor-pointer relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-1.5">
+<span class="material-symbols-outlined text-red-500 text-lg animate-pulse" style="font-variation-settings: 'FILL' 1;">flag</span>
+</div>
+<div class="flex justify-between items-start mb-2 pr-4">
+<h4 class="font-bold text-[#0d131c] dark:text-white group-hover:text-primary">Globex International</h4>
+</div>
+<div class="flex flex-col gap-3">
+<div>
+<p class="text-lg font-bold text-primary">$82,000</p>
+<p class="text-[10px] text-red-500 uppercase font-bold flex items-center gap-1">
+<span class="material-symbols-outlined text-[10px]">error</span>
+                                    14 days inactive
+                                </p>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1.5 text-slate-500 dark:text-slate-400">
+<span class="material-symbols-outlined text-base">event</span>
+<span class="text-xs font-medium">Oct 28, 2023</span>
+</div>
+<div class="size-7 rounded-full bg-cover border-2 border-white dark:border-slate-800" data-alt="Owner avatar" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCJwXIIr6A4YHM-iVOPOb8mMa4YJFHusxMShOCNx7Pzs-UYwE39SVMKXEVD6nFTGOYJVdqN44tVk-2VYQp0mB4MvCSmPD2UU-d-g5XlCD5x6GAQ2UCLacBFb3Eeli2ea81M9wDccElBWccjx_I9EjxYL4Vk-elpWiV1lzsMZ14RxIF3qBJ9PGHvBlG4pFmWJCmhFBAagSPc5Qn-hc-kz8LlDLn08ZeefuVGqqDUBX6K_VGNd6PPWkMMkhIuRTsnXVNESvm4Dkjif0s')"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Discovery Column -->
+<div class="kanban-column flex flex-col h-full shrink-0">
+<div class="flex flex-col mb-4">
+<div class="flex items-center justify-between mb-1">
+<div class="flex items-center gap-2">
+<h3 class="font-bold text-sm uppercase tracking-wider text-slate-500 dark:text-slate-400">Discovery</h3>
+<span class="px-2 py-0.5 bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded text-[10px] font-bold">3</span>
+</div>
+<button class="text-slate-400 hover:text-primary"><span class="material-symbols-outlined text-lg">more_horiz</span></button>
+</div>
+<div class="flex flex-col">
+<span class="text-xs font-medium text-slate-400">Weighted: $212,500</span>
+<div class="w-full bg-slate-200 dark:bg-slate-800 h-1 rounded-full mt-2 overflow-hidden">
+<div class="bg-primary h-full w-2/5"></div>
+</div>
+</div>
+</div>
+<div class="flex-1 flex flex-col gap-3">
+<div class="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow cursor-pointer group">
+<div class="flex justify-between items-start mb-2">
+<h4 class="font-bold text-[#0d131c] dark:text-white group-hover:text-primary">Stark Industries</h4>
+</div>
+<div class="flex flex-col gap-3">
+<div>
+<p class="text-lg font-bold text-primary">$120,000</p>
+<p class="text-[10px] text-slate-400 uppercase font-semibold">Cybersecurity Audit</p>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1.5 text-slate-500 dark:text-slate-400">
+<span class="material-symbols-outlined text-base">event</span>
+<span class="text-xs font-medium">Dec 15, 2023</span>
+</div>
+<div class="size-7 rounded-full bg-cover border-2 border-white dark:border-slate-800" data-alt="Owner avatar" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAANORqfw8s8jpXxZ3GqHjtADmfgzswVhqWz3bpG3CWrfHLU2aDImn5SdPKzI27PZnAae7tCdef3X1v00Q_oKGoKX_xtYYC6Uficebq_lhdraA3TWelX6hJHkXslCtt3UKYiBDajrqyYzBdMx5Th0oDYJvO22KzpWfVS0GzHnAvfob_HaLSrt1jKeP_-3_vZUq1McwfY5m3dDmAOQdznC_dBNKBQHbbJE2wxs4ABGUCmnTgR3i8oIOOfZFDyp6zXU6qMB9JXosXLZ8')"></div>
+</div>
+</div>
+</div>
+<!-- Empty/Drop target hint -->
+<div class="border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-xl p-6 flex flex-col items-center justify-center gap-2 opacity-60">
+<span class="material-symbols-outlined text-slate-300">move_to_inbox</span>
+<span class="text-[10px] text-slate-400 font-bold uppercase">Drop Deals Here</span>
+</div>
+</div>
+</div>
+<!-- Proposal Column -->
+<div class="kanban-column flex flex-col h-full shrink-0">
+<div class="flex flex-col mb-4">
+<div class="flex items-center justify-between mb-1">
+<div class="flex items-center gap-2">
+<h3 class="font-bold text-sm uppercase tracking-wider text-slate-500 dark:text-slate-400">Proposal</h3>
+<span class="px-2 py-0.5 bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded text-[10px] font-bold">2</span>
+</div>
+<button class="text-slate-400 hover:text-primary"><span class="material-symbols-outlined text-lg">more_horiz</span></button>
+</div>
+<div class="flex flex-col">
+<span class="text-xs font-medium text-slate-400">Weighted: $580,000</span>
+<div class="w-full bg-slate-200 dark:bg-slate-800 h-1 rounded-full mt-2 overflow-hidden">
+<div class="bg-primary h-full w-3/5"></div>
+</div>
+</div>
+</div>
+<div class="flex-1 flex flex-col gap-3">
+<div class="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow cursor-pointer group">
+<div class="flex justify-between items-start mb-2">
+<h4 class="font-bold text-[#0d131c] dark:text-white group-hover:text-primary">Wayne Enterprises</h4>
+</div>
+<div class="flex flex-col gap-3">
+<div>
+<p class="text-lg font-bold text-primary">$450,000</p>
+<p class="text-[10px] text-slate-400 uppercase font-semibold">Data Infrastructure</p>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1.5 text-slate-500 dark:text-slate-400">
+<span class="material-symbols-outlined text-base">event</span>
+<span class="text-xs font-medium">Jan 22, 2024</span>
+</div>
+<div class="size-7 rounded-full bg-cover border-2 border-white dark:border-slate-800" data-alt="Owner avatar" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCB6teLm6BgUFl_fQDldwAuR6amDa88s0yHUXhYHz7AiYHtqxajJaTmisSeED_swHan9P3jqxguNbax-ZJ8Qmxp7mW036OOMyoJrZ4u5F6wdtXWo2e85-lbnXNsdzR3rym6rnQKFx2ddc2s-iR15mS0K8CDa7SV_dbLEd6q9H3Yd0LUhrR4HofUmrSgVXPU_T5R92hfbYQcAfRtoG7DIPjECAN-a7aVrb8nqbkXSz3Xy69YHaR4hks5fqNXsBVKR-YCncs5nxqadi4')"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Negotiation Column -->
+<div class="kanban-column flex flex-col h-full shrink-0">
+<div class="flex flex-col mb-4">
+<div class="flex items-center justify-between mb-1">
+<div class="flex items-center gap-2">
+<h3 class="font-bold text-sm uppercase tracking-wider text-slate-500 dark:text-slate-400">Negotiation</h3>
+<span class="px-2 py-0.5 bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded text-[10px] font-bold">1</span>
+</div>
+<button class="text-slate-400 hover:text-primary"><span class="material-symbols-outlined text-lg">more_horiz</span></button>
+</div>
+<div class="flex flex-col">
+<span class="text-xs font-medium text-slate-400">Weighted: $32,000</span>
+<div class="w-full bg-slate-200 dark:bg-slate-800 h-1 rounded-full mt-2 overflow-hidden">
+<div class="bg-primary h-full w-4/5"></div>
+</div>
+</div>
+</div>
+<div class="flex-1 flex flex-col gap-3">
+<div class="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow cursor-pointer group">
+<div class="flex justify-between items-start mb-2">
+<h4 class="font-bold text-[#0d131c] dark:text-white group-hover:text-primary">Hooli Systems</h4>
+</div>
+<div class="flex flex-col gap-3">
+<div>
+<p class="text-lg font-bold text-primary">$32,000</p>
+<p class="text-[10px] text-slate-400 uppercase font-semibold">User Experience Consulting</p>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1.5 text-slate-500 dark:text-slate-400">
+<span class="material-symbols-outlined text-base">event</span>
+<span class="text-xs font-medium">Dec 05, 2023</span>
+</div>
+<div class="size-7 rounded-full bg-cover border-2 border-white dark:border-slate-800" data-alt="Owner avatar" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBTlQoMtLGRN2_DxowbrI2WdQios7PBBHe2h86hIB0656t2j6FqgQeZI7H1mL-z2mD53HFIE3E8A9-kiKd0QrTgLw0LNE6PHxuNepJnx3HTMkSkR7zdHOCAcDhkrsDtU6i_fI41f-kpAAtUihkTo6oUN4y6l6aQzxyqbDVW-i6PnT-8D73OdRinA21hIB4aFDNwtm3tt3FMG6xfA8u5Ag3kIhdrwJBsmubtdiqFeO3i1uh3wAt9CPNoE1BakSz1Ec6UeRBv22SbMRA')"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Closed Won Column -->
+<div class="kanban-column flex flex-col h-full shrink-0">
+<div class="flex flex-col mb-4">
+<div class="flex items-center justify-between mb-1">
+<div class="flex items-center gap-2">
+<h3 class="font-bold text-sm uppercase tracking-wider text-green-600 dark:text-green-500">Closed Won</h3>
+<span class="px-2 py-0.5 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded text-[10px] font-bold">12</span>
+</div>
+<button class="text-slate-400 hover:text-primary"><span class="material-symbols-outlined text-lg">more_horiz</span></button>
+</div>
+<div class="flex flex-col">
+<span class="text-xs font-medium text-slate-400">Total: $2,450,000</span>
+<div class="w-full bg-slate-200 dark:bg-slate-800 h-1 rounded-full mt-2 overflow-hidden">
+<div class="bg-green-500 h-full w-full"></div>
+</div>
+</div>
+</div>
+<div class="flex-1 flex flex-col gap-3">
+<div class="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm opacity-60">
+<div class="flex justify-between items-start mb-2">
+<h4 class="font-bold text-[#0d131c] dark:text-white">Umbrella Corp</h4>
+<span class="material-symbols-outlined text-green-500 text-sm" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<div class="flex flex-col gap-3">
+<div>
+<p class="text-lg font-bold text-slate-700 dark:text-slate-300">$215,000</p>
+<p class="text-[10px] text-slate-400 uppercase font-semibold">Pharma Logistics Platform</p>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1.5 text-slate-500">
+<span class="material-symbols-outlined text-base">verified</span>
+<span class="text-xs font-medium">Closed: Oct 12</span>
+</div>
+<div class="size-7 rounded-full bg-cover border-2 border-white dark:border-slate-800" data-alt="Owner avatar" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDZMV3f7lbkGtwAfHdCBLe4BldXIZqQjr5PZ6c_ZA8nmfwTKcWKRk295JbJguBNHLMgVx_A7zGFRtCeQjid7ittDV21wbRTi5WK65LkafNyBjTy_3TXCDwoN0GUdMeqRGFWPg_AnIg-P4mPBO0h7NRR6vO54BV3OLmDlwFRymvUo5QvCfs9umrrd-XnNpq3_bshi7qRm7byP2VoSooETSIjRH-VlPpz6nToSb2RfeXApGWge9vbPCJKOILZV2v6e0040VLqyFYYz3Q')"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer Stats -->
+<footer class="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 px-6 py-3 flex items-center justify-between text-xs">
+<div class="flex gap-6">
+<div class="flex flex-col">
+<span class="text-slate-400 font-medium">Pipeline Total</span>
+<span class="font-bold text-[#0d131c] dark:text-white">$3,125,000</span>
+</div>
+<div class="flex flex-col">
+<span class="text-slate-400 font-medium">Weighted Total</span>
+<span class="font-bold text-primary">$1,114,500</span>
+</div>
+<div class="flex flex-col">
+<span class="text-slate-400 font-medium">Active Deals</span>
+<span class="font-bold text-[#0d131c] dark:text-white">22</span>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2 px-3 py-1 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-full font-bold">
+<span class="material-symbols-outlined text-xs" style="font-variation-settings: 'FILL' 1;">flag</span>
+                3 At-Risk Deals
+            </div>
+<div class="h-4 w-[1px] bg-slate-200 dark:bg-slate-700"></div>
+<p class="text-slate-400">Last updated: Just now</p>
+</div>
+</footer>
+</body></html>

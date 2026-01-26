@@ -1,23 +1,23 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { Opportunity, OpportunityStage } from '@/types/opportunity';
-import { opportunitiesService } from '@/lib/opportunities';
-import { authService } from '@/lib/auth';
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { Opportunity, OpportunityStage } from "@/types/opportunity";
+import { opportunitiesService } from "@/lib/opportunities";
+import { authService } from "@/lib/auth";
 
 export default function OpportunitiesPage() {
   const router = useRouter();
   const [opportunities, setOpportunities] = useState<Opportunity[]>([]);
   const [filteredOpportunities, setFilteredOpportunities] = useState<Opportunity[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [stageFilter, setStageFilter] = useState<string>('');
+  const [searchQuery, setSearchQuery] = useState("");
+  const [stageFilter, setStageFilter] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!authService.isAuthenticated()) {
-      router.push('/login');
+      router.push("/login");
       return;
     }
     loadOpportunities();
@@ -31,7 +31,7 @@ export default function OpportunitiesPage() {
       setOpportunities(data);
       setFilteredOpportunities(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load opportunities');
+      setError(err instanceof Error ? err.message : "Failed to load opportunities");
     } finally {
       setLoading(false);
     }
@@ -49,15 +49,15 @@ export default function OpportunitiesPage() {
         const results = await opportunitiesService.searchOpportunities(query);
         let filtered = results;
         if (stageFilter) {
-          filtered = results.filter(opp => opp.stage === stageFilter);
+          filtered = results.filter((opp) => opp.stage === stageFilter);
         }
         setFilteredOpportunities(filtered);
       } else {
-        const filtered = opportunities.filter(opp => opp.stage === stageFilter);
+        const filtered = opportunities.filter((opp) => opp.stage === stageFilter);
         setFilteredOpportunities(filtered);
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Search failed');
+      setError(err instanceof Error ? err.message : "Search failed");
     }
   };
 
@@ -70,19 +70,20 @@ export default function OpportunitiesPage() {
 
     let filtered = opportunities;
     if (stage) {
-      filtered = filtered.filter(opp => opp.stage === stage);
+      filtered = filtered.filter((opp) => opp.stage === stage);
     }
     if (searchQuery.trim()) {
-      filtered = filtered.filter(opp =>
-        opp.opportunityName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        opp.accountName.toLowerCase().includes(searchQuery.toLowerCase())
+      filtered = filtered.filter(
+        (opp) =>
+          opp.opportunityName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          opp.accountName.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
     setFilteredOpportunities(filtered);
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this opportunity?')) {
+    if (!confirm("Are you sure you want to delete this opportunity?")) {
       return;
     }
 
@@ -90,201 +91,214 @@ export default function OpportunitiesPage() {
       await opportunitiesService.deleteOpportunity(id);
       loadOpportunities();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to delete opportunity');
+      setError(err instanceof Error ? err.message : "Failed to delete opportunity");
     }
   };
 
   const formatCurrency = (value: number | undefined) => {
-    if (!value) return '-';
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value);
+    if (!value) return "-";
+    return new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR" }).format(value);
   };
 
   const formatDate = (dateString: string | undefined) => {
-    if (!dateString) return '-';
+    if (!dateString) return "-";
     return new Date(dateString).toLocaleDateString();
   };
 
   const getStageBadgeColor = (stage: OpportunityStage) => {
     const colors = {
-      [OpportunityStage.PROSPECTING]: 'bg-blue-100 text-blue-800',
-      [OpportunityStage.QUALIFICATION]: 'bg-indigo-100 text-indigo-800',
-      [OpportunityStage.NEEDS_ANALYSIS]: 'bg-yellow-100 text-yellow-800',
-      [OpportunityStage.PROPOSAL]: 'bg-purple-100 text-purple-800',
-      [OpportunityStage.NEGOTIATION]: 'bg-orange-100 text-orange-800',
-      [OpportunityStage.CLOSED_WON]: 'bg-green-100 text-green-800',
-      [OpportunityStage.CLOSED_LOST]: 'bg-red-100 text-red-800',
+      [OpportunityStage.PROSPECTING]: "bg-blue-50",
+      [OpportunityStage.QUALIFICATION]: "bg-indigo-50",
+      [OpportunityStage.NEEDS_ANALYSIS]: "bg-amber-50",
+      [OpportunityStage.PROPOSAL]: "bg-purple-50",
+      [OpportunityStage.NEGOTIATION]: "bg-amber-50",
+      [OpportunityStage.CLOSED_WON]: "bg-emerald-50",
+      [OpportunityStage.CLOSED_LOST]: "bg-rose-50",
     };
-    return colors[stage] || 'bg-gray-100 text-gray-800';
+    return colors[stage] || "bg-slate-100";
   };
 
   const getStageLabel = (stage: OpportunityStage) => {
-    return stage.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+    return stage.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-background-light flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading opportunities...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4 text-slate-700">Loading opportunities...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Opportunities</h1>
-          <p className="mt-2 text-gray-600">Manage your sales opportunities</p>
-        </div>
-
-        {/* Actions Bar */}
-        <div className="mb-6 flex flex-col sm:flex-row gap-4">
-          <div className="flex-1">
-            <input
-              type="text"
-              placeholder="Search opportunities by name or account..."
-              value={searchQuery}
-              onChange={(e) => handleSearch(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-            />
+    <div className="min-h-screen bg-background-light">
+      <main className="flex-1 overflow-y-auto">
+        <div className="p-8 max-w-7xl mx-auto w-full space-y-8">
+          {/* Page Header */}
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <h2 className="text-3xl font-extrabold tracking-tight text-slate-900">
+                Sales Opportunities
+              </h2>
+              <p className="text-slate-700">Manage your sales pipeline and track deals.</p>
+            </div>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => router.push("/opportunities/new")}
+                className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg text-sm font-bold shadow-lg shadow-primary/20 hover:bg-primary/90 transition-all"
+              >
+                <span className="material-symbols-outlined text-lg">add</span>
+                New Opportunity
+              </button>
+            </div>
           </div>
-          <div>
-            <select
-              value={stageFilter}
-              onChange={(e) => handleStageFilter(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-            >
-              <option value="">All Stages</option>
-              <option value={OpportunityStage.PROSPECTING}>Prospecting</option>
-              <option value={OpportunityStage.QUALIFICATION}>Qualification</option>
-              <option value={OpportunityStage.NEEDS_ANALYSIS}>Needs Analysis</option>
-              <option value={OpportunityStage.PROPOSAL}>Proposal</option>
-              <option value={OpportunityStage.NEGOTIATION}>Negotiation</option>
-              <option value={OpportunityStage.CLOSED_WON}>Closed Won</option>
-              <option value={OpportunityStage.CLOSED_LOST}>Closed Lost</option>
-            </select>
-          </div>
-          <button
-            onClick={() => router.push('/opportunities/new')}
-            className="px-6 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors whitespace-nowrap"
-          >
-            + New Opportunity
-          </button>
-        </div>
 
-        {error && (
-          <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-            <p className="text-red-600">{error}</p>
+          {/* Filters */}
+          <div className="bg-white rounded-xl p-4">
+            <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex-1 relative">
+                <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">
+                  search
+                </span>
+                <input
+                  type="text"
+                  placeholder="Search opportunities by name or account..."
+                  value={searchQuery}
+                  onChange={(e) => handleSearch(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 bg-slate-100 border-none rounded-lg text-sm focus:ring-2 focus:ring-primary transition-all"
+                />
+              </div>
+              <div>
+                <select
+                  value={stageFilter}
+                  onChange={(e) => handleStageFilter(e.target.value)}
+                  className="w-full px-4 py-2 bg-white rounded-lg text-sm focus:ring-2 focus:ring-primary"
+                >
+                  <option value="">All Stages</option>
+                  <option value={OpportunityStage.PROSPECTING}>Prospecting</option>
+                  <option value={OpportunityStage.QUALIFICATION}>Qualification</option>
+                  <option value={OpportunityStage.NEEDS_ANALYSIS}>Needs Analysis</option>
+                  <option value={OpportunityStage.PROPOSAL}>Proposal</option>
+                  <option value={OpportunityStage.NEGOTIATION}>Negotiation</option>
+                  <option value={OpportunityStage.CLOSED_WON}>Closed Won</option>
+                  <option value={OpportunityStage.CLOSED_LOST}>Closed Lost</option>
+                </select>
+              </div>
+            </div>
           </div>
-        )}
 
-        {/* Opportunities Table */}
-        <div className="bg-white rounded-lg shadow overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Opportunity
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Account
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Stage
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Amount
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Probability
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Close Date
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Owner
-                  </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {filteredOpportunities.length === 0 ? (
-                  <tr>
-                    <td colSpan={8} className="px-6 py-12 text-center text-gray-500">
-                      {searchQuery || stageFilter ? 'No opportunities found matching your filters' : 'No opportunities yet. Create your first opportunity!'}
-                    </td>
+          {error && <div className="bg-rose-50">{error}</div>}
+
+          {/* Opportunities Table */}
+          <div className="bg-white rounded-xl overflow-hidden">
+            <div className="overflow-x-auto p-6">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-slate-50">
+                    <th className="px-6 py-3 text-xs font-bold uppercase tracking-wider text-slate-700">
+                      Company
+                    </th>
+                    <th className="px-6 py-3 text-xs font-bold uppercase tracking-wider text-slate-700">
+                      Value
+                    </th>
+                    <th className="px-6 py-3 text-xs font-bold uppercase tracking-wider text-slate-700">
+                      Stage
+                    </th>
+                    <th className="px-6 py-3 text-xs font-bold uppercase tracking-wider text-slate-700">
+                      Probability
+                    </th>
+                    <th className="px-6 py-3 text-xs font-bold uppercase tracking-wider text-slate-700">
+                      Close Date
+                    </th>
+                    <th className="px-6 py-3 text-xs font-bold uppercase tracking-wider text-slate-700">
+                      Owner
+                    </th>
+                    <th className="px-6 py-3 text-xs font-bold uppercase tracking-wider text-slate-700">
+                      Actions
+                    </th>
                   </tr>
-                ) : (
-                  filteredOpportunities.map((opportunity) => (
-                    <tr key={opportunity.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div>
-                          <div className="text-sm font-medium text-gray-900">
-                            {opportunity.opportunityName}
-                          </div>
-                          <div className="text-sm text-gray-500">{opportunity.opportunityId}</div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">{opportunity.accountName}</div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStageBadgeColor(opportunity.stage)}`}>
-                          {getStageLabel(opportunity.stage)}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">{formatCurrency(opportunity.amount)}</div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">{opportunity.probability}%</div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">{formatDate(opportunity.expectedCloseDate)}</div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">{opportunity.ownerName}</div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <button
-                          onClick={() => router.push(`/opportunities/${opportunity.id}`)}
-                          className="text-orange-600 hover:text-orange-900 mr-4"
-                        >
-                          View
-                        </button>
-                        <button
-                          onClick={() => router.push(`/opportunities/${opportunity.id}/edit`)}
-                          className="text-indigo-600 hover:text-indigo-900 mr-4"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => handleDelete(opportunity.id)}
-                          className="text-red-600 hover:text-red-900"
-                        >
-                          Delete
-                        </button>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {filteredOpportunities.length === 0 ? (
+                    <tr>
+                      <td colSpan={7} className="px-6 py-12 text-center text-slate-700">
+                        {searchQuery || stageFilter
+                          ? "No opportunities found matching your filters"
+                          : "No opportunities yet. Create your first opportunity!"}
                       </td>
                     </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+                  ) : (
+                    filteredOpportunities.map((opportunity) => (
+                      <tr key={opportunity.id} className="hover:bg-slate-50 transition-colors">
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded bg-blue-100">
+                              {opportunity.accountName[0]}
+                            </div>
+                            <div>
+                              <p className="text-sm font-semibold text-slate-900">
+                                {opportunity.opportunityName}
+                              </p>
+                              <p className="text-xs text-slate-700">{opportunity.accountName}</p>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 text-sm font-bold text-slate-900">
+                          {formatCurrency(opportunity.amount)}
+                        </td>
+                        <td className="px-6 py-4">
+                          <span
+                            className={`px-2 py-1 ${getStageColor(opportunity.stage)} text-slate-900 rounded text-xs font-medium`}
+                          >
+                            {getStageLabel(opportunity.stage)}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-sm font-medium text-slate-900">
+                          {opportunity.probability}%
+                        </td>
+                        <td className="px-6 py-4 text-sm text-slate-900">
+                          {formatDate(opportunity.expectedCloseDate)}
+                        </td>
+                        <td className="px-6 py-4 text-right text-sm text-slate-900">
+                          {opportunity.ownerName}
+                        </td>
+                        <td className="px-6 py-4 text-right text-sm font-medium">
+                          <button
+                            onClick={() => router.push(`/opportunities/${opportunity.id}`)}
+                            className="text-primary hover:text-primary/90 mr-4 transition-colors"
+                          >
+                            View
+                          </button>
+                          <button
+                            onClick={() => router.push(`/opportunities/${opportunity.id}/edit`)}
+                            className="text-primary hover:text-primary/90 mr-4 transition-colors"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleDelete(opportunity.id)}
+                            className="text-rose-600"
+                          >
+                            Delete
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Stats */}
+          <div className="text-sm text-slate-700">
+            Showing {filteredOpportunities.length} of {opportunities.length} opportunities
           </div>
         </div>
-
-        {/* Stats */}
-        <div className="mt-4 text-sm text-gray-600">
-          Showing {filteredOpportunities.length} of {opportunities.length} opportunities
-        </div>
-      </div>
+      </main>
     </div>
   );
 }

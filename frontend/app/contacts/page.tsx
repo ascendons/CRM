@@ -1,22 +1,22 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { Contact } from '@/types/contact';
-import { contactsService } from '@/lib/contacts';
-import { authService } from '@/lib/auth';
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { Contact } from "@/types/contact";
+import { contactsService } from "@/lib/contacts";
+import { authService } from "@/lib/auth";
 
 export default function ContactsPage() {
   const router = useRouter();
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [filteredContacts, setFilteredContacts] = useState<Contact[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!authService.isAuthenticated()) {
-      router.push('/login');
+      router.push("/login");
       return;
     }
     loadContacts();
@@ -30,7 +30,7 @@ export default function ContactsPage() {
       setContacts(data);
       setFilteredContacts(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load contacts');
+      setError(err instanceof Error ? err.message : "Failed to load contacts");
     } finally {
       setLoading(false);
     }
@@ -47,12 +47,12 @@ export default function ContactsPage() {
       const results = await contactsService.searchContacts(query);
       setFilteredContacts(results);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Search failed');
+      setError(err instanceof Error ? err.message : "Search failed");
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this contact?')) {
+    if (!confirm("Are you sure you want to delete this contact?")) {
       return;
     }
 
@@ -60,153 +60,169 @@ export default function ContactsPage() {
       await contactsService.deleteContact(id);
       loadContacts();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to delete contact');
+      setError(err instanceof Error ? err.message : "Failed to delete contact");
     }
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-background-light flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading contacts...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4 text-slate-700">Loading contacts...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Contacts</h1>
-          <p className="mt-2 text-gray-600">Manage your contact relationships</p>
-        </div>
-
-        {/* Actions Bar */}
-        <div className="mb-6 flex flex-col sm:flex-row gap-4">
-          <div className="flex-1">
-            <input
-              type="text"
-              placeholder="Search contacts by name or email..."
-              value={searchQuery}
-              onChange={(e) => handleSearch(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
+    <div className="min-h-screen bg-background-light">
+      <main className="flex-1 overflow-y-auto">
+        <div className="p-8 max-w-7xl mx-auto w-full space-y-8">
+          {/* Page Header */}
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <h2 className="text-3xl font-extrabold tracking-tight text-slate-900">
+                Contact Management
+              </h2>
+              <p className="text-slate-700">
+                Manage your contact relationships and communications.
+              </p>
+            </div>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => router.push("/contacts/new")}
+                className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg text-sm font-bold shadow-lg shadow-primary/20 hover:bg-primary/90 transition-all"
+              >
+                <span className="material-symbols-outlined text-lg">person_add</span>
+                New Contact
+              </button>
+            </div>
           </div>
-          <button
-            onClick={() => router.push('/contacts/new')}
-            className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors whitespace-nowrap"
-          >
-            + New Contact
-          </button>
-        </div>
 
-        {error && (
-          <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-            <p className="text-red-600">{error}</p>
+          {/* Search Bar */}
+          <div className="bg-white rounded-xl p-4">
+            <div className="relative">
+              <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">
+                search
+              </span>
+              <input
+                type="text"
+                placeholder="Search contacts by name or email..."
+                value={searchQuery}
+                onChange={(e) => handleSearch(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 bg-slate-100 border-none rounded-lg text-sm focus:ring-2 focus:ring-primary transition-all"
+              />
+            </div>
           </div>
-        )}
 
-        {/* Contacts Table */}
-        <div className="bg-white rounded-lg shadow overflow-hidden">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Contact
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Account
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Job Title
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Email
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Phone
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Owner
-                </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {filteredContacts.length === 0 ? (
-                <tr>
-                  <td colSpan={7} className="px-6 py-12 text-center text-gray-500">
-                    {searchQuery ? 'No contacts found matching your search' : 'No contacts yet. Create your first contact!'}
-                  </td>
-                </tr>
-              ) : (
-                filteredContacts.map((contact) => (
-                  <tr key={contact.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div>
-                        <div className="text-sm font-medium text-gray-900">
-                          {contact.firstName} {contact.lastName}
-                        </div>
-                        <div className="text-sm text-gray-500">{contact.contactId}</div>
-                        {contact.isPrimaryContact && (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
-                            Primary
-                          </span>
-                        )}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">{contact.accountName || '-'}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">{contact.jobTitle || '-'}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">{contact.email}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">{contact.phone || contact.mobilePhone || '-'}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">{contact.ownerName}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <button
-                        onClick={() => router.push(`/contacts/${contact.id}`)}
-                        className="text-blue-600 hover:text-blue-900 mr-4"
-                      >
-                        View
-                      </button>
-                      <button
-                        onClick={() => router.push(`/contacts/${contact.id}/edit`)}
-                        className="text-indigo-600 hover:text-indigo-900 mr-4"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => handleDelete(contact.id)}
-                        className="text-red-600 hover:text-red-900"
-                      >
-                        Delete
-                      </button>
-                    </td>
+          {error && <div className="bg-rose-50">{error}</div>}
+
+          {/* Contacts Table */}
+          <div className="bg-white rounded-xl overflow-hidden">
+            <div className="overflow-x-auto p-6">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-slate-50">
+                    <th className="px-6 py-3 text-xs font-bold uppercase tracking-wider text-slate-700">
+                      Contact
+                    </th>
+                    <th className="px-6 py-3 text-xs font-bold uppercase tracking-wider text-slate-700">
+                      Account
+                    </th>
+                    <th className="px-6 py-3 text-xs font-bold uppercase tracking-wider text-slate-700">
+                      Job Title
+                    </th>
+                    <th className="px-6 py-3 text-xs font-bold uppercase tracking-wider text-slate-700">
+                      Email
+                    </th>
+                    <th className="px-6 py-3 text-xs font-bold uppercase tracking-wider text-slate-700">
+                      Phone
+                    </th>
+                    <th className="px-6 py-3 text-xs font-bold uppercase tracking-wider text-slate-700">
+                      Owner
+                    </th>
+                    <th className="px-6 py-3 text-xs font-bold uppercase tracking-wider text-slate-700">
+                      Actions
+                    </th>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {filteredContacts.length === 0 ? (
+                    <tr>
+                      <td colSpan={7} className="px-6 py-12 text-center text-slate-700">
+                        {searchQuery
+                          ? "No contacts found matching your search"
+                          : "No contacts yet. Create your first contact!"}
+                      </td>
+                    </tr>
+                  ) : (
+                    filteredContacts.map((contact) => (
+                      <tr key={contact.id} className="hover:bg-slate-50 transition-colors">
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-3">
+                            <div className="size-8 rounded-full bg-purple-100">
+                              {contact.firstName[0]}
+                              {contact.lastName[0]}
+                            </div>
+                            <div>
+                              <p className="text-sm font-semibold text-slate-900">
+                                {contact.firstName} {contact.lastName}
+                              </p>
+                              <p className="text-xs text-slate-700">{contact.contactId}</p>
+                              {contact.isPrimaryContact && (
+                                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-primary/10 text-primary mt-1">
+                                  Primary
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 text-sm text-slate-900">
+                          {contact.accountName || "-"}
+                        </td>
+                        <td className="px-6 py-4 text-sm text-slate-900">
+                          {contact.jobTitle || "-"}
+                        </td>
+                        <td className="px-6 py-4 text-sm text-slate-900">{contact.email}</td>
+                        <td className="px-6 py-4 text-sm text-slate-900">
+                          {contact.phone || contact.mobilePhone || "-"}
+                        </td>
+                        <td className="px-6 py-4 text-sm text-slate-900">{contact.ownerName}</td>
+                        <td className="px-6 py-4 text-right text-sm font-medium">
+                          <button
+                            onClick={() => router.push(`/contacts/${contact.id}`)}
+                            className="text-primary hover:text-primary/90 mr-4 transition-colors"
+                          >
+                            View
+                          </button>
+                          <button
+                            onClick={() => router.push(`/contacts/${contact.id}/edit`)}
+                            className="text-primary hover:text-primary/90 mr-4 transition-colors"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleDelete(contact.id)}
+                            className="text-rose-600"
+                          >
+                            Delete
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
 
-        {/* Stats */}
-        <div className="mt-4 text-sm text-gray-600">
-          Showing {filteredContacts.length} of {contacts.length} contacts
+          {/* Stats */}
+          <div className="text-sm text-slate-700">
+            Showing {filteredContacts.length} of {contacts.length} contacts
+          </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 }

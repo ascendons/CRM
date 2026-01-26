@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { Account, UpdateAccountRequest } from '@/types/account';
-import { accountsService } from '@/lib/accounts';
-import { authService } from '@/lib/auth';
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { Account, UpdateAccountRequest } from "@/types/account";
+import { accountsService } from "@/lib/accounts";
+import { authService } from "@/lib/auth";
 
 export default function EditAccountPage({ params }: { params: { id: string } }) {
   const router = useRouter();
@@ -13,15 +13,6 @@ export default function EditAccountPage({ params }: { params: { id: string } }) 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [formData, setFormData] = useState<UpdateAccountRequest>({});
-
-  useEffect(() => {
-    if (!authService.isAuthenticated()) {
-      router.push('/login');
-      return;
-    }
-    loadAccount();
-    loadParentAccounts();
-  }, [params.id, router]);
 
   const loadAccount = async () => {
     try {
@@ -70,7 +61,7 @@ export default function EditAccountPage({ params }: { params: { id: string } }) 
         notes: data.notes,
       });
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load account');
+      setError(err instanceof Error ? err.message : "Failed to load account");
     }
   };
 
@@ -79,9 +70,19 @@ export default function EditAccountPage({ params }: { params: { id: string } }) 
       const data = await accountsService.getAllAccounts();
       setParentAccounts(data);
     } catch (err) {
-      console.error('Failed to load accounts:', err);
+      console.error("Failed to load accounts:", err);
     }
   };
+
+  useEffect(() => {
+    if (!authService.isAuthenticated()) {
+      router.push("/login");
+      return;
+    }
+    loadAccount();
+    loadParentAccounts();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [params.id, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -92,22 +93,27 @@ export default function EditAccountPage({ params }: { params: { id: string } }) 
       const updated = await accountsService.updateAccount(params.id, formData);
       router.push(`/accounts/${updated.id}`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to update account');
+      setError(err instanceof Error ? err.message : "Failed to update account");
       setLoading(false);
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
     const { name, value, type } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: type === 'number' ? (value ? parseFloat(value) : undefined) : value,
+      [name]: type === "number" ? (value ? parseFloat(value) : undefined) : value,
     }));
   };
 
   const handleTagsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const tags = e.target.value.split(',').map(tag => tag.trim()).filter(tag => tag);
-    setFormData(prev => ({ ...prev, tags }));
+    const tags = e.target.value
+      .split(",")
+      .map((tag) => tag.trim())
+      .filter((tag) => tag);
+    setFormData((prev) => ({ ...prev, tags }));
   };
 
   if (!account) {
@@ -148,7 +154,7 @@ export default function EditAccountPage({ params }: { params: { id: string } }) 
                   type="text"
                   name="accountName"
                   required
-                  value={formData.accountName || ''}
+                  value={formData.accountName || ""}
                   onChange={handleChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 />
@@ -160,26 +166,26 @@ export default function EditAccountPage({ params }: { params: { id: string } }) 
                 </label>
                 <select
                   name="parentAccountId"
-                  value={formData.parentAccountId || ''}
+                  value={formData.parentAccountId || ""}
                   onChange={handleChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">Select Parent Account...</option>
-                  {parentAccounts.filter(acc => acc.id !== account.id).map(acc => (
-                    <option key={acc.id} value={acc.id}>
-                      {acc.accountName}
-                    </option>
-                  ))}
+                  {parentAccounts
+                    .filter((acc) => acc.id !== account.id)
+                    .map((acc) => (
+                      <option key={acc.id} value={acc.id}>
+                        {acc.accountName}
+                      </option>
+                    ))}
                 </select>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Account Type
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Account Type</label>
                 <select
                   name="accountType"
-                  value={formData.accountType || ''}
+                  value={formData.accountType || ""}
                   onChange={handleChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 >
@@ -194,25 +200,21 @@ export default function EditAccountPage({ params }: { params: { id: string } }) 
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Industry
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Industry</label>
                 <input
                   type="text"
                   name="industry"
-                  value={formData.industry || ''}
+                  value={formData.industry || ""}
                   onChange={handleChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Company Size
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Company Size</label>
                 <select
                   name="companySize"
-                  value={formData.companySize || ''}
+                  value={formData.companySize || ""}
                   onChange={handleChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 >
@@ -233,7 +235,7 @@ export default function EditAccountPage({ params }: { params: { id: string } }) 
                 <input
                   type="number"
                   name="annualRevenue"
-                  value={formData.annualRevenue || ''}
+                  value={formData.annualRevenue || ""}
                   onChange={handleChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 />
@@ -246,7 +248,7 @@ export default function EditAccountPage({ params }: { params: { id: string } }) 
                 <input
                   type="number"
                   name="numberOfEmployees"
-                  value={formData.numberOfEmployees || ''}
+                  value={formData.numberOfEmployees || ""}
                   onChange={handleChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 />
@@ -259,39 +261,33 @@ export default function EditAccountPage({ params }: { params: { id: string } }) 
             <h2 className="text-xl font-semibold text-gray-900 mb-4">Contact Information</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Phone
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Phone</label>
                 <input
                   type="tel"
                   name="phone"
-                  value={formData.phone || ''}
+                  value={formData.phone || ""}
                   onChange={handleChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Website
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Website</label>
                 <input
                   type="url"
                   name="website"
-                  value={formData.website || ''}
+                  value={formData.website || ""}
                   onChange={handleChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Email
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
                 <input
                   type="email"
                   name="email"
-                  value={formData.email || ''}
+                  value={formData.email || ""}
                   onChange={handleChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 />
@@ -304,26 +300,22 @@ export default function EditAccountPage({ params }: { params: { id: string } }) 
             <h2 className="text-xl font-semibold text-gray-900 mb-4">Billing Address</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Street
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Street</label>
                 <input
                   type="text"
                   name="billingStreet"
-                  value={formData.billingStreet || ''}
+                  value={formData.billingStreet || ""}
                   onChange={handleChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  City
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">City</label>
                 <input
                   type="text"
                   name="billingCity"
-                  value={formData.billingCity || ''}
+                  value={formData.billingCity || ""}
                   onChange={handleChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 />
@@ -336,33 +328,29 @@ export default function EditAccountPage({ params }: { params: { id: string } }) 
                 <input
                   type="text"
                   name="billingState"
-                  value={formData.billingState || ''}
+                  value={formData.billingState || ""}
                   onChange={handleChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Postal Code
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Postal Code</label>
                 <input
                   type="text"
                   name="billingPostalCode"
-                  value={formData.billingPostalCode || ''}
+                  value={formData.billingPostalCode || ""}
                   onChange={handleChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Country
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Country</label>
                 <input
                   type="text"
                   name="billingCountry"
-                  value={formData.billingCountry || ''}
+                  value={formData.billingCountry || ""}
                   onChange={handleChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 />
@@ -375,26 +363,22 @@ export default function EditAccountPage({ params }: { params: { id: string } }) 
             <h2 className="text-xl font-semibold text-gray-900 mb-4">Shipping Address</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Street
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Street</label>
                 <input
                   type="text"
                   name="shippingStreet"
-                  value={formData.shippingStreet || ''}
+                  value={formData.shippingStreet || ""}
                   onChange={handleChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  City
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">City</label>
                 <input
                   type="text"
                   name="shippingCity"
-                  value={formData.shippingCity || ''}
+                  value={formData.shippingCity || ""}
                   onChange={handleChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 />
@@ -407,33 +391,29 @@ export default function EditAccountPage({ params }: { params: { id: string } }) 
                 <input
                   type="text"
                   name="shippingState"
-                  value={formData.shippingState || ''}
+                  value={formData.shippingState || ""}
                   onChange={handleChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Postal Code
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Postal Code</label>
                 <input
                   type="text"
                   name="shippingPostalCode"
-                  value={formData.shippingPostalCode || ''}
+                  value={formData.shippingPostalCode || ""}
                   onChange={handleChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Country
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Country</label>
                 <input
                   type="text"
                   name="shippingCountry"
-                  value={formData.shippingCountry || ''}
+                  value={formData.shippingCountry || ""}
                   onChange={handleChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 />
@@ -452,33 +432,29 @@ export default function EditAccountPage({ params }: { params: { id: string } }) 
                 <input
                   type="text"
                   name="tickerSymbol"
-                  value={formData.tickerSymbol || ''}
+                  value={formData.tickerSymbol || ""}
                   onChange={handleChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  SIC Code
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">SIC Code</label>
                 <input
                   type="text"
                   name="sicCode"
-                  value={formData.sicCode || ''}
+                  value={formData.sicCode || ""}
                   onChange={handleChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Tax ID
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Tax ID</label>
                 <input
                   type="text"
                   name="taxId"
-                  value={formData.taxId || ''}
+                  value={formData.taxId || ""}
                   onChange={handleChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 />
@@ -497,7 +473,7 @@ export default function EditAccountPage({ params }: { params: { id: string } }) 
                 <input
                   type="url"
                   name="linkedInPage"
-                  value={formData.linkedInPage || ''}
+                  value={formData.linkedInPage || ""}
                   onChange={handleChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 />
@@ -510,7 +486,7 @@ export default function EditAccountPage({ params }: { params: { id: string } }) 
                 <input
                   type="text"
                   name="twitterHandle"
-                  value={formData.twitterHandle || ''}
+                  value={formData.twitterHandle || ""}
                   onChange={handleChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 />
@@ -528,7 +504,7 @@ export default function EditAccountPage({ params }: { params: { id: string } }) 
                 </label>
                 <select
                   name="paymentTerms"
-                  value={formData.paymentTerms || ''}
+                  value={formData.paymentTerms || ""}
                   onChange={handleChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 >
@@ -547,7 +523,7 @@ export default function EditAccountPage({ params }: { params: { id: string } }) 
                 </label>
                 <select
                   name="creditStatus"
-                  value={formData.creditStatus || ''}
+                  value={formData.creditStatus || ""}
                   onChange={handleChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 >
@@ -561,29 +537,26 @@ export default function EditAccountPage({ params }: { params: { id: string } }) 
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Credit Limit
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Credit Limit</label>
                 <input
                   type="number"
                   name="creditLimit"
-                  value={formData.creditLimit || ''}
+                  value={formData.creditLimit || ""}
                   onChange={handleChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Currency
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Currency</label>
                 <select
                   name="currency"
-                  value={formData.currency || ''}
+                  value={formData.currency || ""}
                   onChange={handleChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">Select...</option>
+                  <option value="INR">INR</option>
                   <option value="USD">USD</option>
                   <option value="EUR">EUR</option>
                   <option value="GBP">GBP</option>
@@ -600,12 +573,10 @@ export default function EditAccountPage({ params }: { params: { id: string } }) 
             <h2 className="text-xl font-semibold text-gray-900 mb-4">Additional Information</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Description
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
                 <textarea
                   name="description"
-                  value={formData.description || ''}
+                  value={formData.description || ""}
                   onChange={handleChange}
                   rows={4}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
@@ -613,12 +584,10 @@ export default function EditAccountPage({ params }: { params: { id: string } }) 
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Rating
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Rating</label>
                 <select
                   name="rating"
-                  value={formData.rating || ''}
+                  value={formData.rating || ""}
                   onChange={handleChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 >
@@ -635,19 +604,17 @@ export default function EditAccountPage({ params }: { params: { id: string } }) 
                 </label>
                 <input
                   type="text"
-                  defaultValue={account.tags?.join(', ')}
+                  defaultValue={account.tags?.join(", ")}
                   onChange={handleTagsChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Notes
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Notes</label>
                 <textarea
                   name="notes"
-                  value={formData.notes || ''}
+                  value={formData.notes || ""}
                   onChange={handleChange}
                   rows={4}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
@@ -663,7 +630,7 @@ export default function EditAccountPage({ params }: { params: { id: string } }) 
               disabled={loading}
               className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
             >
-              {loading ? 'Saving...' : 'Save Changes'}
+              {loading ? "Saving..." : "Save Changes"}
             </button>
             <button
               type="button"

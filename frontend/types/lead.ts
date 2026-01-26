@@ -1,54 +1,54 @@
 export enum LeadStatus {
-  NEW = 'NEW',
-  CONTACTED = 'CONTACTED',
-  QUALIFIED = 'QUALIFIED',
-  PROPOSAL_SENT = 'PROPOSAL_SENT',
-  NEGOTIATION = 'NEGOTIATION',
-  UNQUALIFIED = 'UNQUALIFIED',
-  LOST = 'LOST',
-  CONVERTED = 'CONVERTED',
+  NEW = "NEW",
+  CONTACTED = "CONTACTED",
+  QUALIFIED = "QUALIFIED",
+  PROPOSAL_SENT = "PROPOSAL_SENT",
+  NEGOTIATION = "NEGOTIATION",
+  UNQUALIFIED = "UNQUALIFIED",
+  LOST = "LOST",
+  CONVERTED = "CONVERTED",
 }
 
 export enum LeadSource {
-  WEBSITE = 'WEBSITE',
-  REFERRAL = 'REFERRAL',
-  COLD_CALL = 'COLD_CALL',
-  LINKEDIN = 'LINKEDIN',
-  TRADE_SHOW = 'TRADE_SHOW',
-  PARTNER = 'PARTNER',
-  ADVERTISING = 'ADVERTISING',
-  EMAIL_CAMPAIGN = 'EMAIL_CAMPAIGN',
-  IMPORT = 'IMPORT',
-  OTHER = 'OTHER',
+  WEBSITE = "WEBSITE",
+  REFERRAL = "REFERRAL",
+  COLD_CALL = "COLD_CALL",
+  LINKEDIN = "LINKEDIN",
+  TRADE_SHOW = "TRADE_SHOW",
+  PARTNER = "PARTNER",
+  ADVERTISING = "ADVERTISING",
+  EMAIL_CAMPAIGN = "EMAIL_CAMPAIGN",
+  IMPORT = "IMPORT",
+  OTHER = "OTHER",
 }
 
 export enum Industry {
-  TECHNOLOGY = 'TECHNOLOGY',
-  MANUFACTURING = 'MANUFACTURING',
-  HEALTHCARE = 'HEALTHCARE',
-  FINANCE = 'FINANCE',
-  RETAIL = 'RETAIL',
-  EDUCATION = 'EDUCATION',
-  REAL_ESTATE = 'REAL_ESTATE',
-  E_COMMERCE = 'E_COMMERCE',
-  CONSULTING = 'CONSULTING',
-  PROFESSIONAL_SERVICES = 'PROFESSIONAL_SERVICES',
-  TELECOMMUNICATIONS = 'TELECOMMUNICATIONS',
-  TRANSPORTATION = 'TRANSPORTATION',
-  HOSPITALITY = 'HOSPITALITY',
-  AGRICULTURE = 'AGRICULTURE',
-  ENERGY = 'ENERGY',
-  GOVERNMENT = 'GOVERNMENT',
-  NON_PROFIT = 'NON_PROFIT',
-  OTHER = 'OTHER',
+  TECHNOLOGY = "TECHNOLOGY",
+  MANUFACTURING = "MANUFACTURING",
+  HEALTHCARE = "HEALTHCARE",
+  FINANCE = "FINANCE",
+  RETAIL = "RETAIL",
+  EDUCATION = "EDUCATION",
+  REAL_ESTATE = "REAL_ESTATE",
+  E_COMMERCE = "E_COMMERCE",
+  CONSULTING = "CONSULTING",
+  PROFESSIONAL_SERVICES = "PROFESSIONAL_SERVICES",
+  TELECOMMUNICATIONS = "TELECOMMUNICATIONS",
+  TRANSPORTATION = "TRANSPORTATION",
+  HOSPITALITY = "HOSPITALITY",
+  AGRICULTURE = "AGRICULTURE",
+  ENERGY = "ENERGY",
+  GOVERNMENT = "GOVERNMENT",
+  NON_PROFIT = "NON_PROFIT",
+  OTHER = "OTHER",
 }
 
 export enum CompanySize {
-  MICRO = 'MICRO',       // 1-10
-  SMALL = 'SMALL',       // 11-50
-  MEDIUM = 'MEDIUM',     // 51-200
-  LARGE = 'LARGE',       // 201-500
-  ENTERPRISE = 'ENTERPRISE', // 500+
+  MICRO = "MICRO", // 1-10
+  SMALL = "SMALL", // 11-50
+  MEDIUM = "MEDIUM", // 51-200
+  LARGE = "LARGE", // 201-500
+  ENTERPRISE = "ENTERPRISE", // 500+
 }
 
 export interface Lead {
@@ -97,7 +97,7 @@ export interface Lead {
 
   // Scoring
   leadScore?: number;
-  leadGrade?: 'A' | 'B' | 'C' | 'D';
+  leadGrade?: "A" | "B" | "C" | "D";
   demographicScore?: number;
   behavioralScore?: number;
   qualificationScore?: number;
@@ -209,38 +209,38 @@ export interface LeadStatistics {
 export const getLeadStatusColor = (status: LeadStatus): string => {
   switch (status) {
     case LeadStatus.NEW:
-      return 'bg-blue-100 text-blue-800';
+      return "bg-blue-100 text-blue-800";
     case LeadStatus.CONTACTED:
-      return 'bg-yellow-100 text-yellow-800';
+      return "bg-yellow-100 text-yellow-800";
     case LeadStatus.QUALIFIED:
-      return 'bg-green-100 text-green-800';
+      return "bg-green-100 text-green-800";
     case LeadStatus.PROPOSAL_SENT:
-      return 'bg-purple-100 text-purple-800';
+      return "bg-purple-100 text-purple-800";
     case LeadStatus.NEGOTIATION:
-      return 'bg-indigo-100 text-indigo-800';
+      return "bg-indigo-100 text-indigo-800";
     case LeadStatus.UNQUALIFIED:
-      return 'bg-gray-100 text-gray-800';
+      return "bg-gray-100 text-gray-800";
     case LeadStatus.LOST:
-      return 'bg-red-100 text-red-800';
+      return "bg-red-100 text-red-800";
     case LeadStatus.CONVERTED:
-      return 'bg-emerald-100 text-emerald-800';
+      return "bg-emerald-100 text-emerald-800";
     default:
-      return 'bg-gray-100 text-gray-800';
+      return "bg-gray-100 text-gray-800";
   }
 };
 
 export const getLeadGradeColor = (grade: string): string => {
   switch (grade) {
-    case 'A':
-      return 'bg-green-500 text-white';
-    case 'B':
-      return 'bg-blue-500 text-white';
-    case 'C':
-      return 'bg-yellow-500 text-white';
-    case 'D':
-      return 'bg-gray-500 text-white';
+    case "A":
+      return "bg-green-500 text-white";
+    case "B":
+      return "bg-blue-500 text-white";
+    case "C":
+      return "bg-yellow-500 text-white";
+    case "D":
+      return "bg-gray-500 text-white";
     default:
-      return 'bg-gray-300 text-gray-800';
+      return "bg-gray-300 text-gray-800";
   }
 };
 
@@ -251,16 +251,16 @@ export const formatLeadName = (lead: Lead): string => {
 export const formatCompanySize = (size: CompanySize): string => {
   switch (size) {
     case CompanySize.MICRO:
-      return '1-10 employees';
+      return "1-10 employees";
     case CompanySize.SMALL:
-      return '11-50 employees';
+      return "11-50 employees";
     case CompanySize.MEDIUM:
-      return '51-200 employees';
+      return "51-200 employees";
     case CompanySize.LARGE:
-      return '201-500 employees';
+      return "201-500 employees";
     case CompanySize.ENTERPRISE:
-      return '500+ employees';
+      return "500+ employees";
     default:
-      return 'Unknown';
+      return "Unknown";
   }
 };
