@@ -11,11 +11,13 @@ import { contactsService } from "@/lib/contacts";
 import { accountsService } from "@/lib/accounts";
 import { opportunitiesService } from "@/lib/opportunities";
 import { activitiesService } from "@/lib/activities";
+import { OpportunityStatistics } from "@/types/opportunity";
 
 export default function DashboardPage() {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [statistics, setStatistics] = useState<LeadStatistics | null>(null);
+  const [opportunityStats, setOpportunityStats] = useState<OpportunityStatistics | null>(null);
   const [contactCount, setContactCount] = useState<number>(0);
   const [accountCount, setAccountCount] = useState<number>(0);
   const [opportunityCount, setOpportunityCount] = useState<number>(0);
@@ -36,14 +38,16 @@ export default function DashboardPage() {
 
   const loadStatistics = async () => {
     try {
-      const [stats, contacts, accounts, opportunities, activities] = await Promise.all([
+      const [stats, oppStats, contacts, accounts, opportunities, activities] = await Promise.all([
         leadsService.getStatistics(),
+        opportunitiesService.getStatistics(),
         contactsService.getContactCount(),
         accountsService.getAccountCount(),
         opportunitiesService.getOpportunityCount(),
         activitiesService.getActivityCount(),
       ]);
       setStatistics(stats);
+      setOpportunityStats(oppStats);
       setContactCount(contacts);
       setAccountCount(accounts);
       setOpportunityCount(opportunities);
@@ -105,12 +109,16 @@ export default function DashboardPage() {
                 <span className="material-symbols-outlined text-blue-600">payments</span>
                 <span className="text-xs font-bold text-emerald-600">
                   <span className="material-symbols-outlined text-xs">trending_up</span>
-                  12.5%
+                  {opportunityStats?.winRate ? opportunityStats.winRate.toFixed(1) : "0"}%
                 </span>
               </div>
               <p className="text-sm font-medium text-slate-700">Total Revenue</p>
-              <h3 className="text-2xl font-bold tracking-tight text-slate-900">₹4,285,000</h3>
-              <p className="text-xs text-slate-700">v.s. ₹3.8M last month</p>
+              <h3 className="text-2xl font-bold tracking-tight text-slate-900">
+                ₹{opportunityStats?.wonValue ? (opportunityStats.wonValue / 1000).toFixed(0) : "0"}K
+              </h3>
+              <p className="text-xs text-slate-700">
+                Pipeline: ₹{opportunityStats?.pipelineValue ? (opportunityStats.pipelineValue / 1000).toFixed(0) : "0"}K
+              </p>
             </div>
 
             {/* New Leads Card */}
@@ -135,27 +143,36 @@ export default function DashboardPage() {
                 <span className="material-symbols-outlined text-amber-600">work</span>
                 <span className="text-xs font-bold text-emerald-600">
                   <span className="material-symbols-outlined text-xs">trending_up</span>
-                  8.1%
+                  {opportunityStats?.openOpportunities && opportunityStats?.totalOpportunities
+                    ? ((opportunityStats.openOpportunities / opportunityStats.totalOpportunities) * 100).toFixed(1)
+                    : "0"}%
                 </span>
               </div>
               <p className="text-sm font-medium text-slate-700">Active Deals</p>
               <h3 className="text-2xl font-bold tracking-tight text-slate-900">
-                {opportunityCount}
+                {opportunityStats?.openOpportunities || opportunityCount}
               </h3>
-              <p className="text-xs text-slate-700">Avg. deal size ₹24.5k</p>
+              <p className="text-xs text-slate-700">
+                Avg. deal size ₹{opportunityStats?.averageDealSize ? (opportunityStats.averageDealSize / 1000).toFixed(1) : "0"}K
+              </p>
             </div>
 
             {/* Win Rate Card */}
             <div className="bg-white p-6 rounded-xl shadow-sm">
               <div className="flex items-center justify-between mb-4">
                 <span className="material-symbols-outlined text-emerald-600">verified</span>
-                <span className="text-xs font-bold text-rose-600">
-                  <span className="material-symbols-outlined text-xs">trending_down</span>
-                  2.4%
+                <span className={`text-xs font-bold ${opportunityStats && opportunityStats.winRate >= 70 ? "text-emerald-600" : "text-rose-600"}`}>
+                  <span className="material-symbols-outlined text-xs">
+                    {opportunityStats && opportunityStats.winRate >= 70 ? "trending_up" : "trending_down"}
+                  </span>
+                  {opportunityStats && opportunityStats.winRate >= 70 ? "+" : ""}
+                  {opportunityStats ? (opportunityStats.winRate - 70).toFixed(1) : "0"}%
                 </span>
               </div>
               <p className="text-sm font-medium text-slate-700">Win Rate</p>
-              <h3 className="text-2xl font-bold tracking-tight text-slate-900">68.2%</h3>
+              <h3 className="text-2xl font-bold tracking-tight text-slate-900">
+                {opportunityStats?.winRate ? opportunityStats.winRate.toFixed(1) : "0"}%
+              </h3>
               <p className="text-xs text-slate-700">Target: 70%</p>
             </div>
           </div>

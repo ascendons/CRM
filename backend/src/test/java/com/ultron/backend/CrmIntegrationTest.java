@@ -115,7 +115,21 @@ class CrmIntegrationTest {
 
     @Test
     @Order(3)
-    @DisplayName("3. Create Lead - Should create new lead with BANT scoring")
+    @DisplayName("3. Get Current User - Should return user info with role and profile")
+    void testGetCurrentUser() throws Exception {
+        mockMvc.perform(get("/api/v1/me")
+                        .header("Authorization", "Bearer " + authToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.data.email").value("test@crm.com"))
+                .andExpect(jsonPath("$.data.roleName").value("System Administrator"))
+                .andExpect(jsonPath("$.data.profileName").value("System Administrator"))
+                .andReturn();
+    }
+
+    @Test
+    @Order(4)
+    @DisplayName("4. Create Lead - Should create new lead with BANT scoring")
     void testCreateLead() throws Exception {
         CreateLeadRequest request = CreateLeadRequest.builder()
                 .firstName("John")
@@ -153,8 +167,8 @@ class CrmIntegrationTest {
     }
 
     @Test
-    @Order(4)
-    @DisplayName("4. Update Lead to Qualified - Should update lead status and BANT fields")
+    @Order(5)
+    @DisplayName("5. Update Lead to Qualified - Should update lead status and BANT fields")
     void testQualifyLead() throws Exception {
         UpdateLeadRequest request = UpdateLeadRequest.builder()
                 .leadStatus(LeadStatus.QUALIFIED)
@@ -176,8 +190,8 @@ class CrmIntegrationTest {
     }
 
     @Test
-    @Order(5)
-    @DisplayName("5. Convert Lead - Should create Contact and Account from Lead")
+    @Order(6)
+    @DisplayName("6. Convert Lead - Should create Contact and Account from Lead")
     void testConvertLead() throws Exception {
         MvcResult result = mockMvc.perform(post("/api/v1/leads/" + leadId + "/convert")
                         .header("Authorization", "Bearer " + authToken))
@@ -206,8 +220,8 @@ class CrmIntegrationTest {
     }
 
     @Test
-    @Order(6)
-    @DisplayName("6. Create Opportunity - Should create opportunity linked to account and contact")
+    @Order(7)
+    @DisplayName("7. Create Opportunity - Should create opportunity linked to account and contact")
     void testCreateOpportunity() throws Exception {
         CreateOpportunityRequest request = CreateOpportunityRequest.builder()
                 .opportunityName("TechCorp Enterprise Deal")
@@ -242,8 +256,8 @@ class CrmIntegrationTest {
     }
 
     @Test
-    @Order(7)
-    @DisplayName("7. Create Call Activity - Should create activity with call details")
+    @Order(8)
+    @DisplayName("8. Create Call Activity - Should create activity with call details")
     void testCreateCallActivity() throws Exception {
         CreateActivityRequest request = CreateActivityRequest.builder()
                 .subject("Follow-up call with TechCorp")
@@ -282,8 +296,8 @@ class CrmIntegrationTest {
     }
 
     @Test
-    @Order(8)
-    @DisplayName("8. Get Lead Statistics - Should return lead metrics")
+    @Order(9)
+    @DisplayName("9. Get Lead Statistics - Should return lead metrics")
     void testGetLeadStatistics() throws Exception {
         mockMvc.perform(get("/api/v1/leads/statistics")
                         .header("Authorization", "Bearer " + authToken))
@@ -294,8 +308,8 @@ class CrmIntegrationTest {
     }
 
     @Test
-    @Order(9)
-    @DisplayName("9. Get Opportunity Statistics - Should return pipeline metrics")
+    @Order(10)
+    @DisplayName("10. Get Opportunity Statistics - Should return pipeline metrics")
     void testGetOpportunityStatistics() throws Exception {
         mockMvc.perform(get("/api/v1/opportunities/statistics")
                         .header("Authorization", "Bearer " + authToken))
@@ -306,8 +320,8 @@ class CrmIntegrationTest {
     }
 
     @Test
-    @Order(10)
-    @DisplayName("10. Get Activities by Opportunity - Should return linked activities")
+    @Order(11)
+    @DisplayName("11. Get Activities by Opportunity - Should return linked activities")
     void testGetActivitiesByOpportunity() throws Exception {
         mockMvc.perform(get("/api/v1/activities/opportunity/" + opportunityId)
                         .header("Authorization", "Bearer " + authToken))
@@ -318,8 +332,8 @@ class CrmIntegrationTest {
     }
 
     @Test
-    @Order(11)
-    @DisplayName("11. Search Leads - Should find leads by search term")
+    @Order(12)
+    @DisplayName("12. Search Leads - Should find leads by search term")
     void testSearchLeads() throws Exception {
         mockMvc.perform(get("/api/v1/leads/search?searchTerm=John")
                         .header("Authorization", "Bearer " + authToken))
@@ -330,8 +344,8 @@ class CrmIntegrationTest {
     }
 
     @Test
-    @Order(12)
-    @DisplayName("12. Complete Workflow Verification - All entities created successfully")
+    @Order(13)
+    @DisplayName("13. Complete Workflow Verification - All entities created successfully")
     void testCompleteWorkflowVerification() {
         assertNotNull(authToken, "Auth token created");
         assertNotNull(leadId, "Lead created");

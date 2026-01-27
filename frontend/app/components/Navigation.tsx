@@ -2,31 +2,48 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { authService } from "@/lib/auth";
-import { User } from "@/types/auth";
 import { useEffect, useState } from "react";
+import { UserMenu } from "@/components/UserMenu";
+import { meService, type CurrentUser } from "@/lib/me";
+import { authService } from "@/lib/auth";
 
 export default function Navigation() {
   const pathname = usePathname();
-  const [user, setUser] = useState<User | null>(null);
+  const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null);
+  const [loading, setLoading] = useState(true);
 
   // Hide navigation on login and register pages
   const hideNavigation = pathname === "/login" || pathname === "/register";
 
   useEffect(() => {
-    if (authService.isAuthenticated()) {
-      const currentUser = authService.getUser();
-      setUser(currentUser);
+    if (!hideNavigation && authService.isAuthenticated()) {
+      loadCurrentUser();
+    } else {
+      setLoading(false);
     }
-  }, []);
+  }, [hideNavigation]);
+
+  const loadCurrentUser = async () => {
+    try {
+      const user = await meService.getCurrentUser();
+      setCurrentUser(user);
+    } catch (error) {
+      console.error("Failed to load current user:", error);
+      // If /me fails, token might be invalid - logout
+      authService.logout();
+    } finally {
+      setLoading(false);
+    }
+  };
 
   if (hideNavigation) {
     return null;
   }
 
-  const handleLogout = () => {
-    authService.logout();
-  };
+  // Check if user is admin (has System Administrator role or specific admin permissions)
+  const isAdmin =
+    currentUser?.roleName === "System Administrator" ||
+    currentUser?.profileName === "System Administrator";
 
   const isActive = (path: string) => {
     if (path === "/dashboard") {
@@ -101,6 +118,18 @@ export default function Navigation() {
           >
             Accounts
           </Link>
+          {isAdmin && (
+            <Link
+              href="/admin"
+              className={`text-sm font-medium transition-colors ${
+                isActive("/admin")
+                  ? "text-primary border-b-2 border-primary pb-1 font-semibold"
+                  : "text-slate-700 hover:text-primary"
+              }`}
+            >
+              Admin
+            </Link>
+          )}
         </nav>
       </div>
       <div className="flex items-center gap-4">
@@ -112,20 +141,7 @@ export default function Navigation() {
           <span className="material-symbols-outlined">settings</span>
         </button>
         <div className="h-8 w-px bg-slate-200 mx-2"></div>
-        {user && (
-          <div className="flex items-center gap-3">
-            <div className="text-right hidden sm:block">
-              <p className="text-sm font-semibold leading-none text-slate-900">{user.fullName}</p>
-              <p className="text-xs text-slate-700 font-medium">{user.role}</p>
-            </div>
-            <button
-              onClick={handleLogout}
-              className="px-4 py-2 text-sm font-semibold text-white bg-rose-600 hover:bg-rose-700 rounded-lg transition-colors shadow-sm"
-            >
-              Logout
-            </button>
-          </div>
-        )}
+        <UserMenu />
       </div>
     </header>
   );
