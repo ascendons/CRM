@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { meService, type CurrentUser } from "@/lib/me";
+import { meService, type CurrentUser, UserRole } from "@/lib/me";
 import { authService } from "@/lib/auth";
 
 interface AdminRouteProps {
@@ -39,10 +39,8 @@ export function AdminRoute({ children }: AdminRouteProps) {
       const user = await meService.getCurrentUser();
       setCurrentUser(user);
 
-      // Check if user is admin
-      const isAdmin =
-        user.roleName === "System Administrator" ||
-        user.profileName === "System Administrator";
+      // Check if user is admin using unified UserRole enum
+      const isAdmin = user.userRole === UserRole.ADMIN;
 
       setIsAuthorized(isAdmin);
 

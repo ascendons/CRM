@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { UserMenu } from "@/components/UserMenu";
-import { meService, type CurrentUser } from "@/lib/me";
+import { meService, type CurrentUser, UserRole } from "@/lib/me";
 import { authService } from "@/lib/auth";
 
 export default function Navigation() {
@@ -40,10 +40,8 @@ export default function Navigation() {
     return null;
   }
 
-  // Check if user is admin (has System Administrator role or specific admin permissions)
-  const isAdmin =
-    currentUser?.roleName === "System Administrator" ||
-    currentUser?.profileName === "System Administrator";
+  // Check if user is admin using unified UserRole enum
+  const isAdmin = currentUser?.userRole === UserRole.ADMIN;
 
   const isActive = (path: string) => {
     if (path === "/dashboard") {

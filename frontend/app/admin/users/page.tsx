@@ -7,7 +7,7 @@ import { authService } from "@/lib/auth";
 import { showToast } from "@/lib/toast";
 import type { UserResponse } from "@/types/user";
 import { getUserDisplayName, getUserStatusBadge } from "@/types/user";
-import EmptyState from "@/components/EmptyState";
+import { EmptyState } from "@/components/EmptyState";
 import ConfirmModal from "@/components/ConfirmModal";
 
 export default function UsersPage() {

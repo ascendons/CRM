@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Account } from "@/types/account";
 import { accountsService } from "@/lib/accounts";
 import { authService } from "@/lib/auth";
-import EmptyState from "@/components/EmptyState";
+import { EmptyState } from "@/components/EmptyState";
 
 export default function AccountsPage() {
   const router = useRouter();

@@ -53,6 +53,7 @@ public class MeController {
                 .avatar(user.getProfile() != null ? user.getProfile().getAvatar() : null)
                 .title(user.getProfile() != null ? user.getProfile().getTitle() : null)
                 .department(user.getProfile() != null ? user.getProfile().getDepartment() : null)
+                .userRole(user.getRole())  // Unified role enum
                 .roleId(user.getRoleId())
                 .roleName(user.getRoleName())
                 .profileId(user.getProfileId())

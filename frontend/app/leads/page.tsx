@@ -13,7 +13,7 @@ import {
   getLeadGradeColor,
   formatLeadName,
 } from "@/types/lead";
-import EmptyState from "@/components/EmptyState";
+import { EmptyState } from "@/components/EmptyState";
 import ConfirmModal from "@/components/ConfirmModal";
 import { showToast } from "@/lib/toast";
 

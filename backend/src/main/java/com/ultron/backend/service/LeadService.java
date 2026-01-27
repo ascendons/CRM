@@ -371,9 +371,9 @@ public class LeadService {
             throw new RuntimeException("Only qualified leads can be converted");
         }
 
-        if (lead.getQualificationScore() == null || lead.getQualificationScore() < 60) {
-            throw new RuntimeException("Lead qualification score must be at least 60 to convert");
-        }
+//        if (lead.getQualificationScore() == null || lead.getQualificationScore() < 60) {
+//            throw new RuntimeException("Lead qualification score must be at least 60 to convert");
+//        }
 
         // Create Account from lead company information
         log.info("Creating Account from Lead {}", lead.getLeadId());

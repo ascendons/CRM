@@ -1,5 +1,6 @@
 package com.ultron.backend.dto.response;
 
+import com.ultron.backend.domain.enums.UserRole;
 import com.ultron.backend.domain.enums.UserStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -30,7 +31,10 @@ public class CurrentUserResponse {
     private String title;
     private String department;
 
-    // RBAC Info
+    // Role & Permissions
+    private UserRole userRole;  // Unified role enum (ADMIN, MANAGER, SALES_REP, USER)
+
+    // RBAC Info (hierarchical roles and profiles)
     private String roleId;
     private String roleName;
     private String profileId;

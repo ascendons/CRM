@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Opportunity, OpportunityStage } from "@/types/opportunity";
 import { opportunitiesService } from "@/lib/opportunities";
 import { authService } from "@/lib/auth";
-import EmptyState from "@/components/EmptyState";
+import { EmptyState } from "@/components/EmptyState";
 
 export default function OpportunitiesPage() {
   const router = useRouter();

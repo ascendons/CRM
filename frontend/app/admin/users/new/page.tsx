@@ -3,13 +3,20 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { usersService } from "@/lib/users";
+import { rolesService } from "@/lib/roles";
+import { profilesService } from "@/lib/profiles";
 import { authService } from "@/lib/auth";
 import { showToast } from "@/lib/toast";
 import type { CreateUserRequest } from "@/types/user";
+import type { RoleResponse } from "@/types/role";
+import type { ProfileResponse } from "@/types/profile";
 
 export default function CreateUserPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [roles, setRoles] = useState<RoleResponse[]>([]);
+  const [profiles, setProfiles] = useState<ProfileResponse[]>([]);
+  const [loadingData, setLoadingData] = useState(true);
   const [formData, setFormData] = useState<CreateUserRequest>({
     username: "",
     email: "",
@@ -37,8 +44,27 @@ export default function CreateUserPage() {
   useEffect(() => {
     if (!authService.isAuthenticated()) {
       router.push("/login");
+      return;
     }
+    loadRolesAndProfiles();
   }, [router]);
+
+  const loadRolesAndProfiles = async () => {
+    try {
+      setLoadingData(true);
+      const [rolesData, profilesData] = await Promise.all([
+        rolesService.getAllRoles(true), // Only active roles
+        profilesService.getAllProfiles(true), // Only active profiles
+      ]);
+      setRoles(rolesData);
+      setProfiles(profilesData);
+    } catch (error) {
+      console.error("Failed to load roles and profiles:", error);
+      showToast.error("Failed to load roles and profiles");
+    } finally {
+      setLoadingData(false);
+    }
+  };
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
@@ -288,34 +314,48 @@ export default function CreateUserPage() {
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Role <span className="text-red-500">*</span>
                 </label>
-                <input
-                  type="text"
+                <select
                   name="roleId"
                   value={formData.roleId}
                   onChange={handleChange}
+                  disabled={loadingData}
                   className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
                     errors.roleId ? "border-red-500" : "border-gray-300"
-                  }`}
-                  placeholder="ROLE-001 (temporary - will be dropdown)"
-                />
+                  } ${loadingData ? "bg-gray-100 cursor-not-allowed" : ""}`}
+                >
+                  <option value="">Select a role...</option>
+                  {roles.map((role) => (
+                    <option key={role.id} value={role.id}>
+                      {role.roleName} ({role.roleId})
+                    </option>
+                  ))}
+                </select>
                 {errors.roleId && <p className="mt-1 text-sm text-red-600">{errors.roleId}</p>}
+                {loadingData && <p className="mt-1 text-xs text-gray-500">Loading roles...</p>}
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Profile <span className="text-red-500">*</span>
                 </label>
-                <input
-                  type="text"
+                <select
                   name="profileId"
                   value={formData.profileId}
                   onChange={handleChange}
+                  disabled={loadingData}
                   className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
                     errors.profileId ? "border-red-500" : "border-gray-300"
-                  }`}
-                  placeholder="PROFILE-001 (temporary - will be dropdown)"
-                />
+                  } ${loadingData ? "bg-gray-100 cursor-not-allowed" : ""}`}
+                >
+                  <option value="">Select a profile...</option>
+                  {profiles.map((profile) => (
+                    <option key={profile.id} value={profile.id}>
+                      {profile.profileName} ({profile.profileId})
+                    </option>
+                  ))}
+                </select>
                 {errors.profileId && <p className="mt-1 text-sm text-red-600">{errors.profileId}</p>}
+                {loadingData && <p className="mt-1 text-xs text-gray-500">Loading profiles...</p>}
               </div>
 
               <div>
@@ -326,7 +366,7 @@ export default function CreateUserPage() {
                   value={formData.managerId}
                   onChange={handleChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Optional - will be dropdown of users"
+                  placeholder="Optional - enter user ID"
                 />
               </div>
             </div>

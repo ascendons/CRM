@@ -42,9 +42,10 @@ public class PermissionService {
     public boolean hasPermission(String userId, String objectName, String action) {
         log.debug("Checking permission: userId={}, objectName={}, action={}", userId, objectName, action);
 
-        User user = userRepository.findByUserId(userId).orElse(null);
+        // userId here is the MongoDB ObjectId from JWT authentication
+        User user = userRepository.findById(userId).orElse(null);
         if (user == null || !user.getStatus().toString().equals("ACTIVE") || user.getIsDeleted()) {
-            log.debug("User not found, inactive, or deleted");
+            log.debug("User not found, inactive, or deleted: userId={}", userId);
             return false;
         }
 
@@ -87,7 +88,8 @@ public class PermissionService {
             return true;
         }
 
-        User user = userRepository.findByUserId(userId).orElse(null);
+        // userId here is MongoDB ObjectId from JWT authentication
+        User user = userRepository.findById(userId).orElse(null);
         if (user == null) return false;
 
         // Check if user has "View All" permission on this object
@@ -167,7 +169,8 @@ public class PermissionService {
      */
     @Cacheable(value = "systemPermissions", key = "#userId + '-' + #permission")
     public boolean hasSystemPermission(String userId, String permission) {
-        User user = userRepository.findByUserId(userId).orElse(null);
+        // userId here is MongoDB ObjectId from JWT authentication
+        User user = userRepository.findById(userId).orElse(null);
         if (user == null) return false;
 
         Role role = roleRepository.findByRoleId(user.getRoleId()).orElse(null);
@@ -212,7 +215,8 @@ public class PermissionService {
      */
     @Cacheable(value = "fieldPermissions", key = "#userId + '-' + #objectName + '-' + #fieldName + '-' + #action")
     public boolean hasFieldPermission(String userId, String objectName, String fieldName, String action) {
-        User user = userRepository.findByUserId(userId).orElse(null);
+        // userId here is MongoDB ObjectId from JWT authentication
+        User user = userRepository.findById(userId).orElse(null);
         if (user == null) return false;
 
         Profile profile = profileRepository.findByProfileId(user.getProfileId()).orElse(null);
@@ -264,7 +268,8 @@ public class PermissionService {
         }
         visited.add(targetUserId);
 
-        User targetUser = userRepository.findByUserId(targetUserId).orElse(null);
+        // targetUserId here is MongoDB ObjectId
+        User targetUser = userRepository.findById(targetUserId).orElse(null);
         if (targetUser == null || targetUser.getManagerId() == null) {
             return false;
         }

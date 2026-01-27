@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Contact } from "@/types/contact";
 import { contactsService } from "@/lib/contacts";
 import { authService } from "@/lib/auth";
-import EmptyState from "@/components/EmptyState";
+import { EmptyState } from "@/components/EmptyState";
 
 export default function ContactsPage() {
   const router = useRouter();

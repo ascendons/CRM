@@ -7,7 +7,7 @@ import { activitiesService } from '@/lib/activities';
 import { Activity, ActivityType, ActivityStatus, ActivityPriority } from '@/types/activity';
 import { showToast } from '@/lib/toast';
 import ConfirmModal from '@/components/ConfirmModal';
-import EmptyState from '@/components/EmptyState';
+import { EmptyState } from '@/components/EmptyState';
 
 export default function ActivitiesPage() {
   const router = useRouter();
