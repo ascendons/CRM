@@ -1,5 +1,6 @@
 package com.ultron.backend.service;
 
+import com.ultron.backend.constants.PredefinedProfiles;
 import com.ultron.backend.domain.entity.Profile;
 import com.ultron.backend.dto.request.CreateProfileRequest;
 import com.ultron.backend.dto.request.UpdateProfileRequest;
@@ -94,31 +95,40 @@ public class ProfileService {
     }
 
     public ProfileResponse getProfileById(String id) {
-        Profile profile = profileRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Profile not found with id: " + id));
+        // Use predefined profiles instead of database
+        Profile profile = PredefinedProfiles.getProfileById(id);
+        if (profile == null) {
+            throw new ResourceNotFoundException("Profile not found with id: " + id);
+        }
         return mapToResponse(profile);
     }
 
     public ProfileResponse getProfileByProfileId(String profileId) {
-        Profile profile = profileRepository.findByProfileId(profileId)
-                .orElseThrow(() -> new ResourceNotFoundException("Profile not found with profileId: " + profileId));
+        // Use predefined profiles instead of database
+        Profile profile = PredefinedProfiles.getProfileById(profileId);
+        if (profile == null) {
+            throw new ResourceNotFoundException("Profile not found with profileId: " + profileId);
+        }
         return mapToResponse(profile);
     }
 
     public List<ProfileResponse> getAllProfiles() {
-        return profileRepository.findByIsDeletedFalse().stream()
+        // Use predefined profiles instead of database
+        return PredefinedProfiles.getAllProfiles().stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
 
     public List<ProfileResponse> getActiveProfiles() {
-        return profileRepository.findByIsActiveAndIsDeletedFalse(true).stream()
+        // Use predefined profiles instead of database
+        return PredefinedProfiles.getActiveProfiles().stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
 
     public List<ProfileResponse> searchProfiles(String searchTerm) {
-        return profileRepository.searchProfiles(searchTerm).stream()
+        // Use predefined profiles instead of database
+        return PredefinedProfiles.searchProfiles(searchTerm).stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }

@@ -1,5 +1,6 @@
 package com.ultron.backend.service;
 
+import com.ultron.backend.constants.PredefinedRoles;
 import com.ultron.backend.domain.entity.Role;
 import com.ultron.backend.dto.request.CreateRoleRequest;
 import com.ultron.backend.dto.request.UpdateRoleRequest;
@@ -126,43 +127,54 @@ public class RoleService {
     }
 
     public RoleResponse getRoleById(String id) {
-        Role role = roleRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Role not found with id: " + id));
+        // Use predefined roles instead of database
+        Role role = PredefinedRoles.getRoleById(id);
+        if (role == null) {
+            throw new ResourceNotFoundException("Role not found with id: " + id);
+        }
         return mapToResponse(role);
     }
 
     public RoleResponse getRoleByRoleId(String roleId) {
-        Role role = roleRepository.findByRoleId(roleId)
-                .orElseThrow(() -> new ResourceNotFoundException("Role not found with roleId: " + roleId));
+        // Use predefined roles instead of database
+        Role role = PredefinedRoles.getRoleById(roleId);
+        if (role == null) {
+            throw new ResourceNotFoundException("Role not found with roleId: " + roleId);
+        }
         return mapToResponse(role);
     }
 
     public List<RoleResponse> getAllRoles() {
-        return roleRepository.findByIsDeletedFalse().stream()
+        // Use predefined roles instead of database
+        return PredefinedRoles.getAllRoles().stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
 
     public List<RoleResponse> getActiveRoles() {
-        return roleRepository.findByIsActiveAndIsDeletedFalse(true).stream()
+        // Use predefined roles instead of database
+        return PredefinedRoles.getActiveRoles().stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
 
     public List<RoleResponse> getRootRoles() {
-        return roleRepository.findByParentRoleIdIsNullAndIsDeletedFalse().stream()
+        // Use predefined roles instead of database
+        return PredefinedRoles.getRootRoles().stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
 
     public List<RoleResponse> getChildRoles(String parentRoleId) {
-        return roleRepository.findByParentRoleIdAndIsDeletedFalse(parentRoleId).stream()
+        // Use predefined roles instead of database
+        return PredefinedRoles.getChildRoles(parentRoleId).stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
 
     public List<RoleResponse> searchRoles(String searchTerm) {
-        return roleRepository.searchRoles(searchTerm).stream()
+        // Use predefined roles instead of database
+        return PredefinedRoles.searchRoles(searchTerm).stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }

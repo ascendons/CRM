@@ -1,5 +1,7 @@
 package com.ultron.backend.service;
 
+import com.ultron.backend.constants.PredefinedProfiles;
+import com.ultron.backend.constants.PredefinedRoles;
 import com.ultron.backend.domain.entity.Profile;
 import com.ultron.backend.domain.entity.Role;
 import com.ultron.backend.domain.entity.User;
@@ -49,8 +51,8 @@ public class PermissionService {
             return false;
         }
 
-        // Get user's profile
-        Profile profile = profileRepository.findByProfileId(user.getProfileId()).orElse(null);
+        // Get user's profile from predefined profiles
+        Profile profile = PredefinedProfiles.getProfileById(user.getProfileId());
         if (profile == null || !profile.getIsActive() || profile.getIsDeleted()) {
             log.debug("Profile not found, inactive, or deleted");
             return false;
@@ -92,8 +94,8 @@ public class PermissionService {
         User user = userRepository.findById(userId).orElse(null);
         if (user == null) return false;
 
-        // Check if user has "View All" permission on this object
-        Profile profile = profileRepository.findByProfileId(user.getProfileId()).orElse(null);
+        // Check if user has "View All" permission on this object from predefined profiles
+        Profile profile = PredefinedProfiles.getProfileById(user.getProfileId());
         if (profile != null && profile.getObjectPermissions() != null) {
             for (Profile.ObjectPermission op : profile.getObjectPermissions()) {
                 if (op.getObjectName().equalsIgnoreCase(objectName) && op.getCanViewAll()) {
@@ -103,8 +105,8 @@ public class PermissionService {
             }
         }
 
-        // Check role-based data visibility
-        Role role = roleRepository.findByRoleId(user.getRoleId()).orElse(null);
+        // Check role-based data visibility from predefined roles
+        Role role = PredefinedRoles.getRoleById(user.getRoleId());
         if (role == null) return false;
 
         String dataVisibility = role.getPermissions() != null ? role.getPermissions().getDataVisibility() : "OWN";
@@ -173,7 +175,8 @@ public class PermissionService {
         User user = userRepository.findById(userId).orElse(null);
         if (user == null) return false;
 
-        Role role = roleRepository.findByRoleId(user.getRoleId()).orElse(null);
+        // Get role from predefined roles
+        Role role = PredefinedRoles.getRoleById(user.getRoleId());
         if (role == null || role.getPermissions() == null) return false;
 
         Role.RolePermissions rolePerms = role.getPermissions();
@@ -219,7 +222,8 @@ public class PermissionService {
         User user = userRepository.findById(userId).orElse(null);
         if (user == null) return false;
 
-        Profile profile = profileRepository.findByProfileId(user.getProfileId()).orElse(null);
+        // Get profile from predefined profiles
+        Profile profile = PredefinedProfiles.getProfileById(user.getProfileId());
         if (profile == null || profile.getFieldPermissions() == null) return true;  // Default: allow if no field permissions
 
         // Check field-level permission
