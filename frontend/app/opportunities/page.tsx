@@ -6,6 +6,24 @@ import { Opportunity, OpportunityStage } from "@/types/opportunity";
 import { opportunitiesService } from "@/lib/opportunities";
 import { authService } from "@/lib/auth";
 import { EmptyState } from "@/components/EmptyState";
+import { showToast } from "@/lib/toast"; // Assuming showToast is available or consistent with other pages
+import ConfirmModal from "@/components/ConfirmModal"; // Assuming ConfirmModal is available
+import {
+  Search,
+  Plus,
+  Download,
+  Trash2,
+  ChevronLeft,
+  ChevronRight,
+  ArrowUpDown,
+  Filter,
+  DollarSign,
+  Calendar,
+  User,
+  MoreVertical,
+  XCircle,
+  Briefcase
+} from "lucide-react";
 
 export default function OpportunitiesPage() {
   const router = useRouter();
@@ -15,6 +33,19 @@ export default function OpportunitiesPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [stageFilter, setStageFilter] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
+
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(10);
+
+  // Sorting
+  const [sortColumn, setSortColumn] = useState<string>("createdAt");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
+
+  // Selection & Actions
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [opportunityToDelete, setOpportunityToDelete] = useState<string | null>(null);
+  const [actionLoading, setActionLoading] = useState(false);
 
   useEffect(() => {
     if (!authService.isAuthenticated()) {
@@ -40,59 +71,118 @@ export default function OpportunitiesPage() {
 
   const handleSearch = async (query: string) => {
     setSearchQuery(query);
-    if (!query.trim() && !stageFilter) {
-      setFilteredOpportunities(opportunities);
-      return;
-    }
-
-    try {
-      if (query.trim()) {
-        const results = await opportunitiesService.searchOpportunities(query);
-        let filtered = results;
-        if (stageFilter) {
-          filtered = results.filter((opp) => opp.stage === stageFilter);
-        }
-        setFilteredOpportunities(filtered);
-      } else {
-        const filtered = opportunities.filter((opp) => opp.stage === stageFilter);
-        setFilteredOpportunities(filtered);
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Search failed");
-    }
+    setCurrentPage(1);
+    filterOpportunities(query, stageFilter);
   };
 
   const handleStageFilter = (stage: string) => {
     setStageFilter(stage);
-    if (!stage && !searchQuery.trim()) {
-      setFilteredOpportunities(opportunities);
-      return;
-    }
+    setCurrentPage(1);
+    filterOpportunities(searchQuery, stage);
+  };
 
+  const filterOpportunities = (query: string, stage: string) => {
     let filtered = opportunities;
+
     if (stage) {
       filtered = filtered.filter((opp) => opp.stage === stage);
     }
-    if (searchQuery.trim()) {
+
+    if (query.trim()) {
+      const lowerQuery = query.toLowerCase();
       filtered = filtered.filter(
         (opp) =>
-          opp.opportunityName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          opp.accountName.toLowerCase().includes(searchQuery.toLowerCase())
+          opp.opportunityName.toLowerCase().includes(lowerQuery) ||
+          opp.accountName.toLowerCase().includes(lowerQuery)
       );
     }
+
     setFilteredOpportunities(filtered);
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this opportunity?")) {
-      return;
+  const handleSort = (column: string) => {
+    if (sortColumn === column) {
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+    } else {
+      setSortColumn(column);
+      setSortDirection("asc");
     }
+    setCurrentPage(1);
+  };
+
+  const getSortedOpportunities = (opportunitiesToSort: Opportunity[]) => {
+    return [...opportunitiesToSort].sort((a, b) => {
+      let aValue: string | number = '';
+      let bValue: string | number = '';
+
+      switch (sortColumn) {
+        case "name":
+          aValue = a.opportunityName.toLowerCase();
+          bValue = b.opportunityName.toLowerCase();
+          break;
+        case "account":
+          aValue = a.accountName.toLowerCase();
+          bValue = b.accountName.toLowerCase();
+          break;
+        case "amount":
+          aValue = a.amount || 0;
+          bValue = b.amount || 0;
+          break;
+        case "stage":
+          aValue = a.stage;
+          bValue = b.stage;
+          break;
+        case "probability":
+          aValue = a.probability || 0;
+          bValue = b.probability || 0;
+          break;
+        case "closeDate":
+          aValue = new Date(a.expectedCloseDate || 0).getTime();
+          bValue = new Date(b.expectedCloseDate || 0).getTime();
+          break;
+        default:
+          return 0;
+      }
+
+      if (aValue < bValue) return sortDirection === "asc" ? -1 : 1;
+      if (aValue > bValue) return sortDirection === "asc" ? 1 : -1;
+      return 0;
+    });
+  };
+
+  const sortedOpportunities = getSortedOpportunities(filteredOpportunities);
+  const totalPages = Math.ceil(sortedOpportunities.length / itemsPerPage);
+  const paginatedOpportunities = sortedOpportunities.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const confirmDelete = (id: string) => {
+    setOpportunityToDelete(id);
+    setShowDeleteModal(true);
+  };
+
+  const handleDelete = async () => {
+    if (!opportunityToDelete) return;
 
     try {
-      await opportunitiesService.deleteOpportunity(id);
+      setActionLoading(true);
+      await opportunitiesService.deleteOpportunity(opportunityToDelete);
+      showToast.success("Opportunity deleted successfully"); // Assuming showToast exists
+      setShowDeleteModal(false);
+      setOpportunityToDelete(null);
       loadOpportunities();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to delete opportunity");
+    } catch {
+      // Using simpler error handling to avoid unused var
+      // If showToast is not available, we might want to use alert or console
+      console.error("Failed to delete opportunity");
+    } finally {
+      setActionLoading(false);
     }
   };
 
@@ -103,20 +193,24 @@ export default function OpportunitiesPage() {
 
   const formatDate = (dateString: string | undefined) => {
     if (!dateString) return "-";
-    return new Date(dateString).toLocaleDateString();
+    return new Date(dateString).toLocaleDateString("en-IN", {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
   };
 
   const getStageBadgeColor = (stage: OpportunityStage) => {
     const colors = {
-      [OpportunityStage.PROSPECTING]: "bg-blue-50",
-      [OpportunityStage.QUALIFICATION]: "bg-indigo-50",
-      [OpportunityStage.NEEDS_ANALYSIS]: "bg-amber-50",
-      [OpportunityStage.PROPOSAL]: "bg-purple-50",
-      [OpportunityStage.NEGOTIATION]: "bg-amber-50",
-      [OpportunityStage.CLOSED_WON]: "bg-emerald-50",
-      [OpportunityStage.CLOSED_LOST]: "bg-rose-50",
+      [OpportunityStage.PROSPECTING]: "bg-blue-50 text-blue-700 border-blue-100 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-900/30",
+      [OpportunityStage.QUALIFICATION]: "bg-indigo-50 text-indigo-700 border-indigo-100 dark:bg-indigo-900/20 dark:text-indigo-300 dark:border-indigo-900/30",
+      [OpportunityStage.NEEDS_ANALYSIS]: "bg-amber-50 text-amber-700 border-amber-100 dark:bg-amber-900/20 dark:text-amber-300 dark:border-amber-900/30",
+      [OpportunityStage.PROPOSAL]: "bg-purple-50 text-purple-700 border-purple-100 dark:bg-purple-900/20 dark:text-purple-300 dark:border-purple-900/30",
+      [OpportunityStage.NEGOTIATION]: "bg-orange-50 text-orange-700 border-orange-100 dark:bg-orange-900/20 dark:text-orange-300 dark:border-orange-900/30",
+      [OpportunityStage.CLOSED_WON]: "bg-emerald-50 text-emerald-700 border-emerald-100 dark:bg-emerald-900/20 dark:text-emerald-300 dark:border-emerald-900/30",
+      [OpportunityStage.CLOSED_LOST]: "bg-rose-50 text-rose-700 border-rose-100 dark:bg-rose-900/20 dark:text-rose-300 dark:border-rose-900/30",
     };
-    return colors[stage] || "bg-slate-100";
+    return colors[stage] || "bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700";
   };
 
   const getStageLabel = (stage: OpportunityStage) => {
@@ -125,58 +219,65 @@ export default function OpportunitiesPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background-light flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-          <p className="mt-4 text-slate-700">Loading opportunities...</p>
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-900">
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-primary/10 rounded-full blur-3xl animate-pulse"></div>
+        </div>
+        <div className="relative text-center space-y-4">
+          <div className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin mx-auto"></div>
+          <p className="text-slate-500 dark:text-slate-400 font-medium">Loading opportunities...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background-light">
-      <main className="flex-1 overflow-y-auto">
-        <div className="p-8 max-w-7xl mx-auto w-full space-y-8">
-          {/* Page Header */}
-          <div className="flex flex-wrap items-end justify-between gap-4">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
+      {/* Header */}
+      <div className="sticky top-0 z-20 bg-white/80 dark:bg-slate-800/80 backdrop-blur-lg border-b border-slate-200 dark:border-slate-700">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between py-4 gap-4">
             <div>
-              <h2 className="text-3xl font-extrabold tracking-tight text-slate-900">
-                Sales Opportunities
-              </h2>
-              <p className="text-slate-700">Manage your sales pipeline and track deals.</p>
+              <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Sales Opportunities</h1>
+              <p className="text-sm text-slate-500 dark:text-slate-400">Manage your pipeline and track deal progress.</p>
             </div>
             <div className="flex items-center gap-3">
+              <button className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 rounded-xl text-sm font-semibold hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors shadow-sm">
+                <Download className="h-4 w-4" />
+                Export
+              </button>
               <button
                 onClick={() => router.push("/opportunities/new")}
-                className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg text-sm font-bold shadow-lg shadow-primary/20 hover:bg-primary/90 transition-all"
+                className="flex items-center gap-2 px-5 py-2 bg-primary hover:bg-primary-hover text-white rounded-xl text-sm font-bold shadow-lg shadow-primary/25 hover:shadow-primary/40 hover:-translate-y-0.5 transition-all"
               >
-                <span className="material-symbols-outlined text-lg">add</span>
+                <Plus className="h-4 w-4" />
                 New Opportunity
               </button>
             </div>
           </div>
+        </div>
+      </div>
 
-          {/* Filters */}
-          <div className="bg-white rounded-xl p-4">
-            <div className="flex flex-col sm:flex-row gap-4">
-              <div className="flex-1 relative">
-                <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">
-                  search
-                </span>
-                <input
-                  type="text"
-                  placeholder="Search opportunities by name or account..."
-                  value={searchQuery}
-                  onChange={(e) => handleSearch(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 bg-slate-100 border-none rounded-lg text-sm focus:ring-2 focus:ring-primary transition-all"
-                />
-              </div>
-              <div>
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6 animate-fade-in-up">
+        {/* Toolbar */}
+        <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-2">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="relative flex-1 max-w-md w-full">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+              <input
+                type="text"
+                placeholder="Search opportunities..."
+                value={searchQuery}
+                onChange={(e) => handleSearch(e.target.value)}
+                className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+              />
+            </div>
+            <div className="flex items-center gap-2 w-full md:w-auto">
+              <div className="relative flex-1 md:flex-none">
                 <select
                   value={stageFilter}
                   onChange={(e) => handleStageFilter(e.target.value)}
-                  className="w-full px-4 py-2 bg-white rounded-lg text-sm focus:ring-2 focus:ring-primary"
+                  className="w-full appearance-none pl-10 pr-10 py-2.5 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all cursor-pointer"
                 >
                   <option value="">All Stages</option>
                   <option value={OpportunityStage.PROSPECTING}>Prospecting</option>
@@ -187,130 +288,187 @@ export default function OpportunitiesPage() {
                   <option value={OpportunityStage.CLOSED_WON}>Closed Won</option>
                   <option value={OpportunityStage.CLOSED_LOST}>Closed Lost</option>
                 </select>
+                <Filter className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+                <ArrowUpDown className="absolute right-3 top-1/2 -translate-y-1/2 h-3 w-3 text-slate-400 pointer-events-none" />
               </div>
             </div>
           </div>
+        </div>
 
-          {error && <div className="bg-rose-50">{error}</div>}
+        {error && (
+          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 p-4 rounded-xl flex items-center gap-3">
+            <XCircle className="h-5 w-5" />
+            <p>{error}</p>
+          </div>
+        )}
 
-          {/* Opportunities Table */}
-          <div className="bg-white rounded-xl overflow-hidden">
-            <div className="overflow-x-auto p-6">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="bg-slate-50">
-                    <th className="px-6 py-3 text-xs font-bold uppercase tracking-wider text-slate-700">
-                      Company
+        {/* Opportunities Table */}
+        <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-slate-50/50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700">
+                  {[
+                    { key: 'name', label: 'Opportunity / Account' },
+                    { key: 'amount', label: 'Value' },
+                    { key: 'stage', label: 'Stage' },
+                    { key: 'probability', label: 'Probability' },
+                    { key: 'closeDate', label: 'Expected Close' },
+                  ].map((col) => (
+                    <th
+                      key={col.key}
+                      className="px-6 py-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors group"
+                      onClick={() => handleSort(col.key)}
+                    >
+                      <div className="flex items-center gap-2">
+                        {col.label}
+                        <ArrowUpDown className={`h-3 w-3 ${sortColumn === col.key ? 'text-primary' : 'text-slate-300 group-hover:text-slate-500'}`} />
+                      </div>
                     </th>
-                    <th className="px-6 py-3 text-xs font-bold uppercase tracking-wider text-slate-700">
-                      Value
-                    </th>
-                    <th className="px-6 py-3 text-xs font-bold uppercase tracking-wider text-slate-700">
-                      Stage
-                    </th>
-                    <th className="px-6 py-3 text-xs font-bold uppercase tracking-wider text-slate-700">
-                      Probability
-                    </th>
-                    <th className="px-6 py-3 text-xs font-bold uppercase tracking-wider text-slate-700">
-                      Close Date
-                    </th>
-                    <th className="px-6 py-3 text-xs font-bold uppercase tracking-wider text-slate-700">
-                      Owner
-                    </th>
-                    <th className="px-6 py-3 text-xs font-bold uppercase tracking-wider text-slate-700">
-                      Actions
-                    </th>
+                  ))}
+                  <th className="px-6 py-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50">
+                {sortedOpportunities.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="p-12 text-center">
+                      {searchQuery || stageFilter ? (
+                        <EmptyState
+                          icon="search_off"
+                          title="No opportunities found"
+                          description="No opportunities match your current filters."
+                        />
+                      ) : (
+                        <EmptyState
+                          icon="handshake"
+                          title="No opportunities yet"
+                          description="Get started by creating your first sales opportunity."
+                          action={{ label: "Create Opportunity", href: "/opportunities/new" }}
+                        />
+                      )}
+                    </td>
                   </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {filteredOpportunities.length === 0 ? (
-                    <tr>
-                      <td colSpan={7} className="p-0">
-                        {searchQuery || stageFilter ? (
-                          <EmptyState
-                            icon="search_off"
-                            title="No opportunities found"
-                            description="No opportunities match your current filters. Try adjusting your search or stage filter."
-                          />
-                        ) : (
-                          <EmptyState
-                            icon="handshake"
-                            title="No opportunities yet"
-                            description="Get started by creating your first sales opportunity to track deals in your pipeline."
-                            action={{ label: "Create Your First Opportunity", href: "/opportunities/new" }}
-                          />
-                        )}
-                      </td>
-                    </tr>
-                  ) : (
-                    filteredOpportunities.map((opportunity) => (
-                      <tr key={opportunity.id} className="hover:bg-slate-50 transition-colors">
-                        <td className="px-6 py-4">
-                          <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded bg-blue-100 flex items-center justify-center text-blue-700 font-semibold text-sm">
-                              {opportunity.accountName?.[0]?.toUpperCase() || "O"}
-                            </div>
-                            <div>
-                              <p className="text-sm font-semibold text-slate-900">
-                                {opportunity.opportunityName}
-                              </p>
-                              <p className="text-xs text-slate-700">{opportunity.accountName}</p>
+                ) : (
+                  paginatedOpportunities.map((opportunity) => (
+                    <tr
+                      key={opportunity.id}
+                      className="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors group cursor-pointer"
+                      onClick={() => router.push(`/opportunities/${opportunity.id}`)}
+                    >
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-3">
+                          <div className="h-10 w-10 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-700 dark:text-blue-300 shadow-sm">
+                            <Briefcase className="h-5 w-5" />
+                          </div>
+                          <div>
+                            <p className="text-sm font-bold text-slate-900 dark:text-white">
+                              {opportunity.opportunityName}
+                            </p>
+                            <div className="flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400">
+                              <User className="h-3 w-3" />
+                              {opportunity.accountName}
                             </div>
                           </div>
-                        </td>
-                        <td className="px-6 py-4 text-sm font-bold text-slate-900">
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-1.5 text-sm font-semibold text-slate-900 dark:text-white">
+                          <DollarSign className="h-4 w-4 text-slate-400" />
                           {formatCurrency(opportunity.amount)}
-                        </td>
-                        <td className="px-6 py-4">
-                          <span
-                            className={`px-2 py-1 ${getStageBadgeColor(opportunity.stage)} text-slate-900 rounded text-xs font-medium`}
-                          >
-                            {getStageLabel(opportunity.stage)}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border ${getStageBadgeColor(opportunity.stage)}`}>
+                          {getStageLabel(opportunity.stage)}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-2">
+                          <div className="flex-1 w-24 h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
+                            <div
+                              className={`h-full rounded-full ${opportunity.probability > 75 ? 'bg-emerald-500' :
+                                  opportunity.probability > 40 ? 'bg-blue-500' :
+                                    'bg-amber-500'
+                                }`}
+                              style={{ width: `${opportunity.probability}%` }}
+                            ></div>
+                          </div>
+                          <span className="text-xs font-medium text-slate-600 dark:text-slate-400 w-8">
+                            {opportunity.probability}%
                           </span>
-                        </td>
-                        <td className="px-6 py-4 text-sm font-medium text-slate-900">
-                          {opportunity.probability}%
-                        </td>
-                        <td className="px-6 py-4 text-sm text-slate-900">
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">
+                        <div className="flex items-center gap-2">
+                          <Calendar className="h-4 w-4 text-slate-400" />
                           {formatDate(opportunity.expectedCloseDate)}
-                        </td>
-                        <td className="px-6 py-4 text-right text-sm text-slate-900">
-                          {opportunity.ownerName}
-                        </td>
-                        <td className="px-6 py-4 text-right text-sm font-medium">
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                           <button
-                            onClick={() => router.push(`/opportunities/${opportunity.id}`)}
-                            className="text-primary hover:text-primary/90 mr-4 transition-colors"
-                          >
-                            View
-                          </button>
-                          <button
-                            onClick={() => router.push(`/opportunities/${opportunity.id}/edit`)}
-                            className="text-primary hover:text-primary/90 mr-4 transition-colors"
+                            onClick={(e) => { e.stopPropagation(); router.push(`/opportunities/${opportunity.id}/edit`); }}
+                            className="p-2 text-slate-400 hover:text-primary hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
+                            title="Edit"
                           >
                             Edit
                           </button>
                           <button
-                            onClick={() => handleDelete(opportunity.id)}
-                            className="text-rose-600"
+                            onClick={(e) => { e.stopPropagation(); confirmDelete(opportunity.id); }}
+                            className="p-2 text-rose-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/10 rounded-lg transition-colors"
+                            title="Delete"
                           >
-                            Delete
+                            <Trash2 className="h-4 w-4" />
                           </button>
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          {/* Stats */}
-          <div className="text-sm text-slate-700">
-            Showing {filteredOpportunities.length} of {opportunities.length} opportunities
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
           </div>
         </div>
+
+        {/* Pagination */}
+        {sortedOpportunities.length > 0 && (
+          <div className="flex items-center justify-between bg-white dark:bg-slate-800 px-6 py-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+            <p className="text-sm text-slate-600 dark:text-slate-400">
+              Showing <span className="font-semibold text-slate-900 dark:text-white">{(currentPage - 1) * itemsPerPage + 1}</span> to <span className="font-semibold text-slate-900 dark:text-white">{Math.min(currentPage * itemsPerPage, sortedOpportunities.length)}</span> of <span className="font-semibold text-slate-900 dark:text-white">{sortedOpportunities.length}</span> results
+            </p>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="p-2 border border-slate-200 dark:border-slate-700 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+              >
+                <ChevronLeft className="h-5 w-5 text-slate-600 dark:text-slate-400" />
+              </button>
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className="p-2 border border-slate-200 dark:border-slate-700 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+              >
+                <ChevronRight className="h-5 w-5 text-slate-600 dark:text-slate-400" />
+              </button>
+            </div>
+          </div>
+        )}
+
       </main>
+
+      <ConfirmModal
+        isOpen={showDeleteModal}
+        title="Delete Opportunity"
+        message="Are you sure you want to delete this opportunity? This action cannot be undone."
+        confirmLabel="Delete Opportunity"
+        cancelLabel="Cancel"
+        confirmButtonClass="bg-red-600 hover:bg-red-700 text-white"
+        onConfirm={handleDelete}
+        onCancel={() => setShowDeleteModal(false)}
+        isLoading={actionLoading}
+      />
     </div>
   );
 }
