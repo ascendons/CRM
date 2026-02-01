@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -25,6 +26,7 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping
+    @PreAuthorize("hasPermission('USER', 'CREATE')")
     public ResponseEntity<ApiResponse<UserResponse>> createUser(
             @Valid @RequestBody CreateUserRequest request) {
 
@@ -43,6 +45,7 @@ public class UserController {
     }
 
     @GetMapping
+    @PreAuthorize("hasPermission('USER', 'READ')")
     public ResponseEntity<ApiResponse<List<UserResponse>>> getAllUsers(
             @RequestParam(required = false, defaultValue = "false") boolean activeOnly) {
 
@@ -61,6 +64,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasPermission('USER', 'READ')")
     public ResponseEntity<ApiResponse<UserResponse>> getUserById(@PathVariable String id) {
         log.info("Fetching user with id: {}", id);
         UserResponse user = userService.getUserById(id);
@@ -74,6 +78,7 @@ public class UserController {
     }
 
     @GetMapping("/code/{userId}")
+    @PreAuthorize("hasPermission('USER', 'READ')")
     public ResponseEntity<ApiResponse<UserResponse>> getUserByUserId(
             @PathVariable String userId) {
         log.info("Fetching user with userId: {}", userId);
@@ -88,6 +93,7 @@ public class UserController {
     }
 
     @GetMapping("/role/{roleId}")
+    @PreAuthorize("hasPermission('USER', 'READ')")
     public ResponseEntity<ApiResponse<List<UserResponse>>> getUsersByRole(
             @PathVariable String roleId) {
         log.info("Fetching users with roleId: {}", roleId);
@@ -102,6 +108,7 @@ public class UserController {
     }
 
     @GetMapping("/subordinates/{managerId}")
+    @PreAuthorize("hasPermission('USER', 'READ')")
     public ResponseEntity<ApiResponse<List<UserResponse>>> getSubordinates(
             @PathVariable String managerId) {
         log.info("Fetching subordinates for manager: {}", managerId);
@@ -116,6 +123,7 @@ public class UserController {
     }
 
     @GetMapping("/search")
+    @PreAuthorize("hasPermission('USER', 'READ')")
     public ResponseEntity<ApiResponse<List<UserResponse>>> searchUsers(
             @RequestParam String q) {
         log.info("Searching users with query: {}", q);
@@ -130,6 +138,7 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasPermission('USER', 'EDIT')")
     public ResponseEntity<ApiResponse<UserResponse>> updateUser(
             @PathVariable String id,
             @Valid @RequestBody UpdateUserRequest request) {
@@ -148,6 +157,7 @@ public class UserController {
     }
 
     @PostMapping("/{id}/deactivate")
+    @PreAuthorize("hasPermission('USER', 'DELETE')")
     public ResponseEntity<ApiResponse<Void>> deactivateUser(
             @PathVariable String id,
             @RequestParam(required = false) String reason) {
@@ -165,6 +175,7 @@ public class UserController {
     }
 
     @PostMapping("/{id}/activate")
+    @PreAuthorize("hasPermission('USER', 'EDIT')")
     public ResponseEntity<ApiResponse<Void>> activateUser(@PathVariable String id) {
 
         String currentUserId = getCurrentUserId();

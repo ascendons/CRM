@@ -25,7 +25,9 @@ public class PredefinedProfiles {
                     createFullAccessPermission("ACCOUNT"),
                     createFullAccessPermission("CONTACT"),
                     createFullAccessPermission("OPPORTUNITY"),
-                    createFullAccessPermission("ACTIVITY")
+                    createFullAccessPermission("ACTIVITY"),
+                    createFullAccessPermission("PRODUCT"),
+                    createFullAccessPermission("PROPOSAL")
             ))
             .fieldPermissions(Arrays.asList())  // No restrictions
             .systemPermissions(Profile.SystemPermissions.builder()
@@ -60,7 +62,9 @@ public class PredefinedProfiles {
                     createFullAccessPermission("ACCOUNT"),
                     createFullAccessPermission("CONTACT"),
                     createFullAccessPermission("OPPORTUNITY"),
-                    createFullAccessPermission("ACTIVITY")
+                    createFullAccessPermission("ACTIVITY"),
+                    createFullAccessPermission("PRODUCT"),
+                    createFullAccessPermission("PROPOSAL")
             ))
             .fieldPermissions(Arrays.asList())
             .systemPermissions(Profile.SystemPermissions.builder()
@@ -95,7 +99,9 @@ public class PredefinedProfiles {
                     createStandardPermission("ACCOUNT"),
                     createStandardPermission("CONTACT"),
                     createStandardPermission("OPPORTUNITY"),
-                    createStandardPermission("ACTIVITY")
+                    createStandardPermission("ACTIVITY"),
+                    createStandardPermission("PRODUCT"),
+                    createStandardPermission("PROPOSAL")
             ))
             .fieldPermissions(Arrays.asList())
             .systemPermissions(Profile.SystemPermissions.builder()
@@ -130,7 +136,9 @@ public class PredefinedProfiles {
                     createReadOnlyPermission("ACCOUNT"),
                     createReadOnlyPermission("CONTACT"),
                     createReadOnlyPermission("OPPORTUNITY"),
-                    createReadOnlyPermission("ACTIVITY")
+                    createReadOnlyPermission("ACTIVITY"),
+                    createReadOnlyPermission("PRODUCT"),
+                    createReadOnlyPermission("PROPOSAL")
             ))
             .fieldPermissions(Arrays.asList())
             .systemPermissions(Profile.SystemPermissions.builder()

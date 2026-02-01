@@ -116,6 +116,26 @@ export default function Navigation() {
           >
             Accounts
           </Link>
+          <Link
+            href="/proposals"
+            className={`text-sm font-medium transition-colors ${
+              isActive("/proposals")
+                ? "text-primary border-b-2 border-primary pb-1 font-semibold"
+                : "text-slate-700 hover:text-primary"
+            }`}
+          >
+            Proposals
+          </Link>
+          <Link
+            href="/products"
+            className={`text-sm font-medium transition-colors ${
+              isActive("/products")
+                ? "text-primary border-b-2 border-primary pb-1 font-semibold"
+                : "text-slate-700 hover:text-primary"
+            }`}
+          >
+            Products
+          </Link>
           {isAdmin && (
             <Link
               href="/admin"

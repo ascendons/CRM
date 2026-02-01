@@ -60,6 +60,8 @@ export const PREDEFINED_PROFILES: ProfileResponse[] = [
       createFullAccessPermission("CONTACT"),
       createFullAccessPermission("OPPORTUNITY"),
       createFullAccessPermission("ACTIVITY"),
+      createFullAccessPermission("PRODUCT"),
+      createFullAccessPermission("PROPOSAL"),
     ],
     fieldPermissions: [],
     systemPermissions: {
@@ -97,6 +99,8 @@ export const PREDEFINED_PROFILES: ProfileResponse[] = [
       createFullAccessPermission("CONTACT"),
       createFullAccessPermission("OPPORTUNITY"),
       createFullAccessPermission("ACTIVITY"),
+      createFullAccessPermission("PRODUCT"),
+      createFullAccessPermission("PROPOSAL"),
     ],
     fieldPermissions: [],
     systemPermissions: {
@@ -134,6 +138,8 @@ export const PREDEFINED_PROFILES: ProfileResponse[] = [
       createStandardPermission("CONTACT"),
       createStandardPermission("OPPORTUNITY"),
       createStandardPermission("ACTIVITY"),
+      createStandardPermission("PRODUCT"),
+      createStandardPermission("PROPOSAL"),
     ],
     fieldPermissions: [],
     systemPermissions: {
@@ -171,6 +177,8 @@ export const PREDEFINED_PROFILES: ProfileResponse[] = [
       createReadOnlyPermission("CONTACT"),
       createReadOnlyPermission("OPPORTUNITY"),
       createReadOnlyPermission("ACTIVITY"),
+      createReadOnlyPermission("PRODUCT"),
+      createReadOnlyPermission("PROPOSAL"),
     ],
     fieldPermissions: [],
     systemPermissions: {

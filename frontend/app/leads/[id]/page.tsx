@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { leadsService } from "@/lib/leads";
+import { proposalsService } from "@/lib/proposals";
 import {
   Lead,
   LeadStatus,
@@ -12,6 +13,12 @@ import {
   formatLeadName,
   formatCompanySize,
 } from "@/types/lead";
+import {
+  ProposalResponse,
+  ProposalSource,
+  getProposalStatusLabel,
+  getProposalStatusColor,
+} from "@/types/proposal";
 import { showToast } from "@/lib/toast";
 import ConfirmModal from "@/components/ConfirmModal";
 
@@ -28,9 +35,12 @@ export default function LeadDetailPage() {
   const [newStatus, setNewStatus] = useState<LeadStatus>(LeadStatus.NEW);
   const [showConvertModal, setShowConvertModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [proposals, setProposals] = useState<ProposalResponse[]>([]);
+  const [proposalsLoading, setProposalsLoading] = useState(false);
 
   useEffect(() => {
     loadLead();
+    loadProposals();
   }, [id]);
 
   const loadLead = async () => {
@@ -43,6 +53,18 @@ export default function LeadDetailPage() {
       setError(err instanceof Error ? err.message : "Failed to load lead");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadProposals = async () => {
+    try {
+      setProposalsLoading(true);
+      const data = await proposalsService.getProposalsBySource(ProposalSource.LEAD, id);
+      setProposals(data);
+    } catch (err) {
+      console.error("Failed to load proposals:", err);
+    } finally {
+      setProposalsLoading(false);
     }
   };
 
@@ -335,6 +357,99 @@ export default function LeadDetailPage() {
                 <p className="text-sm text-gray-700 whitespace-pre-wrap">{lead.description}</p>
               </div>
             )}
+
+            {/* Proposals */}
+            <div className="bg-white rounded-lg shadow p-6">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-lg font-semibold text-gray-900">Proposals</h2>
+                <Link
+                  href={`/proposals/new?source=LEAD&sourceId=${id}`}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm"
+                >
+                  + Create Proposal
+                </Link>
+              </div>
+
+              {proposalsLoading ? (
+                <div className="text-center py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+                </div>
+              ) : proposals.length === 0 ? (
+                <div className="text-center py-8">
+                  <p className="text-gray-500">No proposals yet</p>
+                  <Link
+                    href={`/proposals/new?source=LEAD&sourceId=${id}`}
+                    className="text-blue-600 hover:text-blue-800 text-sm mt-2 inline-block"
+                  >
+                    Create your first proposal
+                  </Link>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                          Proposal #
+                        </th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                          Title
+                        </th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                          Total
+                        </th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                          Status
+                        </th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                          Valid Until
+                        </th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                          Actions
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {proposals.map((proposal) => (
+                        <tr key={proposal.id} className="hover:bg-gray-50">
+                          <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-blue-600">
+                            <Link href={`/proposals/${proposal.id}`}>
+                              {proposal.proposalNumber}
+                            </Link>
+                          </td>
+                          <td className="px-4 py-4 text-sm text-gray-900">
+                            {proposal.title}
+                          </td>
+                          <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
+                            ₹{proposal.totalAmount.toLocaleString()}
+                          </td>
+                          <td className="px-4 py-4 whitespace-nowrap">
+                            <span
+                              className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-${getProposalStatusColor(
+                                proposal.status
+                              )}-100 text-${getProposalStatusColor(proposal.status)}-800`}
+                            >
+                              {getProposalStatusLabel(proposal.status)}
+                            </span>
+                          </td>
+                          <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {new Date(proposal.validUntil).toLocaleDateString()}
+                          </td>
+                          <td className="px-4 py-4 whitespace-nowrap text-sm font-medium">
+                            <Link
+                              href={`/proposals/${proposal.id}`}
+                              className="text-blue-600 hover:text-blue-900"
+                            >
+                              View
+                            </Link>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Sidebar */}
