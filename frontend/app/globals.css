@@ -49,6 +49,21 @@
   /* Font Family */
   --font-sans: var(--font-inter);
   --font-display: var(--font-inter);
+
+  /* Animations */
+  --animate-fade-in-up: fade-in-up 0.5s ease-out forwards;
+  --animate-pulse-slow: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+
+  @keyframes fade-in-up {
+    0% {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
 }
 
 /* Dark mode styles - only applied when .dark class is on html element */
