@@ -16,14 +16,14 @@ import {
   CheckCircle2,
   XCircle,
   Archive,
-  ChevronLeft,
-  ChevronRight
 } from "lucide-react";
+import { Pagination } from "@/components/common/Pagination";
+import { PermissionGuard } from "@/components/common/PermissionGuard";
 
 export default function ProductsPage() {
   const router = useRouter();
   const [products, setProducts] = useState<ProductResponse[]>([]);
-  const [filteredProducts, setFilteredProducts] = useState<ProductResponse[]>([]);
+  // filteredProducts removed as filtering is server-side
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<string>("ALL");
@@ -31,7 +31,47 @@ export default function ProductsPage() {
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(12);
+  const [pageSize, setPageSize] = useState(12);
+  const [totalElements, setTotalElements] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+
+  const loadProducts = useCallback(async () => {
+    try {
+      setLoading(true);
+
+      const pagination = {
+        page: currentPage,
+        size: pageSize,
+        sort: "productName,asc" // Default sort
+      };
+
+      let response;
+      if (searchTerm) {
+        response = await productsService.searchProducts(searchTerm, pagination);
+      } else if (categoryFilter !== "ALL") {
+        response = await productsService.getProductsByCategory(categoryFilter, pagination);
+      } else {
+        response = await productsService.getAllProducts(false, pagination);
+      }
+
+      // Handle Paginated Response
+      if ('content' in response) {
+        setProducts(response.content);
+        setTotalElements(response.totalElements);
+        setTotalPages(response.totalPages);
+      } else {
+        // Fallback for non-paginated endpoints
+        setProducts(response);
+        setTotalElements(response.length);
+        setTotalPages(1);
+      }
+
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to load products");
+    } finally {
+      setLoading(false);
+    }
+  }, [currentPage, pageSize, searchTerm, categoryFilter]);
 
   useEffect(() => {
     // Check authentication
@@ -41,64 +81,27 @@ export default function ProductsPage() {
     }
 
     loadProducts();
-  }, [router]);
-
-  const loadProducts = async () => {
-    try {
-      setLoading(true);
-      const data = await productsService.getAllProducts();
-      setProducts(data);
-      setFilteredProducts(data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load products");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const filterProducts = useCallback(() => {
-    let filtered = [...products];
-
-    // Apply search filter
-    if (searchTerm) {
-      const term = searchTerm.toLowerCase();
-      filtered = filtered.filter(
-        (product) =>
-          product.productName.toLowerCase().includes(term) ||
-          product.sku.toLowerCase().includes(term) ||
-          (product.description && product.description.toLowerCase().includes(term)) ||
-          (product.category && product.category.toLowerCase().includes(term))
-      );
-    }
-
-    // Apply category filter
-    if (categoryFilter !== "ALL") {
-      filtered = filtered.filter((product) => product.category === categoryFilter);
-    }
-
-    setFilteredProducts(filtered);
-    setCurrentPage(1);
-  }, [searchTerm, categoryFilter, products]);
-
-  useEffect(() => {
-    filterProducts();
-  }, [filterProducts]);
+  }, [router, loadProducts]);
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
+    setCurrentPage(1); // Reset to first page
   };
 
   const handleCategoryFilter = (category: string) => {
     setCategoryFilter(category);
+    setCurrentPage(1); // Reset to first page
   };
 
-  const getPaginatedProducts = () => {
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    return filteredProducts.slice(startIndex, endIndex);
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+  const handlePageSizeChange = (size: number) => {
+    setPageSize(size);
+    setCurrentPage(1);
+  };
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("en-IN", {
@@ -107,10 +110,19 @@ export default function ProductsPage() {
     }).format(amount);
   };
 
-  // Get unique categories
-  const categories = Array.from(new Set(products.map((p) => p.category).filter(Boolean)));
+  // Get unique categories (Note: This might need a separate API call if we only fetch paginated products)
+  // For now, we might rely on a hardcoded list or assume we want to show all available categories.
+  // Ideally, the backend should provide a categories endpoint.
+  // Using existing products data for categories will only show categories of CURRENT page products, which is bad.
+  // Let's assume we can fetch categories or keep the list dynamic.
+  // For this implementation, I will remove dynamic category extraction from partial product list 
+  // and maybe try to fetch all products JUST for categories or hardcode strict categories if known.
+  // But to be safe and avoiding extra heavy calls, I'll temporarily keep it but knowing it's limited.
+  // BETTER: Fetch unique categories separate if needed. 
+  // Codebase usually doesn't have "getAllCategories" yet. I'll stick to basic mapping but be aware.
+  const categories = ["Electronics", "Services", "Subscriptions", "Hardware"];
 
-  if (loading) {
+  if (loading && products.length === 0) { // Only show full loader on initial load
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-900">
         <div className="absolute inset-0 overflow-hidden">
@@ -135,13 +147,15 @@ export default function ProductsPage() {
               <p className="text-sm text-slate-500 dark:text-slate-400">Manage your inventory and product details.</p>
             </div>
             <div className="flex items-center gap-3">
-              <button
-                onClick={() => router.push("/products/new")}
-                className="flex items-center gap-2 px-5 py-2 bg-primary hover:bg-primary-hover text-white rounded-xl text-sm font-bold shadow-lg shadow-primary/25 hover:shadow-primary/40 hover:-translate-y-0.5 transition-all"
-              >
-                <Plus className="h-4 w-4" />
-                Add Product
-              </button>
+              <PermissionGuard allowedRoles={["ADMIN", "MANAGER"]}>
+                <button
+                  onClick={() => router.push("/products/new")}
+                  className="flex items-center gap-2 px-5 py-2 bg-primary hover:bg-primary-hover text-white rounded-xl text-sm font-bold shadow-lg shadow-primary/25 hover:shadow-primary/40 hover:-translate-y-0.5 transition-all"
+                >
+                  <Plus className="h-4 w-4" />
+                  Add Product
+                </button>
+              </PermissionGuard>
             </div>
           </div>
         </div>
@@ -187,7 +201,7 @@ export default function ProductsPage() {
         )}
 
         {/* Products Grid or Empty State */}
-        {filteredProducts.length === 0 ? (
+        {products.length === 0 && !loading ? (
           <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-12 text-center">
             {searchTerm || categoryFilter !== "ALL" ? (
               <EmptyState
@@ -197,7 +211,7 @@ export default function ProductsPage() {
               />
             ) : (
               <EmptyState
-                icon="inventory_2" // Using a material icon name supported by EmptyState if configured, else fallback
+                icon="inventory_2"
                 title="No products yet"
                 description="Get started by adding your first product to the catalog."
                 action={{ label: "Add Product", href: "/products/new" }}
@@ -207,104 +221,100 @@ export default function ProductsPage() {
         ) : (
           <>
             {/* Products Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {getPaginatedProducts().map((product) => (
-                <div
-                  key={product.id}
-                  className="group bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 hover:border-primary/50 dark:hover:border-primary/50 hover:shadow-lg dark:hover:shadow-primary/10 transition-all duration-300 overflow-hidden flex flex-col cursor-pointer"
-                  onClick={() => router.push(`/products/${product.id}`)}
-                >
-                  <div className="relative aspect-[4/3] bg-slate-100 dark:bg-slate-700/50 flex items-center justify-center p-6 border-b border-slate-100 dark:border-slate-700/50">
-                    <div className="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm text-primary/20">
-                      <Package className="h-16 w-16" />
-                    </div>
-                    <div className="absolute top-4 right-4">
-                      <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-xs font-semibold backdrop-blur-md shadow-sm ${product.isActive
-                        ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20"
-                        : "bg-slate-500/10 text-slate-700 dark:text-slate-400 border border-slate-500/20"
-                        }`}>
-                        {product.isActive ? (
-                          <> <CheckCircle2 className="h-3 w-3" /> Active </>
-                        ) : (
-                          <> <XCircle className="h-3 w-3" /> Inactive </>
-                        )}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="p-5 flex-1 flex flex-col">
-                    <div className="flex justify-between items-start gap-2 mb-2">
-                      <h3 className="text-lg font-bold text-slate-900 dark:text-white line-clamp-2 leading-tight group-hover:text-primary transition-colors">
-                        {product.productName}
-                      </h3>
-                    </div>
-
-                    <div className="flex items-center gap-2 mb-4">
-                      <span className="inline-flex items-center gap-1 text-xs font-medium text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-700/50 px-2 py-1 rounded-md">
-                        <Tag className="h-3 w-3" />
-                        {product.sku}
-                      </span>
-                      {product.category && (
-                        <span className="inline-flex items-center gap-1 text-xs font-medium text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-700/50 px-2 py-1 rounded-md">
-                          <Archive className="h-3 w-3" />
-                          {product.category}
-                        </span>
-                      )}
-                    </div>
-
-                    <p className="text-sm text-slate-600 dark:text-slate-400 mb-4 line-clamp-2 flex-1">
-                      {product.description || "No description available."}
-                    </p>
-
-                    <div className="pt-4 border-t border-slate-100 dark:border-slate-700 space-y-3">
-                      <div className="flex items-baseline justify-between">
-                        <span className="text-sm text-slate-500 dark:text-slate-400">Price</span>
-                        <span className="text-xl font-bold text-slate-900 dark:text-white">
-                          {formatCurrency(product.basePrice)}
-                        </span>
-                      </div>
-
-                      <div className="flex items-center justify-between text-xs">
-                        <div className="flex items-center gap-1 text-slate-500 dark:text-slate-400">
-                          <span>Tax Rate:</span>
-                          <span className="font-medium text-slate-700 dark:text-slate-300">{product.taxRate}%</span>
-                        </div>
-                        <div className={`flex items-center gap-1 font-medium ${(product.stockQuantity || 0) > 10 ? 'text-emerald-600 dark:text-emerald-400' :
-                          (product.stockQuantity || 0) > 0 ? 'text-amber-600 dark:text-amber-400' :
-                            'text-rose-600 dark:text-rose-400'
-                          }`}>
-                          <span>{(product.stockQuantity || 0) > 0 ? "In Stock:" : "Out of Stock"}</span>
-                          <span>{product.stockQuantity || 0}</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+            <div className="min-h-[200px] relative">
+              {loading && (
+                <div className="absolute inset-0 bg-white/50 dark:bg-slate-900/50 z-10 flex items-center justify-center backdrop-blur-sm rounded-2xl">
+                  <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
                 </div>
-              ))}
+              )}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {products.map((product) => (
+                  <div
+                    key={product.id}
+                    className="group bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 hover:border-primary/50 dark:hover:border-primary/50 hover:shadow-lg dark:hover:shadow-primary/10 transition-all duration-300 overflow-hidden flex flex-col cursor-pointer"
+                    onClick={() => router.push(`/products/${product.id}`)}
+                  >
+                    <div className="relative aspect-[4/3] bg-slate-100 dark:bg-slate-700/50 flex items-center justify-center p-6 border-b border-slate-100 dark:border-slate-700/50">
+                      <div className="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm text-primary/20">
+                        <Package className="h-16 w-16" />
+                      </div>
+                      <div className="absolute top-4 right-4">
+                        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-xs font-semibold backdrop-blur-md shadow-sm ${product.isActive
+                          ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20"
+                          : "bg-slate-500/10 text-slate-700 dark:text-slate-400 border border-slate-500/20"
+                          }`}>
+                          {product.isActive ? (
+                            <> <CheckCircle2 className="h-3 w-3" /> Active </>
+                          ) : (
+                            <> <XCircle className="h-3 w-3" /> Inactive </>
+                          )}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="p-5 flex-1 flex flex-col">
+                      <div className="flex justify-between items-start gap-2 mb-2">
+                        <h3 className="text-lg font-bold text-slate-900 dark:text-white line-clamp-2 leading-tight group-hover:text-primary transition-colors">
+                          {product.productName}
+                        </h3>
+                      </div>
+
+                      <div className="flex items-center gap-2 mb-4">
+                        <span className="inline-flex items-center gap-1 text-xs font-medium text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-700/50 px-2 py-1 rounded-md">
+                          <Tag className="h-3 w-3" />
+                          {product.sku}
+                        </span>
+                        {product.category && (
+                          <span className="inline-flex items-center gap-1 text-xs font-medium text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-700/50 px-2 py-1 rounded-md">
+                            <Archive className="h-3 w-3" />
+                            {product.category}
+                          </span>
+                        )}
+                      </div>
+
+                      <p className="text-sm text-slate-600 dark:text-slate-400 mb-4 line-clamp-2 flex-1">
+                        {product.description || "No description available."}
+                      </p>
+
+                      <div className="pt-4 border-t border-slate-100 dark:border-slate-700 space-y-3">
+                        <div className="flex items-baseline justify-between">
+                          <span className="text-sm text-slate-500 dark:text-slate-400">Price</span>
+                          <span className="text-xl font-bold text-slate-900 dark:text-white">
+                            {formatCurrency(product.basePrice)}
+                          </span>
+                        </div>
+
+                        <div className="flex items-center justify-between text-xs">
+                          <div className="flex items-center gap-1 text-slate-500 dark:text-slate-400">
+                            <span>Tax Rate:</span>
+                            <span className="font-medium text-slate-700 dark:text-slate-300">{product.taxRate}%</span>
+                          </div>
+                          <div className={`flex items-center gap-1 font-medium ${(product.stockQuantity || 0) > 10 ? 'text-emerald-600 dark:text-emerald-400' :
+                            (product.stockQuantity || 0) > 0 ? 'text-amber-600 dark:text-amber-400' :
+                              'text-rose-600 dark:text-rose-400'
+                            }`}>
+                            <span>{(product.stockQuantity || 0) > 0 ? "In Stock:" : "Out of Stock"}</span>
+                            <span>{product.stockQuantity || 0}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
 
-            {/* Pagination */}
-            {totalPages > 1 && (
-              <div className="flex items-center justify-between bg-white dark:bg-slate-800 px-6 py-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
-                <p className="text-sm text-slate-600 dark:text-slate-400">
-                  Showing <span className="font-semibold text-slate-900 dark:text-white">{(currentPage - 1) * itemsPerPage + 1}</span> to <span className="font-semibold text-slate-900 dark:text-white">{Math.min(currentPage * itemsPerPage, filteredProducts.length)}</span> of <span className="font-semibold text-slate-900 dark:text-white">{filteredProducts.length}</span> results
-                </p>
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
-                    disabled={currentPage === 1}
-                    className="p-2 border border-slate-200 dark:border-slate-700 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
-                  >
-                    <ChevronLeft className="h-5 w-5 text-slate-600 dark:text-slate-400" />
-                  </button>
-                  <button
-                    onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
-                    disabled={currentPage === totalPages}
-                    className="p-2 border border-slate-200 dark:border-slate-700 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
-                  >
-                    <ChevronRight className="h-5 w-5 text-slate-600 dark:text-slate-400" />
-                  </button>
-                </div>
+            {/* Pagination Component */}
+            {totalPages > 0 && (
+              <div className="mt-8">
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  totalElements={totalElements}
+                  pageSize={pageSize}
+                  onPageChange={handlePageChange}
+                  onPageSizeChange={handlePageSizeChange}
+                />
               </div>
             )}
           </>

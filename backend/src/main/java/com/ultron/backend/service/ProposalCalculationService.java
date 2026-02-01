@@ -105,12 +105,25 @@ public class ProposalCalculationService {
         BigDecimal lineDiscount = BigDecimal.ZERO;
         if (item.getDiscountType() != null && item.getDiscountValue() != null) {
             if (item.getDiscountType() == DiscountType.PERCENTAGE) {
+                // Validate percentage is not > 100%
+                if (item.getDiscountValue().compareTo(BigDecimal.valueOf(100)) > 0) {
+                    throw new IllegalArgumentException(
+                        String.format("Line item discount percentage cannot exceed 100%% (got %.2f%%)",
+                            item.getDiscountValue())
+                    );
+                }
                 // Percentage discount
                 lineDiscount = lineSubtotal
                     .multiply(item.getDiscountValue())
                     .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
             } else {
-                // Fixed amount discount
+                // Fixed amount discount - cannot exceed line subtotal
+                if (item.getDiscountValue().compareTo(lineSubtotal) > 0) {
+                    throw new IllegalArgumentException(
+                        String.format("Line item discount amount (%.2f) cannot exceed line subtotal (%.2f)",
+                            item.getDiscountValue(), lineSubtotal)
+                    );
+                }
                 lineDiscount = item.getDiscountValue();
             }
         }
@@ -143,12 +156,25 @@ public class ProposalCalculationService {
         }
 
         if (discount.getOverallDiscountType() == DiscountType.PERCENTAGE) {
+            // Validate percentage is not > 100%
+            if (discount.getOverallDiscountValue().compareTo(BigDecimal.valueOf(100)) > 0) {
+                throw new IllegalArgumentException(
+                    String.format("Overall discount percentage cannot exceed 100%% (got %.2f%%)",
+                        discount.getOverallDiscountValue())
+                );
+            }
             // Percentage discount
             return amountAfterLineDiscounts
                 .multiply(discount.getOverallDiscountValue())
                 .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
         } else {
-            // Fixed amount discount
+            // Fixed amount discount - cannot exceed amount after line discounts
+            if (discount.getOverallDiscountValue().compareTo(amountAfterLineDiscounts) > 0) {
+                throw new IllegalArgumentException(
+                    String.format("Overall discount amount (%.2f) cannot exceed subtotal after line discounts (%.2f)",
+                        discount.getOverallDiscountValue(), amountAfterLineDiscounts)
+                );
+            }
             return discount.getOverallDiscountValue();
         }
     }

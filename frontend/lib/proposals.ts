@@ -2,9 +2,11 @@ import { api } from "./api-client";
 import type {
   ProposalResponse,
   CreateProposalRequest,
+  UpdateProposalRequest,
   ProposalStatus,
   ProposalSource,
 } from "@/types/proposal";
+import type { Page, PaginationParams } from "@/types/common";
 
 /**
  * Service for managing proposals/quotations
@@ -18,10 +20,23 @@ export const proposalsService = {
   },
 
   /**
+   * Update a proposal (DRAFT only)
+   */
+  async updateProposal(id: string, data: UpdateProposalRequest): Promise<ProposalResponse> {
+    return api.put(`/proposals/${id}`, data);
+  },
+
+  /**
    * Get all proposals
    */
-  async getAllProposals(): Promise<ProposalResponse[]> {
-    return api.get("/proposals");
+  async getAllProposals(pagination?: PaginationParams): Promise<Page<ProposalResponse> | ProposalResponse[]> {
+    const params = new URLSearchParams();
+    if (pagination) {
+      if (pagination.page !== undefined) params.append("page", String(pagination.page - 1));
+      if (pagination.size !== undefined) params.append("size", String(pagination.size));
+      if (pagination.sort) params.append("sort", pagination.sort);
+    }
+    return api.get(pagination ? `/proposals?${params.toString()}` : "/proposals");
   },
 
   /**
@@ -36,23 +51,56 @@ export const proposalsService = {
    */
   async getProposalsBySource(
     source: ProposalSource,
-    sourceId: string
-  ): Promise<ProposalResponse[]> {
-    return api.get(`/proposals/source/${source}/${sourceId}`);
+    sourceId: string,
+    pagination?: PaginationParams
+  ): Promise<Page<ProposalResponse> | ProposalResponse[]> {
+    const params = new URLSearchParams();
+    if (pagination) {
+      if (pagination.page !== undefined) params.append("page", String(pagination.page - 1));
+      if (pagination.size !== undefined) params.append("size", String(pagination.size));
+      if (pagination.sort) params.append("sort", pagination.sort);
+    }
+    return api.get(`/proposals/source/${source}/${sourceId}?${params.toString()}`);
   },
 
   /**
    * Get proposals by status
    */
-  async getProposalsByStatus(status: ProposalStatus): Promise<ProposalResponse[]> {
-    return api.get(`/proposals/status/${status}`);
+  async getProposalsByStatus(status: ProposalStatus, pagination?: PaginationParams): Promise<Page<ProposalResponse> | ProposalResponse[]> {
+    const params = new URLSearchParams();
+    if (pagination) {
+      if (pagination.page !== undefined) params.append("page", String(pagination.page - 1));
+      if (pagination.size !== undefined) params.append("size", String(pagination.size));
+      if (pagination.sort) params.append("sort", pagination.sort);
+    }
+    return api.get(`/proposals/status/${status}?${params.toString()}`);
+  },
+
+  /**
+   * Search proposals
+   */
+  async searchProposals(query: string, pagination?: PaginationParams): Promise<Page<ProposalResponse> | ProposalResponse[]> {
+    const params = new URLSearchParams();
+    params.append("q", query);
+    if (pagination) {
+      if (pagination.page !== undefined) params.append("page", String(pagination.page - 1));
+      if (pagination.size !== undefined) params.append("size", String(pagination.size));
+      if (pagination.sort) params.append("sort", pagination.sort);
+    }
+    return api.get(`/proposals/search?${params.toString()}`);
   },
 
   /**
    * Get proposals by owner
    */
-  async getProposalsByOwner(ownerId: string): Promise<ProposalResponse[]> {
-    return api.get(`/proposals/owner/${ownerId}`);
+  async getProposalsByOwner(ownerId: string, pagination?: PaginationParams): Promise<Page<ProposalResponse> | ProposalResponse[]> {
+    const params = new URLSearchParams();
+    if (pagination) {
+      if (pagination.page !== undefined) params.append("page", String(pagination.page - 1));
+      if (pagination.size !== undefined) params.append("size", String(pagination.size));
+      if (pagination.sort) params.append("sort", pagination.sort);
+    }
+    return api.get(`/proposals/owner/${ownerId}?${params.toString()}`);
   },
 
   /**

@@ -8,6 +8,8 @@ import com.ultron.backend.service.ProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -49,26 +51,42 @@ public class ProductController {
     }
 
     /**
-     * Get all products
+     * Get all products (with optional pagination)
      * GET /api/v1/products
+     * Supports pagination with query params: page, size, sort
+     * Example: /products?page=0&size=10&sort=productName,asc
      */
     @GetMapping
     @PreAuthorize("hasPermission('PRODUCT', 'READ')")
-    public ResponseEntity<ApiResponse<List<ProductResponse>>> getAllProducts(
-            @RequestParam(required = false, defaultValue = "false") boolean activeOnly) {
+    public ResponseEntity<ApiResponse<?>> getAllProducts(
+            @RequestParam(required = false, defaultValue = "false") boolean activeOnly,
+            Pageable pageable) {
 
-        log.info("Fetching all products (activeOnly: {})", activeOnly);
+        log.info("Fetching all products (activeOnly: {}, pageable: {})", activeOnly, pageable.isPaged());
 
-        List<ProductResponse> products = activeOnly
-                ? productService.getActiveProducts()
-                : productService.getAllProducts();
+        if (pageable.isPaged()) {
+            Page<ProductResponse> products = activeOnly
+                    ? productService.getActiveProducts(pageable)
+                    : productService.getAllProducts(pageable);
 
-        return ResponseEntity.ok(
-                ApiResponse.<List<ProductResponse>>builder()
-                        .success(true)
-                        .message("Products retrieved successfully")
-                        .data(products)
-                        .build());
+            return ResponseEntity.ok(
+                    ApiResponse.<Page<ProductResponse>>builder()
+                            .success(true)
+                            .message("Products retrieved successfully")
+                            .data(products)
+                            .build());
+        } else {
+            List<ProductResponse> products = activeOnly
+                    ? productService.getActiveProducts()
+                    : productService.getAllProducts();
+
+            return ResponseEntity.ok(
+                    ApiResponse.<List<ProductResponse>>builder()
+                            .success(true)
+                            .message("Products retrieved successfully")
+                            .data(products)
+                            .build());
+        }
     }
 
     /**
@@ -112,45 +130,67 @@ public class ProductController {
     }
 
     /**
-     * Get products by category
+     * Get products by category (with optional pagination)
      * GET /api/v1/products/category/{category}
+     * Supports pagination with query params: page, size, sort
      */
     @GetMapping("/category/{category}")
     @PreAuthorize("hasPermission('PRODUCT', 'READ')")
-    public ResponseEntity<ApiResponse<List<ProductResponse>>> getProductsByCategory(
-            @PathVariable String category) {
+    public ResponseEntity<ApiResponse<?>> getProductsByCategory(
+            @PathVariable String category,
+            Pageable pageable) {
 
-        log.info("Fetching products for category: {}", category);
+        log.info("Fetching products for category: {} (pageable: {})", category, pageable.isPaged());
 
-        List<ProductResponse> products = productService.getProductsByCategory(category);
-
-        return ResponseEntity.ok(
-                ApiResponse.<List<ProductResponse>>builder()
-                        .success(true)
-                        .message("Products retrieved successfully")
-                        .data(products)
-                        .build());
+        if (pageable.isPaged()) {
+            Page<ProductResponse> products = productService.getProductsByCategory(category, pageable);
+            return ResponseEntity.ok(
+                    ApiResponse.<Page<ProductResponse>>builder()
+                            .success(true)
+                            .message("Products retrieved successfully")
+                            .data(products)
+                            .build());
+        } else {
+            List<ProductResponse> products = productService.getProductsByCategory(category);
+            return ResponseEntity.ok(
+                    ApiResponse.<List<ProductResponse>>builder()
+                            .success(true)
+                            .message("Products retrieved successfully")
+                            .data(products)
+                            .build());
+        }
     }
 
     /**
-     * Search products
+     * Search products (with optional pagination)
      * GET /api/v1/products/search?q=searchTerm
+     * Supports pagination with query params: page, size, sort
      */
     @GetMapping("/search")
     @PreAuthorize("hasPermission('PRODUCT', 'READ')")
-    public ResponseEntity<ApiResponse<List<ProductResponse>>> searchProducts(
-            @RequestParam("q") String searchTerm) {
+    public ResponseEntity<ApiResponse<?>> searchProducts(
+            @RequestParam("q") String searchTerm,
+            Pageable pageable) {
 
-        log.info("Searching products with term: {}", searchTerm);
+        log.info("Searching products with term: {} (pageable: {})", searchTerm, pageable.isPaged());
 
-        List<ProductResponse> products = productService.searchProducts(searchTerm);
-
-        return ResponseEntity.ok(
-                ApiResponse.<List<ProductResponse>>builder()
-                        .success(true)
-                        .message("Search results retrieved successfully")
-                        .data(products)
-                        .build());
+        if (pageable.isPaged()) {
+            Page<ProductResponse> products = productService.searchProducts(searchTerm, pageable);
+            return ResponseEntity.ok(
+                    ApiResponse.<Page<ProductResponse>>builder()
+                            .success(true)
+                            .message("Search results retrieved successfully")
+                            .data(products)
+                            .build());
+        } else {
+            List<ProductResponse> products = productService.searchProducts(searchTerm);
+            return ResponseEntity.ok(
+                    ApiResponse.<List<ProductResponse>>builder()
+                            .success(true)
+                            .message("Search results retrieved successfully")
+                            .data(products)
+                            .build());
+        }
     }
 
     /**

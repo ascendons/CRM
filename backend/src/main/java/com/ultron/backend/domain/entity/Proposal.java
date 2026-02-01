@@ -8,6 +8,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.CompoundIndex;
+import org.springframework.data.mongodb.core.index.CompoundIndexes;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -17,6 +19,13 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Document(collection = "proposals")
+@CompoundIndexes({
+    @CompoundIndex(name = "source_deleted_idx", def = "{'source': 1, 'sourceId': 1, 'isDeleted': 1}"),
+    @CompoundIndex(name = "status_deleted_idx", def = "{'status': 1, 'isDeleted': 1}"),
+    @CompoundIndex(name = "owner_deleted_idx", def = "{'ownerId': 1, 'isDeleted': 1}"),
+    @CompoundIndex(name = "status_source_idx", def = "{'status': 1, 'source': 1, 'sourceId': 1}"),
+    @CompoundIndex(name = "product_lineitem_idx", def = "{'lineItems.productId': 1, 'isDeleted': 1}")
+})
 @Data
 @Builder
 @NoArgsConstructor

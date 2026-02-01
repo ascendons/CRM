@@ -4,10 +4,10 @@ import com.ultron.backend.domain.entity.Lead;
 import com.ultron.backend.domain.entity.Opportunity;
 import com.ultron.backend.domain.entity.Product;
 import com.ultron.backend.domain.entity.Proposal;
-import com.ultron.backend.domain.entity.User;
 import com.ultron.backend.domain.enums.ProposalSource;
 import com.ultron.backend.domain.enums.ProposalStatus;
 import com.ultron.backend.dto.request.CreateProposalRequest;
+import com.ultron.backend.dto.request.UpdateProposalRequest;
 import com.ultron.backend.dto.response.ProposalResponse;
 import com.ultron.backend.exception.ResourceNotFoundException;
 import com.ultron.backend.repository.LeadRepository;
@@ -17,6 +17,8 @@ import com.ultron.backend.repository.ProposalRepository;
 import com.ultron.backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,6 +39,7 @@ public class ProposalService {
     private final LeadRepository leadRepository;
     private final OpportunityRepository opportunityRepository;
     private final UserRepository userRepository;
+    private final AuditLogService auditLogService;
 
     @Transactional
     public ProposalResponse createProposal(CreateProposalRequest request, String createdBy) {
@@ -95,6 +98,90 @@ public class ProposalService {
         log.info("Proposal created: proposalId={}, source={}, sourceId={}, total={}",
                  saved.getProposalId(), saved.getSource(), saved.getSourceId(), saved.getTotalAmount());
 
+        // Log audit event
+        auditLogService.logAsync("PROPOSAL", saved.getId(), saved.getTitle(),
+                "CREATED", "Proposal created with status DRAFT",
+                null, ProposalStatus.DRAFT.toString(),
+                createdBy, null);
+
+        return mapToResponse(saved);
+    }
+
+    @Transactional
+    public ProposalResponse updateProposal(String id, UpdateProposalRequest request, String userId) {
+        Proposal proposal = findProposalById(id);
+
+        // Only DRAFT proposals can be updated
+        if (proposal.getStatus() != ProposalStatus.DRAFT) {
+            throw new IllegalStateException("Only draft proposals can be updated");
+        }
+
+        // Update fields only if provided (null-safe)
+        boolean needsRecalculation = false;
+
+        if (request.getTitle() != null) {
+            proposal.setTitle(request.getTitle());
+        }
+
+        if (request.getDescription() != null) {
+            proposal.setDescription(request.getDescription());
+        }
+
+        if (request.getValidUntil() != null) {
+            proposal.setValidUntil(request.getValidUntil());
+        }
+
+        if (request.getLineItems() != null) {
+            List<Proposal.ProposalLineItem> lineItems = buildLineItems(request.getLineItems());
+            proposal.setLineItems(lineItems);
+            needsRecalculation = true;
+        }
+
+        if (request.getDiscount() != null) {
+            Proposal.DiscountConfig discount = null;
+            if (request.getDiscount().getOverallDiscountType() != null) {
+                discount = Proposal.DiscountConfig.builder()
+                        .overallDiscountType(request.getDiscount().getOverallDiscountType())
+                        .overallDiscountValue(request.getDiscount().getOverallDiscountValue())
+                        .discountReason(request.getDiscount().getDiscountReason())
+                        .build();
+            }
+            proposal.setDiscount(discount);
+            needsRecalculation = true;
+        }
+
+        if (request.getPaymentTerms() != null) {
+            proposal.setPaymentTerms(request.getPaymentTerms());
+        }
+
+        if (request.getDeliveryTerms() != null) {
+            proposal.setDeliveryTerms(request.getDeliveryTerms());
+        }
+
+        if (request.getNotes() != null) {
+            proposal.setNotes(request.getNotes());
+        }
+
+        // Update audit fields
+        proposal.setLastModifiedAt(LocalDateTime.now());
+        proposal.setLastModifiedBy(userId);
+        proposal.setLastModifiedByName(getUserName(userId));
+
+        // Recalculate totals if line items or discount changed
+        if (needsRecalculation) {
+            proposal = calculationService.calculateTotals(proposal);
+        }
+
+        Proposal saved = proposalRepository.save(proposal);
+
+        log.info("Proposal updated: proposalId={}, updatedBy={}", saved.getProposalId(), userId);
+
+        // Log audit event
+        auditLogService.logAsync("PROPOSAL", saved.getId(), saved.getTitle(),
+                "UPDATED", "Proposal details updated",
+                null, null,
+                userId, null);
+
         return mapToResponse(saved);
     }
 
@@ -106,6 +193,7 @@ public class ProposalService {
             throw new IllegalStateException("Only draft proposals can be sent");
         }
 
+        ProposalStatus oldStatus = proposal.getStatus();
         proposal.setStatus(ProposalStatus.SENT);
         proposal.setSentAt(LocalDateTime.now());
         proposal.setLastModifiedAt(LocalDateTime.now());
@@ -115,6 +203,12 @@ public class ProposalService {
         Proposal saved = proposalRepository.save(proposal);
 
         log.info("Proposal sent: proposalId={}, sentBy={}", saved.getProposalId(), userId);
+
+        // Log audit event
+        auditLogService.logAsync("PROPOSAL", saved.getId(), saved.getTitle(),
+                "SENT", "Proposal sent to customer",
+                oldStatus.toString(), ProposalStatus.SENT.toString(),
+                userId, null);
 
         // TODO: Send email notification to customer
 
@@ -129,6 +223,7 @@ public class ProposalService {
             throw new IllegalStateException("Only sent proposals can be accepted");
         }
 
+        ProposalStatus oldStatus = proposal.getStatus();
         proposal.setStatus(ProposalStatus.ACCEPTED);
         proposal.setAcceptedAt(LocalDateTime.now());
         proposal.setLastModifiedAt(LocalDateTime.now());
@@ -138,6 +233,12 @@ public class ProposalService {
         Proposal saved = proposalRepository.save(proposal);
 
         log.info("Proposal accepted: proposalId={}, acceptedBy={}", saved.getProposalId(), userId);
+
+        // Log audit event
+        auditLogService.logAsync("PROPOSAL", saved.getId(), saved.getTitle(),
+                "ACCEPTED", "Proposal accepted by customer",
+                oldStatus.toString(), ProposalStatus.ACCEPTED.toString(),
+                userId, null);
 
         // TODO: Auto-create Opportunity if source is LEAD
         // TODO: Update Opportunity stage if source is OPPORTUNITY
@@ -153,6 +254,7 @@ public class ProposalService {
             throw new IllegalStateException("Only sent proposals can be rejected");
         }
 
+        ProposalStatus oldStatus = proposal.getStatus();
         proposal.setStatus(ProposalStatus.REJECTED);
         proposal.setRejectedAt(LocalDateTime.now());
         proposal.setRejectionReason(reason);
@@ -165,6 +267,12 @@ public class ProposalService {
         log.info("Proposal rejected: proposalId={}, rejectedBy={}, reason={}",
                  saved.getProposalId(), userId, reason);
 
+        // Log audit event with rejection reason
+        auditLogService.logAsync("PROPOSAL", saved.getId(), saved.getTitle(),
+                "REJECTED", "Proposal rejected by customer. Reason: " + reason,
+                oldStatus.toString(), ProposalStatus.REJECTED.toString(),
+                userId, java.util.Map.of("reason", reason));
+
         return mapToResponse(saved);
     }
 
@@ -172,6 +280,11 @@ public class ProposalService {
         return proposalRepository.findByIsDeletedFalse().stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
+    }
+
+    public Page<ProposalResponse> getAllProposals(Pageable pageable) {
+        return proposalRepository.findByIsDeletedFalse(pageable)
+                .map(this::mapToResponse);
     }
 
     public ProposalResponse getProposalById(String id) {
@@ -186,16 +299,31 @@ public class ProposalService {
                 .collect(Collectors.toList());
     }
 
+    public Page<ProposalResponse> getProposalsBySource(ProposalSource source, String sourceId, Pageable pageable) {
+        return proposalRepository.findBySourceAndSourceIdAndIsDeletedFalse(source, sourceId, pageable)
+                .map(this::mapToResponse);
+    }
+
     public List<ProposalResponse> getProposalsByStatus(ProposalStatus status) {
         return proposalRepository.findByStatusAndIsDeletedFalse(status).stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
 
+    public Page<ProposalResponse> getProposalsByStatus(ProposalStatus status, Pageable pageable) {
+        return proposalRepository.findByStatusAndIsDeletedFalse(status, pageable)
+                .map(this::mapToResponse);
+    }
+
     public List<ProposalResponse> getProposalsByOwner(String ownerId) {
         return proposalRepository.findByOwnerIdAndIsDeletedFalse(ownerId).stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
+    }
+
+    public Page<ProposalResponse> getProposalsByOwner(String ownerId, Pageable pageable) {
+        return proposalRepository.findByOwnerIdAndIsDeletedFalse(ownerId, pageable)
+                .map(this::mapToResponse);
     }
 
     @Transactional
@@ -208,9 +336,15 @@ public class ProposalService {
         proposal.setLastModifiedBy(deletedBy);
         proposal.setLastModifiedByName(getUserName(deletedBy));
 
-        proposalRepository.save(proposal);
+        Proposal saved = proposalRepository.save(proposal);
 
         log.info("Proposal deleted: proposalId={}, deletedBy={}", proposal.getProposalId(), deletedBy);
+
+        // Log audit event
+        auditLogService.logAsync("PROPOSAL", saved.getId(), saved.getTitle(),
+                "DELETED", "Proposal soft-deleted",
+                "false", "true",
+                deletedBy, null);
     }
 
     // Helper methods
@@ -227,6 +361,26 @@ public class ProposalService {
     }
 
     private List<Proposal.ProposalLineItem> buildLineItems(List<CreateProposalRequest.LineItemDTO> dtos) {
+        return dtos.stream().map(dto -> {
+            Product product = productRepository.findById(dto.getProductId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Product not found: " + dto.getProductId()));
+
+            return Proposal.ProposalLineItem.builder()
+                    .lineItemId(UUID.randomUUID().toString())
+                    .productId(product.getId())
+                    .productName(product.getProductName())
+                    .sku(product.getSku())
+                    .quantity(dto.getQuantity())
+                    .unit(product.getUnit())
+                    .unitPrice(dto.getUnitPrice() != null ? dto.getUnitPrice() : product.getBasePrice())
+                    .taxRate(product.getTaxRate())
+                    .discountType(dto.getDiscountType())
+                    .discountValue(dto.getDiscountValue())
+                    .build();
+        }).collect(Collectors.toList());
+    }
+
+    private List<Proposal.ProposalLineItem> buildLineItems(List<UpdateProposalRequest.LineItemDTO> dtos) {
         return dtos.stream().map(dto -> {
             Product product = productRepository.findById(dto.getProductId())
                     .orElseThrow(() -> new ResourceNotFoundException("Product not found: " + dto.getProductId()));

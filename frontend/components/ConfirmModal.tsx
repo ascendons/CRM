@@ -9,6 +9,7 @@ interface ConfirmModalProps {
   confirmLabel?: string;
   cancelLabel?: string;
   confirmButtonClass?: string;
+  variant?: 'danger' | 'warning' | 'primary';
   onConfirm: () => void;
   onCancel: () => void;
   isLoading?: boolean;
@@ -20,11 +21,52 @@ export default function ConfirmModal({
   message,
   confirmLabel = 'Confirm',
   cancelLabel = 'Cancel',
-  confirmButtonClass = 'bg-red-600 hover:bg-red-700',
+  confirmButtonClass,
+  variant = 'danger',
   onConfirm,
   onCancel,
   isLoading = false,
 }: ConfirmModalProps) {
+  // Determine button class based on variant if confirmButtonClass is not provided
+  const getButtonClass = () => {
+    if (confirmButtonClass) return confirmButtonClass;
+    switch (variant) {
+      case 'danger':
+        return 'bg-red-600 hover:bg-red-700 focus:ring-red-500';
+      case 'warning':
+        return 'bg-amber-600 hover:bg-amber-700 focus:ring-amber-500';
+      case 'primary':
+        return 'bg-blue-600 hover:bg-blue-700 focus:ring-blue-500';
+      default:
+        return 'bg-blue-600 hover:bg-blue-700 focus:ring-blue-500';
+    }
+  };
+
+  const getIconClass = () => {
+    switch (variant) {
+      case 'danger':
+        return 'bg-red-100 text-red-600';
+      case 'warning':
+        return 'bg-amber-100 text-amber-600';
+      case 'primary':
+        return 'bg-blue-100 text-blue-600';
+      default:
+        return 'bg-blue-100 text-blue-600';
+    }
+  };
+
+  const getIconName = () => {
+    switch (variant) {
+      case 'danger':
+        return 'warning';
+      case 'warning':
+        return 'error'; // warning icon
+      case 'primary':
+        return 'info';
+      default:
+        return 'info';
+    }
+  };
   // Handle ESC key press
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
@@ -64,8 +106,8 @@ export default function ConfirmModal({
           <div className="bg-white px-6 py-5">
             {/* Icon */}
             <div className="flex items-center gap-4">
-              <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-red-100">
-                <span className="material-symbols-outlined text-red-600">warning</span>
+              <div className={`flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full ${getIconClass()}`}>
+                <span className="material-symbols-outlined">{getIconName()}</span>
               </div>
               <div className="flex-1">
                 <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
@@ -92,7 +134,7 @@ export default function ConfirmModal({
               type="button"
               onClick={onConfirm}
               disabled={isLoading}
-              className={`px-4 py-2 text-sm font-semibold text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all ${confirmButtonClass}`}
+              className={`px-4 py-2 text-sm font-semibold text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all ${getButtonClass()}`}
             >
               {isLoading ? (
                 <span className="flex items-center gap-2">

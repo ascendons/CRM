@@ -10,12 +10,14 @@ import {
   DiscountType,
   getProposalStatusColor,
   getProposalStatusLabel,
-  getDiscountTypeLabel,
+
 } from "@/types/proposal";
 import { proposalsService } from "@/lib/proposals";
 import { authService } from "@/lib/auth";
 import { showToast } from "@/lib/toast";
 import ConfirmModal from "@/components/ConfirmModal";
+import { AuditLogTimeline } from "@/components/common/AuditLogTimeline";
+import { PermissionGuard } from "@/components/common/PermissionGuard";
 
 export default function ProposalDetailPage({
   params,
@@ -60,12 +62,11 @@ export default function ProposalDetailPage({
     try {
       setActionLoading(true);
       await proposalsService.sendProposal(proposal.id);
-      showToast("Proposal sent successfully", "success");
+      showToast.success("Proposal sent successfully");
       loadProposal();
     } catch (err) {
-      showToast(
-        err instanceof Error ? err.message : "Failed to send proposal",
-        "error"
+      showToast.error(
+        err instanceof Error ? err.message : "Failed to send proposal"
       );
     } finally {
       setActionLoading(false);
@@ -77,12 +78,11 @@ export default function ProposalDetailPage({
     try {
       setActionLoading(true);
       await proposalsService.acceptProposal(proposal.id);
-      showToast("Proposal accepted successfully", "success");
+      showToast.success("Proposal accepted successfully");
       loadProposal();
     } catch (err) {
-      showToast(
-        err instanceof Error ? err.message : "Failed to accept proposal",
-        "error"
+      showToast.error(
+        err instanceof Error ? err.message : "Failed to accept proposal"
       );
     } finally {
       setActionLoading(false);
@@ -91,20 +91,19 @@ export default function ProposalDetailPage({
 
   const handleReject = async () => {
     if (!proposal || !rejectionReason.trim()) {
-      showToast("Please provide a rejection reason", "error");
+      showToast.error("Please provide a rejection reason");
       return;
     }
     try {
       setActionLoading(true);
       await proposalsService.rejectProposal(proposal.id, rejectionReason);
-      showToast("Proposal rejected", "success");
+      showToast.success("Proposal rejected");
       setShowRejectModal(false);
       setRejectionReason("");
       loadProposal();
     } catch (err) {
-      showToast(
-        err instanceof Error ? err.message : "Failed to reject proposal",
-        "error"
+      showToast.error(
+        err instanceof Error ? err.message : "Failed to reject proposal"
       );
     } finally {
       setActionLoading(false);
@@ -116,12 +115,11 @@ export default function ProposalDetailPage({
     try {
       setActionLoading(true);
       await proposalsService.deleteProposal(proposal.id);
-      showToast("Proposal deleted successfully", "success");
+      showToast.success("Proposal deleted successfully");
       router.push("/proposals");
     } catch (err) {
-      showToast(
-        err instanceof Error ? err.message : "Failed to delete proposal",
-        "error"
+      showToast.error(
+        err instanceof Error ? err.message : "Failed to delete proposal"
       );
     } finally {
       setActionLoading(false);
@@ -245,46 +243,52 @@ export default function ProposalDetailPage({
               </Link>
               {proposal.status === ProposalStatus.DRAFT && (
                 <>
-                  <button
-                    onClick={handleSend}
-                    disabled={actionLoading}
-                    className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
-                  >
-                    Send to Customer
-                  </button>
-                  <Link
-                    href={`/proposals/${proposal.id}/edit`}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-                  >
-                    Edit
-                  </Link>
+                  <PermissionGuard allowedRoles={["ADMIN", "MANAGER", "SALES_REP"]}>
+                    <button
+                      onClick={handleSend}
+                      disabled={actionLoading}
+                      className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
+                    >
+                      Send to Customer
+                    </button>
+                    <Link
+                      href={`/proposals/${proposal.id}/edit`}
+                      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                    >
+                      Edit
+                    </Link>
+                  </PermissionGuard>
                 </>
               )}
               {proposal.status === ProposalStatus.SENT && (
                 <>
-                  <button
-                    onClick={handleAccept}
-                    disabled={actionLoading}
-                    className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
-                  >
-                    Accept
-                  </button>
-                  <button
-                    onClick={() => setShowRejectModal(true)}
-                    disabled={actionLoading}
-                    className="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 disabled:opacity-50"
-                  >
-                    Reject
-                  </button>
+                  <PermissionGuard allowedRoles={["ADMIN", "MANAGER"]}>
+                    <button
+                      onClick={handleAccept}
+                      disabled={actionLoading}
+                      className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
+                    >
+                      Accept
+                    </button>
+                    <button
+                      onClick={() => setShowRejectModal(true)}
+                      disabled={actionLoading}
+                      className="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 disabled:opacity-50"
+                    >
+                      Reject
+                    </button>
+                  </PermissionGuard>
                 </>
               )}
-              <button
-                onClick={() => setShowDeleteModal(true)}
-                disabled={actionLoading}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50"
-              >
-                Delete
-              </button>
+              <PermissionGuard allowedRoles={["ADMIN", "MANAGER"]}>
+                <button
+                  onClick={() => setShowDeleteModal(true)}
+                  disabled={actionLoading}
+                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50"
+                >
+                  Delete
+                </button>
+              </PermissionGuard>
             </div>
           </div>
         </div>
@@ -387,26 +391,31 @@ export default function ProposalDetailPage({
             {(proposal.paymentTerms ||
               proposal.deliveryTerms ||
               proposal.notes) && (
-              <DetailSection title="Terms & Notes">
-                <dl>
-                  {proposal.paymentTerms && (
-                    <DetailRow
-                      label="Payment Terms"
-                      value={proposal.paymentTerms}
-                    />
-                  )}
-                  {proposal.deliveryTerms && (
-                    <DetailRow
-                      label="Delivery Terms"
-                      value={proposal.deliveryTerms}
-                    />
-                  )}
-                  {proposal.notes && (
-                    <DetailRow label="Notes" value={proposal.notes} />
-                  )}
-                </dl>
-              </DetailSection>
-            )}
+                <DetailSection title="Terms & Notes">
+                  <dl>
+                    {proposal.paymentTerms && (
+                      <DetailRow
+                        label="Payment Terms"
+                        value={proposal.paymentTerms}
+                      />
+                    )}
+                    {proposal.deliveryTerms && (
+                      <DetailRow
+                        label="Delivery Terms"
+                        value={proposal.deliveryTerms}
+                      />
+                    )}
+                    {proposal.notes && (
+                      <DetailRow label="Notes" value={proposal.notes} />
+                    )}
+                  </dl>
+                </DetailSection>
+              )}
+
+            {/* Activity History */}
+            <DetailSection title="Activity History">
+              <AuditLogTimeline entityName="PROPOSAL" entityId={proposal.id} />
+            </DetailSection>
           </div>
 
           {/* Sidebar - 1 column */}
@@ -429,11 +438,11 @@ export default function ProposalDetailPage({
                           <span className="ml-1 text-xs">
                             (
                             {proposal.discount.overallDiscountType ===
-                            DiscountType.PERCENTAGE
+                              DiscountType.PERCENTAGE
                               ? `${proposal.discount.overallDiscountValue}%`
                               : formatCurrency(
-                                  proposal.discount.overallDiscountValue
-                                )}
+                                proposal.discount.overallDiscountValue
+                              )}
                             )
                           </span>
                         )}
@@ -480,16 +489,14 @@ export default function ProposalDetailPage({
               <dl>
                 <DetailRow
                   label="Created"
-                  value={`${formatDateTime(proposal.createdAt)} by ${
-                    proposal.createdByName
-                  }`}
+                  value={`${formatDateTime(proposal.createdAt)} by ${proposal.createdByName
+                    }`}
                 />
                 {proposal.lastModifiedAt && (
                   <DetailRow
                     label="Last Modified"
-                    value={`${formatDateTime(proposal.lastModifiedAt)} by ${
-                      proposal.lastModifiedByName
-                    }`}
+                    value={`${formatDateTime(proposal.lastModifiedAt)} by ${proposal.lastModifiedByName
+                      }`}
                   />
                 )}
                 {proposal.sentAt && (
@@ -524,7 +531,7 @@ export default function ProposalDetailPage({
       {/* Delete Confirmation Modal */}
       <ConfirmModal
         isOpen={showDeleteModal}
-        onClose={() => setShowDeleteModal(false)}
+        onCancel={() => setShowDeleteModal(false)}
         onConfirm={handleDelete}
         title="Delete Proposal"
         message="Are you sure you want to delete this proposal? This action cannot be undone."

@@ -9,9 +9,12 @@ import com.ultron.backend.dto.response.ProductResponse;
 import com.ultron.backend.exception.DuplicateResourceException;
 import com.ultron.backend.exception.ResourceNotFoundException;
 import com.ultron.backend.repository.ProductRepository;
+import com.ultron.backend.repository.ProposalRepository;
 import com.ultron.backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,6 +30,7 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final ProductIdGeneratorService productIdGeneratorService;
     private final UserRepository userRepository;
+    private final ProposalRepository proposalRepository;
 
     @Transactional
     public ProductResponse createProduct(CreateProductRequest request, String createdBy) {
@@ -74,10 +78,20 @@ public class ProductService {
                 .collect(Collectors.toList());
     }
 
+    public Page<ProductResponse> getAllProducts(Pageable pageable) {
+        return productRepository.findByIsDeletedFalse(pageable)
+                .map(this::mapToResponse);
+    }
+
     public List<ProductResponse> getActiveProducts() {
         return productRepository.findActiveProducts().stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
+    }
+
+    public Page<ProductResponse> getActiveProducts(Pageable pageable) {
+        return productRepository.findActiveProducts(pageable)
+                .map(this::mapToResponse);
     }
 
     public ProductResponse getProductById(String id) {
@@ -108,10 +122,20 @@ public class ProductService {
                 .collect(Collectors.toList());
     }
 
+    public Page<ProductResponse> getProductsByCategory(String category, Pageable pageable) {
+        return productRepository.findByCategoryAndIsDeletedFalse(category, pageable)
+                .map(this::mapToResponse);
+    }
+
     public List<ProductResponse> searchProducts(String searchTerm) {
         return productRepository.searchProducts(searchTerm).stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
+    }
+
+    public Page<ProductResponse> searchProducts(String searchTerm, Pageable pageable) {
+        return productRepository.searchProducts(searchTerm, pageable)
+                .map(this::mapToResponse);
     }
 
     @Transactional
@@ -181,6 +205,15 @@ public class ProductService {
 
         if (product.getIsDeleted()) {
             throw new ResourceNotFoundException("Product not found with id: " + id);
+        }
+
+        // Check if product is referenced in active proposals (DRAFT or SENT status)
+        var activeProposals = proposalRepository.findActiveProposalsByProductId(id);
+        if (!activeProposals.isEmpty()) {
+            throw new IllegalStateException(
+                String.format("Cannot delete product. It is referenced in %d active proposal(s)",
+                    activeProposals.size())
+            );
         }
 
         // Soft delete

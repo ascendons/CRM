@@ -17,16 +17,16 @@ import {
   Search,
   Plus,
   Trash2,
-  ChevronLeft,
-  ChevronRight,
   Filter,
   ArrowUpDown,
   FileText,
   Send,
   Clock,
   User,
-  AlertCircle
+  AlertCircle,
 } from "lucide-react";
+import { Pagination } from "@/components/common/Pagination";
+import { PermissionGuard } from "@/components/common/PermissionGuard";
 
 export default function ProposalsPage() {
   const router = useRouter();
@@ -39,7 +39,9 @@ export default function ProposalsPage() {
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(10);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [totalElements, setTotalElements] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
 
   // Sorting state
   const [sortColumn, setSortColumn] = useState<string>("createdAt");
@@ -50,6 +52,43 @@ export default function ProposalsPage() {
   const [proposalToDelete, setProposalToDelete] = useState<string | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
 
+  const loadProposals = useCallback(async () => {
+    try {
+      setLoading(true);
+
+      const pagination = {
+        page: currentPage,
+        size: itemsPerPage,
+        sort: `${sortColumn},${sortDirection}`
+      };
+
+      let response;
+      if (searchTerm) {
+        response = await proposalsService.searchProposals(searchTerm, pagination);
+      } else if (statusFilter !== "ALL") {
+        response = await proposalsService.getProposalsByStatus(statusFilter, pagination);
+      } else {
+        response = await proposalsService.getAllProposals(pagination);
+      }
+
+      if ('content' in response) {
+        setProposals(response.content);
+        setFilteredProposals(response.content); // Kept for types but filtered locally via server now
+        setTotalElements(response.totalElements);
+        setTotalPages(response.totalPages);
+      } else {
+        setProposals(response);
+        setFilteredProposals(response);
+        setTotalElements(response.length);
+        setTotalPages(1);
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to load proposals");
+    } finally {
+      setLoading(false);
+    }
+  }, [currentPage, itemsPerPage, sortColumn, sortDirection, searchTerm, statusFilter]);
+
   useEffect(() => {
     // Check authentication
     if (!authService.isAuthenticated()) {
@@ -58,49 +97,19 @@ export default function ProposalsPage() {
     }
 
     loadProposals();
-  }, [router]);
+  }, [router, loadProposals]);
 
-
-
-  const loadProposals = async () => {
-    try {
-      setLoading(true);
-      const data = await proposalsService.getAllProposals();
-      setProposals(data);
-      setFilteredProposals(data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load proposals");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const filterProposals = useCallback(() => {
-    let filtered = [...proposals];
-
-    // Apply search filter
-    if (searchTerm) {
-      const term = searchTerm.toLowerCase();
-      filtered = filtered.filter(
-        (proposal) =>
-          proposal.title.toLowerCase().includes(term) ||
-          proposal.proposalNumber.toLowerCase().includes(term) ||
-          (proposal.customerName && proposal.customerName.toLowerCase().includes(term)) ||
-          proposal.sourceName.toLowerCase().includes(term)
-      );
-    }
-
-    // Apply status filter
-    if (statusFilter !== "ALL") {
-      filtered = filtered.filter((proposal) => proposal.status === statusFilter);
-    }
-
-    setFilteredProposals(filtered);
-  }, [proposals, searchTerm, statusFilter]);
+  // Removed client-side filtering effects as we use server-side filtered data now
 
   useEffect(() => {
-    filterProposals();
-  }, [filterProposals]);
+    // Check authentication
+    if (!authService.isAuthenticated()) {
+      router.push("/login");
+      return;
+    }
+
+    loadProposals();
+  }, [router, loadProposals]);
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
@@ -122,52 +131,14 @@ export default function ProposalsPage() {
     setCurrentPage(1);
   };
 
-  const getSortedProposals = (proposalsToSort: ProposalResponse[]) => {
-    return [...proposalsToSort].sort((a, b) => {
-      let aValue: string | number = '';
-      let bValue: string | number = '';
-
-      switch (sortColumn) {
-        case "title":
-          aValue = a.title.toLowerCase();
-          bValue = b.title.toLowerCase();
-          break;
-        case "totalAmount":
-          aValue = a.totalAmount || 0;
-          bValue = b.totalAmount || 0;
-          break;
-        case "status":
-          aValue = a.status;
-          bValue = b.status;
-          break;
-        case "validUntil":
-          aValue = new Date(a.validUntil).getTime();
-          bValue = new Date(b.validUntil).getTime();
-          break;
-        case "createdAt":
-          aValue = new Date(a.createdAt).getTime();
-          bValue = new Date(b.createdAt).getTime();
-          break;
-        case "proposalNumber":
-          aValue = a.proposalNumber;
-          bValue = b.proposalNumber;
-          break;
-        default:
-          aValue = new Date(a.createdAt).getTime();
-          bValue = new Date(b.createdAt).getTime();
-      }
-
-      if (aValue < bValue) return sortDirection === "asc" ? -1 : 1;
-      if (aValue > bValue) return sortDirection === "asc" ? 1 : -1;
-      return 0;
-    });
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const getPaginatedProposals = () => {
-    const sorted = getSortedProposals(filteredProposals);
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    return sorted.slice(startIndex, endIndex);
+  const handlePageSizeChange = (size: number) => {
+    setItemsPerPage(size);
+    setCurrentPage(1);
   };
 
   const handleDelete = (id: string) => {
@@ -207,7 +178,7 @@ export default function ProposalsPage() {
     }
   };
 
-  const totalPages = Math.ceil(filteredProposals.length / itemsPerPage);
+
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("en-IN", {
@@ -269,13 +240,15 @@ export default function ProposalsPage() {
               <p className="text-sm text-slate-500 dark:text-slate-400">Manage quotations and track proposal status.</p>
             </div>
             <div className="flex items-center gap-3">
-              <button
-                onClick={() => router.push("/proposals/new")}
-                className="flex items-center gap-2 px-5 py-2 bg-primary hover:bg-primary-hover text-white rounded-xl text-sm font-bold shadow-lg shadow-primary/25 hover:shadow-primary/40 hover:-translate-y-0.5 transition-all"
-              >
-                <Plus className="h-4 w-4" />
-                Create Proposal
-              </button>
+              <PermissionGuard allowedRoles={["ADMIN", "MANAGER", "SALES_REP"]}>
+                <button
+                  onClick={() => router.push("/proposals/new")}
+                  className="flex items-center gap-2 px-5 py-2 bg-primary hover:bg-primary-hover text-white rounded-xl text-sm font-bold shadow-lg shadow-primary/25 hover:shadow-primary/40 hover:-translate-y-0.5 transition-all"
+                >
+                  <Plus className="h-4 w-4" />
+                  Create Proposal
+                </button>
+              </PermissionGuard>
             </div>
           </div>
         </div>
@@ -369,7 +342,7 @@ export default function ProposalsPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50">
-                  {getPaginatedProposals().map((proposal) => (
+                  {proposals.map((proposal) => (
                     <tr
                       key={proposal.id}
                       className="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors group cursor-pointer"
@@ -413,28 +386,34 @@ export default function ProposalsPage() {
                       <td className="px-6 py-4 text-right">
                         <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                           {proposal.status === ProposalStatus.DRAFT && (
-                            <button
-                              onClick={(e) => handleSend(proposal.id, e)}
-                              className="p-2 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/10 rounded-lg transition-colors"
-                              title="Send"
-                            >
-                              <Send className="h-4 w-4" />
-                            </button>
+                            <PermissionGuard allowedRoles={["ADMIN", "MANAGER", "SALES_REP"]}>
+                              <button
+                                onClick={(e) => handleSend(proposal.id, e)}
+                                className="p-2 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/10 rounded-lg transition-colors"
+                                title="Send"
+                              >
+                                <Send className="h-4 w-4" />
+                              </button>
+                            </PermissionGuard>
                           )}
-                          <button
-                            onClick={(e) => { e.stopPropagation(); router.push(`/proposals/${proposal.id}/edit`); }}
-                            className="p-2 text-slate-400 hover:text-primary hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
-                            title="Edit"
-                          >
-                            <FileText className="h-4 w-4" />
-                          </button>
-                          <button
-                            onClick={(e) => { e.stopPropagation(); handleDelete(proposal.id); }}
-                            className="p-2 text-rose-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/10 rounded-lg transition-colors"
-                            title="Delete"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </button>
+                          <PermissionGuard allowedRoles={["ADMIN", "MANAGER", "SALES_REP"]}>
+                            <button
+                              onClick={(e) => { e.stopPropagation(); router.push(`/proposals/${proposal.id}/edit`); }}
+                              className="p-2 text-slate-400 hover:text-primary hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
+                              title="Edit"
+                            >
+                              <FileText className="h-4 w-4" />
+                            </button>
+                          </PermissionGuard>
+                          <PermissionGuard allowedRoles={["ADMIN", "MANAGER"]}>
+                            <button
+                              onClick={(e) => { e.stopPropagation(); handleDelete(proposal.id); }}
+                              className="p-2 text-rose-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/10 rounded-lg transition-colors"
+                              title="Delete"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          </PermissionGuard>
                         </div>
                       </td>
                     </tr>
@@ -445,28 +424,17 @@ export default function ProposalsPage() {
           )}
         </div>
 
-        {/* Pagination */}
-        {totalPages > 1 && filteredProposals.length > 0 && (
-          <div className="flex items-center justify-between bg-white dark:bg-slate-800 px-6 py-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
-            <p className="text-sm text-slate-600 dark:text-slate-400">
-              Showing <span className="font-semibold text-slate-900 dark:text-white">{(currentPage - 1) * itemsPerPage + 1}</span> to <span className="font-semibold text-slate-900 dark:text-white">{Math.min(currentPage * itemsPerPage, filteredProposals.length)}</span> of <span className="font-semibold text-slate-900 dark:text-white">{filteredProposals.length}</span> results
-            </p>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
-                disabled={currentPage === 1}
-                className="p-2 border border-slate-200 dark:border-slate-700 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
-              >
-                <ChevronLeft className="h-5 w-5 text-slate-600 dark:text-slate-400" />
-              </button>
-              <button
-                onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
-                disabled={currentPage === totalPages}
-                className="p-2 border border-slate-200 dark:border-slate-700 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
-              >
-                <ChevronRight className="h-5 w-5 text-slate-600 dark:text-slate-400" />
-              </button>
-            </div>
+        {/* Pagination */}:
+        {totalPages > 0 && (
+          <div className="mt-8">
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              totalElements={totalElements}
+              pageSize={itemsPerPage}
+              onPageChange={handlePageChange}
+              onPageSizeChange={handlePageSizeChange}
+            />
           </div>
         )}
       </main>

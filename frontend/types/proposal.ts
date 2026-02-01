@@ -140,6 +140,17 @@ export interface CreateProposalRequest {
   notes?: string;
 }
 
+export interface UpdateProposalRequest {
+  title?: string;
+  description?: string;
+  validUntil?: string;
+  lineItems?: LineItemDTO[];
+  discount?: DiscountDTO;
+  paymentTerms?: string;
+  deliveryTerms?: string;
+  notes?: string;
+}
+
 // Helper functions for status badge colors
 export function getProposalStatusColor(status: ProposalStatus): string {
   switch (status) {

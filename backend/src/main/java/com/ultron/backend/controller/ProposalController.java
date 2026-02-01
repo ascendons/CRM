@@ -3,12 +3,15 @@ package com.ultron.backend.controller;
 import com.ultron.backend.domain.enums.ProposalSource;
 import com.ultron.backend.domain.enums.ProposalStatus;
 import com.ultron.backend.dto.request.CreateProposalRequest;
+import com.ultron.backend.dto.request.UpdateProposalRequest;
 import com.ultron.backend.dto.response.ApiResponse;
 import com.ultron.backend.dto.response.ProposalResponse;
 import com.ultron.backend.service.ProposalService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -50,22 +53,32 @@ public class ProposalController {
     }
 
     /**
-     * Get all proposals
+     * Get all proposals (with optional pagination)
      * GET /api/v1/proposals
+     * Supports pagination with query params: page, size, sort
      */
     @GetMapping
     @PreAuthorize("hasPermission('PROPOSAL', 'READ')")
-    public ResponseEntity<ApiResponse<List<ProposalResponse>>> getAllProposals() {
-        log.info("Fetching all proposals");
+    public ResponseEntity<ApiResponse<?>> getAllProposals(Pageable pageable) {
+        log.info("Fetching all proposals (pageable: {})", pageable.isPaged());
 
-        List<ProposalResponse> proposals = proposalService.getAllProposals();
-
-        return ResponseEntity.ok(
-                ApiResponse.<List<ProposalResponse>>builder()
-                        .success(true)
-                        .message("Proposals retrieved successfully")
-                        .data(proposals)
-                        .build());
+        if (pageable.isPaged()) {
+            Page<ProposalResponse> proposals = proposalService.getAllProposals(pageable);
+            return ResponseEntity.ok(
+                    ApiResponse.<Page<ProposalResponse>>builder()
+                            .success(true)
+                            .message("Proposals retrieved successfully")
+                            .data(proposals)
+                            .build());
+        } else {
+            List<ProposalResponse> proposals = proposalService.getAllProposals();
+            return ResponseEntity.ok(
+                    ApiResponse.<List<ProposalResponse>>builder()
+                            .success(true)
+                            .message("Proposals retrieved successfully")
+                            .data(proposals)
+                            .build());
+        }
     }
 
     /**
@@ -88,75 +101,133 @@ public class ProposalController {
     }
 
     /**
-     * Get proposals by source (Lead or Opportunity)
+     * Get proposals by source (Lead or Opportunity) (with optional pagination)
      * GET /api/v1/proposals/source/{source}/{sourceId}
+     * Supports pagination with query params: page, size, sort
      */
     @GetMapping("/source/{source}/{sourceId}")
     @PreAuthorize("hasPermission('PROPOSAL', 'READ')")
-    public ResponseEntity<ApiResponse<List<ProposalResponse>>> getProposalsBySource(
+    public ResponseEntity<ApiResponse<?>> getProposalsBySource(
             @PathVariable ProposalSource source,
-            @PathVariable String sourceId) {
+            @PathVariable String sourceId,
+            Pageable pageable) {
 
-        log.info("Fetching proposals for source: {} with ID: {}", source, sourceId);
+        log.info("Fetching proposals for source: {} with ID: {} (pageable: {})", source, sourceId, pageable.isPaged());
 
-        List<ProposalResponse> proposals = proposalService.getProposalsBySource(source, sourceId);
-
-        return ResponseEntity.ok(
-                ApiResponse.<List<ProposalResponse>>builder()
-                        .success(true)
-                        .message("Proposals retrieved successfully")
-                        .data(proposals)
-                        .build());
+        if (pageable.isPaged()) {
+            Page<ProposalResponse> proposals = proposalService.getProposalsBySource(source, sourceId, pageable);
+            return ResponseEntity.ok(
+                    ApiResponse.<Page<ProposalResponse>>builder()
+                            .success(true)
+                            .message("Proposals retrieved successfully")
+                            .data(proposals)
+                            .build());
+        } else {
+            List<ProposalResponse> proposals = proposalService.getProposalsBySource(source, sourceId);
+            return ResponseEntity.ok(
+                    ApiResponse.<List<ProposalResponse>>builder()
+                            .success(true)
+                            .message("Proposals retrieved successfully")
+                            .data(proposals)
+                            .build());
+        }
     }
 
     /**
-     * Get proposals by status
+     * Get proposals by status (with optional pagination)
      * GET /api/v1/proposals/status/{status}
+     * Supports pagination with query params: page, size, sort
      */
     @GetMapping("/status/{status}")
     @PreAuthorize("hasPermission('PROPOSAL', 'READ')")
-    public ResponseEntity<ApiResponse<List<ProposalResponse>>> getProposalsByStatus(
-            @PathVariable ProposalStatus status) {
+    public ResponseEntity<ApiResponse<?>> getProposalsByStatus(
+            @PathVariable ProposalStatus status,
+            Pageable pageable) {
 
-        log.info("Fetching proposals with status: {}", status);
+        log.info("Fetching proposals with status: {} (pageable: {})", status, pageable.isPaged());
 
-        List<ProposalResponse> proposals = proposalService.getProposalsByStatus(status);
-
-        return ResponseEntity.ok(
-                ApiResponse.<List<ProposalResponse>>builder()
-                        .success(true)
-                        .message("Proposals retrieved successfully")
-                        .data(proposals)
-                        .build());
+        if (pageable.isPaged()) {
+            Page<ProposalResponse> proposals = proposalService.getProposalsByStatus(status, pageable);
+            return ResponseEntity.ok(
+                    ApiResponse.<Page<ProposalResponse>>builder()
+                            .success(true)
+                            .message("Proposals retrieved successfully")
+                            .data(proposals)
+                            .build());
+        } else {
+            List<ProposalResponse> proposals = proposalService.getProposalsByStatus(status);
+            return ResponseEntity.ok(
+                    ApiResponse.<List<ProposalResponse>>builder()
+                            .success(true)
+                            .message("Proposals retrieved successfully")
+                            .data(proposals)
+                            .build());
+        }
     }
 
     /**
-     * Get proposals by owner
+     * Get proposals by owner (with optional pagination)
      * GET /api/v1/proposals/owner/{ownerId}
+     * Supports pagination with query params: page, size, sort
      */
     @GetMapping("/owner/{ownerId}")
     @PreAuthorize("hasPermission('PROPOSAL', 'READ')")
-    public ResponseEntity<ApiResponse<List<ProposalResponse>>> getProposalsByOwner(
-            @PathVariable String ownerId) {
+    public ResponseEntity<ApiResponse<?>> getProposalsByOwner(
+            @PathVariable String ownerId,
+            Pageable pageable) {
 
-        log.info("Fetching proposals for owner: {}", ownerId);
+        log.info("Fetching proposals for owner: {} (pageable: {})", ownerId, pageable.isPaged());
 
-        List<ProposalResponse> proposals = proposalService.getProposalsByOwner(ownerId);
+        if (pageable.isPaged()) {
+            Page<ProposalResponse> proposals = proposalService.getProposalsByOwner(ownerId, pageable);
+            return ResponseEntity.ok(
+                    ApiResponse.<Page<ProposalResponse>>builder()
+                            .success(true)
+                            .message("Proposals retrieved successfully")
+                            .data(proposals)
+                            .build());
+        } else {
+            List<ProposalResponse> proposals = proposalService.getProposalsByOwner(ownerId);
+            return ResponseEntity.ok(
+                    ApiResponse.<List<ProposalResponse>>builder()
+                            .success(true)
+                            .message("Proposals retrieved successfully")
+                            .data(proposals)
+                            .build());
+        }
+    }
+
+    /**
+     * Update an existing proposal (DRAFT only)
+     * PUT /api/v1/proposals/{id}
+     */
+    @PutMapping("/{id}")
+    @PreAuthorize("hasPermission('PROPOSAL', 'EDIT')")
+    public ResponseEntity<ApiResponse<ProposalResponse>> updateProposal(
+            @PathVariable String id,
+            @Valid @RequestBody UpdateProposalRequest request,
+            Authentication authentication) {
+
+        String currentUserId = authentication.getName();
+        log.info("User {} updating proposal {}", currentUserId, id);
+
+        ProposalResponse proposal = proposalService.updateProposal(id, request, currentUserId);
 
         return ResponseEntity.ok(
-                ApiResponse.<List<ProposalResponse>>builder()
+                ApiResponse.<ProposalResponse>builder()
                         .success(true)
-                        .message("Proposals retrieved successfully")
-                        .data(proposals)
+                        .message("Proposal updated successfully")
+                        .data(proposal)
                         .build());
     }
 
     /**
      * Send proposal to customer
      * POST /api/v1/proposals/{id}/send
+     * Requires PROPOSAL:SEND permission (separate from EDIT to allow delegation)
      */
     @PostMapping("/{id}/send")
-    @PreAuthorize("hasPermission('PROPOSAL', 'EDIT')")
+    @PreAuthorize("hasPermission('PROPOSAL', 'SEND') or hasPermission('PROPOSAL', 'EDIT')")
     public ResponseEntity<ApiResponse<ProposalResponse>> sendProposal(
             @PathVariable String id,
             Authentication authentication) {
@@ -177,9 +248,11 @@ public class ProposalController {
     /**
      * Accept proposal
      * POST /api/v1/proposals/{id}/accept
+     * Requires PROPOSAL:APPROVE permission (separate from EDIT to prevent conflict of interest)
+     * Typically only managers or customers should have this permission
      */
     @PostMapping("/{id}/accept")
-    @PreAuthorize("hasPermission('PROPOSAL', 'EDIT')")
+    @PreAuthorize("hasPermission('PROPOSAL', 'APPROVE')")
     public ResponseEntity<ApiResponse<ProposalResponse>> acceptProposal(
             @PathVariable String id,
             Authentication authentication) {
@@ -200,9 +273,11 @@ public class ProposalController {
     /**
      * Reject proposal
      * POST /api/v1/proposals/{id}/reject
+     * Requires PROPOSAL:REJECT permission (separate from EDIT to prevent conflict of interest)
+     * Typically only managers or customers should have this permission
      */
     @PostMapping("/{id}/reject")
-    @PreAuthorize("hasPermission('PROPOSAL', 'EDIT')")
+    @PreAuthorize("hasPermission('PROPOSAL', 'REJECT')")
     public ResponseEntity<ApiResponse<ProposalResponse>> rejectProposal(
             @PathVariable String id,
             @RequestParam String reason,

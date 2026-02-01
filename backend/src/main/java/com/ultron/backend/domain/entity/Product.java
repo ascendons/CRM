@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.CompoundIndex;
+import org.springframework.data.mongodb.core.index.CompoundIndexes;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -14,6 +16,11 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Document(collection = "products")
+@CompoundIndexes({
+    @CompoundIndex(name = "category_deleted_idx", def = "{'category': 1, 'isDeleted': 1}"),
+    @CompoundIndex(name = "status_deleted_idx", def = "{'status': 1, 'isDeleted': 1}"),
+    @CompoundIndex(name = "active_deleted_idx", def = "{'isActive': 1, 'isDeleted': 1}")
+})
 @Data
 @Builder
 @NoArgsConstructor
