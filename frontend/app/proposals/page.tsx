@@ -240,7 +240,7 @@ export default function ProposalsPage() {
               <p className="text-sm text-slate-500 dark:text-slate-400">Manage quotations and track proposal status.</p>
             </div>
             <div className="flex items-center gap-3">
-              <PermissionGuard allowedRoles={["ADMIN", "MANAGER", "SALES_REP"]}>
+              <PermissionGuard resource="PROPOSAL" action="CREATE">
                 <button
                   onClick={() => router.push("/proposals/new")}
                   className="flex items-center gap-2 px-5 py-2 bg-primary hover:bg-primary-hover text-white rounded-xl text-sm font-bold shadow-lg shadow-primary/25 hover:shadow-primary/40 hover:-translate-y-0.5 transition-all"
@@ -386,7 +386,7 @@ export default function ProposalsPage() {
                       <td className="px-6 py-4 text-right">
                         <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                           {proposal.status === ProposalStatus.DRAFT && (
-                            <PermissionGuard allowedRoles={["ADMIN", "MANAGER", "SALES_REP"]}>
+                            <PermissionGuard resource="PROPOSAL" action="SEND">
                               <button
                                 onClick={(e) => handleSend(proposal.id, e)}
                                 className="p-2 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/10 rounded-lg transition-colors"
@@ -396,7 +396,7 @@ export default function ProposalsPage() {
                               </button>
                             </PermissionGuard>
                           )}
-                          <PermissionGuard allowedRoles={["ADMIN", "MANAGER", "SALES_REP"]}>
+                          <PermissionGuard resource="PROPOSAL" action="EDIT">
                             <button
                               onClick={(e) => { e.stopPropagation(); router.push(`/proposals/${proposal.id}/edit`); }}
                               className="p-2 text-slate-400 hover:text-primary hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
@@ -405,7 +405,7 @@ export default function ProposalsPage() {
                               <FileText className="h-4 w-4" />
                             </button>
                           </PermissionGuard>
-                          <PermissionGuard allowedRoles={["ADMIN", "MANAGER"]}>
+                          <PermissionGuard resource="PROPOSAL" action="DELETE">
                             <button
                               onClick={(e) => { e.stopPropagation(); handleDelete(proposal.id); }}
                               className="p-2 text-rose-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/10 rounded-lg transition-colors"

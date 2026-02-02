@@ -15,11 +15,23 @@ export const leadsService = {
     return await api.post<Lead>("/leads", data);
   },
 
-  /**
-   * Get all leads
-   */
-  async getAllLeads(): Promise<Lead[]> {
-    return await api.get<Lead[]>("/leads");
+  async getAllLeads(pagination?: any): Promise<Lead[]> {
+    const params = new URLSearchParams();
+    if (pagination) {
+      // Add pagination params if needed, but current signature didn't have it. 
+      // Keeping it simple to fix the dropdown issue.
+    } else {
+      params.append("size", "1000");
+    }
+
+    // Check if backend treats no-params as "List" or "Page". 
+    // Safest is to handle "content" property.
+    const response = await api.get<any>(`/leads?${params.toString()}`);
+
+    if (response && response.content && Array.isArray(response.content)) {
+      return response.content;
+    }
+    return Array.isArray(response) ? response : [];
   },
 
   /**

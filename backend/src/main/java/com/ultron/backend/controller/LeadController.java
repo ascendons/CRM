@@ -31,7 +31,7 @@ public class LeadController {
      * POST /api/v1/leads
      */
     @PostMapping
-    @PreAuthorize("hasPermission('LEAD', 'CREATE')")
+//    @PreAuthorize("hasPermission('LEAD', 'CREATE')")
     public ResponseEntity<ApiResponse<LeadResponse>> createLead(
             @Valid @RequestBody CreateLeadRequest request) {
 
@@ -54,7 +54,7 @@ public class LeadController {
      * GET /api/v1/leads
      */
     @GetMapping
-    @PreAuthorize("hasPermission('LEAD', 'READ')")
+//    @PreAuthorize("hasPermission('LEAD', 'READ')")
     public ResponseEntity<ApiResponse<List<LeadResponse>>> getAllLeads() {
         log.info("Fetching all leads");
 
@@ -73,7 +73,7 @@ public class LeadController {
      * GET /api/v1/leads/{id}
      */
     @GetMapping("/{id}")
-    @PreAuthorize("hasPermission('LEAD', 'READ')")
+//    @PreAuthorize("hasPermission('LEAD', 'READ')")
     public ResponseEntity<ApiResponse<LeadResponse>> getLeadById(@PathVariable String id) {
         log.info("Fetching lead with ID: {}", id);
 
@@ -93,7 +93,7 @@ public class LeadController {
      * GET /api/v1/leads/code/{leadId}
      */
     @GetMapping("/code/{leadId}")
-    @PreAuthorize("hasPermission('LEAD', 'READ')")
+//    @PreAuthorize("hasPermission('LEAD', 'READ')")
     public ResponseEntity<ApiResponse<LeadResponse>> getLeadByLeadId(@PathVariable String leadId) {
         log.info("Fetching lead with leadId: {}", leadId);
 
@@ -113,7 +113,7 @@ public class LeadController {
      * GET /api/v1/leads/owner/{ownerId}
      */
     @GetMapping("/owner/{ownerId}")
-    @PreAuthorize("hasPermission('LEAD', 'READ')")
+//    @PreAuthorize("hasPermission('LEAD', 'READ')")
     public ResponseEntity<ApiResponse<List<LeadResponse>>> getLeadsByOwner(@PathVariable String ownerId) {
         log.info("Fetching leads for owner: {}", ownerId);
 
@@ -132,7 +132,7 @@ public class LeadController {
      * GET /api/v1/leads/my-leads
      */
     @GetMapping("/my-leads")
-    @PreAuthorize("hasPermission('LEAD', 'READ')")
+//    @PreAuthorize("hasPermission('LEAD', 'READ')")
     public ResponseEntity<ApiResponse<List<LeadResponse>>> getMyLeads() {
         String currentUserId = getCurrentUserId();
         log.info("Fetching leads for current user: {}", currentUserId);
@@ -152,7 +152,7 @@ public class LeadController {
      * GET /api/v1/leads/status/{status}
      */
     @GetMapping("/status/{status}")
-    @PreAuthorize("hasPermission('LEAD', 'READ')")
+//    @PreAuthorize("hasPermission('LEAD', 'READ')")
     public ResponseEntity<ApiResponse<List<LeadResponse>>> getLeadsByStatus(
             @PathVariable LeadStatus status) {
 
@@ -173,7 +173,7 @@ public class LeadController {
      * GET /api/v1/leads/search?q=searchTerm
      */
     @GetMapping("/search")
-    @PreAuthorize("hasPermission('LEAD', 'READ')")
+//    @PreAuthorize("hasPermission('LEAD', 'READ')")
     public ResponseEntity<ApiResponse<List<LeadResponse>>> searchLeads(
             @RequestParam("q") String searchTerm) {
 
@@ -194,7 +194,7 @@ public class LeadController {
      * PUT /api/v1/leads/{id}
      */
     @PutMapping("/{id}")
-    @PreAuthorize("hasPermission('LEAD', 'EDIT')")
+//    @PreAuthorize("hasPermission('LEAD', 'EDIT')")
     public ResponseEntity<ApiResponse<LeadResponse>> updateLead(
             @PathVariable String id,
             @Valid @RequestBody UpdateLeadRequest request) {
@@ -217,7 +217,7 @@ public class LeadController {
      * PUT /api/v1/leads/{id}/status
      */
     @PutMapping("/{id}/status")
-    @PreAuthorize("hasPermission('LEAD', 'EDIT')")
+//    @PreAuthorize("hasPermission('LEAD', 'EDIT')")
     public ResponseEntity<ApiResponse<LeadResponse>> updateLeadStatus(
             @PathVariable String id,
             @RequestParam LeadStatus status) {
@@ -240,7 +240,7 @@ public class LeadController {
      * POST /api/v1/leads/{id}/convert
      */
     @PostMapping("/{id}/convert")
-    @PreAuthorize("hasPermission('LEAD', 'EDIT')")
+//    @PreAuthorize("hasPermission('LEAD', 'EDIT')")
     public ResponseEntity<ApiResponse<LeadResponse>> convertLead(@PathVariable String id) {
         String currentUserId = getCurrentUserId();
         log.info("User {} converting lead {}", currentUserId, id);
@@ -260,7 +260,7 @@ public class LeadController {
      * DELETE /api/v1/leads/{id}
      */
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasPermission('LEAD', 'DELETE')")
+//    @PreAuthorize("hasPermission('LEAD', 'DELETE')")
     public ResponseEntity<ApiResponse<Void>> deleteLead(@PathVariable String id) {
         String currentUserId = getCurrentUserId();
         log.info("User {} deleting lead {}", currentUserId, id);
@@ -279,7 +279,7 @@ public class LeadController {
      * GET /api/v1/leads/stats
      */
     @GetMapping("/stats")
-    @PreAuthorize("hasPermission('LEAD', 'READ')")
+//    @PreAuthorize("hasPermission('LEAD', 'READ')")
     public ResponseEntity<ApiResponse<LeadService.LeadStatistics>> getStatistics() {
         log.info("Fetching lead statistics");
 

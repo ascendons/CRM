@@ -5,9 +5,15 @@ import toast from 'react-hot-toast';
  * Provides consistent styling and behavior across the application
  */
 
+import type { ReactNode } from 'react';
+
+// Using exact type matching for react-hot-toast can be tricky without importing from it directly
+type ToastMessage = string | ReactNode;
+
+
 export const showToast = {
-  success: (message: string) => {
-    toast.success(message, {
+  success: (message: ToastMessage) => {
+    toast.success(message as any, {
       duration: 4000,
       position: 'top-right',
       style: {
@@ -22,8 +28,8 @@ export const showToast = {
     });
   },
 
-  error: (message: string) => {
-    toast.error(message, {
+  error: (message: ToastMessage) => {
+    toast.error(message as any, {
       duration: 5000,
       position: 'top-right',
       style: {
@@ -38,8 +44,8 @@ export const showToast = {
     });
   },
 
-  warning: (message: string) => {
-    toast(message, {
+  warning: (message: ToastMessage) => {
+    toast(message as any, {
       duration: 4000,
       position: 'top-right',
       icon: '⚠️',
@@ -51,8 +57,8 @@ export const showToast = {
     });
   },
 
-  info: (message: string) => {
-    toast(message, {
+  info: (message: ToastMessage) => {
+    toast(message as any, {
       duration: 4000,
       position: 'top-right',
       icon: 'ℹ️',

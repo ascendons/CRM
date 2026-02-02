@@ -13,12 +13,25 @@ export const productsService = {
   ): Promise<Page<ProductResponse> | ProductResponse[]> {
     const params = new URLSearchParams();
     if (activeOnly) params.append("activeOnly", "true");
+
+    // If no pagination provided, fetch 'all' (large size)
     if (pagination) {
-      if (pagination.page !== undefined) params.append("page", String(pagination.page - 1)); // Backend expects 0-indexed
+      if (pagination.page !== undefined) params.append("page", String(pagination.page - 1));
       if (pagination.size !== undefined) params.append("size", String(pagination.size));
       if (pagination.sort) params.append("sort", pagination.sort);
+    } else {
+      params.append("size", "1000"); // Fetch large batch for dropdowns
     }
-    return api.get(`/products?${params.toString()}`);
+
+    const response = await api.get<any>(`/products?${params.toString()}`);
+
+    // Handle paginated response structure from backend
+    if (response && response.content && Array.isArray(response.content)) {
+      return pagination ? response : response.content;
+    }
+
+    // Fallback if it is already an array (though backend usually returns Page)
+    return Array.isArray(response) ? response : [];
   },
 
   async getProductById(id: string): Promise<ProductResponse> {

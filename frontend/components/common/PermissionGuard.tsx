@@ -1,39 +1,69 @@
-"use client";
-
 import { useEffect, useState } from "react";
 import { authService } from "@/lib/auth";
 import { User } from "@/types/auth";
+import { usePermissions } from "@/hooks/usePermissions";
 
 interface PermissionGuardProps {
     children: React.ReactNode;
-    allowedRoles: string[]; // "ADMIN" | "MANAGER" | "SALES_REP" | "USER"
+    allowedRoles?: string[]; // "ADMIN" | "MANAGER" | "SALES_REP" | "USER"
     fallback?: React.ReactNode;
 }
 
 export function PermissionGuard({
     children,
     allowedRoles,
+    resource,
+    action,
     fallback = null,
-}: PermissionGuardProps) {
+}: PermissionGuardProps & { resource?: string; action?: string }) {
     const [user, setUser] = useState<User | null>(null);
+    const { hasPermission, loading: permissionsLoading } = usePermissions();
+    const [hasAccess, setHasAccess] = useState<boolean | null>(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // Get user from auth service (it reads from localStorage synchronously mostly, but good to wrap)
-        const currentUser = authService.getUser();
-        setUser(currentUser);
-        setLoading(false);
-    }, []);
+        const checkAccess = async () => {
+            const currentUser = authService.getUser();
 
-    if (loading) {
-        return null; // or a spinner if this wraps a large section, but for buttons null is better
+            // Avoid setting state if user hasn't changed to prevent infinite loops
+            // assuming user id is unique and sufficient for equality check
+            setUser((prev) => {
+                if (prev?.id === currentUser?.id && prev?.role === currentUser?.role) {
+                    return prev;
+                }
+                return currentUser;
+            });
+
+            if (!currentUser) {
+                setLoading(false);
+                return;
+            }
+
+            if (resource && action) {
+                const permitted = await hasPermission(resource, action);
+                setHasAccess(permitted);
+            } else if (allowedRoles && allowedRoles.length > 0) {
+                setHasAccess(allowedRoles.includes(currentUser.role));
+            } else {
+                // No constraints provided, allow access
+                setHasAccess(true);
+            }
+            setLoading(false);
+        };
+
+        checkAccess();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [resource, action, JSON.stringify(allowedRoles), hasPermission]);
+
+    if (loading || permissionsLoading) {
+        return null;
     }
 
     if (!user) {
         return <>{fallback}</>;
     }
 
-    if (allowedRoles.includes(user.role)) {
+    if (hasAccess) {
         return <>{children}</>;
     }
 

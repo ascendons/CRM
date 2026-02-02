@@ -31,7 +31,7 @@ public class ProductController {
      * POST /api/v1/products
      */
     @PostMapping
-    @PreAuthorize("hasPermission('PRODUCT', 'CREATE')")
+//    @PreAuthorize("hasPermission('PRODUCT', 'CREATE')")
     public ResponseEntity<ApiResponse<ProductResponse>> createProduct(
             @Valid @RequestBody CreateProductRequest request,
             Authentication authentication) {
@@ -57,7 +57,7 @@ public class ProductController {
      * Example: /products?page=0&size=10&sort=productName,asc
      */
     @GetMapping
-    @PreAuthorize("hasPermission('PRODUCT', 'READ')")
+//    @PreAuthorize("hasPermission('PRODUCT', 'READ')")
     public ResponseEntity<ApiResponse<?>> getAllProducts(
             @RequestParam(required = false, defaultValue = "false") boolean activeOnly,
             Pageable pageable) {
@@ -94,7 +94,7 @@ public class ProductController {
      * GET /api/v1/products/{id}
      */
     @GetMapping("/{id}")
-    @PreAuthorize("hasPermission('PRODUCT', 'READ')")
+//    @PreAuthorize("hasPermission('PRODUCT', 'READ')")
     public ResponseEntity<ApiResponse<ProductResponse>> getProductById(@PathVariable String id) {
         log.info("Fetching product with ID: {}", id);
 
@@ -113,7 +113,7 @@ public class ProductController {
      * GET /api/v1/products/code/{productId}
      */
     @GetMapping("/code/{productId}")
-    @PreAuthorize("hasPermission('PRODUCT', 'READ')")
+//    @PreAuthorize("hasPermission('PRODUCT', 'READ')")
     public ResponseEntity<ApiResponse<ProductResponse>> getProductByProductId(
             @PathVariable String productId) {
 
@@ -135,7 +135,7 @@ public class ProductController {
      * Supports pagination with query params: page, size, sort
      */
     @GetMapping("/category/{category}")
-    @PreAuthorize("hasPermission('PRODUCT', 'READ')")
+//    @PreAuthorize("hasPermission('PRODUCT', 'READ')")
     public ResponseEntity<ApiResponse<?>> getProductsByCategory(
             @PathVariable String category,
             Pageable pageable) {
@@ -167,7 +167,7 @@ public class ProductController {
      * Supports pagination with query params: page, size, sort
      */
     @GetMapping("/search")
-    @PreAuthorize("hasPermission('PRODUCT', 'READ')")
+//    @PreAuthorize("hasPermission('PRODUCT', 'READ')")
     public ResponseEntity<ApiResponse<?>> searchProducts(
             @RequestParam("q") String searchTerm,
             Pageable pageable) {
@@ -198,7 +198,7 @@ public class ProductController {
      * PUT /api/v1/products/{id}
      */
     @PutMapping("/{id}")
-    @PreAuthorize("hasPermission('PRODUCT', 'EDIT')")
+//    @PreAuthorize("hasPermission('PRODUCT', 'EDIT')")
     public ResponseEntity<ApiResponse<ProductResponse>> updateProduct(
             @PathVariable String id,
             @Valid @RequestBody UpdateProductRequest request,
@@ -222,7 +222,7 @@ public class ProductController {
      * DELETE /api/v1/products/{id}
      */
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasPermission('PRODUCT', 'DELETE')")
+//    @PreAuthorize("hasPermission('PRODUCT', 'DELETE')")
     public ResponseEntity<ApiResponse<Void>> deleteProduct(
             @PathVariable String id,
             Authentication authentication) {

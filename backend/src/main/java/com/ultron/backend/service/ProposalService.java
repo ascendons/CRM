@@ -50,7 +50,7 @@ public class ProposalService {
         String sourceName = getSourceName(request.getSource(), request.getSourceId());
 
         // Build line items with product validation
-        List<Proposal.ProposalLineItem> lineItems = buildLineItems(request.getLineItems());
+        List<Proposal.ProposalLineItem> lineItems = this.buildCreateLineItems(request.getLineItems());
 
         // Build discount config
         Proposal.DiscountConfig discount = null;
@@ -132,7 +132,7 @@ public class ProposalService {
         }
 
         if (request.getLineItems() != null) {
-            List<Proposal.ProposalLineItem> lineItems = buildLineItems(request.getLineItems());
+            List<Proposal.ProposalLineItem> lineItems = buildUpdateLineItems(request.getLineItems());
             proposal.setLineItems(lineItems);
             needsRecalculation = true;
         }
@@ -360,7 +360,7 @@ public class ProposalService {
         return proposal;
     }
 
-    private List<Proposal.ProposalLineItem> buildLineItems(List<CreateProposalRequest.LineItemDTO> dtos) {
+    private List<Proposal.ProposalLineItem> buildCreateLineItems(List<CreateProposalRequest.LineItemDTO> dtos) {
         return dtos.stream().map(dto -> {
             Product product = productRepository.findById(dto.getProductId())
                     .orElseThrow(() -> new ResourceNotFoundException("Product not found: " + dto.getProductId()));
@@ -380,7 +380,7 @@ public class ProposalService {
         }).collect(Collectors.toList());
     }
 
-    private List<Proposal.ProposalLineItem> buildLineItems(List<UpdateProposalRequest.LineItemDTO> dtos) {
+    private List<Proposal.ProposalLineItem> buildUpdateLineItems(List<UpdateProposalRequest.LineItemDTO> dtos) {
         return dtos.stream().map(dto -> {
             Product product = productRepository.findById(dto.getProductId())
                     .orElseThrow(() -> new ResourceNotFoundException("Product not found: " + dto.getProductId()));

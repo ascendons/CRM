@@ -6,6 +6,9 @@ import Link from "next/link";
 import { ProductResponse } from "@/types/product";
 import { productsService } from "@/lib/products";
 import { authService } from "@/lib/auth";
+import { showToast } from "@/lib/toast";
+import ConfirmModal from "@/components/ConfirmModal";
+import { PermissionGuard } from "@/components/common/PermissionGuard";
 
 export default function ProductDetailPage({
   params,
@@ -17,6 +20,10 @@ export default function ProductDetailPage({
   const [product, setProduct] = useState<ProductResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Delete state
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   useEffect(() => {
     if (!authService.isAuthenticated()) {
@@ -36,6 +43,41 @@ export default function ProductDetailPage({
       setError(err instanceof Error ? err.message : "Failed to load product");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!product) return;
+    try {
+      setDeleteLoading(true);
+      await productsService.deleteProduct(product.id);
+      showToast.success("Product deleted successfully");
+      router.push("/products");
+    } catch (error: any) {
+      if (error.response?.status === 400) {
+        const message = error.response.data?.message;
+
+        if (message?.includes('active proposal')) {
+          showToast.error(
+            <div>
+              <p>{message}</p>
+              <button
+                onClick={() => router.push(`/proposals?productId=${product.id}`)}
+                className="mt-2 text-xs bg-white text-red-600 px-2 py-1 rounded border border-red-200 hover:bg-red-50"
+              >
+                View Proposals
+              </button>
+            </div>
+          );
+        } else {
+          showToast.error(message || "Failed to delete product");
+        }
+      } else {
+        showToast.error(error.message || "Failed to delete product");
+      }
+    } finally {
+      setDeleteLoading(false);
+      setShowDeleteModal(false);
     }
   };
 
@@ -141,6 +183,14 @@ export default function ProductDetailPage({
               >
                 Back
               </Link>
+              <PermissionGuard resource="PRODUCT" action="DELETE" fallback={null}>
+                <button
+                  onClick={() => setShowDeleteModal(true)}
+                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                >
+                  Delete
+                </button>
+              </PermissionGuard>
               <Link
                 href={`/products/${product.id}/edit`}
                 className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
@@ -172,18 +222,8 @@ export default function ProductDetailPage({
                   value={formatCurrency(product.basePrice)}
                 />
                 <DetailRow label="Tax Rate" value={`${product.taxRate}%`} />
-                <DetailRow
-                  label="List Price"
-                  value={product.listPrice ? formatCurrency(product.listPrice) : "-"}
-                />
-                <DetailRow
-                  label="Discount"
-                  value={
-                    product.discount
-                      ? `${product.discount}%`
-                      : "-"
-                  }
-                />
+                {/* listPrice and discount removed as they don't exist on ProductResponse */
+                }
               </dl>
             </DetailSection>
 
@@ -194,8 +234,8 @@ export default function ProductDetailPage({
                   <DetailRow label="Stock Quantity" value={product.stockQuantity} />
                   <DetailRow label="Unit" value={product.unit} />
                   <DetailRow
-                    label="Reorder Level"
-                    value={product.reorderLevel}
+                    label="Min Stock Level"
+                    value={product.minStockLevel}
                   />
                   <DetailRow
                     label="Stock Status"
@@ -203,8 +243,8 @@ export default function ProductDetailPage({
                       product.stockQuantity > 10
                         ? "In Stock"
                         : product.stockQuantity > 0
-                        ? "Low Stock"
-                        : "Out of Stock"
+                          ? "Low Stock"
+                          : "Out of Stock"
                     }
                   />
                 </dl>
@@ -255,16 +295,14 @@ export default function ProductDetailPage({
                 />
                 <DetailRow
                   label="Created"
-                  value={`${formatDate(product.createdAt)} by ${
-                    product.createdByName
-                  }`}
+                  value={`${formatDate(product.createdAt)} by ${product.createdByName
+                    }`}
                 />
                 {product.lastModifiedAt && (
                   <DetailRow
                     label="Last Modified"
-                    value={`${formatDate(product.lastModifiedAt)} by ${
-                      product.lastModifiedByName
-                    }`}
+                    value={`${formatDate(product.lastModifiedAt)} by ${product.lastModifiedByName
+                      }`}
                   />
                 )}
               </dl>
@@ -272,6 +310,19 @@ export default function ProductDetailPage({
           </div>
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmModal
+        isOpen={showDeleteModal}
+        onCancel={() => setShowDeleteModal(false)}
+        onConfirm={handleDelete}
+        title="Delete Product"
+        message="Are you sure you want to delete this product? This action cannot be undone."
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+        isLoading={deleteLoading}
+        variant="danger"
+      />
     </div>
   );
 }

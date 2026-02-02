@@ -29,7 +29,7 @@ public class ProfileController {
     private final ProfileService profileService;
 
     @PostMapping
-    @PreAuthorize("hasPermission('PROFILE', 'CREATE')")
+//    @PreAuthorize("hasPermission('PROFILE', 'CREATE')")
     public ResponseEntity<ApiResponse<ProfileResponse>> createProfile(
             @Valid @RequestBody CreateProfileRequest request,
             Authentication authentication) {
@@ -41,7 +41,7 @@ public class ProfileController {
     }
 
     @GetMapping
-    @PreAuthorize("hasPermission('PROFILE', 'READ')")
+//    @PreAuthorize("hasPermission('PROFILE', 'READ')")
     public ResponseEntity<ApiResponse<List<ProfileResponse>>> getAllProfiles(
             @RequestParam(required = false, defaultValue = "false") boolean activeOnly) {
         log.info("Fetching all profiles (activeOnly: {})", activeOnly);
@@ -50,7 +50,7 @@ public class ProfileController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasPermission('PROFILE', 'READ')")
+//    @PreAuthorize("hasPermission('PROFILE', 'READ')")
     public ResponseEntity<ApiResponse<ProfileResponse>> getProfileById(@PathVariable String id) {
         log.info("Fetching profile by id: {}", id);
         ProfileResponse response = profileService.getProfileById(id);
@@ -58,7 +58,7 @@ public class ProfileController {
     }
 
     @GetMapping("/code/{profileId}")
-    @PreAuthorize("hasPermission('PROFILE', 'READ')")
+//    @PreAuthorize("hasPermission('PROFILE', 'READ')")
     public ResponseEntity<ApiResponse<ProfileResponse>> getProfileByProfileId(@PathVariable String profileId) {
         log.info("Fetching profile by profileId: {}", profileId);
         ProfileResponse response = profileService.getProfileByProfileId(profileId);
@@ -66,7 +66,7 @@ public class ProfileController {
     }
 
     @GetMapping("/search")
-    @PreAuthorize("hasPermission('PROFILE', 'READ')")
+//    @PreAuthorize("hasPermission('PROFILE', 'READ')")
     public ResponseEntity<ApiResponse<List<ProfileResponse>>> searchProfiles(
             @RequestParam String query) {
         log.info("Searching profiles with query: {}", query);
@@ -75,7 +75,7 @@ public class ProfileController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasPermission('PROFILE', 'EDIT')")
+//    @PreAuthorize("hasPermission('PROFILE', 'EDIT')")
     public ResponseEntity<ApiResponse<ProfileResponse>> updateProfile(
             @PathVariable String id,
             @Valid @RequestBody UpdateProfileRequest request,
@@ -87,7 +87,7 @@ public class ProfileController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasPermission('PROFILE', 'DELETE')")
+//    @PreAuthorize("hasPermission('PROFILE', 'DELETE')")
     public ResponseEntity<ApiResponse<Void>> deleteProfile(
             @PathVariable String id,
             Authentication authentication) {

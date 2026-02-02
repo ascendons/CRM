@@ -5,221 +5,75 @@ import {
   OpportunityStatistics,
   OpportunityStage,
 } from "@/types/opportunity";
-import { ApiResponse } from "@/types/api";
-import { authService } from "./auth";
+import { api } from "./api-client";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api/v1";
+// API_URL is handled by api-client
+// authService is handled by api-client
 
 class OpportunityService {
-  private getAuthHeader() {
-    const token = authService.getToken();
-    return token ? { Authorization: `Bearer ${token}` } : {};
-  }
 
   async createOpportunity(request: CreateOpportunityRequest): Promise<Opportunity> {
-    const response = await fetch(`${API_URL}/opportunities`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        ...this.getAuthHeader(),
-      },
-      body: JSON.stringify(request),
-    });
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || "Failed to create opportunity");
-    }
-
-    const result: ApiResponse<Opportunity> = await response.json();
-    return result.data;
+    return api.post<Opportunity>("/opportunities", request);
   }
 
   async getAllOpportunities(): Promise<Opportunity[]> {
-    const response = await fetch(`${API_URL}/opportunities`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        ...this.getAuthHeader(),
-      },
-    });
+    // Request "all" (large page) to ensure we get a list for dropdowns if backend paginates by default
+    const params = new URLSearchParams();
+    params.append("size", "1000");
 
-    if (!response.ok) {
-      throw new Error("Failed to fetch opportunities");
+    // Check if backend treats no-params as "List" or "Page". 
+    // Safest is to handle "content" property via api-client return.
+    // Note: api-client returns `data.data` from ApiResponse. 
+    // If backend returns Page, `data.data` is the Page object.
+
+    const response = await api.get<any>(`/opportunities?${params.toString()}`);
+
+    // Handle Page<Opportunity> vs List<Opportunity>
+    if (response && response.content && Array.isArray(response.content)) {
+      return response.content;
     }
 
-    const result: ApiResponse<Opportunity[]> = await response.json();
-    return result.data;
+    return Array.isArray(response) ? response : [];
   }
 
   async getOpportunityById(id: string): Promise<Opportunity> {
-    const response = await fetch(`${API_URL}/opportunities/${id}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        ...this.getAuthHeader(),
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error("Failed to fetch opportunity");
-    }
-
-    const result: ApiResponse<Opportunity> = await response.json();
-    return result.data;
+    return api.get<Opportunity>(`/opportunities/${id}`);
   }
 
   async getOpportunityByOpportunityId(opportunityId: string): Promise<Opportunity> {
-    const response = await fetch(`${API_URL}/opportunities/code/${opportunityId}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        ...this.getAuthHeader(),
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error("Failed to fetch opportunity");
-    }
-
-    const result: ApiResponse<Opportunity> = await response.json();
-    return result.data;
+    return api.get<Opportunity>(`/opportunities/code/${opportunityId}`);
   }
 
   async getOpportunitiesByAccount(accountId: string): Promise<Opportunity[]> {
-    const response = await fetch(`${API_URL}/opportunities/account/${accountId}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        ...this.getAuthHeader(),
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error("Failed to fetch opportunities");
-    }
-
-    const result: ApiResponse<Opportunity[]> = await response.json();
-    return result.data;
+    return api.get<Opportunity[]>(`/opportunities/account/${accountId}`);
   }
 
   async getOpportunitiesByContact(contactId: string): Promise<Opportunity[]> {
-    const response = await fetch(`${API_URL}/opportunities/contact/${contactId}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        ...this.getAuthHeader(),
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error("Failed to fetch opportunities");
-    }
-
-    const result: ApiResponse<Opportunity[]> = await response.json();
-    return result.data;
+    return api.get<Opportunity[]>(`/opportunities/contact/${contactId}`);
   }
 
   async getOpportunitiesByStage(stage: OpportunityStage): Promise<Opportunity[]> {
-    const response = await fetch(`${API_URL}/opportunities/stage/${stage}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        ...this.getAuthHeader(),
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error("Failed to fetch opportunities");
-    }
-
-    const result: ApiResponse<Opportunity[]> = await response.json();
-    return result.data;
+    return api.get<Opportunity[]>(`/opportunities/stage/${stage}`);
   }
 
   async searchOpportunities(query: string): Promise<Opportunity[]> {
-    const response = await fetch(`${API_URL}/opportunities/search?q=${encodeURIComponent(query)}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        ...this.getAuthHeader(),
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error("Failed to search opportunities");
-    }
-
-    const result: ApiResponse<Opportunity[]> = await response.json();
-    return result.data;
+    return api.get<Opportunity[]>(`/opportunities/search?q=${encodeURIComponent(query)}`);
   }
 
   async updateOpportunity(id: string, request: UpdateOpportunityRequest): Promise<Opportunity> {
-    const response = await fetch(`${API_URL}/opportunities/${id}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        ...this.getAuthHeader(),
-      },
-      body: JSON.stringify(request),
-    });
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || "Failed to update opportunity");
-    }
-
-    const result: ApiResponse<Opportunity> = await response.json();
-    return result.data;
+    return api.put<Opportunity>(`/opportunities/${id}`, request);
   }
 
   async deleteOpportunity(id: string): Promise<void> {
-    const response = await fetch(`${API_URL}/opportunities/${id}`, {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-        ...this.getAuthHeader(),
-      },
-    });
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || "Failed to delete opportunity");
-    }
+    return api.delete<void>(`/opportunities/${id}`);
   }
 
   async getOpportunityCount(): Promise<number> {
-    const response = await fetch(`${API_URL}/opportunities/statistics/count`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        ...this.getAuthHeader(),
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error("Failed to fetch opportunity count");
-    }
-
-    const result: ApiResponse<number> = await response.json();
-    return result.data;
+    return api.get<number>("/opportunities/statistics/count");
   }
 
   async getStatistics(): Promise<OpportunityStatistics> {
-    const response = await fetch(`${API_URL}/opportunities/statistics`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        ...this.getAuthHeader(),
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error("Failed to fetch statistics");
-    }
-
-    const result: ApiResponse<OpportunityStatistics> = await response.json();
-    return result.data;
+    return api.get<OpportunityStatistics>("/opportunities/statistics");
   }
 }
 

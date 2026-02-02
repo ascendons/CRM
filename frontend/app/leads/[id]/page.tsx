@@ -60,7 +60,11 @@ export default function LeadDetailPage() {
     try {
       setProposalsLoading(true);
       const data = await proposalsService.getProposalsBySource(ProposalSource.LEAD, id);
-      setProposals(data);
+      if ('content' in data) {
+        setProposals(data.content);
+      } else {
+        setProposals(data || []);
+      }
     } catch (err) {
       console.error("Failed to load proposals:", err);
     } finally {

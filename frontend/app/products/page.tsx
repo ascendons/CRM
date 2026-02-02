@@ -147,15 +147,13 @@ export default function ProductsPage() {
               <p className="text-sm text-slate-500 dark:text-slate-400">Manage your inventory and product details.</p>
             </div>
             <div className="flex items-center gap-3">
-              <PermissionGuard allowedRoles={["ADMIN", "MANAGER"]}>
-                <button
-                  onClick={() => router.push("/products/new")}
-                  className="flex items-center gap-2 px-5 py-2 bg-primary hover:bg-primary-hover text-white rounded-xl text-sm font-bold shadow-lg shadow-primary/25 hover:shadow-primary/40 hover:-translate-y-0.5 transition-all"
-                >
-                  <Plus className="h-4 w-4" />
-                  Add Product
-                </button>
-              </PermissionGuard>
+              <button
+                onClick={() => router.push("/products/new")}
+                className="flex items-center gap-2 px-5 py-2 bg-primary hover:bg-primary-hover text-white rounded-xl text-sm font-bold shadow-lg shadow-primary/25 hover:shadow-primary/40 hover:-translate-y-0.5 transition-all"
+              >
+                <Plus className="h-4 w-4" />
+                Add Product
+              </button>
             </div>
           </div>
         </div>

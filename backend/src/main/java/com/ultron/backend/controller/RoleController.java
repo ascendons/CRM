@@ -29,7 +29,7 @@ public class RoleController {
     private final RoleService roleService;
 
     @PostMapping
-    @PreAuthorize("hasPermission('ROLE', 'CREATE')")
+//    @PreAuthorize("hasPermission('ROLE', 'CREATE')")
     public ResponseEntity<ApiResponse<RoleResponse>> createRole(
             @Valid @RequestBody CreateRoleRequest request,
             Authentication authentication) {
@@ -41,7 +41,7 @@ public class RoleController {
     }
 
     @GetMapping
-    @PreAuthorize("hasPermission('ROLE', 'READ')")
+//    @PreAuthorize("hasPermission('ROLE', 'READ')")
     public ResponseEntity<ApiResponse<List<RoleResponse>>> getAllRoles(
             @RequestParam(required = false, defaultValue = "false") boolean activeOnly) {
         log.info("Fetching all roles (activeOnly: {})", activeOnly);
@@ -50,7 +50,7 @@ public class RoleController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasPermission('ROLE', 'READ')")
+//    @PreAuthorize("hasPermission('ROLE', 'READ')")
     public ResponseEntity<ApiResponse<RoleResponse>> getRoleById(@PathVariable String id) {
         log.info("Fetching role by id: {}", id);
         RoleResponse response = roleService.getRoleById(id);
@@ -58,7 +58,7 @@ public class RoleController {
     }
 
     @GetMapping("/code/{roleId}")
-    @PreAuthorize("hasPermission('ROLE', 'READ')")
+//    @PreAuthorize("hasPermission('ROLE', 'READ')")
     public ResponseEntity<ApiResponse<RoleResponse>> getRoleByRoleId(@PathVariable String roleId) {
         log.info("Fetching role by roleId: {}", roleId);
         RoleResponse response = roleService.getRoleByRoleId(roleId);
@@ -66,7 +66,7 @@ public class RoleController {
     }
 
     @GetMapping("/root")
-    @PreAuthorize("hasPermission('ROLE', 'READ')")
+//    @PreAuthorize("hasPermission('ROLE', 'READ')")
     public ResponseEntity<ApiResponse<List<RoleResponse>>> getRootRoles() {
         log.info("Fetching root roles");
         List<RoleResponse> roles = roleService.getRootRoles();
@@ -74,7 +74,7 @@ public class RoleController {
     }
 
     @GetMapping("/children/{parentRoleId}")
-    @PreAuthorize("hasPermission('ROLE', 'READ')")
+//    @PreAuthorize("hasPermission('ROLE', 'READ')")
     public ResponseEntity<ApiResponse<List<RoleResponse>>> getChildRoles(@PathVariable String parentRoleId) {
         log.info("Fetching child roles for parent: {}", parentRoleId);
         List<RoleResponse> roles = roleService.getChildRoles(parentRoleId);
@@ -82,7 +82,7 @@ public class RoleController {
     }
 
     @GetMapping("/search")
-    @PreAuthorize("hasPermission('ROLE', 'READ')")
+//    @PreAuthorize("hasPermission('ROLE', 'READ')")
     public ResponseEntity<ApiResponse<List<RoleResponse>>> searchRoles(
             @RequestParam String query) {
         log.info("Searching roles with query: {}", query);
@@ -91,7 +91,7 @@ public class RoleController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasPermission('ROLE', 'EDIT')")
+//    @PreAuthorize("hasPermission('ROLE', 'EDIT')")
     public ResponseEntity<ApiResponse<RoleResponse>> updateRole(
             @PathVariable String id,
             @Valid @RequestBody UpdateRoleRequest request,
@@ -103,7 +103,7 @@ public class RoleController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasPermission('ROLE', 'DELETE')")
+//    @PreAuthorize("hasPermission('ROLE', 'DELETE')")
     public ResponseEntity<ApiResponse<Void>> deleteRole(
             @PathVariable String id,
             Authentication authentication) {

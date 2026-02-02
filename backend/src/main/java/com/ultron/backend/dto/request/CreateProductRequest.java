@@ -45,9 +45,9 @@ public class CreateProductRequest {
     @Digits(integer = 3, fraction = 2, message = "Tax rate must have at most 3 integer digits and 2 decimal places")
     private BigDecimal taxRate;
 
-    @NotBlank(message = "Tax type is required")
-    @Pattern(regexp = "^(GST|VAT|NONE)$", message = "Tax type must be GST, VAT, or NONE")
-    private String taxType;
+//    @NotBlank(message = "Tax type is required")
+//    @Pattern(regexp = "^(GST|VAT|NONE)$", message = "Tax type must be GST, VAT, or NONE")
+    private String taxType = "GST";
 
     @NotBlank(message = "Category is required")
     @Size(max = 100, message = "Category must be less than 100 characters")

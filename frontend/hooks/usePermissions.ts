@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { api } from "@/lib/api-client";
 
 interface PermissionCache {
@@ -28,7 +28,7 @@ export function usePermissions() {
    * @param action - Action (CREATE, READ, EDIT, DELETE, VIEWALL, MODIFYALL)
    * @returns true if user has permission
    */
-  const hasPermission = async (objectName: string, action: string): Promise<boolean> => {
+  const hasPermission = useCallback(async (objectName: string, action: string): Promise<boolean> => {
     const cacheKey = `${objectName}:${action}`;
 
     // Return cached result if available
@@ -56,7 +56,7 @@ export function usePermissions() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [permissionCache]);
 
   /**
    * Check if current user has a system permission.
@@ -64,7 +64,7 @@ export function usePermissions() {
    * @param permission - Permission name (canManageUsers, canManageRoles, etc.)
    * @returns true if user has permission
    */
-  const hasSystemPermission = async (permission: string): Promise<boolean> => {
+  const hasSystemPermission = useCallback(async (permission: string): Promise<boolean> => {
     const cacheKey = `SYSTEM:${permission}`;
 
     if (permissionCache[cacheKey] !== undefined) {
@@ -89,14 +89,14 @@ export function usePermissions() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [permissionCache]);
 
   /**
    * Clear permission cache (call on logout or role change).
    */
-  const clearCache = () => {
+  const clearCache = useCallback(() => {
     setPermissionCache({});
-  };
+  }, []);
 
   return {
     hasPermission,

@@ -243,7 +243,7 @@ export default function ProposalDetailPage({
               </Link>
               {proposal.status === ProposalStatus.DRAFT && (
                 <>
-                  <PermissionGuard allowedRoles={["ADMIN", "MANAGER", "SALES_REP"]}>
+                  <PermissionGuard resource="PROPOSAL" action="SEND">
                     <button
                       onClick={handleSend}
                       disabled={actionLoading}
@@ -251,6 +251,8 @@ export default function ProposalDetailPage({
                     >
                       Send to Customer
                     </button>
+                  </PermissionGuard>
+                  <PermissionGuard resource="PROPOSAL" action="EDIT">
                     <Link
                       href={`/proposals/${proposal.id}/edit`}
                       className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
@@ -262,7 +264,7 @@ export default function ProposalDetailPage({
               )}
               {proposal.status === ProposalStatus.SENT && (
                 <>
-                  <PermissionGuard allowedRoles={["ADMIN", "MANAGER"]}>
+                  <PermissionGuard resource="PROPOSAL" action="APPROVE">
                     <button
                       onClick={handleAccept}
                       disabled={actionLoading}
@@ -270,6 +272,8 @@ export default function ProposalDetailPage({
                     >
                       Accept
                     </button>
+                  </PermissionGuard>
+                  <PermissionGuard resource="PROPOSAL" action="REJECT">
                     <button
                       onClick={() => setShowRejectModal(true)}
                       disabled={actionLoading}
@@ -280,7 +284,7 @@ export default function ProposalDetailPage({
                   </PermissionGuard>
                 </>
               )}
-              <PermissionGuard allowedRoles={["ADMIN", "MANAGER"]}>
+              <PermissionGuard resource="PROPOSAL" action="DELETE">
                 <button
                   onClick={() => setShowDeleteModal(true)}
                   disabled={actionLoading}
