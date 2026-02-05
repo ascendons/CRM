@@ -4,6 +4,7 @@ import com.ultron.backend.dto.response.ApiResponse;
 import com.ultron.backend.service.PermissionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,17 +30,26 @@ public class PermissionController {
             @RequestParam String action,
             Authentication authentication) {
 
-        String currentUserId = authentication.getName();
-        // log.debug("Check permission request: user={}, object={}, action={}", currentUserId, object, action);
+        try {
+            String currentUserId = authentication.getName();
+            // log.debug("Check permission request: user={}, object={}, action={}", currentUserId, object, action);
 
-        boolean hasPermission = permissionService.hasPermission(currentUserId, object, action);
+            boolean hasPermission = permissionService.hasPermission(currentUserId, object, action);
 
-        return ResponseEntity.ok(
-                ApiResponse.<Boolean>builder()
-                        .success(true)
-                        .message("Permission check completed")
-                        .data(hasPermission)
-                        .build());
+            return ResponseEntity.ok(
+                    ApiResponse.<Boolean>builder()
+                            .success(true)
+                            .message("Permission check completed")
+                            .data(hasPermission)
+                            .build());
+        } catch (Exception e) {
+            log.error("Error in checkPermission", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ApiResponse.<Boolean>builder()
+                            .success(false)
+                            .message("Error: " + e.getMessage())
+                            .build());
+        }
     }
 
     /**
@@ -51,16 +61,25 @@ public class PermissionController {
             @RequestParam String permission,
             Authentication authentication) {
 
-        String currentUserId = authentication.getName();
-        // log.debug("Check system permission request: user={}, permission={}", currentUserId, permission);
+        try {
+            String currentUserId = authentication.getName();
+            // log.debug("Check system permission request: user={}, permission={}", currentUserId, permission);
 
-        boolean hasPermission = permissionService.hasSystemPermission(currentUserId, permission);
+            boolean hasPermission = permissionService.hasSystemPermission(currentUserId, permission);
 
-        return ResponseEntity.ok(
-                ApiResponse.<Boolean>builder()
-                        .success(true)
-                        .message("System permission check completed")
-                        .data(hasPermission)
-                        .build());
+            return ResponseEntity.ok(
+                    ApiResponse.<Boolean>builder()
+                            .success(true)
+                            .message("System permission check completed")
+                            .data(hasPermission)
+                            .build());
+        } catch (Exception e) {
+            log.error("Error in checkSystemPermission", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ApiResponse.<Boolean>builder()
+                            .success(false)
+                            .message("Error: " + e.getMessage())
+                            .build());
+        }
     }
 }

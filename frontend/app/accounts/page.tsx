@@ -189,30 +189,30 @@ export default function AccountsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-900">
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 ">
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-primary/10 rounded-full blur-3xl animate-pulse"></div>
         </div>
         <div className="relative text-center space-y-4">
           <div className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin mx-auto"></div>
-          <p className="text-slate-500 dark:text-slate-400 font-medium">Loading accounts...</p>
+          <p className="text-slate-500  font-medium">Loading accounts...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
+    <div className="min-h-screen bg-transparent">
       {/* Header */}
-      <div className="sticky top-0 z-20 bg-white/80 dark:bg-slate-800/80 backdrop-blur-lg border-b border-slate-200 dark:border-slate-700">
+      <div className="sticky top-16 z-20 bg-white/80  backdrop-blur-lg border-b border-slate-200 ">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between py-4 gap-4">
             <div>
-              <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Account Management</h1>
-              <p className="text-sm text-slate-500 dark:text-slate-400">Manage your company accounts and relationships.</p>
+              <h1 className="text-2xl font-bold text-slate-900  tracking-tight">Account Management</h1>
+              <p className="text-sm text-slate-500 ">Manage your company accounts and relationships.</p>
             </div>
             <div className="flex items-center gap-3">
-              <button className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 rounded-xl text-sm font-semibold hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors shadow-sm">
+              <button className="flex items-center gap-2 px-4 py-2 bg-white  border border-slate-200  text-slate-700  rounded-xl text-sm font-semibold hover:bg-slate-50  transition-colors shadow-sm">
                 <Download className="h-4 w-4" />
                 Export
               </button>
@@ -230,7 +230,7 @@ export default function AccountsPage() {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6 animate-fade-in-up">
         {/* Toolbar */}
-        <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-2">
+        <div className="bg-white  rounded-2xl shadow-sm border border-slate-200  p-2">
           <div className="flex items-center justify-between gap-4">
             <div className="relative flex-1 max-w-md">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
@@ -239,13 +239,13 @@ export default function AccountsPage() {
                 placeholder="Search accounts by name or website..."
                 value={searchQuery}
                 onChange={(e) => handleSearch(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                className="w-full pl-10 pr-4 py-2.5 bg-slate-50  border border-slate-200  rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
               />
             </div>
             {selectedAccounts.length > 0 && (
-              <div className="flex items-center gap-3 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 px-4 py-2 rounded-xl text-sm font-medium animate-fade-in">
+              <div className="flex items-center gap-3 bg-blue-50  text-blue-700  px-4 py-2 rounded-xl text-sm font-medium animate-fade-in">
                 <span>{selectedAccounts.length} selected</span>
-                <div className="h-4 w-px bg-blue-200 dark:bg-blue-800 mx-1"></div>
+                <div className="h-4 w-px bg-blue-200  mx-1"></div>
                 <button onClick={() => setSelectedAccounts([])} className="hover:underline">Clear</button>
               </div>
             )}
@@ -253,18 +253,18 @@ export default function AccountsPage() {
         </div>
 
         {error && (
-          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 p-4 rounded-xl flex items-center gap-3">
+          <div className="bg-red-50  border border-red-200  text-red-700  p-4 rounded-xl flex items-center gap-3">
             <XCircle className="h-5 w-5" />
             <p>{error}</p>
           </div>
         )}
 
         {/* Accounts Table */}
-        <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+        <div className="bg-white  rounded-2xl shadow-sm border border-slate-200  overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="bg-slate-50/50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700">
+                <tr className="bg-slate-50/50  border-b border-slate-200 ">
                   <th className="px-6 py-4 w-12">
                     <div className="flex items-center">
                       <input
@@ -285,7 +285,7 @@ export default function AccountsPage() {
                   ].map((col) => (
                     <th
                       key={col.key}
-                      className="px-6 py-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors group"
+                      className="px-6 py-4 text-xs font-semibold text-slate-500  uppercase tracking-wider cursor-pointer hover:bg-slate-100  transition-colors group"
                       onClick={() => handleSort(col.key)}
                     >
                       <div className="flex items-center gap-2">
@@ -294,10 +294,10 @@ export default function AccountsPage() {
                       </div>
                     </th>
                   ))}
-                  <th className="px-6 py-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Actions</th>
+                  <th className="px-6 py-4 text-xs font-semibold text-slate-500  uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50">
+              <tbody className="divide-y divide-slate-100 ">
                 {sortedAccounts.length === 0 ? (
                   <tr>
                     <td colSpan={7} className="p-12 text-center">
@@ -321,7 +321,7 @@ export default function AccountsPage() {
                   paginatedAccounts.map((account) => (
                     <tr
                       key={account.id}
-                      className="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors group cursor-pointer"
+                      className="hover:bg-slate-50  transition-colors group cursor-pointer"
                       onClick={() => router.push(`/accounts/${account.id}`)}
                     >
                       <td className="px-6 py-4" onClick={(e) => e.stopPropagation()}>
@@ -336,27 +336,27 @@ export default function AccountsPage() {
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
-                          <div className="h-9 w-9 rounded bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-700 dark:text-emerald-300 font-bold text-sm ring-1 ring-slate-200 dark:ring-slate-700">
+                          <div className="h-9 w-9 rounded bg-emerald-100  flex items-center justify-center text-emerald-700  font-bold text-sm ring-1 ring-slate-200 ">
                             {account.accountName?.[0]?.toUpperCase() || "A"}
                           </div>
                           <div>
-                            <p className="text-sm font-semibold text-slate-900 dark:text-white">
+                            <p className="text-sm font-semibold text-slate-900 ">
                               {account.accountName}
                             </p>
-                            <p className="text-xs text-slate-500 dark:text-slate-400">{account.website || "-"}</p>
+                            <p className="text-xs text-slate-500 ">{account.website || "-"}</p>
                           </div>
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-medium">
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100  text-slate-700  text-xs font-medium">
                           <Briefcase className="h-3 w-3" />
                           {account.industry || "Unassigned"}
                         </span>
                       </td>
-                      <td className="px-6 py-4 text-sm font-semibold text-slate-900 dark:text-white">
+                      <td className="px-6 py-4 text-sm font-semibold text-slate-900 ">
                         {formatCurrency(account.totalRevenue)}
                       </td>
-                      <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">
+                      <td className="px-6 py-4 text-sm text-slate-600 ">
                         <div className="flex items-center gap-1">
                           <Users className="h-4 w-4 text-slate-400" />
                           {account.totalContacts ?? 0}
@@ -365,8 +365,8 @@ export default function AccountsPage() {
                       <td className="px-6 py-4">
                         <span
                           className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold ${account.accountStatus === "Active"
-                              ? "bg-emerald-50 text-emerald-700 border border-emerald-100 dark:bg-emerald-900/20 dark:text-emerald-300 dark:border-emerald-900/30"
-                              : "bg-slate-100 text-slate-700 border border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700"
+                            ? "bg-emerald-50 text-emerald-700 border border-emerald-100   "
+                            : "bg-slate-100 text-slate-700 border border-slate-200   "
                             }`}
                         >
                           {account.accountStatus || "Inactive"}
@@ -376,13 +376,13 @@ export default function AccountsPage() {
                         <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                           <button
                             onClick={(e) => { e.stopPropagation(); router.push(`/accounts/${account.id}/edit`); }}
-                            className="p-2 text-slate-400 hover:text-primary hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
+                            className="p-2 text-slate-400 hover:text-primary hover:bg-slate-100  rounded-lg transition-colors"
                           >
                             Edit
                           </button>
                           <button
                             onClick={(e) => { e.stopPropagation(); confirmDelete(account.id); }}
-                            className="p-2 text-rose-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/10 rounded-lg transition-colors"
+                            className="p-2 text-rose-400 hover:text-rose-600 hover:bg-rose-50  rounded-lg transition-colors"
                           >
                             <Trash2 className="h-4 w-4" />
                           </button>
@@ -398,24 +398,24 @@ export default function AccountsPage() {
 
         {/* Pagination */}
         {sortedAccounts.length > 0 && (
-          <div className="flex items-center justify-between bg-white dark:bg-slate-800 px-6 py-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
-            <p className="text-sm text-slate-600 dark:text-slate-400">
-              Showing <span className="font-semibold text-slate-900 dark:text-white">{(currentPage - 1) * itemsPerPage + 1}</span> to <span className="font-semibold text-slate-900 dark:text-white">{Math.min(currentPage * itemsPerPage, sortedAccounts.length)}</span> of <span className="font-semibold text-slate-900 dark:text-white">{sortedAccounts.length}</span> results
+          <div className="flex items-center justify-between bg-white  px-6 py-4 rounded-2xl border border-slate-200  shadow-sm">
+            <p className="text-sm text-slate-600 ">
+              Showing <span className="font-semibold text-slate-900 ">{(currentPage - 1) * itemsPerPage + 1}</span> to <span className="font-semibold text-slate-900 ">{Math.min(currentPage * itemsPerPage, sortedAccounts.length)}</span> of <span className="font-semibold text-slate-900 ">{sortedAccounts.length}</span> results
             </p>
             <div className="flex items-center gap-2">
               <button
                 onClick={() => handlePageChange(currentPage - 1)}
                 disabled={currentPage === 1}
-                className="p-2 border border-slate-200 dark:border-slate-700 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+                className="p-2 border border-slate-200  rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50  transition-colors"
               >
-                <ChevronLeft className="h-5 w-5 text-slate-600 dark:text-slate-400" />
+                <ChevronLeft className="h-5 w-5 text-slate-600 " />
               </button>
               <button
                 onClick={() => handlePageChange(currentPage + 1)}
                 disabled={currentPage === totalPages}
-                className="p-2 border border-slate-200 dark:border-slate-700 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+                className="p-2 border border-slate-200  rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50  transition-colors"
               >
-                <ChevronRight className="h-5 w-5 text-slate-600 dark:text-slate-400" />
+                <ChevronRight className="h-5 w-5 text-slate-600 " />
               </button>
             </div>
           </div>

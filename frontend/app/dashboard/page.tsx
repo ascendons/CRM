@@ -76,7 +76,7 @@ export default function DashboardPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-900">
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
         <div className="text-center space-y-4">
           <div className="relative">
             <div className="w-16 h-16 border-4 border-primary/20 border-t-primary rounded-full animate-spin mx-auto"></div>
@@ -84,58 +84,38 @@ export default function DashboardPage() {
               <div className="w-8 h-8 bg-primary/10 rounded-full animate-pulse"></div>
             </div>
           </div>
-          <p className="text-slate-500 dark:text-slate-400 font-medium animate-pulse">Loading Dashboard...</p>
+          <p className="text-slate-500 font-medium animate-pulse">Loading Dashboard...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 pb-12">
-      {/* Top Navigation Bar */}
-      <div className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-20 backdrop-blur-lg bg-white/80 dark:bg-slate-800/80">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex items-center gap-4">
-              <h1 className="text-xl font-bold bg-gradient-to-r from-primary to-indigo-600 bg-clip-text text-transparent">
-                Nexus CRM
-              </h1>
-            </div>
-            <div className="flex items-center gap-4">
-              <button className="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors relative">
-                <Bell className="h-5 w-5" />
-                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white dark:border-slate-800"></span>
-              </button>
-              <div className="h-8 w-8 rounded-full bg-gradient-to-tr from-primary to-indigo-500 flex items-center justify-center text-white font-semibold text-sm shadow-lg shadow-primary/20 ring-2 ring-white dark:ring-slate-800">
-                {user?.fullName?.charAt(0) || "U"}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+    <div className="min-h-screen bg-transparent pb-12">
+      {/* Top Navigation Bar Removed - Using Global Navigation */}
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 animate-fade-in-up">
         {/* Welcome Section */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-1">
-            <h2 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
+            <h2 className="text-3xl font-bold text-slate-900 tracking-tight">
               Welcome back, {user?.fullName?.split(' ')[0] || "User"}
             </h2>
-            <p className="text-slate-500 dark:text-slate-400 text-lg">
+            <p className="text-slate-500 text-lg">
               Here&apos;s your performance overview for today.
             </p>
           </div>
           <div className="flex items-center gap-3">
-            <button className="px-4 py-2.5 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 rounded-xl font-semibold text-sm hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-all flex items-center gap-2 shadow-sm">
+            <button className="px-4 py-2.5 bg-white text-slate-700 border border-slate-200 rounded-xl font-semibold text-sm hover:bg-slate-50 transition-all flex items-center gap-2 shadow-sm">
               <Calendar className="h-4 w-4" />
               <span>Last 30 Days</span>
             </button>
             <Link
-              href="/opportunities/new"
+              href="/leads/new"
               className="px-5 py-2.5 bg-primary hover:bg-primary-hover text-white rounded-xl font-semibold text-sm transition-all flex items-center gap-2 shadow-lg shadow-primary/25 hover:shadow-primary/40 hover:-translate-y-0.5"
             >
               <Plus className="h-5 w-5" />
-              <span>New Deal</span>
+              <span>Create Lead</span>
             </Link>
           </div>
         </div>
@@ -143,22 +123,22 @@ export default function DashboardPage() {
         {/* Stats Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {/* Revenue Card */}
-          <div className="group bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700/50 hover:shadow-md transition-all hover:-translate-y-1 relative overflow-hidden">
+          <div className="group bg-white p-6 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-all hover:-translate-y-1 relative overflow-hidden">
             <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
               <DollarSign className="h-24 w-24 text-primary" />
             </div>
             <div className="relative z-10">
               <div className="flex items-center justify-between mb-4">
-                <div className="p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                  <DollarSign className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                <div className="p-2 bg-blue-50 rounded-lg">
+                  <DollarSign className="h-6 w-6 text-blue-600" />
                 </div>
-                <span className="flex items-center gap-1 text-xs font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20 px-2 py-1 rounded-full">
+                <span className="flex items-center gap-1 text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full">
                   <TrendingUp className="h-3 w-3" />
                   +{opportunityStats?.winRate ? (opportunityStats.winRate / 5).toFixed(1) : "0"}%
                 </span>
               </div>
-              <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Total Revenue</p>
-              <h3 className="text-2xl font-bold text-slate-900 dark:text-white mt-1">
+              <p className="text-sm font-medium text-slate-500">Total Revenue</p>
+              <h3 className="text-2xl font-bold text-slate-900 mt-1">
                 ₹{opportunityStats?.wonValue ? (opportunityStats.wonValue / 1000).toFixed(0) : "0"}K
               </h3>
               <p className="text-xs text-slate-400 mt-2">
@@ -169,22 +149,22 @@ export default function DashboardPage() {
           </div>
 
           {/* New Leads Card */}
-          <div className="group bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700/50 hover:shadow-md transition-all hover:-translate-y-1 relative overflow-hidden">
+          <div className="group bg-white p-6 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-all hover:-translate-y-1 relative overflow-hidden">
             <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
               <UserPlus className="h-24 w-24 text-purple-600" />
             </div>
             <div className="relative z-10">
               <div className="flex items-center justify-between mb-4">
-                <div className="p-2 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
-                  <UserPlus className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+                <div className="p-2 bg-purple-50 rounded-lg">
+                  <UserPlus className="h-6 w-6 text-purple-600" />
                 </div>
-                <span className="flex items-center gap-1 text-xs font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20 px-2 py-1 rounded-full">
+                <span className="flex items-center gap-1 text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full">
                   <TrendingUp className="h-3 w-3" />
                   +12%
                 </span>
               </div>
-              <p className="text-sm font-medium text-slate-500 dark:text-slate-400">New Leads</p>
-              <h3 className="text-2xl font-bold text-slate-900 dark:text-white mt-1">
+              <p className="text-sm font-medium text-slate-500">New Leads</p>
+              <h3 className="text-2xl font-bold text-slate-900 mt-1">
                 {statistics?.totalLeads || 0}
               </h3>
               <p className="text-xs text-slate-400 mt-2">
@@ -195,22 +175,22 @@ export default function DashboardPage() {
           </div>
 
           {/* Active Deals Card */}
-          <div className="group bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700/50 hover:shadow-md transition-all hover:-translate-y-1 relative overflow-hidden">
+          <div className="group bg-white p-6 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-all hover:-translate-y-1 relative overflow-hidden">
             <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
               <Briefcase className="h-24 w-24 text-amber-500" />
             </div>
             <div className="relative z-10">
               <div className="flex items-center justify-between mb-4">
-                <div className="p-2 bg-amber-50 dark:bg-amber-900/20 rounded-lg">
-                  <Briefcase className="h-6 w-6 text-amber-600 dark:text-amber-500" />
+                <div className="p-2 bg-amber-50 rounded-lg">
+                  <Briefcase className="h-6 w-6 text-amber-600" />
                 </div>
-                <span className="flex items-center gap-1 text-xs font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20 px-2 py-1 rounded-full">
+                <span className="flex items-center gap-1 text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full">
                   <TrendingUp className="h-3 w-3" />
                   +5.2%
                 </span>
               </div>
-              <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Active Deals</p>
-              <h3 className="text-2xl font-bold text-slate-900 dark:text-white mt-1">
+              <p className="text-sm font-medium text-slate-500">Active Deals</p>
+              <h3 className="text-2xl font-bold text-slate-900 mt-1">
                 {opportunityStats?.openOpportunities || opportunityCount}
               </h3>
               <p className="text-xs text-slate-400 mt-2">
@@ -221,22 +201,22 @@ export default function DashboardPage() {
           </div>
 
           {/* Win Rate Card */}
-          <div className="group bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700/50 hover:shadow-md transition-all hover:-translate-y-1 relative overflow-hidden">
+          <div className="group bg-white p-6 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-all hover:-translate-y-1 relative overflow-hidden">
             <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
               <Target className="h-24 w-24 text-emerald-500" />
             </div>
             <div className="relative z-10">
               <div className="flex items-center justify-between mb-4">
-                <div className="p-2 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg">
-                  <Target className="h-6 w-6 text-emerald-600 dark:text-emerald-500" />
+                <div className="p-2 bg-emerald-50 rounded-lg">
+                  <Target className="h-6 w-6 text-emerald-600" />
                 </div>
                 <span className={`text-xs font-bold px-2 py-1 rounded-full flex items-center gap-1 ${opportunityStats && opportunityStats.winRate >= 70 ? "text-emerald-600 bg-emerald-50" : "text-amber-600 bg-amber-50"}`}>
                   {opportunityStats && opportunityStats.winRate >= 70 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
                   {opportunityStats ? (opportunityStats.winRate - 70).toFixed(1) : "0"}%
                 </span>
               </div>
-              <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Win Rate</p>
-              <h3 className="text-2xl font-bold text-slate-900 dark:text-white mt-1">
+              <p className="text-sm font-medium text-slate-500">Win Rate</p>
+              <h3 className="text-2xl font-bold text-slate-900 mt-1">
                 {opportunityStats?.winRate ? opportunityStats.winRate.toFixed(1) : "0"}%
               </h3>
               <p className="text-xs text-slate-400 mt-2">
@@ -252,14 +232,14 @@ export default function DashboardPage() {
           <div className="lg:col-span-2 space-y-8">
             {/* Lead Statistics Breakdown */}
             {statistics && (
-              <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700/50">
+              <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
                   <div>
-                    <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                    <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
                       <div className="h-1.5 w-1.5 rounded-full bg-primary"></div>
                       Pipeline Overview
                     </h3>
-                    <p className="text-sm text-slate-500 dark:text-slate-400">Real-time lead conversion metrics</p>
+                    <p className="text-sm text-slate-500">Real-time lead conversion metrics</p>
                   </div>
                   <Link
                     href="/leads"
@@ -280,7 +260,7 @@ export default function DashboardPage() {
                   ].map((stat, i) => (
                     <div key={i} className={`p-4 rounded-xl border ${stat.color.includes('border') ? '' : 'border-transparent'} ${stat.color.split(' ')[0]} transition-all hover:shadow-sm`}>
                       <div className={`text-xs font-semibold uppercase tracking-wider ${stat.color.split(' ')[1]}`}>{stat.label}</div>
-                      <div className="mt-2 text-3xl font-bold text-slate-900 dark:text-white">
+                      <div className="mt-2 text-3xl font-bold text-slate-900">
                         {stat.value}
                       </div>
                     </div>
@@ -290,22 +270,22 @@ export default function DashboardPage() {
             )}
 
             {/* Recent Activity / Content Placeholder */}
-            <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700/50">
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+            <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+              <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
                 <Clock className="h-5 w-5 text-slate-400" />
                 Recent Activities
               </h3>
               <div className="space-y-4">
                 {[1, 2, 3].map((i) => (
-                  <div key={i} className="flex items-start gap-4 p-4 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800">
-                    <div className="h-10 w-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center flex-shrink-0">
-                      <Users className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                  <div key={i} className="flex items-start gap-4 p-4 rounded-xl bg-slate-50 border border-slate-100">
+                    <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+                      <Users className="h-5 w-5 text-blue-600" />
                     </div>
                     <div className="flex-1">
-                      <p className="text-sm font-medium text-slate-900 dark:text-white">New lead acquired: <span className="font-bold">TechCorp Solutions</span></p>
-                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Added by {user?.fullName || 'User'} • 2 hours ago</p>
+                      <p className="text-sm font-medium text-slate-900">New lead acquired: <span className="font-bold">TechCorp Solutions</span></p>
+                      <p className="text-xs text-slate-500 mt-1">Added by {user?.fullName || 'User'} • 2 hours ago</p>
                     </div>
-                    <span className="px-2 py-1 rounded text-xs font-medium bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">New Lead</span>
+                    <span className="px-2 py-1 rounded text-xs font-medium bg-green-100 text-green-700">New Lead</span>
                   </div>
                 ))}
               </div>
@@ -315,8 +295,8 @@ export default function DashboardPage() {
           {/* Right Sidebar - Quick Actions & Module Stats */}
           <div className="space-y-8">
             {/* Quick Actions */}
-            <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700/50">
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">Quick Actions</h3>
+            <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+              <h3 className="text-lg font-bold text-slate-900 mb-4">Quick Actions</h3>
               <div className="space-y-3">
                 {[
                   { label: "Create Lead", desc: "Add to pipeline", icon: UserPlus, href: "/leads/new", color: "text-blue-600 bg-blue-50" },
@@ -327,16 +307,16 @@ export default function DashboardPage() {
                   <Link
                     key={i}
                     href={action.href}
-                    className="flex items-center p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors group border border-transparent hover:border-slate-100 dark:hover:border-slate-700"
+                    className="flex items-center p-3 rounded-xl hover:bg-slate-50 transition-colors group border border-transparent hover:border-slate-100"
                   >
                     <div className={`h-10 w-10 rounded-lg ${action.color} flex items-center justify-center mr-4 group-hover:scale-110 transition-transform`}>
                       <action.icon className="h-5 w-5" />
                     </div>
                     <div>
-                      <div className="font-semibold text-slate-900 dark:text-gray-100 text-sm">{action.label}</div>
-                      <div className="text-xs text-slate-500 dark:text-slate-400">{action.desc}</div>
+                      <div className="font-semibold text-slate-900 text-sm">{action.label}</div>
+                      <div className="text-xs text-slate-500">{action.desc}</div>
                     </div>
-                    <ArrowUpRight className="ml-auto h-4 w-4 text-slate-300 group-hover:text-slate-500 dark:group-hover:text-slate-400 transition-colors" />
+                    <ArrowUpRight className="ml-auto h-4 w-4 text-slate-300 group-hover:text-slate-500 transition-colors" />
                   </Link>
                 ))}
               </div>

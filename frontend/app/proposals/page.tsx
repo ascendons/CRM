@@ -199,11 +199,11 @@ export default function ProposalsPage() {
     // Map existing colors to detailed tailwind classes if needed, or stick to simple mapping
     // Here using a simple tailored mapping for demonstration
     const statusStyles = {
-      [ProposalStatus.DRAFT]: "bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700",
-      [ProposalStatus.SENT]: "bg-blue-50 text-blue-700 border-blue-100 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-900/30",
-      [ProposalStatus.ACCEPTED]: "bg-emerald-50 text-emerald-700 border-emerald-100 dark:bg-emerald-900/20 dark:text-emerald-300 dark:border-emerald-900/30",
-      [ProposalStatus.REJECTED]: "bg-rose-50 text-rose-700 border-rose-100 dark:bg-rose-900/20 dark:text-rose-300 dark:border-rose-900/30",
-      [ProposalStatus.EXPIRED]: "bg-amber-50 text-amber-700 border-amber-100 dark:bg-amber-900/20 dark:text-amber-300 dark:border-amber-900/30",
+      [ProposalStatus.DRAFT]: "bg-slate-100 text-slate-700 border-slate-200   ",
+      [ProposalStatus.SENT]: "bg-blue-50 text-blue-700 border-blue-100   ",
+      [ProposalStatus.ACCEPTED]: "bg-emerald-50 text-emerald-700 border-emerald-100   ",
+      [ProposalStatus.REJECTED]: "bg-rose-50 text-rose-700 border-rose-100   ",
+      [ProposalStatus.EXPIRED]: "bg-amber-50 text-amber-700 border-amber-100   ",
     };
 
     const style = statusStyles[status] || "bg-gray-100 text-gray-800";
@@ -217,38 +217,36 @@ export default function ProposalsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-900">
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 ">
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-primary/10 rounded-full blur-3xl animate-pulse"></div>
         </div>
         <div className="relative text-center space-y-4">
           <div className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin mx-auto"></div>
-          <p className="text-slate-500 dark:text-slate-400 font-medium">Loading proposals...</p>
+          <p className="text-slate-500  font-medium">Loading proposals...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
+    <div className="min-h-screen bg-transparent">
       {/* Header */}
-      <div className="sticky top-0 z-20 bg-white/80 dark:bg-slate-800/80 backdrop-blur-lg border-b border-slate-200 dark:border-slate-700">
+      <div className="sticky top-16 z-20 bg-white/80  backdrop-blur-lg border-b border-slate-200 ">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between py-4 gap-4">
             <div>
-              <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Proposals</h1>
-              <p className="text-sm text-slate-500 dark:text-slate-400">Manage quotations and track proposal status.</p>
+              <h1 className="text-2xl font-bold text-slate-900  tracking-tight">Proposals</h1>
+              <p className="text-sm text-slate-500 ">Manage quotations and track proposal status.</p>
             </div>
             <div className="flex items-center gap-3">
-              <PermissionGuard resource="PROPOSAL" action="CREATE">
-                <button
-                  onClick={() => router.push("/proposals/new")}
-                  className="flex items-center gap-2 px-5 py-2 bg-primary hover:bg-primary-hover text-white rounded-xl text-sm font-bold shadow-lg shadow-primary/25 hover:shadow-primary/40 hover:-translate-y-0.5 transition-all"
-                >
-                  <Plus className="h-4 w-4" />
-                  Create Proposal
-                </button>
-              </PermissionGuard>
+              <button
+                onClick={() => router.push("/proposals/new")}
+                className="flex items-center gap-2 px-5 py-2 bg-primary hover:bg-primary-hover text-white rounded-xl text-sm font-bold shadow-lg shadow-primary/25 hover:shadow-primary/40 hover:-translate-y-0.5 transition-all"
+              >
+                <Plus className="h-4 w-4" />
+                Create Proposal
+              </button>
             </div>
           </div>
         </div>
@@ -256,7 +254,7 @@ export default function ProposalsPage() {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6 animate-fade-in-up">
         {/* Toolbar */}
-        <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-2">
+        <div className="bg-white  rounded-2xl shadow-sm border border-slate-200  p-2">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="relative flex-1 max-w-md w-full">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
@@ -265,7 +263,7 @@ export default function ProposalsPage() {
                 placeholder="Search by title, number..."
                 value={searchTerm}
                 onChange={handleSearch}
-                className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                className="w-full pl-10 pr-4 py-2.5 bg-slate-50  border border-slate-200  rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
               />
             </div>
             <div className="flex items-center gap-2 w-full md:w-auto">
@@ -273,7 +271,7 @@ export default function ProposalsPage() {
                 <select
                   value={statusFilter}
                   onChange={(e) => handleStatusFilter(e.target.value as ProposalStatus | "ALL")}
-                  className="w-full appearance-none pl-10 pr-10 py-2.5 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all cursor-pointer"
+                  className="w-full appearance-none pl-10 pr-10 py-2.5 bg-slate-50  border border-slate-200  rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all cursor-pointer"
                 >
                   <option value="ALL">All Status</option>
                   <option value={ProposalStatus.DRAFT}>Draft</option>
@@ -290,14 +288,14 @@ export default function ProposalsPage() {
         </div>
 
         {error && (
-          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 p-4 rounded-xl flex items-center gap-3">
+          <div className="bg-red-50  border border-red-200  text-red-700  p-4 rounded-xl flex items-center gap-3">
             <AlertCircle className="h-5 w-5" />
             <p>{error}</p>
           </div>
         )}
 
         {/* Proposals Table */}
-        <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+        <div className="bg-white  rounded-2xl shadow-sm border border-slate-200  overflow-hidden">
           {filteredProposals.length === 0 ? (
             <div className="p-12 text-center">
               {searchTerm || statusFilter !== "ALL" ? (
@@ -318,7 +316,7 @@ export default function ProposalsPage() {
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
-                <thead className="bg-slate-50/50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700">
+                <thead className="bg-slate-50/50  border-b border-slate-200 ">
                   <tr>
                     {[
                       { key: 'proposalNumber', label: 'Proposal #' },
@@ -329,7 +327,7 @@ export default function ProposalsPage() {
                     ].map((col) => (
                       <th
                         key={col.key}
-                        className="px-6 py-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors group"
+                        className="px-6 py-4 text-xs font-semibold text-slate-500  uppercase tracking-wider cursor-pointer hover:bg-slate-100  transition-colors group"
                         onClick={() => handleSort(col.key)}
                       >
                         <div className="flex items-center gap-2">
@@ -338,29 +336,29 @@ export default function ProposalsPage() {
                         </div>
                       </th>
                     ))}
-                    <th className="px-6 py-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-right">Actions</th>
+                    <th className="px-6 py-4 text-xs font-semibold text-slate-500  uppercase tracking-wider text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50">
+                <tbody className="divide-y divide-slate-100 ">
                   {proposals.map((proposal) => (
                     <tr
                       key={proposal.id}
-                      className="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors group cursor-pointer"
+                      className="hover:bg-slate-50  transition-colors group cursor-pointer"
                       onClick={() => router.push(`/proposals/${proposal.id}`)}
                     >
-                      <td className="px-6 py-4 text-sm font-medium text-slate-900 dark:text-white">
+                      <td className="px-6 py-4 text-sm font-medium text-slate-900 ">
                         <span className="font-mono text-primary">{proposal.proposalNumber}</span>
                       </td>
                       <td className="px-6 py-4">
                         <div>
-                          <p className="text-sm font-semibold text-slate-900 dark:text-white">{proposal.title}</p>
-                          <div className="flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                          <p className="text-sm font-semibold text-slate-900 ">{proposal.title}</p>
+                          <div className="flex items-center gap-1 text-xs text-slate-500  mt-0.5">
                             <User className="h-3 w-3" />
                             {proposal.customerName || "No customer"}
                             {proposal.source && (
                               <>
                                 <span className="mx-1">•</span>
-                                <span className="text-xs bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded text-slate-500 lowercase">
+                                <span className="text-xs bg-slate-100  px-1.5 py-0.5 rounded text-slate-500 lowercase">
                                   {proposal.source === ProposalSource.LEAD ? "Lead" : "Opp."}
                                 </span>
                               </>
@@ -368,13 +366,13 @@ export default function ProposalsPage() {
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4 text-sm font-bold text-slate-900 dark:text-white">
+                      <td className="px-6 py-4 text-sm font-bold text-slate-900 ">
                         {formatCurrency(proposal.totalAmount)}
                       </td>
                       <td className="px-6 py-4">
                         {getStatusBadge(proposal.status)}
                       </td>
-                      <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">
+                      <td className="px-6 py-4 text-sm text-slate-600 ">
                         <div className="flex items-center gap-1.5">
                           <Clock className="h-3.5 w-3.5 text-slate-400" />
                           {formatDate(proposal.validUntil)}
@@ -389,7 +387,7 @@ export default function ProposalsPage() {
                             <PermissionGuard resource="PROPOSAL" action="SEND">
                               <button
                                 onClick={(e) => handleSend(proposal.id, e)}
-                                className="p-2 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/10 rounded-lg transition-colors"
+                                className="p-2 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50  rounded-lg transition-colors"
                                 title="Send"
                               >
                                 <Send className="h-4 w-4" />
@@ -399,7 +397,7 @@ export default function ProposalsPage() {
                           <PermissionGuard resource="PROPOSAL" action="EDIT">
                             <button
                               onClick={(e) => { e.stopPropagation(); router.push(`/proposals/${proposal.id}/edit`); }}
-                              className="p-2 text-slate-400 hover:text-primary hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
+                              className="p-2 text-slate-400 hover:text-primary hover:bg-slate-100  rounded-lg transition-colors"
                               title="Edit"
                             >
                               <FileText className="h-4 w-4" />
@@ -408,7 +406,7 @@ export default function ProposalsPage() {
                           <PermissionGuard resource="PROPOSAL" action="DELETE">
                             <button
                               onClick={(e) => { e.stopPropagation(); handleDelete(proposal.id); }}
-                              className="p-2 text-rose-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/10 rounded-lg transition-colors"
+                              className="p-2 text-rose-400 hover:text-rose-600 hover:bg-rose-50  rounded-lg transition-colors"
                               title="Delete"
                             >
                               <Trash2 className="h-4 w-4" />

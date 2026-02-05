@@ -7,6 +7,8 @@ export interface ProductResponse {
   productName: string;
   description?: string;
   basePrice: number;
+  listPrice?: number;
+  discount?: number;
   currency: string;
   unit: string;
   taxRate: number;
@@ -17,6 +19,7 @@ export interface ProductResponse {
   stockQuantity?: number;
   minStockLevel?: number;
   maxStockLevel?: number;
+  reorderLevel?: number;
   status: ProductStatus;
   isActive: boolean;
   createdAt: string;
@@ -32,6 +35,8 @@ export interface CreateProductRequest {
   productName: string;
   description?: string;
   basePrice: number;
+  listPrice?: number;
+  discount?: number;
   currency?: string;
   unit: string;
   taxRate: number;
@@ -42,12 +47,15 @@ export interface CreateProductRequest {
   stockQuantity?: number;
   minStockLevel?: number;
   maxStockLevel?: number;
+  reorderLevel?: number;
 }
 
 export interface UpdateProductRequest {
   productName?: string;
   description?: string;
   basePrice?: number;
+  listPrice?: number;
+  discount?: number;
   unit?: string;
   taxRate?: number;
   taxType?: string;
@@ -58,4 +66,5 @@ export interface UpdateProductRequest {
   stockQuantity?: number;
   minStockLevel?: number;
   maxStockLevel?: number;
+  reorderLevel?: number;
 }

@@ -22,6 +22,8 @@ public class ProductResponse {
     private String description;
 
     private BigDecimal basePrice;
+    private BigDecimal listPrice;
+    private BigDecimal discount;
     private String currency;
     private String unit;
 
@@ -35,6 +37,7 @@ public class ProductResponse {
     private Integer stockQuantity;
     private Integer minStockLevel;
     private Integer maxStockLevel;
+    private Integer reorderLevel;
 
     private ProductStatus status;
     private Boolean isActive;

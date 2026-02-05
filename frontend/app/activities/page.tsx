@@ -134,31 +134,31 @@ export default function ActivitiesPage() {
 
   const getTypeBadgeColor = (type: ActivityType) => {
     const colors = {
-      [ActivityType.TASK]: 'bg-blue-50 text-blue-700 border-blue-100 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-900/30',
-      [ActivityType.EMAIL]: 'bg-purple-50 text-purple-700 border-purple-100 dark:bg-purple-900/20 dark:text-purple-300 dark:border-purple-900/30',
-      [ActivityType.CALL]: 'bg-emerald-50 text-emerald-700 border-emerald-100 dark:bg-emerald-900/20 dark:text-emerald-300 dark:border-emerald-900/30',
-      [ActivityType.MEETING]: 'bg-orange-50 text-orange-700 border-orange-100 dark:bg-orange-900/20 dark:text-orange-300 dark:border-orange-900/30',
-      [ActivityType.NOTE]: 'bg-slate-50 text-slate-700 border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700',
+      [ActivityType.TASK]: 'bg-blue-50 text-blue-700 border-blue-100   
+      [ActivityType.EMAIL]: 'bg-purple-50 text-purple-700 border-purple-100   
+      [ActivityType.CALL]: 'bg-emerald-50 text-emerald-700 border-emerald-100   
+      [ActivityType.MEETING]: 'bg-orange-50 text-orange-700 border-orange-100   
+      [ActivityType.NOTE]: 'bg-slate-50 text-slate-700 border-slate-200   
     };
     return colors[type] || 'bg-gray-100 text-gray-800';
   };
 
   const getStatusBadgeColor = (status: ActivityStatus) => {
     const colors = {
-      [ActivityStatus.PENDING]: 'bg-amber-50 text-amber-700 border-amber-100 dark:bg-amber-900/20 dark:text-amber-300 dark:border-amber-900/30',
-      [ActivityStatus.IN_PROGRESS]: 'bg-blue-50 text-blue-700 border-blue-100 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-900/30',
-      [ActivityStatus.COMPLETED]: 'bg-emerald-50 text-emerald-700 border-emerald-100 dark:bg-emerald-900/20 dark:text-emerald-300 dark:border-emerald-900/30',
-      [ActivityStatus.CANCELLED]: 'bg-slate-50 text-slate-600 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700',
+      [ActivityStatus.PENDING]: 'bg-amber-50 text-amber-700 border-amber-100   
+      [ActivityStatus.IN_PROGRESS]: 'bg-blue-50 text-blue-700 border-blue-100   
+      [ActivityStatus.COMPLETED]: 'bg-emerald-50 text-emerald-700 border-emerald-100   
+      [ActivityStatus.CANCELLED]: 'bg-slate-50 text-slate-600 border-slate-200   
     };
     return colors[status] || 'bg-gray-100 text-gray-800';
   };
 
   const getPriorityBadgeColor = (priority: ActivityPriority) => {
     const colors = {
-      [ActivityPriority.LOW]: 'text-slate-600 bg-slate-100 dark:text-slate-400 dark:bg-slate-800',
-      [ActivityPriority.MEDIUM]: 'text-blue-600 bg-blue-50 dark:text-blue-400 dark:bg-blue-900/20',
-      [ActivityPriority.HIGH]: 'text-orange-600 bg-orange-50 dark:text-orange-400 dark:bg-orange-900/20',
-      [ActivityPriority.URGENT]: 'text-red-600 bg-red-50 dark:text-red-400 dark:bg-red-900/20',
+      [ActivityPriority.LOW]: 'text-slate-600 bg-slate-100  
+      [ActivityPriority.MEDIUM]: 'text-blue-600 bg-blue-50  
+      [ActivityPriority.HIGH]: 'text-orange-600 bg-orange-50  
+      [ActivityPriority.URGENT]: 'text-red-600 bg-red-50  
     };
     return colors[priority] || 'bg-gray-100 text-gray-800';
   };
@@ -177,27 +177,27 @@ export default function ActivitiesPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-900">
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 ">
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-primary/10 rounded-full blur-3xl animate-pulse"></div>
         </div>
         <div className="relative text-center space-y-4">
           <div className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin mx-auto"></div>
-          <p className="text-slate-500 dark:text-slate-400 font-medium">Loading activities...</p>
+          <p className="text-slate-500  font-medium">Loading activities...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
+    <div className="min-h-screen bg-transparent">
       {/* Header */}
-      <div className="sticky top-0 z-20 bg-white/80 dark:bg-slate-800/80 backdrop-blur-lg border-b border-slate-200 dark:border-slate-700">
+      <div className="sticky top-16 z-20 bg-white/80  backdrop-blur-lg border-b border-slate-200 ">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between py-4 gap-4">
             <div>
-              <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Activities</h1>
-              <p className="text-sm text-slate-500 dark:text-slate-400">Track tasks, meetings, calls, and follow-ups.</p>
+              <h1 className="text-2xl font-bold text-slate-900  tracking-tight">Activities</h1>
+              <p className="text-sm text-slate-500 ">Track tasks, meetings, calls, and follow-ups.</p>
             </div>
             <div className="flex items-center gap-3">
               <button
@@ -214,7 +214,7 @@ export default function ActivitiesPage() {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6 animate-fade-in-up">
         {/* Toolbar */}
-        <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-2">
+        <div className="bg-white  rounded-2xl shadow-sm border border-slate-200  p-2">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
             <div className="relative col-span-1 md:col-span-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
@@ -223,7 +223,7 @@ export default function ActivitiesPage() {
                 placeholder="Search..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                className="w-full pl-10 pr-4 py-2.5 bg-slate-50  border border-slate-200  rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
               />
             </div>
 
@@ -236,7 +236,7 @@ export default function ActivitiesPage() {
                 <select
                   value={filter.value}
                   onChange={(e) => filter.onChange(e.target.value)}
-                  className="w-full appearance-none pl-4 pr-10 py-2.5 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all cursor-pointer"
+                  className="w-full appearance-none pl-4 pr-10 py-2.5 bg-slate-50  border border-slate-200  rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all cursor-pointer"
                 >
                   <option value="">{filter.label}</option>
                   {filter.options.map(opt => (
@@ -251,13 +251,13 @@ export default function ActivitiesPage() {
 
         {/* Error Banner */}
         {error && (
-          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 p-4 rounded-xl flex items-center gap-3">
+          <div className="bg-red-50  border border-red-200  text-red-700  p-4 rounded-xl flex items-center gap-3">
             <AlertCircle className="h-5 w-5" />
             <div className="flex-1">
               <p className="font-medium">{error}</p>
               <button
                 onClick={() => { setError(''); loadActivities(); }}
-                className="text-sm underline mt-1 hover:text-red-800 dark:hover:text-red-200"
+                className="text-sm underline mt-1 hover:text-red-800 "
               >
                 Retry
               </button>
@@ -267,7 +267,7 @@ export default function ActivitiesPage() {
         )}
 
         {/* Activities List */}
-        <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+        <div className="bg-white  rounded-2xl shadow-sm border border-slate-200  overflow-hidden">
           {filteredActivities.length === 0 ? (
             <div className="p-12 text-center">
               {searchQuery || typeFilter || statusFilter || priorityFilter ? (
@@ -288,28 +288,28 @@ export default function ActivitiesPage() {
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
-                <thead className="bg-slate-50/50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700">
+                <thead className="bg-slate-50/50  border-b border-slate-200 ">
                   <tr>
-                    <th className="px-6 py-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Activity</th>
-                    <th className="px-6 py-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Type</th>
-                    <th className="px-6 py-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Status</th>
-                    <th className="px-6 py-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Priority</th>
-                    <th className="px-6 py-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Related To</th>
-                    <th className="px-6 py-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Due Date</th>
-                    <th className="px-6 py-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-right">Actions</th>
+                    <th className="px-6 py-4 text-xs font-semibold text-slate-500  uppercase tracking-wider">Activity</th>
+                    <th className="px-6 py-4 text-xs font-semibold text-slate-500  uppercase tracking-wider">Type</th>
+                    <th className="px-6 py-4 text-xs font-semibold text-slate-500  uppercase tracking-wider">Status</th>
+                    <th className="px-6 py-4 text-xs font-semibold text-slate-500  uppercase tracking-wider">Priority</th>
+                    <th className="px-6 py-4 text-xs font-semibold text-slate-500  uppercase tracking-wider">Related To</th>
+                    <th className="px-6 py-4 text-xs font-semibold text-slate-500  uppercase tracking-wider">Due Date</th>
+                    <th className="px-6 py-4 text-xs font-semibold text-slate-500  uppercase tracking-wider text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50">
+                <tbody className="divide-y divide-slate-100 ">
                   {paginatedActivities.map((activity) => (
                     <tr
                       key={activity.id}
-                      className="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors group cursor-pointer"
+                      className="hover:bg-slate-50  transition-colors group cursor-pointer"
                       onClick={() => router.push(`/activities/${activity.id}`)}
                     >
                       <td className="px-6 py-4">
                         <div>
-                          <p className="text-sm font-bold text-slate-900 dark:text-white line-clamp-1">{activity.subject}</p>
-                          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-1">{activity.description || "No description"}</p>
+                          <p className="text-sm font-bold text-slate-900  line-clamp-1">{activity.subject}</p>
+                          <p className="text-xs text-slate-500  mt-0.5 line-clamp-1">{activity.description || "No description"}</p>
                         </div>
                       </td>
                       <td className="px-6 py-4">
@@ -334,10 +334,10 @@ export default function ActivitiesPage() {
                           </span>
                         </div>
                       </td>
-                      <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">
+                      <td className="px-6 py-4 text-sm text-slate-600 ">
                         {activity.leadName || activity.contactName || activity.accountName || activity.opportunityName || '-'}
                       </td>
-                      <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">
+                      <td className="px-6 py-4 text-sm text-slate-600 ">
                         <div className="flex items-center gap-1.5">
                           <Clock className="h-3.5 w-3.5 text-slate-400" />
                           {activity.dueDate ? new Date(activity.dueDate).toLocaleDateString() : '-'}
@@ -347,14 +347,14 @@ export default function ActivitiesPage() {
                         <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                           <button
                             onClick={(e) => { e.stopPropagation(); router.push(`/activities/${activity.id}/edit`); }}
-                            className="p-2 text-slate-400 hover:text-primary hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
+                            className="p-2 text-slate-400 hover:text-primary hover:bg-slate-100  rounded-lg transition-colors"
                             title="Edit"
                           >
                             Edit
                           </button>
                           <button
                             onClick={(e) => { e.stopPropagation(); handleDeleteClick(activity.id); }}
-                            className="p-2 text-rose-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/10 rounded-lg transition-colors"
+                            className="p-2 text-rose-400 hover:text-rose-600 hover:bg-rose-50  rounded-lg transition-colors"
                             title="Delete"
                           >
                             <Trash2 className="h-4 w-4" />
@@ -371,24 +371,24 @@ export default function ActivitiesPage() {
 
         {/* Pagination */}
         {filteredActivities.length > 0 && (
-          <div className="flex items-center justify-between bg-white dark:bg-slate-800 px-6 py-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
-            <p className="text-sm text-slate-600 dark:text-slate-400">
-              Showing <span className="font-semibold text-slate-900 dark:text-white">{(currentPage - 1) * itemsPerPage + 1}</span> to <span className="font-semibold text-slate-900 dark:text-white">{Math.min(currentPage * itemsPerPage, filteredActivities.length)}</span> of <span className="font-semibold text-slate-900 dark:text-white">{filteredActivities.length}</span> results
+          <div className="flex items-center justify-between bg-white  px-6 py-4 rounded-2xl border border-slate-200  shadow-sm">
+            <p className="text-sm text-slate-600 ">
+              Showing <span className="font-semibold text-slate-900 ">{(currentPage - 1) * itemsPerPage + 1}</span> to <span className="font-semibold text-slate-900 ">{Math.min(currentPage * itemsPerPage, filteredActivities.length)}</span> of <span className="font-semibold text-slate-900 ">{filteredActivities.length}</span> results
             </p>
             <div className="flex items-center gap-2">
               <button
                 onClick={() => handlePageChange(currentPage - 1)}
                 disabled={currentPage === 1}
-                className="p-2 border border-slate-200 dark:border-slate-700 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+                className="p-2 border border-slate-200  rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50  transition-colors"
               >
-                <ChevronLeft className="h-5 w-5 text-slate-600 dark:text-slate-400" />
+                <ChevronLeft className="h-5 w-5 text-slate-600 " />
               </button>
               <button
                 onClick={() => handlePageChange(currentPage + 1)}
                 disabled={currentPage === totalPages}
-                className="p-2 border border-slate-200 dark:border-slate-700 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+                className="p-2 border border-slate-200  rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50  transition-colors"
               >
-                <ChevronRight className="h-5 w-5 text-slate-600 dark:text-slate-400" />
+                <ChevronRight className="h-5 w-5 text-slate-600 " />
               </button>
             </div>
           </div>

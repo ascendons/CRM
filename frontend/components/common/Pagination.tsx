@@ -23,13 +23,13 @@ export function Pagination({
     const endItem = Math.min(currentPage * pageSize, totalElements);
 
     return (
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-slate-800 px-6 py-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white px-6 py-4 rounded-2xl border border-slate-200 shadow-sm">
             {/* Information and Page Size */}
-            <div className="flex flex-col sm:flex-row sm:items-center gap-4 text-sm text-slate-600 dark:text-slate-400">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-4 text-sm text-slate-600">
                 <p>
-                    Showing <span className="font-semibold text-slate-900 dark:text-white">{startItem}</span> to{" "}
-                    <span className="font-semibold text-slate-900 dark:text-white">{endItem}</span> of{" "}
-                    <span className="font-semibold text-slate-900 dark:text-white">{totalElements}</span> results
+                    Showing <span className="font-semibold text-slate-900">{startItem}</span> to{" "}
+                    <span className="font-semibold text-slate-900">{endItem}</span> of{" "}
+                    <span className="font-semibold text-slate-900">{totalElements}</span> results
                 </p>
 
                 <div className="flex items-center gap-2">
@@ -37,7 +37,7 @@ export function Pagination({
                     <select
                         value={pageSize}
                         onChange={(e) => onPageSizeChange(Number(e.target.value))}
-                        className="px-2 py-1 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="px-2 py-1 border border-slate-300 rounded-lg bg-white text-slate-900 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     >
                         <option value={10}>10</option>
                         <option value={20}>20</option>
@@ -53,7 +53,7 @@ export function Pagination({
                 <button
                     onClick={() => onPageChange(1)}
                     disabled={currentPage === 1}
-                    className="px-3 py-1 text-sm border border-slate-200 dark:border-slate-700 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors hidden sm:block"
+                    className="px-3 py-1 text-sm border border-slate-200 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 transition-colors hidden sm:block"
                 >
                     First
                 </button>
@@ -61,29 +61,29 @@ export function Pagination({
                 <button
                     onClick={() => onPageChange(currentPage - 1)}
                     disabled={currentPage === 1}
-                    className="p-2 border border-slate-200 dark:border-slate-700 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+                    className="p-2 border border-slate-200 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 transition-colors"
                     aria-label="Previous Page"
                 >
-                    <ChevronLeft className="h-5 w-5 text-slate-600 dark:text-slate-400" />
+                    <ChevronLeft className="h-5 w-5 text-slate-600" />
                 </button>
 
-                <span className="px-2 text-sm text-slate-900 dark:text-white font-medium">
+                <span className="px-2 text-sm text-slate-900 font-medium">
                     Page {currentPage} of {totalPages}
                 </span>
 
                 <button
                     onClick={() => onPageChange(currentPage + 1)}
                     disabled={currentPage === totalPages}
-                    className="p-2 border border-slate-200 dark:border-slate-700 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+                    className="p-2 border border-slate-200 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 transition-colors"
                     aria-label="Next Page"
                 >
-                    <ChevronRight className="h-5 w-5 text-slate-600 dark:text-slate-400" />
+                    <ChevronRight className="h-5 w-5 text-slate-600" />
                 </button>
 
                 <button
                     onClick={() => onPageChange(totalPages)}
                     disabled={currentPage === totalPages}
-                    className="px-3 py-1 text-sm border border-slate-200 dark:border-slate-700 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors hidden sm:block"
+                    className="px-3 py-1 text-sm border border-slate-200 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 transition-colors hidden sm:block"
                 >
                     Last
                 </button>

@@ -40,6 +40,8 @@ public class Product {
 
     // Pricing
     private BigDecimal basePrice;  // Unit price before tax
+    private BigDecimal listPrice;  // MSRP
+    private BigDecimal discount;   // Default discount percentage
     private String currency;  // Default: "INR"
     private String unit;  // "piece", "kg", "meter", "box", etc.
 
@@ -56,6 +58,7 @@ public class Product {
     private Integer stockQuantity;
     private Integer minStockLevel;
     private Integer maxStockLevel;
+    private Integer reorderLevel;
 
     // Status
     private ProductStatus status;  // ACTIVE, DISCONTINUED, OUT_OF_STOCK

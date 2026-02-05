@@ -26,6 +26,14 @@ public class UpdateProductRequest {
     @Digits(integer = 10, fraction = 2, message = "Base price must have at most 10 integer digits and 2 decimal places")
     private BigDecimal basePrice;
 
+    @Digits(integer = 10, fraction = 2, message = "List price must have at most 10 integer digits and 2 decimal places")
+    private BigDecimal listPrice;
+
+    @Min(value = 0, message = "Discount must be at least 0")
+    @Max(value = 100, message = "Discount must be at most 100")
+    @Digits(integer = 3, fraction = 2, message = "Discount must have at most 3 integer digits and 2 decimal places")
+    private BigDecimal discount;
+
     @Size(max = 20, message = "Unit must be less than 20 characters")
     private String unit;
 
@@ -56,4 +64,7 @@ public class UpdateProductRequest {
 
     @Min(value = 0, message = "Maximum stock level must be at least 0")
     private Integer maxStockLevel;
+
+    @Min(value = 0, message = "Reorder level must be at least 0")
+    private Integer reorderLevel;
 }

@@ -47,6 +47,8 @@ public class ProductService {
                 .productName(request.getProductName())
                 .description(request.getDescription())
                 .basePrice(request.getBasePrice())
+                .listPrice(request.getListPrice())
+                .discount(request.getDiscount())
                 .currency(request.getCurrency() != null ? request.getCurrency() : "INR")
                 .unit(request.getUnit())
                 .taxRate(request.getTaxRate())
@@ -57,6 +59,7 @@ public class ProductService {
                 .stockQuantity(request.getStockQuantity())
                 .minStockLevel(request.getMinStockLevel())
                 .maxStockLevel(request.getMaxStockLevel())
+                .reorderLevel(request.getReorderLevel())
                 .status(ProductStatus.ACTIVE)
                 .isActive(true)
                 .isDeleted(false)
@@ -157,6 +160,12 @@ public class ProductService {
         if (request.getBasePrice() != null) {
             product.setBasePrice(request.getBasePrice());
         }
+        if (request.getListPrice() != null) {
+            product.setListPrice(request.getListPrice());
+        }
+        if (request.getDiscount() != null) {
+            product.setDiscount(request.getDiscount());
+        }
         if (request.getUnit() != null) {
             product.setUnit(request.getUnit());
         }
@@ -177,6 +186,12 @@ public class ProductService {
         }
         if (request.getStatus() != null) {
             product.setStatus(request.getStatus());
+            // Sync isActive with Status
+            if (request.getStatus() == ProductStatus.DISCONTINUED) {
+                product.setIsActive(false);
+            } else {
+                product.setIsActive(true);
+            }
         }
         if (request.getStockQuantity() != null) {
             product.setStockQuantity(request.getStockQuantity());
@@ -186,6 +201,9 @@ public class ProductService {
         }
         if (request.getMaxStockLevel() != null) {
             product.setMaxStockLevel(request.getMaxStockLevel());
+        }
+        if (request.getReorderLevel() != null) {
+            product.setReorderLevel(request.getReorderLevel());
         }
 
         product.setLastModifiedAt(LocalDateTime.now());
@@ -236,6 +254,8 @@ public class ProductService {
                 .productName(product.getProductName())
                 .description(product.getDescription())
                 .basePrice(product.getBasePrice())
+                .listPrice(product.getListPrice())
+                .discount(product.getDiscount())
                 .currency(product.getCurrency())
                 .unit(product.getUnit())
                 .taxRate(product.getTaxRate())
@@ -246,6 +266,7 @@ public class ProductService {
                 .stockQuantity(product.getStockQuantity())
                 .minStockLevel(product.getMinStockLevel())
                 .maxStockLevel(product.getMaxStockLevel())
+                .reorderLevel(product.getReorderLevel())
                 .status(product.getStatus())
                 .isActive(product.getIsActive())
                 .createdAt(product.getCreatedAt())

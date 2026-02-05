@@ -28,8 +28,13 @@ import {
   Briefcase,
   TrendingUp,
   Building2,
-  LucideIcon
+  LucideIcon,
+  LayoutList,
+  KanbanSquare,
+  Filter
 } from "lucide-react";
+import { LeadKanbanBoard } from "@/components/leads/LeadKanbanBoard";
+import { MultiSelectDropdown } from "@/components/common/MultiSelectDropdown";
 
 export default function LeadsPage() {
   const router = useRouter();
@@ -38,7 +43,8 @@ export default function LeadsPage() {
   const [statistics, setStatistics] = useState<LeadStatistics | null>(null);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState<LeadStatus | "ALL">("ALL");
+  const [statusFilter, setStatusFilter] = useState<LeadStatus[]>([]);
+  const [viewMode, setViewMode] = useState<"list" | "kanban">("list");
   const [error, setError] = useState("");
 
   // Pagination state
@@ -79,8 +85,8 @@ export default function LeadsPage() {
       );
     }
 
-    if (statusFilter !== "ALL") {
-      filtered = filtered.filter((lead) => lead.leadStatus === statusFilter);
+    if (statusFilter.length > 0) {
+      filtered = filtered.filter((lead) => statusFilter.includes(lead.leadStatus));
     }
 
     setFilteredLeads(filtered);
@@ -117,8 +123,8 @@ export default function LeadsPage() {
     setCurrentPage(1);
   };
 
-  const handleStatusFilter = (status: LeadStatus | "ALL") => {
-    setStatusFilter(status);
+  const handleStatusChange = (statuses: string[]) => {
+    setStatusFilter(statuses as LeadStatus[]);
     setCurrentPage(1);
   };
 
@@ -219,31 +225,47 @@ export default function LeadsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-900">
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 ">
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-primary/10 rounded-full blur-3xl animate-pulse"></div>
           <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
         </div>
         <div className="relative text-center space-y-4">
           <div className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin mx-auto"></div>
-          <p className="text-slate-500 dark:text-slate-400 font-medium">Loading leads...</p>
+          <p className="text-slate-500  font-medium">Loading leads...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
+    <div className="min-h-screen bg-transparent">
       {/* Sticky Header */}
-      <div className="sticky top-0 z-20 bg-white/80 dark:bg-slate-800/80 backdrop-blur-lg border-b border-slate-200 dark:border-slate-700">
+      <div className="sticky top-16 z-20 bg-white/80  backdrop-blur-lg border-b border-slate-200 ">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between py-4 gap-4">
             <div>
-              <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Lead Prospecting</h1>
-              <p className="text-sm text-slate-500 dark:text-slate-400">Manage and convert your incoming prospects.</p>
+              <h1 className="text-2xl font-bold text-slate-900  tracking-tight">Lead Prospecting</h1>
+              <p className="text-sm text-slate-500 ">Manage and convert your incoming prospects.</p>
             </div>
             <div className="flex items-center gap-3">
-              <button className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 rounded-xl text-sm font-semibold hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors shadow-sm">
+              <div className="flex items-center bg-slate-100 p-1 rounded-lg border border-slate-200">
+                <button
+                  onClick={() => setViewMode("list")}
+                  className={`p-1.5 rounded-md transition-all ${viewMode === "list" ? "bg-white text-slate-800 shadow-sm" : "text-slate-500 hover:text-slate-700"}`}
+                  title="List View"
+                >
+                  <LayoutList className="h-4 w-4" />
+                </button>
+                <button
+                  onClick={() => setViewMode("kanban")}
+                  className={`p-1.5 rounded-md transition-all ${viewMode === "kanban" ? "bg-white text-slate-800 shadow-sm" : "text-slate-500 hover:text-slate-700"}`}
+                  title="Kanban View"
+                >
+                  <KanbanSquare className="h-4 w-4" />
+                </button>
+              </div>
+              <button className="flex items-center gap-2 px-4 py-2 bg-white  border border-slate-200  text-slate-700  rounded-xl text-sm font-semibold hover:bg-slate-50  transition-colors shadow-sm">
                 <Download className="h-4 w-4" />
                 Export
               </button>
@@ -272,35 +294,26 @@ export default function LeadsPage() {
         )}
 
         {/* Filters & Actions */}
-        <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-1">
+        <div className="bg-white  rounded-2xl shadow-sm border border-slate-200  p-1">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 p-2">
             {/* Tabs */}
-            <div className="flex items-center bg-slate-100 dark:bg-slate-900/50 rounded-xl p-1 w-full md:w-auto">
-              {[
-                { id: 'ALL', label: 'All Leads' },
-                { id: LeadStatus.NEW, label: 'New' },
-                { id: LeadStatus.CONTACTED, label: 'Contacted' },
-                { id: LeadStatus.QUALIFIED, label: 'Qualified' }
-              ].map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => handleStatusFilter(tab.id as LeadStatus | "ALL")}
-                  className={`flex-1 md:flex-none px-4 py-2 text-sm font-semibold rounded-lg transition-all ${statusFilter === tab.id
-                      ? "bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm"
-                      : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
-                    }`}
-                >
-                  {tab.label}
-                </button>
-              ))}
-            </div>
+            {/* Status Filter Dropdown */}
+            <MultiSelectDropdown
+              label="Status"
+              options={Object.values(LeadStatus).map((status) => ({
+                label: status.replace(/_/g, " ").toLowerCase().replace(/\b\w/g, l => l.toUpperCase()),
+                value: status,
+              }))}
+              selectedValues={statusFilter}
+              onChange={handleStatusChange}
+            />
 
             {/* Search & Bulk Actions */}
             <div className="flex items-center gap-3 w-full md:w-auto">
               {selectedLeads.length > 0 ? (
-                <div className="flex items-center gap-3 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 px-4 py-2 rounded-xl text-sm font-medium w-full md:w-auto animate-fade-in">
+                <div className="flex items-center gap-3 bg-blue-50  text-blue-700  px-4 py-2 rounded-xl text-sm font-medium w-full md:w-auto animate-fade-in">
                   <span>{selectedLeads.length} selected</span>
-                  <div className="h-4 w-px bg-blue-200 dark:bg-blue-800 mx-1"></div>
+                  <div className="h-4 w-px bg-blue-200  mx-1"></div>
                   <button onClick={() => setSelectedLeads([])} className="hover:underline">Clear</button>
                   <button
                     onClick={() => setShowBulkDeleteModal(true)}
@@ -318,7 +331,7 @@ export default function LeadsPage() {
                     placeholder="Search leads..."
                     value={searchTerm}
                     onChange={handleSearch}
-                    className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                    className="w-full pl-10 pr-4 py-2.5 bg-slate-50  border border-slate-200  rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                   />
                 </div>
               )}
@@ -328,195 +341,201 @@ export default function LeadsPage() {
 
         {/* Error State */}
         {error && (
-          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 p-4 rounded-xl flex items-center gap-3">
+          <div className="bg-red-50  border border-red-200  text-red-700  p-4 rounded-xl flex items-center gap-3">
             <XCircle className="h-5 w-5" />
             <p>{error}</p>
           </div>
         )}
 
-        {/* Lead Table */}
-        <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="bg-slate-50/50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700">
-                  <th className="px-6 py-4 w-12">
-                    <div className="flex items-center">
-                      <input
-                        type="checkbox"
-                        checked={isAllSelected}
-                        ref={(el) => {
-                          if (el) el.indeterminate = isSomeSelected;
-                        }}
-                        onChange={(e) => handleSelectAll(e.target.checked)}
-                        className="w-4 h-4 text-primary bg-white border-slate-300 rounded focus:ring-primary focus:ring-2 cursor-pointer transition-all"
-                      />
-                    </div>
-                  </th>
-                  {[
-                    { key: 'name', label: 'Lead Name' },
-                    { key: 'company', label: 'Company' },
-                    { key: 'score', label: 'Lead Score' },
-                    { key: 'status', label: 'Status' },
-                    { key: 'createdAt', label: 'Created' },
-                  ].map((col) => (
-                    <th
-                      key={col.key}
-                      className="px-6 py-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors group"
-                      onClick={() => handleSort(col.key)}
-                    >
-                      <div className="flex items-center gap-2">
-                        {col.label}
-                        <ArrowUpDown className={`h-3 w-3 ${sortColumn === col.key ? 'text-primary' : 'text-slate-300 group-hover:text-slate-500'}`} />
-                      </div>
-                    </th>
-                  ))}
-                  <th className="px-6 py-4"></th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50">
-                {sortedLeads.length === 0 ? (
-                  <tr>
-                    <td colSpan={7} className="p-12 text-center">
-                      {searchTerm || statusFilter !== "ALL" ? (
-                        <EmptyState
-                          icon="search"
-                          title="No leads found"
-                          description="No leads match your current filters. Try adjusting your search criteria."
-                        />
-                      ) : (
-                        <EmptyState
-                          icon="users"
-                          title="No leads yet"
-                          description="Get started by adding your first lead to the CRM."
-                          action={{
-                            label: "Add Your First Lead",
-                            href: "/leads/new",
-                          }}
-                        />
-                      )}
-                    </td>
-                  </tr>
-                ) : (
-                  paginatedLeads.map((lead) => (
-                    <tr
-                      key={lead.id}
-                      className="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors group cursor-pointer"
-                      onClick={() => router.push(`/leads/${lead.id}`)}
-                    >
-                      <td className="px-6 py-4" onClick={(e) => e.stopPropagation()}>
+        {/* Lead Table / Kanban Board */}
+        {viewMode === "list" ? (
+          <>
+            <div className="bg-white  rounded-2xl shadow-sm border border-slate-200  overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="bg-slate-50/50  border-b border-slate-200 ">
+                      <th className="px-6 py-4 w-12">
                         <div className="flex items-center">
                           <input
                             type="checkbox"
-                            checked={selectedLeads.includes(lead.id)}
-                            onChange={(e) => handleSelectLead(lead.id, e.target.checked)}
-                            className="w-4 h-4 text-primary bg-white border-slate-300 rounded focus:ring-primary focus:ring-2 cursor-pointer"
+                            checked={isAllSelected}
+                            ref={(el) => {
+                              if (el) el.indeterminate = isSomeSelected;
+                            }}
+                            onChange={(e) => handleSelectAll(e.target.checked)}
+                            className="w-4 h-4 text-primary bg-white border-slate-300 rounded focus:ring-primary focus:ring-2 cursor-pointer transition-all"
                           />
                         </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-3">
-                          <div className="h-9 w-9 rounded-full bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 flex items-center justify-center text-blue-700 dark:text-blue-300 font-bold text-xs ring-2 ring-white dark:ring-slate-800 shadow-sm">
-                            {lead.firstName[0]}{lead.lastName[0]}
+                      </th>
+                      {[
+                        { key: 'name', label: 'Lead Name' },
+                        { key: 'company', label: 'Company' },
+                        { key: 'score', label: 'Lead Score' },
+                        { key: 'status', label: 'Status' },
+                        { key: 'createdAt', label: 'Created' },
+                      ].map((col) => (
+                        <th
+                          key={col.key}
+                          className="px-6 py-4 text-xs font-semibold text-slate-500  uppercase tracking-wider cursor-pointer hover:bg-slate-100  transition-colors group"
+                          onClick={() => handleSort(col.key)}
+                        >
+                          <div className="flex items-center gap-2">
+                            {col.label}
+                            <ArrowUpDown className={`h-3 w-3 ${sortColumn === col.key ? 'text-primary' : 'text-slate-300 group-hover:text-slate-500'}`} />
                           </div>
-                          <div>
-                            <p className="text-sm font-semibold text-slate-900 dark:text-white">
-                              {formatLeadName(lead)}
-                            </p>
-                            <p className="text-xs text-slate-500 dark:text-slate-400">{lead.email}</p>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 text-sm font-medium text-slate-700 dark:text-slate-300">
-                        <div className="flex items-center gap-2">
-                          <Building2 className="h-4 w-4 text-slate-400" />
-                          {lead.companyName}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-2">
-                          <div className="flex-1 h-2 w-16 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
-                            <div
-                              className={`h-full rounded-full ${lead.leadScore && lead.leadScore > 70 ? 'bg-emerald-500' : lead.leadScore && lead.leadScore > 40 ? 'bg-yellow-500' : 'bg-red-500'}`}
-                              style={{ width: `${lead.leadScore || 0}%` }}
-                            ></div>
-                          </div>
-                          <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
-                            {lead.leadScore || 0}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <span
-                          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold capitalize border ${lead.leadStatus === LeadStatus.NEW ? 'bg-blue-50 text-blue-700 border-blue-100 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-900/30' :
-                              lead.leadStatus === LeadStatus.QUALIFIED ? 'bg-emerald-50 text-emerald-700 border-emerald-100 dark:bg-emerald-900/20 dark:text-emerald-300 dark:border-emerald-900/30' :
-                                lead.leadStatus === LeadStatus.CONTACTED ? 'bg-yellow-50 text-yellow-700 border-yellow-100 dark:bg-yellow-900/20 dark:text-yellow-300 dark:border-yellow-900/30' :
-                                  'bg-slate-100 text-slate-700 border-slate-200'
+                        </th>
+                      ))}
+                      <th className="px-6 py-4"></th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 ">
+                    {sortedLeads.length === 0 ? (
+                      <tr>
+                        <td colSpan={7} className="p-12 text-center">
+                          {searchTerm || statusFilter.length > 0 ? (
+                            <EmptyState
+                              icon="search"
+                              title="No leads found"
+                              description="No leads match your current filters. Try adjusting your search criteria."
+                            />
+                          ) : (
+                            <EmptyState
+                              icon="users"
+                              title="No leads yet"
+                              description="Get started by adding your first lead to the CRM."
+                              action={{
+                                label: "Add Your First Lead",
+                                href: "/leads/new",
+                              }}
+                            />
+                          )}
+                        </td>
+                      </tr>
+                    ) : (
+                      paginatedLeads.map((lead) => (
+                        <tr
+                          key={lead.id}
+                          className="hover:bg-slate-50  transition-colors group cursor-pointer"
+                          onClick={() => router.push(`/leads/${lead.id}`)}
+                        >
+                          <td className="px-6 py-4" onClick={(e) => e.stopPropagation()}>
+                            <div className="flex items-center">
+                              <input
+                                type="checkbox"
+                                checked={selectedLeads.includes(lead.id)}
+                                onChange={(e) => handleSelectLead(lead.id, e.target.checked)}
+                                className="w-4 h-4 text-primary bg-white border-slate-300 rounded focus:ring-primary focus:ring-2 cursor-pointer"
+                              />
+                            </div>
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="flex items-center gap-3">
+                              <div className="h-9 w-9 rounded-full bg-gradient-to-br from-blue-100 to-indigo-100   flex items-center justify-center text-blue-700  font-bold text-xs ring-2 ring-white  shadow-sm">
+                                {lead.firstName[0]}{lead.lastName[0]}
+                              </div>
+                              <div>
+                                <p className="text-sm font-semibold text-slate-900 ">
+                                  {formatLeadName(lead)}
+                                </p>
+                                <p className="text-xs text-slate-500 ">{lead.email}</p>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 text-sm font-medium text-slate-700 ">
+                            <div className="flex items-center gap-2">
+                              <Building2 className="h-4 w-4 text-slate-400" />
+                              {lead.companyName}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="flex items-center gap-2">
+                              <div className="flex-1 h-2 w-16 bg-slate-100  rounded-full overflow-hidden">
+                                <div
+                                  className={`h-full rounded-full ${lead.leadScore && lead.leadScore > 70 ? 'bg-emerald-500' : lead.leadScore && lead.leadScore > 40 ? 'bg-yellow-500' : 'bg-red-500'}`}
+                                  style={{ width: `${lead.leadScore || 0}%` }}
+                                ></div>
+                              </div>
+                              <span className="text-xs font-bold text-slate-700 ">
+                                {lead.leadScore || 0}
+                              </span>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4">
+                            <span
+                              className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold capitalize border ${lead.leadStatus === LeadStatus.NEW ? 'bg-blue-50 text-blue-700 border-blue-100' :
+                                lead.leadStatus === LeadStatus.QUALIFIED ? 'bg-emerald-50 text-emerald-700 border-emerald-100' :
+                                  lead.leadStatus === LeadStatus.CONTACTED ? 'bg-yellow-50 text-yellow-700 border-yellow-100' :
+                                    'bg-slate-100 text-slate-700 border-slate-200'
+                                }`}
+                            >
+                              <span className={`h-1.5 w-1.5 rounded-full ${lead.leadStatus === LeadStatus.NEW ? 'bg-blue-500' :
+                                lead.leadStatus === LeadStatus.QUALIFIED ? 'bg-emerald-500' :
+                                  lead.leadStatus === LeadStatus.CONTACTED ? 'bg-yellow-500' :
+                                    'bg-slate-500'
+                                }`}></span>
+                              {lead.leadStatus.toLowerCase().replace("_", " ")}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 text-xs text-slate-500 ">
+                            {new Date(lead.createdAt).toLocaleDateString()}
+                          </td>
+                          <td className="px-6 py-4 text-right">
+                            <button className="p-2 text-slate-400 hover:text-primary transition-colors hover:bg-slate-100  rounded-lg">
+                              <ChevronRight className="h-5 w-5" />
+                            </button>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Pagination */}
+            {sortedLeads.length > 0 && (
+              <div className="flex items-center justify-between bg-white  px-6 py-4 rounded-2xl border border-slate-200  shadow-sm">
+                <p className="text-sm text-slate-600 ">
+                  Showing <span className="font-semibold text-slate-900 ">{(currentPage - 1) * itemsPerPage + 1}</span> to <span className="font-semibold text-slate-900 ">{Math.min(currentPage * itemsPerPage, sortedLeads.length)}</span> of <span className="font-semibold text-slate-900 ">{sortedLeads.length}</span> results
+                </p>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => handlePageChange(currentPage - 1)}
+                    disabled={currentPage === 1}
+                    className="p-2 border border-slate-200  rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50  transition-colors"
+                  >
+                    <ChevronLeft className="h-5 w-5 text-slate-600 " />
+                  </button>
+                  {Array.from({ length: totalPages }, (_, i) => i + 1)
+                    .filter(page => page === 1 || page === totalPages || Math.abs(page - currentPage) <= 1)
+                    .map((page, index, array) => (
+                      <div key={page} className="flex items-center">
+                        {index > 0 && array[index - 1] !== page - 1 && <span className="mx-1 text-slate-400">...</span>}
+                        <button
+                          onClick={() => handlePageChange(page)}
+                          className={`h-9 w-9 flex items-center justify-center rounded-lg text-sm font-medium transition-colors ${currentPage === page
+                            ? "bg-primary text-white shadow-lg shadow-primary/25"
+                            : "text-slate-600  hover:bg-slate-50 "
                             }`}
                         >
-                          <span className={`h-1.5 w-1.5 rounded-full ${lead.leadStatus === LeadStatus.NEW ? 'bg-blue-500' :
-                              lead.leadStatus === LeadStatus.QUALIFIED ? 'bg-emerald-500' :
-                                lead.leadStatus === LeadStatus.CONTACTED ? 'bg-yellow-500' :
-                                  'bg-slate-500'
-                            }`}></span>
-                          {lead.leadStatus.toLowerCase().replace("_", " ")}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-xs text-slate-500 dark:text-slate-400">
-                        {new Date(lead.createdAt).toLocaleDateString()}
-                      </td>
-                      <td className="px-6 py-4 text-right">
-                        <button className="p-2 text-slate-400 hover:text-primary transition-colors hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg">
-                          <ChevronRight className="h-5 w-5" />
+                          {page}
                         </button>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        {/* Pagination */}
-        {sortedLeads.length > 0 && (
-          <div className="flex items-center justify-between bg-white dark:bg-slate-800 px-6 py-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
-            <p className="text-sm text-slate-600 dark:text-slate-400">
-              Showing <span className="font-semibold text-slate-900 dark:text-white">{(currentPage - 1) * itemsPerPage + 1}</span> to <span className="font-semibold text-slate-900 dark:text-white">{Math.min(currentPage * itemsPerPage, sortedLeads.length)}</span> of <span className="font-semibold text-slate-900 dark:text-white">{sortedLeads.length}</span> results
-            </p>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => handlePageChange(currentPage - 1)}
-                disabled={currentPage === 1}
-                className="p-2 border border-slate-200 dark:border-slate-700 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
-              >
-                <ChevronLeft className="h-5 w-5 text-slate-600 dark:text-slate-400" />
-              </button>
-              {Array.from({ length: totalPages }, (_, i) => i + 1)
-                .filter(page => page === 1 || page === totalPages || Math.abs(page - currentPage) <= 1)
-                .map((page, index, array) => (
-                  <div key={page} className="flex items-center">
-                    {index > 0 && array[index - 1] !== page - 1 && <span className="mx-1 text-slate-400">...</span>}
-                    <button
-                      onClick={() => handlePageChange(page)}
-                      className={`h-9 w-9 flex items-center justify-center rounded-lg text-sm font-medium transition-colors ${currentPage === page
-                          ? "bg-primary text-white shadow-lg shadow-primary/25"
-                          : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700"
-                        }`}
-                    >
-                      {page}
-                    </button>
-                  </div>
-                ))}
-              <button
-                onClick={() => handlePageChange(currentPage + 1)}
-                disabled={currentPage === totalPages}
-                className="p-2 border border-slate-200 dark:border-slate-700 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
-              >
-                <ChevronRight className="h-5 w-5 text-slate-600 dark:text-slate-400" />
-              </button>
-            </div>
-          </div>
+                      </div>
+                    ))}
+                  <button
+                    onClick={() => handlePageChange(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                    className="p-2 border border-slate-200  rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50  transition-colors"
+                  >
+                    <ChevronRight className="h-5 w-5 text-slate-600 " />
+                  </button>
+                </div>
+              </div>
+            )}
+          </>
+        ) : (
+          <LeadKanbanBoard leads={filteredLeads} filter={statusFilter} />
         )}
       </main>
 
@@ -538,26 +557,26 @@ export default function LeadsPage() {
 
 function StatCard({ icon: Icon, title, value, color, delay }: { icon: LucideIcon, title: string; value: number; color: string, delay: number }) {
   const colorStyles: Record<string, string> = {
-    blue: "text-blue-600 bg-blue-50 dark:bg-blue-900/20 dark:text-blue-400",
-    indigo: "text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 dark:text-indigo-400",
-    yellow: "text-yellow-600 bg-yellow-50 dark:bg-yellow-900/20 dark:text-yellow-400",
-    emerald: "text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20 dark:text-emerald-400",
-    purple: "text-purple-600 bg-purple-50 dark:bg-purple-900/20 dark:text-purple-400",
+    blue: "text-blue-600 bg-blue-50  ",
+    indigo: "text-indigo-600 bg-indigo-50  ",
+    yellow: "text-yellow-600 bg-yellow-50  ",
+    emerald: "text-emerald-600 bg-emerald-50  ",
+    purple: "text-purple-600 bg-purple-50  ",
   };
 
   const style = colorStyles[color] || "text-slate-600 bg-slate-50";
 
   return (
     <div
-      className="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 hover:-translate-y-1 transition-transform duration-300 animate-fade-in-up"
+      className="bg-white  p-4 rounded-2xl shadow-sm border border-slate-200  hover:-translate-y-1 transition-transform duration-300 animate-fade-in-up"
       style={{ animationDelay: `${delay}s`, animationFillMode: 'both' }}
     >
       <div className={`h-10 w-10 rounded-xl ${style} flex items-center justify-center mb-3`}>
         <Icon className="h-5 w-5" />
       </div>
       <div>
-        <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{title}</p>
-        <h3 className="text-2xl font-bold text-slate-900 dark:text-white mt-1">{value}</h3>
+        <p className="text-sm font-medium text-slate-500 ">{title}</p>
+        <h3 className="text-2xl font-bold text-slate-900  mt-1">{value}</h3>
       </div>
     </div>
   );
