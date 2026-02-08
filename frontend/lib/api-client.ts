@@ -16,9 +16,9 @@ export class ApiError extends Error {
 export async function apiRequest<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const token = localStorage.getItem("auth_token");
 
-  const headers: HeadersInit = {
+  const headers: Record<string, string> = {
     "Content-Type": "application/json",
-    ...options.headers,
+    ...(options.headers as Record<string, string>),
   };
 
   if (token && !endpoint.includes("/auth/")) {
@@ -80,4 +80,41 @@ export const api = {
     }),
 
   delete: <T>(endpoint: string) => apiRequest<T>(endpoint, { method: "DELETE" }),
+
+  upload: async <T>(endpoint: string, formData: FormData): Promise<T> => {
+    const token = localStorage.getItem("auth_token");
+    const headers: Record<string, string> = {};
+    if (token) headers["Authorization"] = `Bearer ${token}`;
+
+    const response = await fetch(`${API_URL}${endpoint}`, {
+      method: "POST",
+      headers,
+      body: formData,
+    });
+
+    const data: ApiResponse<T> = await response.json();
+
+    if (!response.ok) {
+      throw new ApiError(data.message || "An error occurred", response.status, data.errors);
+    }
+
+    return data.data as T;
+  },
+
+  download: async (endpoint: string): Promise<Blob> => {
+    const token = localStorage.getItem("auth_token");
+    const headers: Record<string, string> = {};
+    if (token) headers["Authorization"] = `Bearer ${token}`;
+
+    const response = await fetch(`${API_URL}${endpoint}`, {
+      method: "GET",
+      headers,
+    });
+
+    if (!response.ok) {
+      throw new ApiError("Failed to download file", response.status);
+    }
+
+    return response.blob();
+  },
 };

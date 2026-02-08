@@ -238,4 +238,41 @@ public class ProductController {
                         .message("Product deleted successfully")
                         .build());
     }
+    private final com.ultron.backend.service.ProductImportService productImportService;
+
+    /**
+     * Download product import template
+     * GET /api/v1/products/template
+     */
+    @GetMapping("/template")
+    public ResponseEntity<byte[]> downloadTemplate() {
+        byte[] template = productImportService.generateTemplate();
+
+        return ResponseEntity.ok()
+                .header(org.springframework.http.HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=product_import_template.xlsx")
+                .contentType(org.springframework.http.MediaType.APPLICATION_OCTET_STREAM)
+                .body(template);
+    }
+
+    /**
+     * Import products from Excel/CSV
+     * POST /api/v1/products/import
+     */
+    @PostMapping("/import")
+    public ResponseEntity<ApiResponse<List<ProductResponse>>> importProducts(
+            @RequestParam("file") org.springframework.web.multipart.MultipartFile file,
+            Authentication authentication) {
+        
+        String currentUserId = authentication.getName();
+        log.info("User {} importing products from file: {}", currentUserId, file.getOriginalFilename());
+
+        List<ProductResponse> products = productImportService.importProducts(file, currentUserId);
+
+        return ResponseEntity.ok(
+                ApiResponse.<List<ProductResponse>>builder()
+                        .success(true)
+                        .message("Products imported successfully. Count: " + products.size())
+                        .data(products)
+                        .build());
+    }
 }

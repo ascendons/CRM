@@ -76,4 +76,14 @@ export const productsService = {
   async deleteProduct(id: string): Promise<void> {
     return api.delete(`/products/${id}`);
   },
+
+  async downloadTemplate(): Promise<Blob> {
+    return api.download("/products/template");
+  },
+
+  async importProducts(file: File): Promise<ProductResponse[]> {
+    const formData = new FormData();
+    formData.append("file", file);
+    return api.upload<ProductResponse[]>("/products/import", formData);
+  },
 };

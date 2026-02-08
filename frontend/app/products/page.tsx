@@ -19,12 +19,15 @@ import {
 } from "lucide-react";
 import { Pagination } from "@/components/common/Pagination";
 import { PermissionGuard } from "@/components/common/PermissionGuard";
+import { ProductImportModal } from "@/components/products/ProductImportModal";
+import { Upload } from "lucide-react";
 
 export default function ProductsPage() {
   const router = useRouter();
   const [products, setProducts] = useState<ProductResponse[]>([]);
   // filteredProducts removed as filtering is server-side
   const [loading, setLoading] = useState(true);
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<string>("ALL");
   const [error, setError] = useState("");
@@ -147,6 +150,13 @@ export default function ProductsPage() {
               <p className="text-sm text-slate-500 ">Manage your inventory and product details.</p>
             </div>
             <div className="flex items-center gap-3">
+              <button
+                onClick={() => setIsImportModalOpen(true)}
+                className="flex items-center gap-2 px-5 py-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 rounded-xl text-sm font-bold shadow-sm transition-all"
+              >
+                <Upload className="h-4 w-4" />
+                Import
+              </button>
               <button
                 onClick={() => router.push("/products/new")}
                 className="flex items-center gap-2 px-5 py-2 bg-primary hover:bg-primary-hover text-white rounded-xl text-sm font-bold shadow-lg shadow-primary/25 hover:shadow-primary/40 hover:-translate-y-0.5 transition-all"
@@ -318,6 +328,12 @@ export default function ProductsPage() {
           </>
         )}
       </main>
+
+      <ProductImportModal
+        isOpen={isImportModalOpen}
+        onClose={() => setIsImportModalOpen(false)}
+        onSuccess={loadProducts}
+      />
     </div>
   );
 }

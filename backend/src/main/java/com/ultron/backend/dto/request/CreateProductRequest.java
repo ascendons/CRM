@@ -1,5 +1,6 @@
 package com.ultron.backend.dto.request;
 
+import com.ultron.backend.domain.enums.ProductStatus;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -78,4 +79,7 @@ public class CreateProductRequest {
 
     @Min(value = 0, message = "Reorder level must be at least 0")
     private Integer reorderLevel;
+
+    // Status (optional, defaults to ACTIVE in service)
+    private ProductStatus status;
 }
