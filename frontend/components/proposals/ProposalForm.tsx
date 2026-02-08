@@ -73,6 +73,7 @@ export default function ProposalForm({
             unitPrice: item.unitPrice,
             discountType: item.discountType,
             discountValue: item.discountValue,
+            description: item.description, // Map existing description
             productName: item.productName, // Map existing name
         })) || [
             {
@@ -81,6 +82,7 @@ export default function ProposalForm({
                 unitPrice: undefined,
                 discountType: undefined,
                 discountValue: undefined,
+                description: "",
                 productName: "",
             },
         ]
@@ -133,6 +135,7 @@ export default function ProposalForm({
                 unitPrice: undefined,
                 discountType: undefined,
                 discountValue: undefined,
+                description: "",
                 productName: "",
             },
         ]);
@@ -209,6 +212,7 @@ export default function ProposalForm({
             productId: item.productId,
             quantity: item.quantity,
             unitPrice: item.unitPrice,
+            description: item.description,
             discountType: item.discountType,
             discountValue: item.discountValue,
         }));
@@ -442,22 +446,39 @@ export default function ProposalForm({
                                     ) : (
                                         <CatalogProductSearch
                                             onSelect={(product) => {
-                                                // Handle selection
-                                                // 1. Update productId
-                                                updateLineItem(index, "productId", product.id);
+                                                // Handle selection atomically
+                                                setLineItems(prev => {
+                                                    const updated = [...prev];
+                                                    const currentItem = updated[index];
 
-                                                // 2. Try to find price
-                                                const priceAttr = product.attributes.find(a =>
-                                                    a.key === 'base_price' ||
-                                                    a.key === 'list_price' ||
-                                                    a.key === 'price'
-                                                );
-                                                if (priceAttr && priceAttr.numericValue) {
-                                                    updateLineItem(index, "unitPrice", priceAttr.numericValue);
-                                                }
+                                                    // Base updates
+                                                    const newUpdates: Partial<FormLineItem> = {
+                                                        productId: product.id,
+                                                        productName: product.displayName
+                                                    };
 
-                                                // 3. Store name for display
-                                                updateLineItem(index, "productName", product.displayName);
+                                                    // Price
+                                                    const priceAttr = product.attributes.find(a =>
+                                                        a.key === 'base_price' ||
+                                                        a.key === 'list_price' ||
+                                                        a.key === 'price'
+                                                    );
+                                                    if (priceAttr && priceAttr.numericValue) {
+                                                        newUpdates.unitPrice = priceAttr.numericValue;
+                                                    }
+
+                                                    // Description
+                                                    const descAttr = product.attributes.find(a =>
+                                                        a.key === 'description' ||
+                                                        a.key.includes('description')
+                                                    );
+                                                    if (descAttr && descAttr.value) {
+                                                        newUpdates.description = descAttr.value;
+                                                    }
+
+                                                    updated[index] = { ...currentItem, ...newUpdates };
+                                                    return updated;
+                                                });
                                             }}
                                             required
                                         />
@@ -556,6 +577,25 @@ export default function ProposalForm({
                                         />
                                     </div>
                                 )}
+
+                                <div className="md:col-span-2 lg:col-span-4 mt-2">
+                                    <label className="block text-xs font-medium text-gray-500 mb-1">
+                                        Description (Optional)
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={item.description || ""}
+                                        onChange={(e) =>
+                                            updateLineItem(
+                                                index,
+                                                "description",
+                                                e.target.value
+                                            )
+                                        }
+                                        placeholder="Product description or custom notes..."
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
+                                    />
+                                </div>
                             </div>
                         </div>
                     ))}
@@ -700,6 +740,6 @@ export default function ProposalForm({
                             : "Update Proposal"}
                 </button>
             </div>
-        </form>
+        </form >
     );
 }

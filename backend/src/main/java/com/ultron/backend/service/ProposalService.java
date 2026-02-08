@@ -375,6 +375,7 @@ public class ProposalService {
                             .productId(product.getId())
                             .productName(product.getProductName())
                             .sku(product.getSku())
+                            .description(dto.getDescription() != null ? dto.getDescription() : product.getDescription())
                             .quantity(dto.getQuantity())
                             .unit(product.getUnit())
                             .unitPrice(dto.getUnitPrice() != null ? dto.getUnitPrice() : product.getBasePrice())
@@ -398,6 +399,7 @@ public class ProposalService {
                 .productId(product.getId())
                 .productName(product.getDisplayName() != null ? product.getDisplayName() : "Unknown Product")
                 .sku(product.getProductId()) // Use business ID as SKU
+                .description(dto.getDescription() != null ? dto.getDescription() : findAttributeValue(product, "description", null))
                 .quantity(dto.getQuantity())
                 .unit(findAttributeValue(product, "unit", "pcs"))
                 .unitPrice(dto.getUnitPrice() != null ? dto.getUnitPrice() : BigDecimal.valueOf(findAttributeNumericValue(product, "price", 0.0)))
@@ -413,6 +415,7 @@ public class ProposalService {
                 .productId(product.getId())
                 .productName(product.getDisplayName() != null ? product.getDisplayName() : "Unknown Product")
                 .sku(product.getProductId()) // Use business ID as SKU
+                .description(dto.getDescription() != null ? dto.getDescription() : findAttributeValue(product, "description", null))
                 .quantity(dto.getQuantity())
                 .unit(findAttributeValue(product, "unit", "pcs"))
                 .unitPrice(dto.getUnitPrice() != null ? dto.getUnitPrice() : BigDecimal.valueOf(findAttributeNumericValue(product, "price", 0.0)))
@@ -449,6 +452,7 @@ public class ProposalService {
                             .productId(product.getId())
                             .productName(product.getProductName())
                             .sku(product.getSku())
+                            .description(dto.getDescription() != null ? dto.getDescription() : product.getDescription())
                             .quantity(dto.getQuantity())
                             .unit(product.getUnit())
                             .unitPrice(dto.getUnitPrice() != null ? dto.getUnitPrice() : product.getBasePrice())

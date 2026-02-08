@@ -117,6 +117,7 @@ export interface LineItemDTO {
   productId: string;
   quantity: number;
   unitPrice?: number;
+  description?: string;
   discountType?: DiscountType;
   discountValue?: number;
 }

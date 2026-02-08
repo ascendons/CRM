@@ -107,6 +107,7 @@ public class Proposal {
         private String productId;  // Reference to Product
         private String productName;  // Denormalized
         private String sku;  // Denormalized
+        private String description;
 
         private Integer quantity;
         private String unit;
