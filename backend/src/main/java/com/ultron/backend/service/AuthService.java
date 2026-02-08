@@ -28,6 +28,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final SeedDataService seedDataService;
     private final UserIdGeneratorService userIdGeneratorService;
+    private final UserActivityService userActivityService;
 
     public AuthResponse register(RegisterRequest request) {
         log.info("Attempting to register user with email: {}", request.getEmail());
@@ -135,15 +136,22 @@ public class AuthService {
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             log.warn("Login failed - invalid password for email: {}", request.getEmail());
+            // Log failed login attempt
+            userActivityService.logLogin(user.getId(), false);
             throw new InvalidCredentialsException("Invalid email or password");
         }
 
         if (user.getStatus() != UserStatus.ACTIVE) {
             log.warn("Login failed - user account is not active: {}", request.getEmail());
+            // Log failed login attempt
+            userActivityService.logLogin(user.getId(), false);
             throw new UserInactiveException("Your account is not active. Please contact support.");
         }
 
         log.info("User logged in successfully: {}", user.getId());
+
+        // Log login activity
+        userActivityService.logLogin(user.getId(), true);
 
         String token = jwtService.generateToken(
                 user.getId(),

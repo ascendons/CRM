@@ -35,10 +35,40 @@ export interface CurrentUser {
   managerName?: string;
   status: string;
   lastLoginAt?: string;
+  phone?: string;
+  mobilePhone?: string;
+
+  settings?: {
+    timeZone?: string;
+    language?: string;
+    dateFormat?: string;
+    currency?: string;
+    emailNotifications?: boolean;
+    desktopNotifications?: boolean;
+  };
 }
 
 export const meService = {
   async getCurrentUser(): Promise<CurrentUser> {
     return api.get("/me");
   },
+
+  async updateProfile(data: Partial<CurrentUser>): Promise<CurrentUser> {
+    return api.put("/me/profile", data);
+  },
+
+  async changePassword(data: { currentPassword: string; newPassword: string }): Promise<void> {
+    return api.put("/me/security/password", data);
+  },
+
+  async updateSettings(data: {
+    timeZone?: string;
+    language?: string;
+    dateFormat?: string;
+    currency?: string;
+    emailNotifications?: boolean;
+    desktopNotifications?: boolean;
+  }): Promise<CurrentUser> {
+    return api.put("/me/settings", data);
+  }
 };

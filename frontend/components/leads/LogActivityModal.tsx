@@ -41,10 +41,22 @@ export function LogActivityModal({
 
         setIsSubmitting(true);
         try {
+            // BACKEND FIX: Ensure scheduledDate is a proper LocalDateTime string (ISO format including time)
+            // The input type="date" returns "YYYY-MM-DD", but backend needs "YYYY-MM-DDTHH:mm:ss"
+            let finalScheduledDate = formData.scheduledDate;
+            if (finalScheduledDate && finalScheduledDate.length === 10) {
+                // Append current time or default to start of day? 
+                // Let's us current time for "now" but keep the date selected.
+                const now = new Date();
+                const timePart = now.toTimeString().split(' ')[0]; // "HH:MM:SS"
+                finalScheduledDate = `${finalScheduledDate}T${timePart}`;
+            }
+
             await onSave({
                 ...formData,
+                scheduledDate: finalScheduledDate,
                 leadId,
-                status: ActivityStatus.COMPLETED, // Auto-complete for logged activities usually
+                status: ActivityStatus.COMPLETED,
             } as CreateActivityRequest);
             onClose();
         } catch (error) {
@@ -112,8 +124,8 @@ export function LogActivityModal({
                                                         type="button"
                                                         onClick={() => setFormData({ ...formData, type })}
                                                         className={`flex items-center justify-center px-3 py-2 border rounded-md text-sm font-medium ${formData.type === type
-                                                                ? 'border-blue-500 bg-blue-50 text-blue-700 ring-1 ring-blue-500'
-                                                                : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
+                                                            ? 'border-blue-500 bg-blue-50 text-blue-700 ring-1 ring-blue-500'
+                                                            : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
                                                             }`}
                                                     >
                                                         {type.charAt(0) + type.slice(1).toLowerCase()}

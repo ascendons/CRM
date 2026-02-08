@@ -4,6 +4,9 @@ import com.ultron.backend.domain.entity.User;
 import com.ultron.backend.domain.enums.UserStatus;
 import com.ultron.backend.dto.request.CreateUserRequest;
 import com.ultron.backend.dto.request.UpdateUserRequest;
+import com.ultron.backend.dto.request.UpdateMyProfileRequest;
+import com.ultron.backend.dto.request.ChangePasswordRequest;
+import com.ultron.backend.dto.request.UpdateSettingsRequest;
 import com.ultron.backend.dto.response.UserResponse;
 import com.ultron.backend.exception.ResourceNotFoundException;
 import com.ultron.backend.exception.UserAlreadyExistsException;
@@ -205,6 +208,102 @@ public class UserService {
         User savedUser = userRepository.save(user);
         log.info("User updated successfully with userId: {}", savedUser.getUserId());
 
+        return mapToResponse(savedUser);
+//        return mapToResponse(savedUser);
+    }
+
+    @Transactional
+    public UserResponse updateMyProfile(String userId, UpdateMyProfileRequest request) {
+        log.info("Updating profile for user: {}", userId);
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        if (user.getProfile() == null) {
+            user.setProfile(new User.UserProfile());
+        }
+
+        boolean nameChanged = false;
+        if (request.getFirstName() != null) {
+            user.getProfile().setFirstName(request.getFirstName());
+            nameChanged = true;
+        }
+        if (request.getLastName() != null) {
+            user.getProfile().setLastName(request.getLastName());
+            nameChanged = true;
+        }
+
+        // Recalculate full name if needed
+        if (nameChanged) {
+            String firstName = user.getProfile().getFirstName() != null ? user.getProfile().getFirstName() : "";
+            String lastName = user.getProfile().getLastName() != null ? user.getProfile().getLastName() : "";
+            String fullName = (firstName + " " + lastName).trim();
+            
+            if (fullName.isEmpty()) fullName = user.getUsername();
+            
+            user.getProfile().setFullName(fullName);
+            user.setFullName(fullName);
+        }
+
+        if (request.getTitle() != null) user.getProfile().setTitle(request.getTitle());
+        if (request.getDepartment() != null) user.getProfile().setDepartment(request.getDepartment());
+        if (request.getPhone() != null) user.getProfile().setPhone(request.getPhone());
+        if (request.getMobilePhone() != null) user.getProfile().setMobilePhone(request.getMobilePhone());
+        if (request.getAvatar() != null) user.getProfile().setAvatar(request.getAvatar());
+
+        user.setLastModifiedAt(LocalDateTime.now());
+        user.setLastModifiedBy(userId);
+
+        User savedUser = userRepository.save(user);
+        return mapToResponse(savedUser);
+    }
+
+    @Transactional
+    public void changePassword(String userId, String currentPassword, String newPassword) {
+        log.info("Changing password for user: {}", userId);
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        // Verify current password
+        if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
+            throw new IllegalArgumentException("Incorrect current password");
+        }
+
+        // Update password
+        user.setPassword(passwordEncoder.encode(newPassword));
+        user.setPasswordLastChanged(LocalDateTime.now());
+        user.setPasswordExpiresAt(LocalDateTime.now().plusDays(90));
+        
+        // Update audit fields
+        user.setLastModifiedAt(LocalDateTime.now());
+        user.setLastModifiedBy(userId);
+
+        userRepository.save(user);
+    }
+
+    @Transactional
+    public UserResponse updateMySettings(String userId, UpdateSettingsRequest request) {
+        log.info("Updating settings for user: {}", userId);
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        if (user.getSettings() == null) {
+            user.setSettings(new User.UserSettings());
+        }
+
+        if (request.getTimeZone() != null) user.getSettings().setTimeZone(request.getTimeZone());
+        if (request.getLanguage() != null) user.getSettings().setLanguage(request.getLanguage());
+        if (request.getDateFormat() != null) user.getSettings().setDateFormat(request.getDateFormat());
+        if (request.getCurrency() != null) user.getSettings().setCurrency(request.getCurrency());
+        if (request.getEmailNotifications() != null) user.getSettings().setEmailNotifications(request.getEmailNotifications());
+        if (request.getDesktopNotifications() != null) user.getSettings().setDesktopNotifications(request.getDesktopNotifications());
+
+        user.setLastModifiedAt(LocalDateTime.now());
+        user.setLastModifiedBy(userId);
+
+        User savedUser = userRepository.save(user);
         return mapToResponse(savedUser);
     }
 

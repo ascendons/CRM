@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { meService, type CurrentUser } from "@/lib/me";
 import { authService } from "@/lib/auth";
-import { User, LogOut, Settings, Shield, ChevronDown } from "lucide-react";
+import { User, LogOut, Settings, Shield, ChevronDown, Activity } from "lucide-react";
 
 /**
  * User menu component for displaying current user info and actions.
@@ -60,11 +60,11 @@ export function UserMenu() {
   const initials = currentUser.firstName && currentUser.lastName
     ? `${currentUser.firstName[0]}${currentUser.lastName[0]}`
     : currentUser.fullName
-        .split(" ")
-        .map((n) => n[0])
-        .join("")
-        .substring(0, 2)
-        .toUpperCase();
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .substring(0, 2)
+      .toUpperCase();
 
   return (
     <div className="relative">
@@ -99,9 +99,8 @@ export function UserMenu() {
 
         {/* Dropdown indicator */}
         <ChevronDown
-          className={`h-4 w-4 text-gray-400 transition-transform ${
-            menuOpen ? "rotate-180" : ""
-          }`}
+          className={`h-4 w-4 text-gray-400 transition-transform ${menuOpen ? "rotate-180" : ""
+            }`}
         />
       </button>
 
@@ -152,11 +151,22 @@ export function UserMenu() {
               <button
                 onClick={() => {
                   setMenuOpen(false);
+                  router.push("/user-activities");
+                }}
+                className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center"
+              >
+                <Activity className="w-4 h-4 mr-2" />
+                Activity Log
+              </button>
+
+              <button
+                onClick={() => {
+                  setMenuOpen(false);
                   router.push("/profile");
                 }}
                 className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center"
               >
-                <User className="h-4 w-4 mr-2" />
+                <User className="w-4 h-4 mr-2" />
                 My Profile
               </button>
 

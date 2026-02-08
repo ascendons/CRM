@@ -22,6 +22,9 @@ import {
 import { SortableLeadCard } from "./SortableLeadCard";
 import { leadsService } from "@/lib/leads";
 import toast from "react-hot-toast";
+import { LogActivityModal } from "./LogActivityModal";
+import { activitiesService } from "@/lib/activities";
+import { CreateActivityRequest } from "@/types/activity";
 
 interface LeadKanbanBoardProps {
     leads: Lead[];
@@ -84,6 +87,10 @@ export function LeadKanbanBoard({ leads: initialLeads, filter = [] }: LeadKanban
     const [leads, setLeads] = useState<Lead[]>(initialLeads);
     const [activeId, setActiveId] = useState<string | null>(null);
     const [activeLeadOriginalStatus, setActiveLeadOriginalStatus] = useState<LeadStatus | null>(null);
+
+    // Modal State
+    const [isActivityModalOpen, setIsActivityModalOpen] = useState(false);
+    const [pendingDrag, setPendingDrag] = useState<{ activeId: string, newStatus: LeadStatus } | null>(null);
 
     // Update local state when prop changes
     useEffect(() => {
@@ -183,23 +190,42 @@ export function LeadKanbanBoard({ leads: initialLeads, filter = [] }: LeadKanban
             }
         }
 
-        // Compare newStatus with ORIGINAL status, not current (active) status
+        // Check if status actually changed
         if (newStatus && originalStatus && newStatus !== originalStatus) {
-            try {
-                // Determine if we need to update UI state (in case dragOver didn't reach final state)
-                setLeads((prev) =>
-                    prev.map((lead) =>
-                        lead.id === activeId ? { ...lead, leadStatus: newStatus as LeadStatus } : lead
-                    )
-                );
 
-                // Persist
-                await leadsService.updateLeadStatus(activeId, newStatus);
-                toast.success(`Lead moved to ${newStatus.replace(/_/g, " ").toLowerCase()}`);
-            } catch (error) {
-                console.error("Failed to update status", error);
-                toast.error("Failed to update status");
-                // Revert to original status
+            // SPECIAL CASE: Moving to CONTACTED
+            if (newStatus === LeadStatus.CONTACTED) {
+                setPendingDrag({ activeId, newStatus });
+                setIsActivityModalOpen(true);
+                return;
+            }
+
+            // Normal persist for other statuses
+            await persistStatusChange(activeId, newStatus, originalStatus);
+        } else if (originalStatus) {
+            // Consistency check if no status change occurred but optimistic update needs revert or verification
+            // Usually dealt with by optimistic update logic being correct, but if we dragged within same column do nothing.
+            // If we dragged to a different position in same column, dnd-kit handles sorting order (if implemented),
+            // but here we only track Status changes.
+        }
+    };
+
+    const persistStatusChange = async (activeId: string, newStatus: LeadStatus, originalStatus: LeadStatus | null) => {
+        try {
+            // Ensure local state is updated
+            setLeads((prev) =>
+                prev.map((lead) =>
+                    lead.id === activeId ? { ...lead, leadStatus: newStatus } : lead
+                )
+            );
+
+            await leadsService.updateLeadStatus(activeId, newStatus);
+            toast.success(`Lead moved to ${newStatus.replace(/_/g, " ").toLowerCase()}`);
+        } catch (error) {
+            console.error("Failed to update status", error);
+            toast.error("Failed to update status");
+            // Revert
+            if (originalStatus) {
                 setLeads((prev) =>
                     prev.map((lead) =>
                         lead.id === activeId ? { ...lead, leadStatus: originalStatus } : lead
@@ -209,39 +235,84 @@ export function LeadKanbanBoard({ leads: initialLeads, filter = [] }: LeadKanban
         }
     };
 
+    const handleActivitySave = async (activityData: CreateActivityRequest) => {
+        if (!pendingDrag) return;
+
+        try {
+            // 1. Create the activity
+            await activitiesService.createActivity(activityData);
+            toast.success("Activity logged successfully");
+
+            // 2. Persist the status change
+            await persistStatusChange(pendingDrag.activeId, pendingDrag.newStatus, null);
+
+        } catch (error) {
+            console.error("Failed to save activity or update status", error);
+            toast.error("Failed to complete action");
+            // Revert logic could be complex here, assuming backend failure on activity creation blocks status update.
+            // We reload or revert visually.
+        } finally {
+            setIsActivityModalOpen(false);
+            setPendingDrag(null);
+        }
+    };
+
+    const handleModalClose = () => {
+        // Cancelled: Revert the drag
+        setIsActivityModalOpen(false);
+        if (pendingDrag) {
+            const originalLead = initialLeads.find(l => l.id === pendingDrag.activeId);
+            if (originalLead) {
+                setLeads(prev => prev.map(l => l.id === pendingDrag.activeId ? { ...l, leadStatus: originalLead.leadStatus } : l));
+            }
+        }
+        setPendingDrag(null);
+    };
+
     return (
-        <DndContext
-            sensors={sensors}
-            collisionDetection={closestCorners}
-            onDragStart={handleDragStart}
-            onDragOver={handleDragOver}
-            onDragEnd={handleDragEnd}
-        >
-            <div className="flex h-[calc(100vh-12rem)] overflow-x-auto gap-4 pb-4">
-                {visibleColumns.map((column) => {
-                    const columnLeads = getLeadsByStatus(column.id);
+        <>
+            <DndContext
+                sensors={sensors}
+                collisionDetection={closestCorners}
+                onDragStart={handleDragStart}
+                onDragOver={handleDragOver}
+                onDragEnd={handleDragEnd}
+            >
+                <div className="flex h-[calc(100vh-12rem)] overflow-x-auto gap-4 pb-4">
+                    {visibleColumns.map((column) => {
+                        const columnLeads = getLeadsByStatus(column.id);
 
-                    return (
-                        <KanbanColumn
-                            key={column.id}
-                            id={column.id}
-                            label={column.label}
-                            color={column.color}
-                            leads={columnLeads}
-                        />
-                    );
-                })}
-            </div>
+                        return (
+                            <KanbanColumn
+                                key={column.id}
+                                id={column.id}
+                                label={column.label}
+                                color={column.color}
+                                leads={columnLeads}
+                            />
+                        );
+                    })}
+                </div>
 
-            {/* Drag Overlay for smooth visual */}
-            <DragOverlay>
-                {activeId ? (
-                    (() => {
-                        const lead = leads.find(l => l.id === activeId);
-                        return lead ? <SortableLeadCard lead={lead} /> : null;
-                    })()
-                ) : null}
-            </DragOverlay>
-        </DndContext>
+                <DragOverlay>
+                    {activeId ? (
+                        (() => {
+                            const lead = leads.find(l => l.id === activeId);
+                            return lead ? <SortableLeadCard lead={lead} /> : null;
+                        })()
+                    ) : null}
+                </DragOverlay>
+            </DndContext>
+
+            {pendingDrag && (
+                <LogActivityModal
+                    isOpen={isActivityModalOpen}
+                    onClose={handleModalClose}
+                    onSave={handleActivitySave}
+                    leadId={pendingDrag.activeId}
+                    newStatus={pendingDrag.newStatus}
+                />
+            )}
+        </>
     );
 }
