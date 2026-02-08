@@ -68,82 +68,83 @@ export default function Navigation() {
         <nav className="hidden lg:flex items-center gap-6">
           <Link
             href="/dashboard"
-            className={`text-sm font-medium transition-colors ${
-              isActive("/dashboard")
+            className={`text-sm font-medium transition-colors ${isActive("/dashboard")
                 ? "text-primary border-b-2 border-primary pb-1 font-semibold"
                 : "text-slate-700 hover:text-primary"
-            }`}
+              }`}
           >
             Dashboard
           </Link>
           <Link
             href="/leads"
-            className={`text-sm font-medium transition-colors ${
-              isActive("/leads")
+            className={`text-sm font-medium transition-colors ${isActive("/leads")
                 ? "text-primary border-b-2 border-primary pb-1 font-semibold"
                 : "text-slate-700 hover:text-primary"
-            }`}
+              }`}
           >
             Leads
           </Link>
           <Link
             href="/opportunities"
-            className={`text-sm font-medium transition-colors ${
-              isActive("/opportunities")
+            className={`text-sm font-medium transition-colors ${isActive("/opportunities")
                 ? "text-primary border-b-2 border-primary pb-1 font-semibold"
                 : "text-slate-700 hover:text-primary"
-            }`}
+              }`}
           >
             Deals
           </Link>
           <Link
             href="/contacts"
-            className={`text-sm font-medium transition-colors ${
-              isActive("/contacts")
+            className={`text-sm font-medium transition-colors ${isActive("/contacts")
                 ? "text-primary border-b-2 border-primary pb-1 font-semibold"
                 : "text-slate-700 hover:text-primary"
-            }`}
+              }`}
           >
             Contacts
           </Link>
           <Link
             href="/accounts"
-            className={`text-sm font-medium transition-colors ${
-              isActive("/accounts")
+            className={`text-sm font-medium transition-colors ${isActive("/accounts")
                 ? "text-primary border-b-2 border-primary pb-1 font-semibold"
                 : "text-slate-700 hover:text-primary"
-            }`}
+              }`}
           >
             Accounts
           </Link>
           <Link
             href="/proposals"
-            className={`text-sm font-medium transition-colors ${
-              isActive("/proposals")
+            className={`text-sm font-medium transition-colors ${isActive("/proposals")
                 ? "text-primary border-b-2 border-primary pb-1 font-semibold"
                 : "text-slate-700 hover:text-primary"
-            }`}
+              }`}
           >
             Proposals
           </Link>
           <Link
             href="/products"
-            className={`text-sm font-medium transition-colors ${
-              isActive("/products")
+            className={`text-sm font-medium transition-colors ${isActive("/products")
                 ? "text-primary border-b-2 border-primary pb-1 font-semibold"
                 : "text-slate-700 hover:text-primary"
-            }`}
+              }`}
           >
             Products
+          </Link>
+          <Link
+            href="/catalog"
+            className={`text-sm font-medium transition-colors ${isActive("/catalog")
+                ? "text-primary border-b-2 border-primary pb-1 font-semibold"
+                : "text-slate-700 hover:text-primary"
+              }`}
+          >
+            Catalog
           </Link>
           {isAdmin && (
             <Link
               href="/admin"
-              className={`text-sm font-medium transition-colors ${
-                isActive("/admin")
+              className={`text-sm font-medium transition-colors ${isActive("/admin")
                   ? "text-primary border-b-2 border-primary pb-1 font-semibold"
                   : "text-slate-700 hover:text-primary"
-              }`}
+                }`}
             >
               Admin
             </Link>

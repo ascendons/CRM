@@ -14,7 +14,11 @@ import com.ultron.backend.repository.LeadRepository;
 import com.ultron.backend.repository.OpportunityRepository;
 import com.ultron.backend.repository.ProductRepository;
 import com.ultron.backend.repository.ProposalRepository;
+import com.ultron.backend.repository.ProposalRepository;
 import com.ultron.backend.repository.UserRepository;
+import com.ultron.backend.repository.DynamicProductRepository;
+import com.ultron.backend.domain.entity.DynamicProduct;
+import com.ultron.backend.domain.entity.DynamicProduct.ProductAttribute;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -22,6 +26,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -38,6 +43,7 @@ public class ProposalService {
     private final ProductRepository productRepository;
     private final LeadRepository leadRepository;
     private final OpportunityRepository opportunityRepository;
+    private final DynamicProductRepository dynamicProductRepository;
     private final UserRepository userRepository;
     private final AuditLogService auditLogService;
 
@@ -362,41 +368,101 @@ public class ProposalService {
 
     private List<Proposal.ProposalLineItem> buildCreateLineItems(List<CreateProposalRequest.LineItemDTO> dtos) {
         return dtos.stream().map(dto -> {
-            Product product = productRepository.findById(dto.getProductId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Product not found: " + dto.getProductId()));
+            // Try standard product first
+            return productRepository.findById(dto.getProductId())
+                    .map(product -> Proposal.ProposalLineItem.builder()
+                            .lineItemId(UUID.randomUUID().toString())
+                            .productId(product.getId())
+                            .productName(product.getProductName())
+                            .sku(product.getSku())
+                            .quantity(dto.getQuantity())
+                            .unit(product.getUnit())
+                            .unitPrice(dto.getUnitPrice() != null ? dto.getUnitPrice() : product.getBasePrice())
+                            .taxRate(product.getTaxRate())
+                            .discountType(dto.getDiscountType())
+                            .discountValue(dto.getDiscountValue())
+                            .build())
+                    .orElseGet(() -> {
+                        // Try dynamic product
+                        DynamicProduct dynamicProduct = dynamicProductRepository.findById(dto.getProductId())
+                                .orElseThrow(() -> new ResourceNotFoundException("Product not found: " + dto.getProductId()));
 
-            return Proposal.ProposalLineItem.builder()
-                    .lineItemId(UUID.randomUUID().toString())
-                    .productId(product.getId())
-                    .productName(product.getProductName())
-                    .sku(product.getSku())
-                    .quantity(dto.getQuantity())
-                    .unit(product.getUnit())
-                    .unitPrice(dto.getUnitPrice() != null ? dto.getUnitPrice() : product.getBasePrice())
-                    .taxRate(product.getTaxRate())
-                    .discountType(dto.getDiscountType())
-                    .discountValue(dto.getDiscountValue())
-                    .build();
+                        return mapDynamicProductToLineItem(dynamicProduct, dto);
+                    });
         }).collect(Collectors.toList());
+    }
+
+    private Proposal.ProposalLineItem mapDynamicProductToLineItem(DynamicProduct product, CreateProposalRequest.LineItemDTO dto) {
+        return Proposal.ProposalLineItem.builder()
+                .lineItemId(UUID.randomUUID().toString())
+                .productId(product.getId())
+                .productName(product.getDisplayName() != null ? product.getDisplayName() : "Unknown Product")
+                .sku(product.getProductId()) // Use business ID as SKU
+                .quantity(dto.getQuantity())
+                .unit(findAttributeValue(product, "unit", "pcs"))
+                .unitPrice(dto.getUnitPrice() != null ? dto.getUnitPrice() : BigDecimal.valueOf(findAttributeNumericValue(product, "price", 0.0)))
+                .taxRate(BigDecimal.valueOf(findAttributeNumericValue(product, "tax", 0.0)))
+                .discountType(dto.getDiscountType())
+                .discountValue(dto.getDiscountValue())
+                .build();
+    }
+
+    private Proposal.ProposalLineItem mapDynamicProductToLineItem(DynamicProduct product, UpdateProposalRequest.LineItemDTO dto) {
+        return Proposal.ProposalLineItem.builder()
+                .lineItemId(UUID.randomUUID().toString())
+                .productId(product.getId())
+                .productName(product.getDisplayName() != null ? product.getDisplayName() : "Unknown Product")
+                .sku(product.getProductId()) // Use business ID as SKU
+                .quantity(dto.getQuantity())
+                .unit(findAttributeValue(product, "unit", "pcs"))
+                .unitPrice(dto.getUnitPrice() != null ? dto.getUnitPrice() : BigDecimal.valueOf(findAttributeNumericValue(product, "price", 0.0)))
+                .taxRate(BigDecimal.valueOf(findAttributeNumericValue(product, "tax", 0.0)))
+                .discountType(dto.getDiscountType())
+                .discountValue(dto.getDiscountValue())
+                .build();
+    }
+
+    private String findAttributeValue(DynamicProduct product, String keyPartial, String defaultValue) {
+        if (product.getAttributes() == null) return defaultValue;
+        return product.getAttributes().stream()
+                .filter(a -> a.getKey().contains(keyPartial))
+                .findFirst()
+                .map(ProductAttribute::getValue)
+                .orElse(defaultValue);
+    }
+
+    private Double findAttributeNumericValue(DynamicProduct product, String keyPartial, Double defaultValue) {
+        if (product.getAttributes() == null) return defaultValue;
+        return product.getAttributes().stream()
+                .filter(a -> a.getKey().contains(keyPartial))
+                .findFirst()
+                .map(ProductAttribute::getNumericValue)
+                .orElse(defaultValue);
     }
 
     private List<Proposal.ProposalLineItem> buildUpdateLineItems(List<UpdateProposalRequest.LineItemDTO> dtos) {
         return dtos.stream().map(dto -> {
-            Product product = productRepository.findById(dto.getProductId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Product not found: " + dto.getProductId()));
+            // Try standard product first
+            return productRepository.findById(dto.getProductId())
+                    .map(product -> Proposal.ProposalLineItem.builder()
+                            .lineItemId(UUID.randomUUID().toString())
+                            .productId(product.getId())
+                            .productName(product.getProductName())
+                            .sku(product.getSku())
+                            .quantity(dto.getQuantity())
+                            .unit(product.getUnit())
+                            .unitPrice(dto.getUnitPrice() != null ? dto.getUnitPrice() : product.getBasePrice())
+                            .taxRate(product.getTaxRate())
+                            .discountType(dto.getDiscountType())
+                            .discountValue(dto.getDiscountValue())
+                            .build())
+                    .orElseGet(() -> {
+                        // Try dynamic product
+                        DynamicProduct dynamicProduct = dynamicProductRepository.findById(dto.getProductId())
+                                .orElseThrow(() -> new ResourceNotFoundException("Product not found: " + dto.getProductId()));
 
-            return Proposal.ProposalLineItem.builder()
-                    .lineItemId(UUID.randomUUID().toString())
-                    .productId(product.getId())
-                    .productName(product.getProductName())
-                    .sku(product.getSku())
-                    .quantity(dto.getQuantity())
-                    .unit(product.getUnit())
-                    .unitPrice(dto.getUnitPrice() != null ? dto.getUnitPrice() : product.getBasePrice())
-                    .taxRate(product.getTaxRate())
-                    .discountType(dto.getDiscountType())
-                    .discountValue(dto.getDiscountValue())
-                    .build();
+                        return mapDynamicProductToLineItem(dynamicProduct, dto);
+                    });
         }).collect(Collectors.toList());
     }
 

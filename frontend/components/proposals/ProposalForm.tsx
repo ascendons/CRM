@@ -18,6 +18,7 @@ import {
 import { ProductResponse } from "@/types/product";
 import { Lead } from "@/types/lead";
 import { Opportunity } from "@/types/opportunity";
+import CatalogProductSearch from "./CatalogProductSearch";
 
 interface ProposalFormProps {
     mode: "create" | "edit";
@@ -60,14 +61,19 @@ export default function ProposalForm({
     );
     const [notes, setNotes] = useState(initialData?.notes || "");
 
+    interface FormLineItem extends LineItemDTO {
+        productName?: string;
+    }
+
     // Line items state
-    const [lineItems, setLineItems] = useState<LineItemDTO[]>(
+    const [lineItems, setLineItems] = useState<FormLineItem[]>(
         initialData?.lineItems.map((item) => ({
             productId: item.productId,
             quantity: item.quantity,
             unitPrice: item.unitPrice,
             discountType: item.discountType,
             discountValue: item.discountValue,
+            productName: item.productName, // Map existing name
         })) || [
             {
                 productId: "",
@@ -75,6 +81,7 @@ export default function ProposalForm({
                 unitPrice: undefined,
                 discountType: undefined,
                 discountValue: undefined,
+                productName: "",
             },
         ]
     );
@@ -104,7 +111,12 @@ export default function ProposalForm({
                 leadsService.getAllLeads(),
                 opportunitiesService.getAllOpportunities(),
             ]);
-            setProducts(productsData);
+            // Force cast or check if it's an array to satisfy TS
+            if (Array.isArray(productsData)) {
+                setProducts(productsData);
+            } else if (productsData && 'content' in productsData) {
+                setProducts(productsData.content);
+            }
             setLeads(leadsData);
             setOpportunities(opportunitiesData);
         } catch (err) {
@@ -121,6 +133,7 @@ export default function ProposalForm({
                 unitPrice: undefined,
                 discountType: undefined,
                 discountValue: undefined,
+                productName: "",
             },
         ]);
     };
@@ -135,7 +148,7 @@ export default function ProposalForm({
 
     const updateLineItem = (
         index: number,
-        field: keyof LineItemDTO,
+        field: keyof FormLineItem,
         value: string | number | undefined
     ) => {
         const updated = [...lineItems];
@@ -399,25 +412,56 @@ export default function ProposalForm({
 
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                                 <div className="lg:col-span-2">
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                                        Product <span className="text-red-500">*</span>
-                                    </label>
-                                    <select
-                                        value={item.productId}
-                                        onChange={(e) =>
-                                            updateLineItem(index, "productId", e.target.value)
-                                        }
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                        required
-                                    >
-                                        <option value="">Select product...</option>
-                                        {products.map((product) => (
-                                            <option key={product.id} value={product.id}>
-                                                {product.productName} ({product.sku}) - ₹
-                                                {product.basePrice}
-                                            </option>
-                                        ))}
-                                    </select>
+                                    {item.productId ? (
+                                        <div className="flex justify-between items-center p-2 border border-blue-200 bg-blue-50 rounded-lg">
+                                            <div>
+                                                <div className="font-medium text-blue-900">
+                                                    {/* We might want to store name in lineItem to show it here, 
+                                                        but for now we fallback to looking it up in products (legacy) 
+                                                        or user just sees ID if not in legacy list. 
+                                                        Wait, we can't look it up if we don't have the full product list.
+                                                        Better to add productName to LineItemDTO state for display purposes.
+                                                     */}
+                                                    {/* For this refactor, I'll rely on the parent updating state correctly. 
+                                                        But wait, lineItems state is LineItemDTO which doesn't have name.
+                                                        I should probably extend the local lineItems state to include display info.
+                                                    */}
+                                                    {/* use item.productName if available (dynamic), else fallback to legacy lookup */}
+                                                    {item.productName || products.find(p => p.id === item.productId)?.productName || item.productId}
+                                                </div>
+                                                <div className="text-xs text-blue-700">ID: {item.productId}</div>
+                                            </div>
+                                            <button
+                                                type="button"
+                                                onClick={() => updateLineItem(index, "productId", "")}
+                                                className="text-blue-500 hover:text-blue-700 p-1"
+                                            >
+                                                Change
+                                            </button>
+                                        </div>
+                                    ) : (
+                                        <CatalogProductSearch
+                                            onSelect={(product) => {
+                                                // Handle selection
+                                                // 1. Update productId
+                                                updateLineItem(index, "productId", product.id);
+
+                                                // 2. Try to find price
+                                                const priceAttr = product.attributes.find(a =>
+                                                    a.key === 'base_price' ||
+                                                    a.key === 'list_price' ||
+                                                    a.key === 'price'
+                                                );
+                                                if (priceAttr && priceAttr.numericValue) {
+                                                    updateLineItem(index, "unitPrice", priceAttr.numericValue);
+                                                }
+
+                                                // 3. Store name for display
+                                                updateLineItem(index, "productName", product.displayName);
+                                            }}
+                                            required
+                                        />
+                                    )}
                                 </div>
 
                                 <div>

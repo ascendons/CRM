@@ -1,0 +1,349 @@
+package com.ultron.backend.service.catalog;
+
+import com.ultron.backend.domain.entity.DynamicProduct;
+import com.ultron.backend.domain.entity.DynamicProduct.ProductAttribute;
+import com.ultron.backend.repository.DynamicProductRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.stereotype.Service;
+
+import java.util.*;
+import java.util.stream.Collectors;
+
+/**
+ * Dynamic search service with keyword search, filters, and relevance ranking
+ * Key principle: ALL search logic is metadata-driven, NO hardcoding
+ */
+@Service
+@RequiredArgsConstructor
+@Slf4j
+public class DynamicProductSearchService {
+
+    private final DynamicProductRepository repository;
+    private final MongoTemplate mongoTemplate;
+    private final HeaderNormalizer headerNormalizer;
+
+    /**
+     * Search products with keyword and dynamic filters
+     */
+    public Page<DynamicProduct> search(SearchRequest searchRequest, Pageable pageable) {
+        Query query = new Query();
+        query.addCriteria(Criteria.where("isDeleted").is(false));
+
+        // Apply keyword search
+        if (searchRequest.getKeyword() != null && !searchRequest.getKeyword().trim().isEmpty()) {
+            String normalizedKeyword = headerNormalizer.normalizeSearchQuery(searchRequest.getKeyword());
+            applyKeywordSearch(query, normalizedKeyword);
+        }
+
+        // Apply category filter
+        if (searchRequest.getCategory() != null && !searchRequest.getCategory().trim().isEmpty()) {
+            query.addCriteria(Criteria.where("category").is(searchRequest.getCategory()));
+        }
+
+        // Apply dynamic attribute filters
+        if (searchRequest.getFilters() != null && !searchRequest.getFilters().isEmpty()) {
+            applyDynamicFilters(query, searchRequest.getFilters());
+        }
+
+        // Count total
+        long total = mongoTemplate.count(query, DynamicProduct.class);
+
+        // Apply pagination
+        query.with(pageable);
+
+        // Execute search
+        List<DynamicProduct> products = mongoTemplate.find(query, DynamicProduct.class);
+
+        // Rank by relevance if keyword search
+        if (searchRequest.getKeyword() != null && !searchRequest.getKeyword().trim().isEmpty()) {
+            products = rankByRelevance(products, searchRequest.getKeyword());
+        }
+
+        return new PageImpl<>(products, pageable, total);
+    }
+
+    /**
+     * Apply keyword search using normalized tokens
+     */
+    private void applyKeywordSearch(Query query, String keyword) {
+        // Tokenize keyword
+        List<String> tokens = headerNormalizer.createSearchTokens(keyword);
+
+        if (tokens.isEmpty()) {
+            return;
+        }
+
+        // Search in:
+        // 1. Display name (highest priority)
+        // 2. Search tokens
+        // 3. Normalized tokens
+        // 4. Attribute values
+
+        Criteria criteria = new Criteria().orOperator(
+                // Display name contains keyword
+                Criteria.where("displayName").regex(keyword, "i"),
+
+                // Search tokens contain keyword
+                Criteria.where("searchTokens").regex(keyword, "i"),
+
+                // Normalized tokens match
+                Criteria.where("normalizedTokens").in(tokens),
+
+                // Any attribute value contains keyword
+                Criteria.where("attributes").elemMatch(
+                        Criteria.where("value").regex(keyword, "i")
+                )
+        );
+
+        query.addCriteria(criteria);
+    }
+
+    /**
+     * Apply dynamic attribute filters
+     */
+    private void applyDynamicFilters(Query query, Map<String, FilterValue> filters) {
+        for (Map.Entry<String, FilterValue> entry : filters.entrySet()) {
+            String attributeKey = entry.getKey();
+            FilterValue filterValue = entry.getValue();
+
+            Criteria filterCriteria = createFilterCriteria(attributeKey, filterValue);
+            if (filterCriteria != null) {
+                query.addCriteria(filterCriteria);
+            }
+        }
+    }
+
+    /**
+     * Create filter criteria based on filter type
+     */
+    private Criteria createFilterCriteria(String attributeKey, FilterValue filterValue) {
+        switch (filterValue.getType()) {
+            case EXACT:
+                // Exact match on attribute value
+                return Criteria.where("attributes").elemMatch(
+                        Criteria.where("key").is(attributeKey)
+                                .and("value").is(filterValue.getValue())
+                );
+
+            case RANGE:
+                // Numeric range filter
+                Criteria rangeCriteria = Criteria.where("attributes").elemMatch(
+                        Criteria.where("key").is(attributeKey)
+                                .and("numericValue").gte(filterValue.getMin())
+                                .lte(filterValue.getMax())
+                );
+                return rangeCriteria;
+
+            case IN:
+                // Multiple values (OR)
+                return Criteria.where("attributes").elemMatch(
+                        Criteria.where("key").is(attributeKey)
+                                .and("value").in(filterValue.getValues())
+                );
+
+            case CONTAINS:
+                // Partial match
+                return Criteria.where("attributes").elemMatch(
+                        Criteria.where("key").is(attributeKey)
+                                .and("value").regex(filterValue.getValue(), "i")
+                );
+
+            default:
+                return null;
+        }
+    }
+
+    /**
+     * Rank products by relevance to search keyword
+     */
+    private List<DynamicProduct> rankByRelevance(List<DynamicProduct> products, String keyword) {
+        String lowerKeyword = keyword.toLowerCase();
+
+        return products.stream()
+                .sorted((p1, p2) -> {
+                    int score1 = calculateRelevanceScore(p1, lowerKeyword);
+                    int score2 = calculateRelevanceScore(p2, lowerKeyword);
+                    return Integer.compare(score2, score1); // Descending
+                })
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Calculate relevance score for a product
+     */
+    private int calculateRelevanceScore(DynamicProduct product, String keyword) {
+        int score = 0;
+
+        // Exact match in display name (highest weight)
+        if (product.getDisplayName() != null &&
+                product.getDisplayName().toLowerCase().equals(keyword)) {
+            score += 100;
+        }
+
+        // Display name contains keyword (high weight)
+        if (product.getDisplayName() != null &&
+                product.getDisplayName().toLowerCase().contains(keyword)) {
+            score += 50;
+        }
+
+        // Display name starts with keyword
+        if (product.getDisplayName() != null &&
+                product.getDisplayName().toLowerCase().startsWith(keyword)) {
+            score += 30;
+        }
+
+        // Category matches keyword
+        if (product.getCategory() != null &&
+                product.getCategory().toLowerCase().contains(keyword)) {
+            score += 20;
+        }
+
+        // Count attribute matches
+        if (product.getAttributes() != null) {
+            for (ProductAttribute attr : product.getAttributes()) {
+                if (attr.getValue().toLowerCase().contains(keyword)) {
+                    score += 10;
+                }
+                if (attr.getKey().toLowerCase().contains(keyword)) {
+                    score += 5;
+                }
+            }
+        }
+
+        return score;
+    }
+
+    /**
+     * Get available filters dynamically from data
+     */
+    public List<AvailableFilter> getAvailableFilters() {
+        List<DynamicProduct> allProducts = repository.findByIsDeletedFalseOrderByCreatedAtDesc(
+                Pageable.unpaged()).getContent();
+
+        if (allProducts.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        // Collect all unique attribute keys
+        Map<String, Set<String>> attributeValuesMap = new HashMap<>();
+        Map<String, DynamicProduct.AttributeType> attributeTypesMap = new HashMap<>();
+
+        for (DynamicProduct product : allProducts) {
+            if (product.getAttributes() == null) continue;
+
+            for (ProductAttribute attr : product.getAttributes()) {
+                String key = attr.getKey();
+
+                attributeValuesMap.computeIfAbsent(key, k -> new HashSet<>())
+                        .add(attr.getValue());
+
+                attributeTypesMap.putIfAbsent(key, attr.getType());
+            }
+        }
+
+        // Build available filters
+        List<AvailableFilter> filters = new ArrayList<>();
+        for (Map.Entry<String, Set<String>> entry : attributeValuesMap.entrySet()) {
+            String key = entry.getKey();
+            Set<String> values = entry.getValue();
+            DynamicProduct.AttributeType type = attributeTypesMap.get(key);
+
+            AvailableFilter filter = AvailableFilter.builder()
+                    .attributeKey(key)
+                    .displayName(beautifyKey(key))
+                    .type(type)
+                    .availableValues(new ArrayList<>(values))
+                    .build();
+
+            filters.add(filter);
+        }
+
+        return filters;
+    }
+
+    /**
+     * Get distinct values for a specific attribute
+     */
+    public List<String> getDistinctValues(String attributeKey) {
+        List<DynamicProduct> products = repository.findByAttributeKey(attributeKey);
+
+        Set<String> values = new HashSet<>();
+        for (DynamicProduct product : products) {
+            if (product.getAttributes() == null) continue;
+
+            for (ProductAttribute attr : product.getAttributes()) {
+                if (attr.getKey().equals(attributeKey)) {
+                    values.add(attr.getValue());
+                }
+            }
+        }
+
+        return new ArrayList<>(values);
+    }
+
+    /**
+     * Beautify attribute key for display
+     */
+    private String beautifyKey(String key) {
+        return Arrays.stream(key.split("_"))
+                .map(word -> word.substring(0, 1).toUpperCase() + word.substring(1))
+                .collect(Collectors.joining(" "));
+    }
+
+    /**
+     * Search request
+     */
+    @lombok.Data
+    @lombok.Builder
+    @lombok.NoArgsConstructor
+    @lombok.AllArgsConstructor
+    public static class SearchRequest {
+        private String keyword;
+        private String category;
+        private Map<String, FilterValue> filters;
+    }
+
+    /**
+     * Filter value
+     */
+    @lombok.Data
+    @lombok.Builder
+    @lombok.NoArgsConstructor
+    @lombok.AllArgsConstructor
+    public static class FilterValue {
+        private FilterType type;
+        private String value;
+        private List<String> values;
+        private Double min;
+        private Double max;
+    }
+
+    /**
+     * Filter type
+     */
+    public enum FilterType {
+        EXACT,      // Exact match
+        RANGE,      // Numeric range
+        IN,         // Multiple values
+        CONTAINS    // Partial match
+    }
+
+    /**
+     * Available filter
+     */
+    @lombok.Data
+    @lombok.Builder
+    public static class AvailableFilter {
+        private String attributeKey;
+        private String displayName;
+        private DynamicProduct.AttributeType type;
+        private List<String> availableValues;
+    }
+}
