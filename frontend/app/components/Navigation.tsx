@@ -76,6 +76,15 @@ export default function Navigation() {
             Dashboard
           </Link>
           <Link
+            href="/analytics"
+            className={`text-sm font-medium transition-colors ${isActive("/analytics")
+              ? "text-primary border-b-2 border-primary pb-1 font-semibold"
+              : "text-slate-700 hover:text-primary"
+              }`}
+          >
+            Analytics
+          </Link>
+          <Link
             href="/leads"
             className={`text-sm font-medium transition-colors ${isActive("/leads")
               ? "text-primary border-b-2 border-primary pb-1 font-semibold"
@@ -138,15 +147,6 @@ export default function Navigation() {
           >
             Catalog
           </Link>
-          <Link
-            href="/analytics"
-            className={`text-sm font-medium transition-colors ${isActive("/analytics")
-              ? "text-primary border-b-2 border-primary pb-1 font-semibold"
-              : "text-slate-700 hover:text-primary"
-              }`}
-          >
-            Analytics
-          </Link>
           {isAdmin && (
             <Link
               href="/admin"
@@ -165,12 +165,10 @@ export default function Navigation() {
           <span className="material-symbols-outlined">notifications</span>
           <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 border-2 border-white rounded-full"></span>
         </button>
-        <button className="p-2 text-slate-700 hover:bg-slate-100 rounded-lg transition-colors">
-          <span className="material-symbols-outlined">settings</span>
-        </button>
+
         <div className="h-8 w-px bg-slate-200 mx-2"></div>
         <UserMenu />
       </div>
-    </header>
+    </header >
   );
 }
