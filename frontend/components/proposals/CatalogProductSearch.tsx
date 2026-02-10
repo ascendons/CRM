@@ -8,13 +8,15 @@ interface CatalogProductSearchProps {
     label?: string;
     required?: boolean;
     placeholder?: string;
+    disabled?: boolean;
 }
 
 export default function CatalogProductSearch({
     onSelect,
     label = "Search Product",
     required = false,
-    placeholder = "Type to search products..."
+    placeholder = "Type to search products...",
+    disabled = false
 }: CatalogProductSearchProps) {
     const [query, setQuery] = useState('');
     const [results, setResults] = useState<Product[]>([]);
@@ -94,10 +96,11 @@ export default function CatalogProductSearch({
                         if (e.target.value.length === 0) setShowResults(false);
                     }}
                     onFocus={() => {
-                        if (results.length > 0) setShowResults(true);
+                        if (!disabled && results.length > 0) setShowResults(true);
                     }}
                     placeholder={placeholder}
-                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed"
+                    disabled={disabled}
                 />
                 <div className="absolute left-3 top-2.5 text-gray-400">
                     {loading ? (

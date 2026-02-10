@@ -37,7 +37,7 @@ export function AuditLogTimeline({ entityName, entityId }: AuditLogTimelineProps
             const data = await auditLogsService.getEntityLogs(entityName, entityId, {
                 page: 1,
                 size: 50,
-                sort: "performedAt,desc",
+                sort: "timestamp,desc",
             });
 
             if ('content' in data) {
@@ -158,7 +158,7 @@ export function AuditLogTimeline({ entityName, entityId }: AuditLogTimelineProps
                                         )}
                                     </div>
                                     <div className="text-right text-sm whitespace-nowrap text-gray-500">
-                                        <time dateTime={log.performedAt}>{formatDate(log.performedAt)}</time>
+                                        <time dateTime={log.timestamp}>{formatDate(log.timestamp)}</time>
                                     </div>
                                 </div>
                             </div>

@@ -13,7 +13,7 @@ export interface AuditLogEntry {
     entityId: string;
     action: AuditLogAction;
     performedBy: string; // Username or User ID
-    performedAt: string; // ISO Date
+    timestamp: string; // ISO Date
     details?: string;
     changes?: Record<string, { oldValue: any; newValue: any }>;
 }

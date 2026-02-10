@@ -32,8 +32,8 @@ export default function EditProposalPage({
             setLoading(true);
             const data = await proposalsService.getProposalById(id);
 
-            if (data.status !== ProposalStatus.DRAFT) {
-                setError("Only DRAFT proposals can be edited");
+            if (data.status === ProposalStatus.ACCEPTED || data.status === ProposalStatus.REJECTED) {
+                setError(`Cannot edit ${data.status} proposals`);
                 return;
             }
 

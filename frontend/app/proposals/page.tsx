@@ -24,6 +24,8 @@ import {
   Clock,
   User,
   AlertCircle,
+  Eye,
+  Edit2,
 } from "lucide-react";
 import { Pagination } from "@/components/common/Pagination";
 import { PermissionGuard } from "@/components/common/PermissionGuard";
@@ -382,36 +384,30 @@ export default function ProposalsPage() {
                         </div>
                       </td>
                       <td className="px-6 py-4 text-right">
-                        <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                          {proposal.status === ProposalStatus.DRAFT && (
-                            <PermissionGuard resource="PROPOSAL" action="SEND">
-                              <button
-                                onClick={(e) => handleSend(proposal.id, e)}
-                                className="p-2 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50  rounded-lg transition-colors"
-                                title="Send"
-                              >
-                                <Send className="h-4 w-4" />
-                              </button>
-                            </PermissionGuard>
-                          )}
-                          <PermissionGuard resource="PROPOSAL" action="EDIT">
+                        <div className="flex items-center justify-end gap-2">
+                          <button
+                            onClick={(e) => { e.stopPropagation(); router.push(`/proposals/${proposal.id}`); }}
+                            className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50  rounded-lg transition-colors"
+                            title="View"
+                          >
+                            <Eye className="h-4 w-4" />
+                          </button>
+                          {proposal.status !== ProposalStatus.ACCEPTED && proposal.status !== ProposalStatus.REJECTED && (
                             <button
                               onClick={(e) => { e.stopPropagation(); router.push(`/proposals/${proposal.id}/edit`); }}
                               className="p-2 text-slate-400 hover:text-primary hover:bg-slate-100  rounded-lg transition-colors"
                               title="Edit"
                             >
-                              <FileText className="h-4 w-4" />
+                              <Edit2 className="h-4 w-4" />
                             </button>
-                          </PermissionGuard>
-                          <PermissionGuard resource="PROPOSAL" action="DELETE">
-                            <button
-                              onClick={(e) => { e.stopPropagation(); handleDelete(proposal.id); }}
-                              className="p-2 text-rose-400 hover:text-rose-600 hover:bg-rose-50  rounded-lg transition-colors"
-                              title="Delete"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </button>
-                          </PermissionGuard>
+                          )}
+                          <button
+                            onClick={(e) => { e.stopPropagation(); handleDelete(proposal.id); }}
+                            className="p-2 text-rose-400 hover:text-rose-600 hover:bg-rose-50  rounded-lg transition-colors"
+                            title="Delete"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
                         </div>
                       </td>
                     </tr>

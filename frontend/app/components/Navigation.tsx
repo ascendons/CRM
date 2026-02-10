@@ -69,8 +69,8 @@ export default function Navigation() {
           <Link
             href="/dashboard"
             className={`text-sm font-medium transition-colors ${isActive("/dashboard")
-                ? "text-primary border-b-2 border-primary pb-1 font-semibold"
-                : "text-slate-700 hover:text-primary"
+              ? "text-primary border-b-2 border-primary pb-1 font-semibold"
+              : "text-slate-700 hover:text-primary"
               }`}
           >
             Dashboard
@@ -78,8 +78,8 @@ export default function Navigation() {
           <Link
             href="/leads"
             className={`text-sm font-medium transition-colors ${isActive("/leads")
-                ? "text-primary border-b-2 border-primary pb-1 font-semibold"
-                : "text-slate-700 hover:text-primary"
+              ? "text-primary border-b-2 border-primary pb-1 font-semibold"
+              : "text-slate-700 hover:text-primary"
               }`}
           >
             Leads
@@ -87,8 +87,8 @@ export default function Navigation() {
           <Link
             href="/opportunities"
             className={`text-sm font-medium transition-colors ${isActive("/opportunities")
-                ? "text-primary border-b-2 border-primary pb-1 font-semibold"
-                : "text-slate-700 hover:text-primary"
+              ? "text-primary border-b-2 border-primary pb-1 font-semibold"
+              : "text-slate-700 hover:text-primary"
               }`}
           >
             Deals
@@ -96,8 +96,8 @@ export default function Navigation() {
           <Link
             href="/contacts"
             className={`text-sm font-medium transition-colors ${isActive("/contacts")
-                ? "text-primary border-b-2 border-primary pb-1 font-semibold"
-                : "text-slate-700 hover:text-primary"
+              ? "text-primary border-b-2 border-primary pb-1 font-semibold"
+              : "text-slate-700 hover:text-primary"
               }`}
           >
             Contacts
@@ -105,8 +105,8 @@ export default function Navigation() {
           <Link
             href="/accounts"
             className={`text-sm font-medium transition-colors ${isActive("/accounts")
-                ? "text-primary border-b-2 border-primary pb-1 font-semibold"
-                : "text-slate-700 hover:text-primary"
+              ? "text-primary border-b-2 border-primary pb-1 font-semibold"
+              : "text-slate-700 hover:text-primary"
               }`}
           >
             Accounts
@@ -114,13 +114,13 @@ export default function Navigation() {
           <Link
             href="/proposals"
             className={`text-sm font-medium transition-colors ${isActive("/proposals")
-                ? "text-primary border-b-2 border-primary pb-1 font-semibold"
-                : "text-slate-700 hover:text-primary"
+              ? "text-primary border-b-2 border-primary pb-1 font-semibold"
+              : "text-slate-700 hover:text-primary"
               }`}
           >
             Proposals
           </Link>
-          <Link
+          {/* <Link
             href="/products"
             className={`text-sm font-medium transition-colors ${isActive("/products")
                 ? "text-primary border-b-2 border-primary pb-1 font-semibold"
@@ -128,12 +128,12 @@ export default function Navigation() {
               }`}
           >
             Products
-          </Link>
+          </Link> */}
           <Link
             href="/catalog"
             className={`text-sm font-medium transition-colors ${isActive("/catalog")
-                ? "text-primary border-b-2 border-primary pb-1 font-semibold"
-                : "text-slate-700 hover:text-primary"
+              ? "text-primary border-b-2 border-primary pb-1 font-semibold"
+              : "text-slate-700 hover:text-primary"
               }`}
           >
             Catalog
@@ -142,8 +142,8 @@ export default function Navigation() {
             <Link
               href="/admin"
               className={`text-sm font-medium transition-colors ${isActive("/admin")
-                  ? "text-primary border-b-2 border-primary pb-1 font-semibold"
-                  : "text-slate-700 hover:text-primary"
+                ? "text-primary border-b-2 border-primary pb-1 font-semibold"
+                : "text-slate-700 hover:text-primary"
                 }`}
             >
               Admin

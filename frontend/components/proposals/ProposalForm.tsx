@@ -13,6 +13,7 @@ import {
     LineItemDTO,
     ProposalResponse,
     ProposalSource,
+    ProposalStatus,
     DiscountType,
 } from "@/types/proposal";
 import { ProductResponse } from "@/types/product";
@@ -100,6 +101,11 @@ export default function ProposalForm({
     );
     const [discountReason, setDiscountReason] = useState(
         initialData?.discount?.discountReason || ""
+    );
+
+    // Status state (only for edit mode)
+    const [status, setStatus] = useState<ProposalStatus>(
+        initialData?.status || ProposalStatus.DRAFT
     );
 
     useEffect(() => {
@@ -253,6 +259,7 @@ export default function ProposalForm({
                 const request: UpdateProposalRequest = {
                     title: title.trim(),
                     description: description.trim() || undefined,
+                    status: status, // Include status update
                     validUntil,
                     lineItems: processedLineItems,
                     discount,
@@ -293,8 +300,31 @@ export default function ProposalForm({
         }
     };
 
+    // Check for read-only status based on INITIAL status, not current state
+    // This allows users to change status to ACCEPTED/REJECTED and submit
+    const isReadOnly =
+        mode === "edit" &&
+        (initialData?.status === ProposalStatus.ACCEPTED || initialData?.status === ProposalStatus.REJECTED);
+
     return (
         <form onSubmit={handleSubmit} className="space-y-6">
+            {isReadOnly && (
+                <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
+                    <div className="flex">
+                        <div className="flex-shrink-0">
+                            <svg className="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                                <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                            </svg>
+                        </div>
+                        <div className="ml-3">
+                            <p className="text-sm text-yellow-700">
+                                This proposal is <strong>{status}</strong> and cannot be edited.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* Source Selection - Read Only in Edit Mode */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
@@ -336,6 +366,27 @@ export default function ProposalForm({
                         ))}
                     </select>
                 </div>
+
+                {/* Status Dropdown - Only in Edit Mode */}
+                {mode === "edit" && (
+                    <div className="md:col-span-2">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Status
+                        </label>
+                        <select
+                            value={status}
+                            onChange={(e) => setStatus(e.target.value as ProposalStatus)}
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:text-gray-500"
+                            disabled={isReadOnly}
+                        >
+                            <option value={ProposalStatus.DRAFT}>Draft</option>
+                            <option value={ProposalStatus.SENT}>Sent</option>
+                            <option value={ProposalStatus.ACCEPTED}>Accepted</option>
+                            <option value={ProposalStatus.REJECTED}>Rejected</option>
+                            <option value={ProposalStatus.EXPIRED}>Expired</option>
+                        </select>
+                    </div>
+                )}
             </div>
 
             {/* Basic Details */}
@@ -348,8 +399,9 @@ export default function ProposalForm({
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     placeholder="e.g., Website Development Proposal"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:text-gray-500"
                     required
+                    disabled={isReadOnly}
                 />
             </div>
 
@@ -362,7 +414,8 @@ export default function ProposalForm({
                     onChange={(e) => setDescription(e.target.value)}
                     placeholder="Brief description of this proposal..."
                     rows={3}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:text-gray-500"
+                    disabled={isReadOnly}
                 />
             </div>
 
@@ -375,8 +428,9 @@ export default function ProposalForm({
                     value={validUntil}
                     onChange={(e) => setValidUntil(e.target.value)}
                     min={new Date().toISOString().split("T")[0]}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:text-gray-500"
                     required
+                    disabled={isReadOnly}
                 />
             </div>
 
@@ -387,7 +441,8 @@ export default function ProposalForm({
                     <button
                         type="button"
                         onClick={addLineItem}
-                        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                        disabled={isReadOnly}
+                        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         + Add Item
                     </button>
@@ -407,7 +462,8 @@ export default function ProposalForm({
                                     <button
                                         type="button"
                                         onClick={() => removeLineItem(index)}
-                                        className="text-red-600 hover:text-red-800 text-sm"
+                                        disabled={isReadOnly}
+                                        className="text-red-600 hover:text-red-800 text-sm disabled:text-gray-400 disabled:cursor-not-allowed"
                                     >
                                         Remove
                                     </button>
@@ -438,7 +494,8 @@ export default function ProposalForm({
                                             <button
                                                 type="button"
                                                 onClick={() => updateLineItem(index, "productId", "")}
-                                                className="text-blue-500 hover:text-blue-700 p-1"
+                                                disabled={isReadOnly}
+                                                className="text-blue-500 hover:text-blue-700 p-1 disabled:text-gray-400 disabled:cursor-not-allowed"
                                             >
                                                 Change
                                             </button>
@@ -481,6 +538,7 @@ export default function ProposalForm({
                                                 });
                                             }}
                                             required
+                                            disabled={isReadOnly}
                                         />
                                     )}
                                 </div>
@@ -500,8 +558,9 @@ export default function ProposalForm({
                                             )
                                         }
                                         min="1"
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:text-gray-500"
                                         required
+                                        disabled={isReadOnly}
                                     />
                                 </div>
 
@@ -522,7 +581,8 @@ export default function ProposalForm({
                                         step="0.01"
                                         min="0"
                                         placeholder="Auto-filled"
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:text-gray-500"
+                                        disabled={isReadOnly}
                                     />
                                 </div>
 
@@ -539,7 +599,8 @@ export default function ProposalForm({
                                                 e.target.value || undefined
                                             )
                                         }
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:text-gray-500"
+                                        disabled={isReadOnly}
                                     >
                                         <option value="">No Discount</option>
                                         <option value={DiscountType.PERCENTAGE}>
@@ -573,7 +634,8 @@ export default function ProposalForm({
                                                     ? "0-100"
                                                     : "Amount"
                                             }
-                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:text-gray-500"
+                                            disabled={isReadOnly}
                                         />
                                     </div>
                                 )}
@@ -593,7 +655,8 @@ export default function ProposalForm({
                                             )
                                         }
                                         placeholder="Product description or custom notes..."
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm disabled:bg-gray-100 disabled:text-gray-500"
+                                        disabled={isReadOnly}
                                     />
                                 </div>
                             </div>
@@ -610,7 +673,8 @@ export default function ProposalForm({
                         id="hasDiscount"
                         checked={hasOverallDiscount}
                         onChange={(e) => setHasOverallDiscount(e.target.checked)}
-                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded disabled:text-gray-400"
+                        disabled={isReadOnly}
                     />
                     <label
                         htmlFor="hasDiscount"
@@ -631,7 +695,8 @@ export default function ProposalForm({
                                 onChange={(e) =>
                                     setOverallDiscountType(e.target.value as DiscountType)
                                 }
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:text-gray-500"
+                                disabled={isReadOnly}
                             >
                                 <option value={DiscountType.PERCENTAGE}>Percentage (%)</option>
                                 <option value={DiscountType.FIXED_AMOUNT}>
@@ -652,7 +717,8 @@ export default function ProposalForm({
                                 }
                                 step="0.01"
                                 min="0"
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:text-gray-500"
+                                disabled={isReadOnly}
                             />
                         </div>
 
@@ -665,7 +731,8 @@ export default function ProposalForm({
                                 value={discountReason}
                                 onChange={(e) => setDiscountReason(e.target.value)}
                                 placeholder="e.g., Bulk order"
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:text-gray-500"
+                                disabled={isReadOnly}
                             />
                         </div>
                     </div>
@@ -687,7 +754,8 @@ export default function ProposalForm({
                         onChange={(e) => setPaymentTerms(e.target.value)}
                         placeholder="e.g., 50% advance, 50% on delivery"
                         rows={2}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:text-gray-500"
+                        disabled={isReadOnly}
                     />
                 </div>
 
@@ -700,7 +768,8 @@ export default function ProposalForm({
                         onChange={(e) => setDeliveryTerms(e.target.value)}
                         placeholder="e.g., Delivery within 30 days"
                         rows={2}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:text-gray-500"
+                        disabled={isReadOnly}
                     />
                 </div>
 
@@ -713,7 +782,8 @@ export default function ProposalForm({
                         onChange={(e) => setNotes(e.target.value)}
                         placeholder="Any additional notes or terms..."
                         rows={3}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:text-gray-500"
+                        disabled={isReadOnly}
                     />
                 </div>
             </div>
@@ -730,7 +800,7 @@ export default function ProposalForm({
                 </button>
                 <button
                     type="submit"
-                    disabled={loading}
+                    disabled={loading || isReadOnly}
                     className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
                 >
                     {loading

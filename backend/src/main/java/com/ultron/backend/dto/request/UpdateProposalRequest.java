@@ -1,6 +1,7 @@
 package com.ultron.backend.dto.request;
 
 import com.ultron.backend.domain.enums.DiscountType;
+import com.ultron.backend.domain.enums.ProposalStatus;
 import com.ultron.backend.validation.ValidUntilConstraint;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
@@ -24,6 +25,8 @@ public class UpdateProposalRequest {
 
     @Size(max = 1000, message = "Description must be less than 1000 characters")
     private String description;
+
+    private ProposalStatus status;
 
     @ValidUntilConstraint(maxMonths = 12)
     private LocalDate validUntil;

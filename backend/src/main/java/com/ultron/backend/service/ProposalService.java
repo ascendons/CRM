@@ -117,9 +117,9 @@ public class ProposalService {
     public ProposalResponse updateProposal(String id, UpdateProposalRequest request, String userId) {
         Proposal proposal = findProposalById(id);
 
-        // Only DRAFT proposals can be updated
-        if (proposal.getStatus() != ProposalStatus.DRAFT) {
-            throw new IllegalStateException("Only draft proposals can be updated");
+        // Block updates if proposal is already accepted or rejected
+        if (proposal.getStatus() == ProposalStatus.ACCEPTED || proposal.getStatus() == ProposalStatus.REJECTED) {
+            throw new IllegalStateException("Cannot update proposal in " + proposal.getStatus() + " status");
         }
 
         // Update fields only if provided (null-safe)
@@ -172,6 +172,35 @@ public class ProposalService {
         proposal.setLastModifiedAt(LocalDateTime.now());
         proposal.setLastModifiedBy(userId);
         proposal.setLastModifiedByName(getUserName(userId));
+
+        if (request.getStatus() != null && request.getStatus() != proposal.getStatus()) {
+            ProposalStatus oldStatus = proposal.getStatus();
+            ProposalStatus newStatus = request.getStatus();
+            
+            // Apply status specific logic
+            switch (newStatus) {
+                case SENT:
+                    proposal.setSentAt(LocalDateTime.now());
+                    break;
+                case ACCEPTED:
+                    proposal.setAcceptedAt(LocalDateTime.now());
+                    break;
+                case REJECTED:
+                    proposal.setRejectedAt(LocalDateTime.now());
+                    break;
+                default:
+                    // DRAFT or EXPIRED - no specific timestamp to set
+                    break;
+            }
+            
+            proposal.setStatus(newStatus);
+            
+            // Log status change audit
+            auditLogService.logAsync("PROPOSAL", proposal.getId(), proposal.getTitle(),
+                    "STATUS_CHANGE", "Proposal status updated to " + newStatus,
+                    oldStatus.toString(), newStatus.toString(),
+                    userId, null);
+        }
 
         // Recalculate totals if line items or discount changed
         if (needsRecalculation) {

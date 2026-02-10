@@ -139,6 +139,13 @@ public class AuditLogService {
         return auditLogRepository.findByTimestampBetweenOrderByTimestampDesc(start, end, pageable);
     }
 
+    /**
+     * Get all audit logs (paginated)
+     */
+    public Page<AuditLog> getAllAuditLogs(Pageable pageable) {
+        return auditLogRepository.findAll(pageable);
+    }
+
     // Helper methods
 
     private String getUserName(String userId) {

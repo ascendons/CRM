@@ -144,6 +144,7 @@ export interface CreateProposalRequest {
 export interface UpdateProposalRequest {
   title?: string;
   description?: string;
+  status?: ProposalStatus;
   validUntil?: string;
   lineItems?: LineItemDTO[];
   discount?: DiscountDTO;

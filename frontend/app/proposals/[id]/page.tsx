@@ -242,25 +242,26 @@ export default function ProposalDetailPage({
                 Back
               </Link>
               {proposal.status === ProposalStatus.DRAFT && (
-                <>
-                  <PermissionGuard resource="PROPOSAL" action="SEND">
-                    <button
-                      onClick={handleSend}
-                      disabled={actionLoading}
-                      className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
-                    >
-                      Send to Customer
-                    </button>
-                  </PermissionGuard>
-                  <PermissionGuard resource="PROPOSAL" action="EDIT">
-                    <Link
-                      href={`/proposals/${proposal.id}/edit`}
-                      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-                    >
-                      Edit
-                    </Link>
-                  </PermissionGuard>
-                </>
+                <PermissionGuard resource="PROPOSAL" action="SEND">
+                  <button
+                    onClick={handleSend}
+                    disabled={actionLoading}
+                    className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
+                  >
+                    Send to Customer
+                  </button>
+                </PermissionGuard>
+              )}
+
+              {proposal.status !== ProposalStatus.ACCEPTED && proposal.status !== ProposalStatus.REJECTED && (
+                <PermissionGuard resource="PROPOSAL" action="EDIT">
+                  <Link
+                    href={`/proposals/${proposal.id}/edit`}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                  >
+                    Edit
+                  </Link>
+                </PermissionGuard>
               )}
               {proposal.status === ProposalStatus.SENT && (
                 <>
