@@ -17,9 +17,12 @@ import java.util.List;
 
 @Document(collection = "products")
 @CompoundIndexes({
-    @CompoundIndex(name = "category_deleted_idx", def = "{'category': 1, 'isDeleted': 1}"),
-    @CompoundIndex(name = "status_deleted_idx", def = "{'status': 1, 'isDeleted': 1}"),
-    @CompoundIndex(name = "active_deleted_idx", def = "{'isActive': 1, 'isDeleted': 1}")
+    @CompoundIndex(name = "tenant_deleted_idx", def = "{'tenantId': 1, 'isDeleted': 1}"),
+    @CompoundIndex(name = "tenant_category_deleted_idx", def = "{'tenantId': 1, 'category': 1, 'isDeleted': 1}"),
+    @CompoundIndex(name = "tenant_status_deleted_idx", def = "{'tenantId': 1, 'status': 1, 'isDeleted': 1}"),
+    @CompoundIndex(name = "tenant_active_deleted_idx", def = "{'tenantId': 1, 'isActive': 1, 'isDeleted': 1}"),
+    @CompoundIndex(name = "tenant_productId_idx", def = "{'tenantId': 1, 'productId': 1}", unique = true),
+    @CompoundIndex(name = "tenant_sku_idx", def = "{'tenantId': 1, 'sku': 1}", unique = true)
 })
 @Data
 @Builder
@@ -29,12 +32,16 @@ public class Product {
     @Id
     private String id;  // MongoDB ObjectId
 
-    @Indexed(unique = true)
-    private String productId;  // Business ID: PRD-YYYY-MM-XXXXX
+    @Indexed
+    private String productId;  // Business ID: PRD-YYYY-MM-XXXXX (unique per tenant via compound index)
+
+    // Multi-tenancy
+    @Indexed
+    private String tenantId;
 
     // Basic Information
-    @Indexed(unique = true)
-    private String sku;  // Stock Keeping Unit (unique)
+    @Indexed
+    private String sku;  // Stock Keeping Unit (unique per tenant via compound index)
     private String productName;
     private String description;
 

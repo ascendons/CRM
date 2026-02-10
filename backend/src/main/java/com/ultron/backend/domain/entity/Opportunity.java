@@ -28,6 +28,10 @@ public class Opportunity {
     @Indexed(unique = true)
     private String opportunityId;
 
+    // Multi-tenancy
+    @Indexed
+    private String tenantId;
+
     // ===== Basic Information =====
     private String opportunityName;
     private OpportunityStage stage;

@@ -48,7 +48,11 @@ export default function OpportunityDetailPage({ params }: { params: Promise<{ id
     try {
       setProposalsLoading(true);
       const data = await proposalsService.getProposalsBySource(ProposalSource.OPPORTUNITY, id);
-      setProposals(data);
+      if ('content' in data) {
+        setProposals(data.content);
+      } else {
+        setProposals(data || []);
+      }
     } catch (err) {
       console.error("Failed to load proposals:", err);
     } finally {

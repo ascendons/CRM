@@ -134,31 +134,31 @@ export default function ActivitiesPage() {
 
   const getTypeBadgeColor = (type: ActivityType) => {
     const colors = {
-      [ActivityType.TASK]: 'bg-blue-50 text-blue-700 border-blue-100   
-      [ActivityType.EMAIL]: 'bg-purple-50 text-purple-700 border-purple-100   
-      [ActivityType.CALL]: 'bg-emerald-50 text-emerald-700 border-emerald-100   
-      [ActivityType.MEETING]: 'bg-orange-50 text-orange-700 border-orange-100   
-      [ActivityType.NOTE]: 'bg-slate-50 text-slate-700 border-slate-200   
+      [ActivityType.TASK]: 'bg-blue-50 text-blue-700 border-blue-100',
+      [ActivityType.EMAIL]: 'bg-purple-50 text-purple-700 border-purple-100',
+      [ActivityType.CALL]: 'bg-emerald-50 text-emerald-700 border-emerald-100',
+      [ActivityType.MEETING]: 'bg-orange-50 text-orange-700 border-orange-100',
+      [ActivityType.NOTE]: 'bg-slate-50 text-slate-700 border-slate-200'
     };
     return colors[type] || 'bg-gray-100 text-gray-800';
   };
 
   const getStatusBadgeColor = (status: ActivityStatus) => {
     const colors = {
-      [ActivityStatus.PENDING]: 'bg-amber-50 text-amber-700 border-amber-100   
-      [ActivityStatus.IN_PROGRESS]: 'bg-blue-50 text-blue-700 border-blue-100   
-      [ActivityStatus.COMPLETED]: 'bg-emerald-50 text-emerald-700 border-emerald-100   
-      [ActivityStatus.CANCELLED]: 'bg-slate-50 text-slate-600 border-slate-200   
+      [ActivityStatus.PENDING]: 'bg-amber-50 text-amber-700 border-amber-100',
+      [ActivityStatus.IN_PROGRESS]: 'bg-blue-50 text-blue-700 border-blue-100',
+      [ActivityStatus.COMPLETED]: 'bg-emerald-50 text-emerald-700 border-emerald-100',
+      [ActivityStatus.CANCELLED]: 'bg-slate-50 text-slate-600 border-slate-200'
     };
     return colors[status] || 'bg-gray-100 text-gray-800';
   };
 
   const getPriorityBadgeColor = (priority: ActivityPriority) => {
     const colors = {
-      [ActivityPriority.LOW]: 'text-slate-600 bg-slate-100  
-      [ActivityPriority.MEDIUM]: 'text-blue-600 bg-blue-50  
-      [ActivityPriority.HIGH]: 'text-orange-600 bg-orange-50  
-      [ActivityPriority.URGENT]: 'text-red-600 bg-red-50  
+      [ActivityPriority.LOW]: 'text-slate-600 bg-slate-100',
+      [ActivityPriority.MEDIUM]: 'text-blue-600 bg-blue-50',
+      [ActivityPriority.HIGH]: 'text-orange-600 bg-orange-50',
+      [ActivityPriority.URGENT]: 'text-red-600 bg-red-50'
     };
     return colors[priority] || 'bg-gray-100 text-gray-800';
   };

@@ -31,6 +31,10 @@ public class AuditLog {
     @Id
     private String id;
 
+    // Multi-tenancy
+    @Indexed
+    private String tenantId;
+
     // Entity Information
     @Indexed
     private String entityType;  // "PROPOSAL", "PRODUCT", "LEAD", etc.

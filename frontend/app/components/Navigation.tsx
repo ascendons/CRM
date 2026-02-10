@@ -138,6 +138,15 @@ export default function Navigation() {
           >
             Catalog
           </Link>
+          <Link
+            href="/analytics"
+            className={`text-sm font-medium transition-colors ${isActive("/analytics")
+              ? "text-primary border-b-2 border-primary pb-1 font-semibold"
+              : "text-slate-700 hover:text-primary"
+              }`}
+          >
+            Analytics
+          </Link>
           {isAdmin && (
             <Link
               href="/admin"

@@ -86,7 +86,7 @@ public class ProposalController {
      * GET /api/v1/proposals/{id}
      */
     @GetMapping("/{id}")
-//    @PreAuthorize("hasPermission('PROPOSAL', 'READ')")
+    @PreAuthorize("hasPermission('PROPOSAL', 'VIEW')")
     public ResponseEntity<ApiResponse<ProposalResponse>> getProposalById(@PathVariable String id) {
         log.info("Fetching proposal with ID: {}", id);
 
@@ -98,6 +98,26 @@ public class ProposalController {
                         .message("Proposal retrieved successfully")
                         .data(proposal)
                         .build());
+    }
+
+    /**
+     * Get proposal PDF invoice
+     * GET /api/v1/proposals/{id}/pdf
+     */
+    @GetMapping("/{id}/pdf")
+    @PreAuthorize("hasPermission('PROPOSAL', 'VIEW')")
+    public ResponseEntity<byte[]> getProposalPdf(@PathVariable String id) {
+        log.info("Generating PDF for proposal: {}", id);
+
+        // Get proposal details to set filename
+        ProposalResponse proposal = proposalService.getProposalById(id);
+        
+        byte[] pdfBytes = proposalService.generatePdf(id);
+
+        return ResponseEntity.ok()
+                .header(org.springframework.http.HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"proposal-" + proposal.getProposalNumber() + ".pdf\"")
+                .contentType(org.springframework.http.MediaType.APPLICATION_PDF)
+                .body(pdfBytes);
     }
 
     /**

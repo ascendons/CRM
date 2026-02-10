@@ -27,6 +27,14 @@ public class User {
     @Indexed(unique = true)
     private String userId;
 
+    // Multi-tenancy
+    @Indexed
+    private String tenantId;  // Organization this user belongs to
+
+    // User Type (system vs tenant users)
+    @Builder.Default
+    private String userType = "TENANT_USER";  // SYSTEM_ADMIN, TENANT_ADMIN, TENANT_USER
+
     // Authentication
     @Indexed(unique = true)
     private String username;

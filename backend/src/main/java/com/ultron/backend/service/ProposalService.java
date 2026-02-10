@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class ProposalService {
+public class ProposalService extends BaseTenantService {
 
     private final ProposalRepository proposalRepository;
     private final ProposalIdGeneratorService proposalIdGeneratorService;
@@ -46,17 +46,23 @@ public class ProposalService {
     private final DynamicProductRepository dynamicProductRepository;
     private final UserRepository userRepository;
     private final AuditLogService auditLogService;
+    private final PdfService pdfService;
 
     @Transactional
     public ProposalResponse createProposal(CreateProposalRequest request, String createdBy) {
+        // Get current tenant ID for multi-tenancy
+        String tenantId = getCurrentTenantId();
+
+        log.info("[Tenant: {}] Creating proposal from source: {} - {}", tenantId, request.getSource(), request.getSourceId());
+
         // Validate source (Lead or Opportunity)
-        validateSource(request.getSource(), request.getSourceId());
+        validateSource(request.getSource(), request.getSourceId(), tenantId);
 
         // Get source name
-        String sourceName = getSourceName(request.getSource(), request.getSourceId());
+        String sourceName = getSourceName(request.getSource(), request.getSourceId(), tenantId);
 
         // Build line items with product validation
-        List<Proposal.ProposalLineItem> lineItems = this.buildCreateLineItems(request.getLineItems());
+        List<Proposal.ProposalLineItem> lineItems = this.buildCreateLineItems(request.getLineItems(), tenantId);
 
         // Build discount config
         Proposal.DiscountConfig discount = null;
@@ -74,6 +80,7 @@ public class ProposalService {
         // Build proposal
         Proposal proposal = Proposal.builder()
                 .proposalId(proposalId)
+                .tenantId(tenantId)  // CRITICAL: Set tenant ID for data isolation
                 .source(request.getSource())
                 .sourceId(request.getSourceId())
                 .sourceName(sourceName)
@@ -101,8 +108,8 @@ public class ProposalService {
         // Save
         Proposal saved = proposalRepository.save(proposal);
 
-        log.info("Proposal created: proposalId={}, source={}, sourceId={}, total={}",
-                 saved.getProposalId(), saved.getSource(), saved.getSourceId(), saved.getTotalAmount());
+        log.info("[Tenant: {}] Proposal created: proposalId={}, source={}, sourceId={}, total={}",
+                 tenantId, saved.getProposalId(), saved.getSource(), saved.getSourceId(), saved.getTotalAmount());
 
         // Log audit event
         auditLogService.logAsync("PROPOSAL", saved.getId(), saved.getTitle(),
@@ -113,9 +120,26 @@ public class ProposalService {
         return mapToResponse(saved);
     }
 
+    @Transactional(readOnly = true)
+    public byte[] generatePdf(String id) {
+        String tenantId = getCurrentTenantId();
+        Proposal proposal = findProposalById(id, tenantId);
+        try {
+            return pdfService.generateProposalPdf(proposal);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to generate PDF", e);
+        }
+    }
+
     @Transactional
     public ProposalResponse updateProposal(String id, UpdateProposalRequest request, String userId) {
-        Proposal proposal = findProposalById(id);
+        String tenantId = getCurrentTenantId();
+        log.info("[Tenant: {}] Updating proposal {} by user {}", tenantId, id, userId);
+
+        Proposal proposal = findProposalById(id, tenantId);
+
+        // Validate tenant ownership
+        validateResourceTenantOwnership(proposal.getTenantId());
 
         // Block updates if proposal is already accepted or rejected
         if (proposal.getStatus() == ProposalStatus.ACCEPTED || proposal.getStatus() == ProposalStatus.REJECTED) {
@@ -138,7 +162,7 @@ public class ProposalService {
         }
 
         if (request.getLineItems() != null) {
-            List<Proposal.ProposalLineItem> lineItems = buildUpdateLineItems(request.getLineItems());
+            List<Proposal.ProposalLineItem> lineItems = buildUpdateLineItems(request.getLineItems(), tenantId);
             proposal.setLineItems(lineItems);
             needsRecalculation = true;
         }
@@ -222,7 +246,11 @@ public class ProposalService {
 
     @Transactional
     public ProposalResponse sendProposal(String id, String userId) {
-        Proposal proposal = findProposalById(id);
+        String tenantId = getCurrentTenantId();
+        Proposal proposal = findProposalById(id, tenantId);
+
+        // Validate tenant ownership
+        validateResourceTenantOwnership(proposal.getTenantId());
 
         if (proposal.getStatus() != ProposalStatus.DRAFT) {
             throw new IllegalStateException("Only draft proposals can be sent");
@@ -252,7 +280,11 @@ public class ProposalService {
 
     @Transactional
     public ProposalResponse acceptProposal(String id, String userId) {
-        Proposal proposal = findProposalById(id);
+        String tenantId = getCurrentTenantId();
+        Proposal proposal = findProposalById(id, tenantId);
+
+        // Validate tenant ownership
+        validateResourceTenantOwnership(proposal.getTenantId());
 
         if (proposal.getStatus() != ProposalStatus.SENT) {
             throw new IllegalStateException("Only sent proposals can be accepted");
@@ -283,7 +315,11 @@ public class ProposalService {
 
     @Transactional
     public ProposalResponse rejectProposal(String id, String reason, String userId) {
-        Proposal proposal = findProposalById(id);
+        String tenantId = getCurrentTenantId();
+        Proposal proposal = findProposalById(id, tenantId);
+
+        // Validate tenant ownership
+        validateResourceTenantOwnership(proposal.getTenantId());
 
         if (proposal.getStatus() != ProposalStatus.SENT) {
             throw new IllegalStateException("Only sent proposals can be rejected");
@@ -312,58 +348,73 @@ public class ProposalService {
     }
 
     public List<ProposalResponse> getAllProposals() {
-        return proposalRepository.findByIsDeletedFalse().stream()
+        String tenantId = getCurrentTenantId();
+        log.debug("[Tenant: {}] Fetching all proposals", tenantId);
+        return proposalRepository.findByTenantIdAndIsDeletedFalse(tenantId).stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
 
     public Page<ProposalResponse> getAllProposals(Pageable pageable) {
-        return proposalRepository.findByIsDeletedFalse(pageable)
+        String tenantId = getCurrentTenantId();
+        log.debug("[Tenant: {}] Fetching all proposals (paginated)", tenantId);
+        return proposalRepository.findByTenantIdAndIsDeletedFalse(tenantId, pageable)
                 .map(this::mapToResponse);
     }
 
     public ProposalResponse getProposalById(String id) {
-        Proposal proposal = findProposalById(id);
+        String tenantId = getCurrentTenantId();
+        Proposal proposal = findProposalById(id, tenantId);
         return mapToResponse(proposal);
     }
 
     public List<ProposalResponse> getProposalsBySource(ProposalSource source, String sourceId) {
-        return proposalRepository.findBySourceAndSourceIdAndIsDeletedFalse(source, sourceId)
+        String tenantId = getCurrentTenantId();
+        return proposalRepository.findBySourceAndSourceIdAndTenantIdAndIsDeletedFalse(source, sourceId, tenantId)
                 .stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
 
     public Page<ProposalResponse> getProposalsBySource(ProposalSource source, String sourceId, Pageable pageable) {
-        return proposalRepository.findBySourceAndSourceIdAndIsDeletedFalse(source, sourceId, pageable)
+        String tenantId = getCurrentTenantId();
+        return proposalRepository.findBySourceAndSourceIdAndTenantIdAndIsDeletedFalse(source, sourceId, tenantId, pageable)
                 .map(this::mapToResponse);
     }
 
     public List<ProposalResponse> getProposalsByStatus(ProposalStatus status) {
-        return proposalRepository.findByStatusAndIsDeletedFalse(status).stream()
+        String tenantId = getCurrentTenantId();
+        return proposalRepository.findByStatusAndTenantIdAndIsDeletedFalse(status, tenantId).stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
 
     public Page<ProposalResponse> getProposalsByStatus(ProposalStatus status, Pageable pageable) {
-        return proposalRepository.findByStatusAndIsDeletedFalse(status, pageable)
+        String tenantId = getCurrentTenantId();
+        return proposalRepository.findByStatusAndTenantIdAndIsDeletedFalse(status, tenantId, pageable)
                 .map(this::mapToResponse);
     }
 
     public List<ProposalResponse> getProposalsByOwner(String ownerId) {
-        return proposalRepository.findByOwnerIdAndIsDeletedFalse(ownerId).stream()
+        String tenantId = getCurrentTenantId();
+        return proposalRepository.findByOwnerIdAndTenantIdAndIsDeletedFalse(ownerId, tenantId).stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
 
     public Page<ProposalResponse> getProposalsByOwner(String ownerId, Pageable pageable) {
-        return proposalRepository.findByOwnerIdAndIsDeletedFalse(ownerId, pageable)
+        String tenantId = getCurrentTenantId();
+        return proposalRepository.findByOwnerIdAndTenantIdAndIsDeletedFalse(ownerId, tenantId, pageable)
                 .map(this::mapToResponse);
     }
 
     @Transactional
     public void deleteProposal(String id, String deletedBy) {
-        Proposal proposal = findProposalById(id);
+        String tenantId = getCurrentTenantId();
+        Proposal proposal = findProposalById(id, tenantId);
+
+        // Validate tenant ownership
+        validateResourceTenantOwnership(proposal.getTenantId());
 
         // Soft delete
         proposal.setIsDeleted(true);
@@ -384,8 +435,8 @@ public class ProposalService {
 
     // Helper methods
 
-    private Proposal findProposalById(String id) {
-        Proposal proposal = proposalRepository.findById(id)
+    private Proposal findProposalById(String id, String tenantId) {
+        Proposal proposal = proposalRepository.findByIdAndTenantId(id, tenantId)
                 .orElseThrow(() -> new ResourceNotFoundException("Proposal not found with id: " + id));
 
         if (proposal.getIsDeleted()) {
@@ -395,10 +446,10 @@ public class ProposalService {
         return proposal;
     }
 
-    private List<Proposal.ProposalLineItem> buildCreateLineItems(List<CreateProposalRequest.LineItemDTO> dtos) {
+    private List<Proposal.ProposalLineItem> buildCreateLineItems(List<CreateProposalRequest.LineItemDTO> dtos, String tenantId) {
         return dtos.stream().map(dto -> {
             // Try standard product first
-            return productRepository.findById(dto.getProductId())
+            return productRepository.findByIdAndTenantId(dto.getProductId(), tenantId)
                     .map(product -> Proposal.ProposalLineItem.builder()
                             .lineItemId(UUID.randomUUID().toString())
                             .productId(product.getId())
@@ -414,7 +465,7 @@ public class ProposalService {
                             .build())
                     .orElseGet(() -> {
                         // Try dynamic product
-                        DynamicProduct dynamicProduct = dynamicProductRepository.findById(dto.getProductId())
+                        DynamicProduct dynamicProduct = dynamicProductRepository.findByIdAndTenantId(dto.getProductId(), tenantId)
                                 .orElseThrow(() -> new ResourceNotFoundException("Product not found: " + dto.getProductId()));
 
                         return mapDynamicProductToLineItem(dynamicProduct, dto);
@@ -472,10 +523,10 @@ public class ProposalService {
                 .orElse(defaultValue);
     }
 
-    private List<Proposal.ProposalLineItem> buildUpdateLineItems(List<UpdateProposalRequest.LineItemDTO> dtos) {
+    private List<Proposal.ProposalLineItem> buildUpdateLineItems(List<UpdateProposalRequest.LineItemDTO> dtos, String tenantId) {
         return dtos.stream().map(dto -> {
             // Try standard product first
-            return productRepository.findById(dto.getProductId())
+            return productRepository.findByIdAndTenantId(dto.getProductId(), tenantId)
                     .map(product -> Proposal.ProposalLineItem.builder()
                             .lineItemId(UUID.randomUUID().toString())
                             .productId(product.getId())
@@ -491,7 +542,7 @@ public class ProposalService {
                             .build())
                     .orElseGet(() -> {
                         // Try dynamic product
-                        DynamicProduct dynamicProduct = dynamicProductRepository.findById(dto.getProductId())
+                        DynamicProduct dynamicProduct = dynamicProductRepository.findByIdAndTenantId(dto.getProductId(), tenantId)
                                 .orElseThrow(() -> new ResourceNotFoundException("Product not found: " + dto.getProductId()));
 
                         return mapDynamicProductToLineItem(dynamicProduct, dto);
@@ -499,24 +550,32 @@ public class ProposalService {
         }).collect(Collectors.toList());
     }
 
-    private void validateSource(ProposalSource source, String sourceId) {
-        if (source == ProposalSource.LEAD) {
-            leadRepository.findById(sourceId)
-                    .orElseThrow(() -> new ResourceNotFoundException("Lead not found: " + sourceId));
-        } else {
-            opportunityRepository.findById(sourceId)
-                    .orElseThrow(() -> new ResourceNotFoundException("Opportunity not found: " + sourceId));
-        }
-    }
-
-    private String getSourceName(ProposalSource source, String sourceId) {
+    private void validateSource(ProposalSource source, String sourceId, String tenantId) {
         if (source == ProposalSource.LEAD) {
             Lead lead = leadRepository.findById(sourceId)
                     .orElseThrow(() -> new ResourceNotFoundException("Lead not found: " + sourceId));
+            // Validate the source belongs to the same tenant
+            validateResourceTenantOwnership(lead.getTenantId());
+        } else {
+            Opportunity opportunity = opportunityRepository.findById(sourceId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Opportunity not found: " + sourceId));
+            // Validate the source belongs to the same tenant
+            validateResourceTenantOwnership(opportunity.getTenantId());
+        }
+    }
+
+    private String getSourceName(ProposalSource source, String sourceId, String tenantId) {
+        if (source == ProposalSource.LEAD) {
+            Lead lead = leadRepository.findById(sourceId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Lead not found: " + sourceId));
+            // Validate the source belongs to the same tenant
+            validateResourceTenantOwnership(lead.getTenantId());
             return lead.getFirstName() + " " + lead.getLastName();
         } else {
             Opportunity opportunity = opportunityRepository.findById(sourceId)
                     .orElseThrow(() -> new ResourceNotFoundException("Opportunity not found: " + sourceId));
+            // Validate the source belongs to the same tenant
+            validateResourceTenantOwnership(opportunity.getTenantId());
             return opportunity.getOpportunityName();
         }
     }

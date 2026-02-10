@@ -1,11 +1,11 @@
 import { Contact, CreateContactRequest, UpdateContactRequest } from "@/types/contact";
-import { ApiResponse } from "@/types/api";
+import { ApiResponse } from "@/types/auth";
 import { authService } from "./auth";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api/v1";
 
 class ContactService {
-  private getAuthHeader() {
+  private getAuthHeader(): Record<string, string> {
     const token = authService.getToken();
     return token ? { Authorization: `Bearer ${token}` } : {};
   }
@@ -26,6 +26,9 @@ class ContactService {
     }
 
     const result: ApiResponse<Contact> = await response.json();
+    if (!result.data) {
+      throw new Error("No data returned from API");
+    }
     return result.data;
   }
 
@@ -43,7 +46,7 @@ class ContactService {
     }
 
     const result: ApiResponse<Contact[]> = await response.json();
-    return result.data;
+    return result.data || [];
   }
 
   async getContactById(id: string): Promise<Contact> {
@@ -60,6 +63,9 @@ class ContactService {
     }
 
     const result: ApiResponse<Contact> = await response.json();
+    if (!result.data) {
+      throw new Error("Contact not found");
+    }
     return result.data;
   }
 
@@ -77,6 +83,9 @@ class ContactService {
     }
 
     const result: ApiResponse<Contact> = await response.json();
+    if (!result.data) {
+      throw new Error("Contact not found");
+    }
     return result.data;
   }
 
@@ -94,7 +103,7 @@ class ContactService {
     }
 
     const result: ApiResponse<Contact[]> = await response.json();
-    return result.data;
+    return result.data || [];
   }
 
   async searchContacts(query: string): Promise<Contact[]> {
@@ -111,7 +120,7 @@ class ContactService {
     }
 
     const result: ApiResponse<Contact[]> = await response.json();
-    return result.data;
+    return result.data || [];
   }
 
   async updateContact(id: string, request: UpdateContactRequest): Promise<Contact> {
@@ -130,6 +139,9 @@ class ContactService {
     }
 
     const result: ApiResponse<Contact> = await response.json();
+    if (!result.data) {
+      throw new Error("No data returned from API");
+    }
     return result.data;
   }
 
@@ -162,7 +174,7 @@ class ContactService {
     }
 
     const result: ApiResponse<number> = await response.json();
-    return result.data;
+    return result.data ?? 0;
   }
 }
 

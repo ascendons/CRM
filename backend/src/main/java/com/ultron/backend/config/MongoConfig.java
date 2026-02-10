@@ -7,6 +7,7 @@ import com.mongodb.client.MongoClients;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.data.mongodb.MongoDatabaseFactory;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.SimpleMongoClientDatabaseFactory;
@@ -33,8 +34,13 @@ public class MongoConfig {
         return new SimpleMongoClientDatabaseFactory(mongoClient(), "crm_db");
     }
 
+    /**
+     * Primary MongoTemplate with tenant-aware filtering
+     * Automatically adds tenantId filter to all queries for data isolation
+     */
     @Bean
+    @Primary
     public MongoTemplate mongoTemplate() {
-        return new MongoTemplate(mongoDatabaseFactory());
+        return new TenantAwareMongoTemplate(mongoClient(), "crm_db");
     }
 }

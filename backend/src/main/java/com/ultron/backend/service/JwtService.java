@@ -5,6 +5,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
@@ -12,6 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
+@Slf4j
 @Service
 public class JwtService {
 
@@ -25,12 +27,32 @@ public class JwtService {
         return Keys.hmacShaKeyFor(secret.getBytes());
     }
 
-    public String generateToken(String userId, String email, String role) {
+    /**
+     * Generate JWT token with tenant ID (Multi-tenant support)
+     * @param userId User ID
+     * @param email User email
+     * @param role User role
+     * @param tenantId Organization/Tenant ID
+     * @return JWT token
+     */
+    public String generateToken(String userId, String email, String role, String tenantId) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("userId", userId);
         claims.put("email", email);
         claims.put("role", role);
+        claims.put("tenantId", tenantId);  // Multi-tenancy claim
         return createToken(claims, userId);
+    }
+
+    /**
+     * Backward compatibility - delegates to new method with default tenantId
+     * @deprecated Use generateToken(userId, email, role, tenantId) instead
+     */
+    @Deprecated
+    public String generateToken(String userId, String email, String role) {
+        // For backward compatibility during migration, use "DEFAULT" as tenantId
+        log.warn("generateToken called without tenantId for user: {} - using DEFAULT tenant", userId);
+        return generateToken(userId, email, role, "DEFAULT");
     }
 
     private String createToken(Map<String, Object> claims, String subject) {
@@ -56,6 +78,16 @@ public class JwtService {
 
     public String extractRole(String token) {
         return extractClaim(token, claims -> claims.get("role", String.class));
+    }
+
+    /**
+     * Extract tenant ID from JWT token
+     * CRITICAL: Used for tenant context initialization
+     * @param token JWT token
+     * @return Tenant ID
+     */
+    public String extractTenantId(String token) {
+        return extractClaim(token, claims -> claims.get("tenantId", String.class));
     }
 
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {

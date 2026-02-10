@@ -26,7 +26,7 @@ export default function LoginPage() {
 
     try {
       await authService.login(formData);
-      router.push("/dashboard");
+      window.location.href = "/dashboard";
     } catch (err) {
       if (err instanceof ApiError) {
         setError(err.message);

@@ -36,6 +36,10 @@ public class UserActivity {
     @Indexed(unique = true)
     private String activityId;
 
+    // Multi-tenancy
+    @Indexed
+    private String tenantId;
+
     // User Information
     @Indexed
     private String userId;      // User who performed the action

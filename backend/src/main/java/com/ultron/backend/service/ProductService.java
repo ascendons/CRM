@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class ProductService {
+public class ProductService extends BaseTenantService {
 
     private final ProductRepository productRepository;
     private final ProductIdGeneratorService productIdGeneratorService;
@@ -34,15 +34,21 @@ public class ProductService {
 
     @Transactional
     public ProductResponse createProduct(CreateProductRequest request, String createdBy) {
-        // Validate SKU uniqueness
-        if (productRepository.existsBySku(request.getSku())) {
-            throw new DuplicateResourceException("Product with SKU " + request.getSku() + " already exists");
+        // Get current tenant ID for multi-tenancy
+        String tenantId = getCurrentTenantId();
+
+        log.info("[Tenant: {}] Creating product for SKU: {}", tenantId, request.getSku());
+
+        // Check if SKU already exists within this tenant
+        if (productRepository.existsBySkuAndTenantIdAndIsDeletedFalse(request.getSku(), tenantId)) {
+            throw new DuplicateResourceException("Product with SKU " + request.getSku() + " already exists in your organization");
         }
 
         String productId = productIdGeneratorService.generateProductId();
 
         Product product = Product.builder()
                 .productId(productId)
+                .tenantId(tenantId)  // CRITICAL: Set tenant ID for data isolation
                 .sku(request.getSku())
                 .productName(request.getProductName())
                 .description(request.getDescription())
@@ -69,36 +75,51 @@ public class ProductService {
                 .build();
 
         Product saved = productRepository.save(product);
-        log.info("Product created: productId={}, sku={}, createdBy={}",
-                productId, request.getSku(), createdBy);
+        log.info("Product created successfully with ID: {}", saved.getProductId());
 
         return mapToResponse(saved);
     }
 
+    /**
+     * Get all products for current tenant
+     */
     public List<ProductResponse> getAllProducts() {
-        return productRepository.findByIsDeletedFalse().stream()
+        String tenantId = getCurrentTenantId();
+        log.debug("[Tenant: {}] Fetching all products", tenantId);
+        return productRepository.findByTenantIdAndIsDeletedFalse(tenantId).stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
 
     public Page<ProductResponse> getAllProducts(Pageable pageable) {
-        return productRepository.findByIsDeletedFalse(pageable)
+        String tenantId = getCurrentTenantId();
+        log.debug("[Tenant: {}] Fetching all products (paginated)", tenantId);
+        return productRepository.findByTenantIdAndIsDeletedFalse(tenantId, pageable)
                 .map(this::mapToResponse);
     }
 
+    /**
+     * Get active products within current tenant
+     */
     public List<ProductResponse> getActiveProducts() {
-        return productRepository.findActiveProducts().stream()
+        String tenantId = getCurrentTenantId();
+        return productRepository.findActiveProductsByTenantId(tenantId).stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
 
     public Page<ProductResponse> getActiveProducts(Pageable pageable) {
-        return productRepository.findActiveProducts(pageable)
+        String tenantId = getCurrentTenantId();
+        return productRepository.findActiveProductsByTenantId(tenantId, pageable)
                 .map(this::mapToResponse);
     }
 
+    /**
+     * Get product by ID within current tenant
+     */
     public ProductResponse getProductById(String id) {
-        Product product = productRepository.findById(id)
+        String tenantId = getCurrentTenantId();
+        Product product = productRepository.findByIdAndTenantId(id, tenantId)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + id));
 
         if (product.getIsDeleted()) {
@@ -108,8 +129,12 @@ public class ProductService {
         return mapToResponse(product);
     }
 
+    /**
+     * Get product by productId (PRD-YYYY-MM-XXXXX) within current tenant
+     */
     public ProductResponse getProductByProductId(String productId) {
-        Product product = productRepository.findByProductId(productId)
+        String tenantId = getCurrentTenantId();
+        Product product = productRepository.findByProductIdAndTenantId(productId, tenantId)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found with productId: " + productId));
 
         if (product.getIsDeleted()) {
@@ -119,31 +144,44 @@ public class ProductService {
         return mapToResponse(product);
     }
 
+    /**
+     * Get products by category within current tenant
+     */
     public List<ProductResponse> getProductsByCategory(String category) {
-        return productRepository.findByCategoryAndIsDeletedFalse(category).stream()
+        String tenantId = getCurrentTenantId();
+        return productRepository.findByCategoryAndTenantIdAndIsDeletedFalse(category, tenantId).stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
 
     public Page<ProductResponse> getProductsByCategory(String category, Pageable pageable) {
-        return productRepository.findByCategoryAndIsDeletedFalse(category, pageable)
+        String tenantId = getCurrentTenantId();
+        return productRepository.findByCategoryAndTenantIdAndIsDeletedFalse(category, tenantId, pageable)
                 .map(this::mapToResponse);
     }
 
+    /**
+     * Search products within current tenant
+     */
     public List<ProductResponse> searchProducts(String searchTerm) {
-        return productRepository.searchProducts(searchTerm).stream()
+        String tenantId = getCurrentTenantId();
+        return productRepository.searchProductsByTenantId(searchTerm, tenantId).stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
 
     public Page<ProductResponse> searchProducts(String searchTerm, Pageable pageable) {
-        return productRepository.searchProducts(searchTerm, pageable)
+        String tenantId = getCurrentTenantId();
+        return productRepository.searchProductsByTenantId(searchTerm, tenantId, pageable)
                 .map(this::mapToResponse);
     }
 
     @Transactional
     public ProductResponse updateProduct(String id, UpdateProductRequest request, String modifiedBy) {
-        Product product = productRepository.findById(id)
+        String tenantId = getCurrentTenantId();
+        log.info("[Tenant: {}] Updating product {} by user {}", tenantId, id, modifiedBy);
+
+        Product product = productRepository.findByIdAndTenantId(id, tenantId)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + id));
 
         if (product.getIsDeleted()) {
@@ -211,14 +249,18 @@ public class ProductService {
         product.setLastModifiedByName(getUserName(modifiedBy));
 
         Product updated = productRepository.save(product);
-        log.info("Product updated: productId={}, modifiedBy={}", product.getProductId(), modifiedBy);
+        log.info("Product {} updated successfully", id);
 
         return mapToResponse(updated);
     }
 
+    /**
+     * Delete product (soft delete)
+     */
     @Transactional
     public void deleteProduct(String id, String deletedBy) {
-        Product product = productRepository.findById(id)
+        String tenantId = getCurrentTenantId();
+        Product product = productRepository.findByIdAndTenantId(id, tenantId)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + id));
 
         if (product.getIsDeleted()) {
@@ -243,7 +285,7 @@ public class ProductService {
         product.setLastModifiedByName(getUserName(deletedBy));
 
         productRepository.save(product);
-        log.info("Product deleted: productId={}, deletedBy={}", product.getProductId(), deletedBy);
+        log.info("Product {} soft deleted by user {}", id, deletedBy);
     }
 
     private ProductResponse mapToResponse(Product product) {

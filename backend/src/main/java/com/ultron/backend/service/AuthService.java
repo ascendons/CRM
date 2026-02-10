@@ -1,5 +1,6 @@
 package com.ultron.backend.service;
 
+import com.ultron.backend.domain.entity.Organization;
 import com.ultron.backend.domain.entity.User;
 import com.ultron.backend.domain.enums.UserRole;
 import com.ultron.backend.domain.enums.UserStatus;
@@ -9,6 +10,7 @@ import com.ultron.backend.dto.response.AuthResponse;
 import com.ultron.backend.exception.InvalidCredentialsException;
 import com.ultron.backend.exception.UserAlreadyExistsException;
 import com.ultron.backend.exception.UserInactiveException;
+import com.ultron.backend.repository.OrganizationRepository;
 import com.ultron.backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,14 +26,25 @@ public class AuthService {
 
     private final UserService userService;
     private final UserRepository userRepository;
+    private final OrganizationRepository organizationRepository;
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
     private final SeedDataService seedDataService;
     private final UserIdGeneratorService userIdGeneratorService;
     private final UserActivityService userActivityService;
 
+    /**
+     * User registration (Legacy method - Pre-multi-tenancy)
+     *
+     * NOTE: For multi-tenant deployments, use OrganizationService.registerOrganization() instead.
+     * This method is kept for backward compatibility and creates users without tenant context.
+     *
+     * @deprecated Use OrganizationService.registerOrganization() for new tenant onboarding
+     */
+    @Deprecated
     public AuthResponse register(RegisterRequest request) {
         log.info("Attempting to register user with email: {}", request.getEmail());
+        log.warn("Using deprecated register method - consider using OrganizationService.registerOrganization() for multi-tenancy");
 
         if (userService.existsByEmail(request.getEmail())) {
             log.warn("Registration failed - email already exists: {}", request.getEmail());
@@ -136,7 +149,7 @@ public class AuthService {
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             log.warn("Login failed - invalid password for email: {}", request.getEmail());
-            // Log failed login attempt
+            // Log failed login attempt (without tenant context during login)
             userActivityService.logLogin(user.getId(), false);
             throw new InvalidCredentialsException("Invalid email or password");
         }
@@ -148,16 +161,53 @@ public class AuthService {
             throw new UserInactiveException("Your account is not active. Please contact support.");
         }
 
-        log.info("User logged in successfully: {}", user.getId());
+        // Multi-tenancy: Validate organization is active
+        String tenantId = user.getTenantId();
+        if (tenantId != null) {
+            Organization organization = organizationRepository.findById(tenantId)
+                    .orElse(null);
+
+            if (organization == null) {
+                log.error("Login failed - organization not found for user: {}", user.getEmail());
+                throw new InvalidCredentialsException("Organization not found. Please contact support.");
+            }
+
+            if (organization.getStatus() == Organization.OrganizationStatus.SUSPENDED ||
+                organization.getStatus() == Organization.OrganizationStatus.CANCELLED) {
+                log.warn("Login failed - organization is {}: {}", organization.getStatus(), tenantId);
+                throw new UserInactiveException("Your organization account is " + organization.getStatus().name().toLowerCase() + ". Please contact support.");
+            }
+
+            if (organization.getStatus() == Organization.OrganizationStatus.EXPIRED) {
+                log.warn("Login failed - organization trial/subscription expired: {}", tenantId);
+                throw new UserInactiveException("Your organization subscription has expired. Please renew to continue.");
+            }
+        }
+
+        log.info("User logged in successfully: {} (tenant: {})", user.getId(), tenantId);
 
         // Log login activity
         userActivityService.logLogin(user.getId(), true);
 
-        String token = jwtService.generateToken(
-                user.getId(),
-                user.getEmail(),
-                user.getRole().name()
-        );
+        // Generate JWT token with tenantId for multi-tenancy
+        String token;
+        if (tenantId != null) {
+            token = jwtService.generateToken(
+                    user.getId(),
+                    user.getEmail(),
+                    user.getRole().name(),
+                    tenantId  // Include tenantId in JWT
+            );
+        } else {
+            // Fallback for legacy users without tenantId - use DEFAULT tenant
+            log.warn("User without tenantId attempting login: {} - using DEFAULT tenant", user.getEmail());
+            token = jwtService.generateToken(
+                    user.getId(),
+                    user.getEmail(),
+                    user.getRole().name(),
+                    "DEFAULT"  // Default tenant for legacy users
+            );
+        }
 
         return buildAuthResponse(user, token);
     }

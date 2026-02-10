@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { ConfirmModal } from "@/components/shared/ConfirmModal";
+import ConfirmModal from "@/components/ConfirmModal";
 
 interface ProductDetailPageProps {
   params: {
@@ -286,13 +286,13 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
 
       {/* Delete Confirmation Modal */}
       <ConfirmModal
-        open={deleteModal}
-        onClose={() => setDeleteModal(false)}
+        isOpen={deleteModal}
+        onCancel={() => setDeleteModal(false)}
         onConfirm={handleDelete}
         title="Delete Product"
-        description={`Are you sure you want to delete "${product.productName}"? This action cannot be undone.`}
-        confirmText="Delete"
-        loading={deleting}
+        message={`Are you sure you want to delete "${product.productName}"? This action cannot be undone.`}
+        confirmLabel="Delete"
+        isLoading={deleting}
       />
     </div>
   );

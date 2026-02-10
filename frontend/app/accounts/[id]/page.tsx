@@ -239,11 +239,11 @@ export default function AccountDetailPage({ params }: { params: Promise<{ id: st
               <DetailRow label="Lost Opportunities" value={account.lostOpportunities} />
               <DetailRow
                 label="Total Revenue"
-                value={`₹${account.totalRevenue.toLocaleString()}`}
+                value={`₹${(account.totalRevenue || 0).toLocaleString()}`}
               />
               <DetailRow
                 label="Lifetime Value"
-                value={`₹${account.lifetimeValue.toLocaleString()}`}
+                value={`₹${(account.lifetimeValue || 0).toLocaleString()}`}
               />
               <DetailRow label="Total Contacts" value={account.totalContacts} />
             </dl>

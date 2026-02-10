@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class ContactService {
+public class ContactService extends BaseTenantService {
 
     private final ContactRepository contactRepository;
     private final AccountRepository accountRepository;
@@ -31,11 +31,14 @@ public class ContactService {
      * Create a new contact
      */
     public ContactResponse createContact(CreateContactRequest request, String createdByUserId) {
-        log.info("Creating contact for email: {}", request.getEmail());
+        // Get current tenant ID for multi-tenancy
+        String tenantId = getCurrentTenantId();
 
-        // Check if email already exists
-        if (contactRepository.existsByEmailAndIsDeletedFalse(request.getEmail())) {
-            throw new UserAlreadyExistsException("Contact with email " + request.getEmail() + " already exists");
+        log.info("[Tenant: {}] Creating contact for email: {}", tenantId, request.getEmail());
+
+        // Check if email already exists within this tenant
+        if (contactRepository.existsByEmailAndTenantIdAndIsDeletedFalse(request.getEmail(), tenantId)) {
+            throw new UserAlreadyExistsException("Contact with email " + request.getEmail() + " already exists in your organization");
         }
 
         // Get user info
@@ -51,6 +54,7 @@ public class ContactService {
         // Build contact entity
         Contact contact = Contact.builder()
                 .contactId(contactIdGenerator.generateContactId())
+                .tenantId(tenantId)  // CRITICAL: Set tenant ID for data isolation
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
                 .salutation(request.getSalutation())
@@ -109,51 +113,60 @@ public class ContactService {
     }
 
     /**
-     * Get all contacts
+     * Get all contacts for current tenant
      */
     public List<ContactResponse> getAllContacts() {
-        log.info("Fetching all contacts");
-        return contactRepository.findByIsDeletedFalse().stream()
+        String tenantId = getCurrentTenantId();
+        log.debug("[Tenant: {}] Fetching all contacts", tenantId);
+        return contactRepository.findByTenantIdAndIsDeletedFalse(tenantId).stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
 
     /**
-     * Get contact by ID
+     * Get contact by ID within current tenant
      */
     public ContactResponse getContactById(String id) {
-        log.info("Fetching contact with id: {}", id);
+        String tenantId = getCurrentTenantId();
+        log.info("[Tenant: {}] Fetching contact with id: {}", tenantId, id);
         Contact contact = contactRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Contact not found"));
+
+        // Validate tenant ownership
+        validateResourceTenantOwnership(contact.getTenantId());
+
         return mapToResponse(contact);
     }
 
     /**
-     * Get contact by contactId
+     * Get contact by contactId (CONT-YYYY-MM-XXXXX) within current tenant
      */
     public ContactResponse getContactByContactId(String contactId) {
-        log.info("Fetching contact with contactId: {}", contactId);
-        Contact contact = contactRepository.findByContactId(contactId)
+        String tenantId = getCurrentTenantId();
+        log.info("[Tenant: {}] Fetching contact with contactId: {}", tenantId, contactId);
+        Contact contact = contactRepository.findByContactIdAndTenantId(contactId, tenantId)
                 .orElseThrow(() -> new RuntimeException("Contact not found"));
         return mapToResponse(contact);
     }
 
     /**
-     * Get contacts by account
+     * Get contacts by account within current tenant
      */
     public List<ContactResponse> getContactsByAccount(String accountId) {
-        log.info("Fetching contacts for account: {}", accountId);
-        return contactRepository.findByAccountIdAndIsDeletedFalse(accountId).stream()
+        String tenantId = getCurrentTenantId();
+        log.info("[Tenant: {}] Fetching contacts for account: {}", tenantId, accountId);
+        return contactRepository.findByAccountIdAndTenantIdAndIsDeletedFalse(accountId, tenantId).stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
 
     /**
-     * Search contacts
+     * Search contacts within current tenant
      */
     public List<ContactResponse> searchContacts(String searchTerm) {
-        log.info("Searching contacts with term: {}", searchTerm);
-        return contactRepository.searchContacts(searchTerm).stream()
+        String tenantId = getCurrentTenantId();
+        log.info("[Tenant: {}] Searching contacts with term: {}", tenantId, searchTerm);
+        return contactRepository.searchContactsByTenantId(searchTerm, tenantId).stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
@@ -162,15 +175,19 @@ public class ContactService {
      * Update contact
      */
     public ContactResponse updateContact(String id, UpdateContactRequest request, String updatedByUserId) {
-        log.info("Updating contact {} by user {}", id, updatedByUserId);
+        String tenantId = getCurrentTenantId();
+        log.info("[Tenant: {}] Updating contact {} by user {}", tenantId, id, updatedByUserId);
 
         Contact contact = contactRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Contact not found with id: " + id));
 
-        // Check email uniqueness if changed
+        // Validate tenant ownership
+        validateResourceTenantOwnership(contact.getTenantId());
+
+        // Check email uniqueness if changed within tenant
         if (request.getEmail() != null && !request.getEmail().equals(contact.getEmail())) {
-            if (contactRepository.existsByEmailAndIsDeletedFalse(request.getEmail())) {
-                throw new UserAlreadyExistsException("Contact with email " + request.getEmail() + " already exists");
+            if (contactRepository.existsByEmailAndTenantIdAndIsDeletedFalse(request.getEmail(), tenantId)) {
+                throw new UserAlreadyExistsException("Contact with email " + request.getEmail() + " already exists in your organization");
             }
         }
 
@@ -239,6 +256,9 @@ public class ContactService {
         Contact contact = contactRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Contact not found"));
 
+        // Validate tenant ownership
+        validateResourceTenantOwnership(contact.getTenantId());
+
         contact.setIsDeleted(true);
         contact.setDeletedAt(LocalDateTime.now());
         contact.setDeletedBy(deletedByUserId);
@@ -248,10 +268,22 @@ public class ContactService {
     }
 
     /**
-     * Get contact count
+     * Get contacts by owner within current tenant
+     */
+    public List<ContactResponse> getContactsByOwner(String ownerId) {
+        String tenantId = getCurrentTenantId();
+        log.info("[Tenant: {}] Fetching contacts for owner: {}", tenantId, ownerId);
+        return contactRepository.findByOwnerIdAndTenantIdAndIsDeletedFalse(ownerId, tenantId).stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Get contact count for current tenant
      */
     public long getContactCount() {
-        return contactRepository.countByIsDeletedFalse();
+        String tenantId = getCurrentTenantId();
+        return contactRepository.countByTenantIdAndIsDeletedFalse(tenantId);
     }
 
     /**

@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/button";
 import { ShieldAlert, ArrowLeft, Home } from "lucide-react";
 
 /**
@@ -43,7 +43,7 @@ export default function UnauthorizedPage() {
           </Button>
 
           <Button
-            variant="primary"
+            variant="default"
             onClick={() => router.push("/")}
             className="inline-flex items-center"
           >

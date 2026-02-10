@@ -30,6 +30,9 @@ export const authService = {
       email: authResponse.email,
       fullName: authResponse.fullName,
       role: authResponse.role,
+      tenantId: authResponse.tenantId,
+      organizationId: authResponse.organizationId,
+      organizationName: authResponse.organizationName,
     };
     localStorage.setItem("user", JSON.stringify(user));
 
@@ -38,6 +41,11 @@ export const authService = {
     const expirationDate = new Date();
     expirationDate.setDate(expirationDate.getDate() + 7);
     document.cookie = `auth_token=${authResponse.token}; path=/; expires=${expirationDate.toUTCString()}; SameSite=Strict`;
+
+    // Store tenantId in cookie if available (for middleware routing)
+    if (authResponse.tenantId) {
+      document.cookie = `tenant_id=${authResponse.tenantId}; path=/; expires=${expirationDate.toUTCString()}; SameSite=Strict`;
+    }
   },
 
   getToken(): string | null {

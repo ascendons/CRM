@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class OpportunityService {
+public class OpportunityService extends BaseTenantService {
 
     private final OpportunityRepository opportunityRepository;
     private final AccountRepository accountRepository;
@@ -39,11 +39,14 @@ public class OpportunityService {
      * Create a new opportunity
      */
     public OpportunityResponse createOpportunity(CreateOpportunityRequest request, String createdByUserId) {
-        log.info("Creating opportunity: {}", request.getOpportunityName());
+        // Get current tenant ID for multi-tenancy
+        String tenantId = getCurrentTenantId();
 
-        // Check if opportunity name already exists
-        if (opportunityRepository.existsByOpportunityNameAndIsDeletedFalse(request.getOpportunityName())) {
-            throw new UserAlreadyExistsException("Opportunity with name " + request.getOpportunityName() + " already exists");
+        log.info("[Tenant: {}] Creating opportunity: {}", tenantId, request.getOpportunityName());
+
+        // Check if opportunity name already exists within this tenant
+        if (opportunityRepository.existsByOpportunityNameAndTenantIdAndIsDeletedFalse(request.getOpportunityName(), tenantId)) {
+            throw new UserAlreadyExistsException("Opportunity with name " + request.getOpportunityName() + " already exists in your organization");
         }
 
         String createdByName = userService.getUserFullName(createdByUserId);
@@ -65,6 +68,7 @@ public class OpportunityService {
         // Build opportunity entity
         Opportunity opportunity = Opportunity.builder()
                 .opportunityId(opportunityIdGenerator.generateOpportunityId())
+                .tenantId(tenantId)  // CRITICAL: Set tenant ID for data isolation
                 .opportunityName(request.getOpportunityName())
                 .stage(request.getStage())
                 .amount(request.getAmount())
@@ -122,11 +126,12 @@ public class OpportunityService {
     }
 
     /**
-     * Get all opportunities
+     * Get all opportunities for current tenant
      */
     public List<OpportunityResponse> getAllOpportunities() {
-        log.info("Fetching all opportunities");
-        return opportunityRepository.findByIsDeletedFalse().stream()
+        String tenantId = getCurrentTenantId();
+        log.debug("[Tenant: {}] Fetching all opportunities", tenantId);
+        return opportunityRepository.findByTenantIdAndIsDeletedFalse(tenantId).stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
@@ -139,55 +144,64 @@ public class OpportunityService {
         log.info("Fetching opportunity with id: {}", id);
         Opportunity opportunity = opportunityRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Opportunity not found"));
+
+        // Validate tenant ownership
+        validateResourceTenantOwnership(opportunity.getTenantId());
+
         return mapToResponse(opportunity);
     }
 
     /**
-     * Get opportunity by opportunityId
+     * Get opportunity by opportunityId (OPP-YYYY-MM-XXXXX) within current tenant
      */
     public OpportunityResponse getOpportunityByOpportunityId(String opportunityId) {
-        log.info("Fetching opportunity with opportunityId: {}", opportunityId);
-        Opportunity opportunity = opportunityRepository.findByOpportunityId(opportunityId)
+        String tenantId = getCurrentTenantId();
+        log.info("[Tenant: {}] Fetching opportunity with opportunityId: {}", tenantId, opportunityId);
+        Opportunity opportunity = opportunityRepository.findByOpportunityIdAndTenantId(opportunityId, tenantId)
                 .orElseThrow(() -> new RuntimeException("Opportunity not found"));
         return mapToResponse(opportunity);
     }
 
     /**
-     * Get opportunities by account
+     * Get opportunities by account within current tenant
      */
     public List<OpportunityResponse> getOpportunitiesByAccount(String accountId) {
-        log.info("Fetching opportunities for account: {}", accountId);
-        return opportunityRepository.findByAccountIdAndIsDeletedFalse(accountId).stream()
+        String tenantId = getCurrentTenantId();
+        log.info("[Tenant: {}] Fetching opportunities for account: {}", tenantId, accountId);
+        return opportunityRepository.findByAccountIdAndTenantIdAndIsDeletedFalse(accountId, tenantId).stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
 
     /**
-     * Get opportunities by contact
+     * Get opportunities by contact within current tenant
      */
     public List<OpportunityResponse> getOpportunitiesByContact(String contactId) {
-        log.info("Fetching opportunities for contact: {}", contactId);
-        return opportunityRepository.findByPrimaryContactIdAndIsDeletedFalse(contactId).stream()
+        String tenantId = getCurrentTenantId();
+        log.info("[Tenant: {}] Fetching opportunities for contact: {}", tenantId, contactId);
+        return opportunityRepository.findByPrimaryContactIdAndTenantIdAndIsDeletedFalse(contactId, tenantId).stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
 
     /**
-     * Get opportunities by stage
+     * Get opportunities by stage within current tenant
      */
     public List<OpportunityResponse> getOpportunitiesByStage(OpportunityStage stage) {
-        log.info("Fetching opportunities for stage: {}", stage);
-        return opportunityRepository.findByStageAndIsDeletedFalse(stage).stream()
+        String tenantId = getCurrentTenantId();
+        log.info("[Tenant: {}] Fetching opportunities for stage: {}", tenantId, stage);
+        return opportunityRepository.findByStageAndTenantIdAndIsDeletedFalse(stage, tenantId).stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
 
     /**
-     * Search opportunities
+     * Search opportunities within current tenant
      */
     public List<OpportunityResponse> searchOpportunities(String searchTerm) {
-        log.info("Searching opportunities with term: {}", searchTerm);
-        return opportunityRepository.searchOpportunities(searchTerm).stream()
+        String tenantId = getCurrentTenantId();
+        log.info("[Tenant: {}] Searching opportunities with term: {}", tenantId, searchTerm);
+        return opportunityRepository.searchOpportunitiesByTenantId(searchTerm, tenantId).stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
@@ -196,15 +210,19 @@ public class OpportunityService {
      * Update opportunity
      */
     public OpportunityResponse updateOpportunity(String id, UpdateOpportunityRequest request, String updatedByUserId) {
-        log.info("Updating opportunity {} by user {}", id, updatedByUserId);
+        String tenantId = getCurrentTenantId();
+        log.info("[Tenant: {}] Updating opportunity {} by user {}", tenantId, id, updatedByUserId);
 
         Opportunity opportunity = opportunityRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Opportunity not found with id: " + id));
 
-        // Check name uniqueness if changed
+        // Validate tenant ownership
+        validateResourceTenantOwnership(opportunity.getTenantId());
+
+        // Check name uniqueness if changed within tenant
         if (request.getOpportunityName() != null && !request.getOpportunityName().equals(opportunity.getOpportunityName())) {
-            if (opportunityRepository.existsByOpportunityNameAndIsDeletedFalse(request.getOpportunityName())) {
-                throw new UserAlreadyExistsException("Opportunity with name " + request.getOpportunityName() + " already exists");
+            if (opportunityRepository.existsByOpportunityNameAndTenantIdAndIsDeletedFalse(request.getOpportunityName(), tenantId)) {
+                throw new UserAlreadyExistsException("Opportunity with name " + request.getOpportunityName() + " already exists in your organization");
             }
         }
 
@@ -296,6 +314,9 @@ public class OpportunityService {
         Opportunity opportunity = opportunityRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Opportunity not found"));
 
+        // Validate tenant ownership
+        validateResourceTenantOwnership(opportunity.getTenantId());
+
         opportunity.setIsDeleted(true);
         opportunity.setDeletedAt(LocalDateTime.now());
         opportunity.setDeletedBy(deletedByUserId);
@@ -305,29 +326,31 @@ public class OpportunityService {
     }
 
     /**
-     * Get opportunity count
+     * Get opportunity count for current tenant
      */
     public long getOpportunityCount() {
-        return opportunityRepository.countByIsDeletedFalse();
+        String tenantId = getCurrentTenantId();
+        return opportunityRepository.countByTenantIdAndIsDeletedFalse(tenantId);
     }
 
     /**
-     * Get opportunity statistics
+     * Get opportunity statistics for current tenant
      */
     public OpportunityStatistics getStatistics() {
-        log.info("Calculating opportunity statistics");
+        String tenantId = getCurrentTenantId();
+        log.info("[Tenant: {}] Calculating opportunity statistics", tenantId);
 
-        List<Opportunity> allOpportunities = opportunityRepository.findByIsDeletedFalse();
-        List<Opportunity> closedOpps = opportunityRepository.findClosedOpportunities();
-        List<Opportunity> openOpps = opportunityRepository.findOpenOpportunities();
+        List<Opportunity> allOpportunities = opportunityRepository.findByTenantIdAndIsDeletedFalse(tenantId);
+        List<Opportunity> closedOpps = opportunityRepository.findClosedOpportunitiesByTenantId(tenantId);
+        List<Opportunity> openOpps = opportunityRepository.findOpenOpportunitiesByTenantId(tenantId);
 
-        long prospecting = opportunityRepository.countByStageAndIsDeletedFalse(OpportunityStage.PROSPECTING);
-        long qualification = opportunityRepository.countByStageAndIsDeletedFalse(OpportunityStage.QUALIFICATION);
-        long needsAnalysis = opportunityRepository.countByStageAndIsDeletedFalse(OpportunityStage.NEEDS_ANALYSIS);
-        long proposal = opportunityRepository.countByStageAndIsDeletedFalse(OpportunityStage.PROPOSAL);
-        long negotiation = opportunityRepository.countByStageAndIsDeletedFalse(OpportunityStage.NEGOTIATION);
-        long won = opportunityRepository.countByStageAndIsDeletedFalse(OpportunityStage.CLOSED_WON);
-        long lost = opportunityRepository.countByStageAndIsDeletedFalse(OpportunityStage.CLOSED_LOST);
+        long prospecting = opportunityRepository.countByStageAndTenantIdAndIsDeletedFalse(OpportunityStage.PROSPECTING, tenantId);
+        long qualification = opportunityRepository.countByStageAndTenantIdAndIsDeletedFalse(OpportunityStage.QUALIFICATION, tenantId);
+        long needsAnalysis = opportunityRepository.countByStageAndTenantIdAndIsDeletedFalse(OpportunityStage.NEEDS_ANALYSIS, tenantId);
+        long proposal = opportunityRepository.countByStageAndTenantIdAndIsDeletedFalse(OpportunityStage.PROPOSAL, tenantId);
+        long negotiation = opportunityRepository.countByStageAndTenantIdAndIsDeletedFalse(OpportunityStage.NEGOTIATION, tenantId);
+        long won = opportunityRepository.countByStageAndTenantIdAndIsDeletedFalse(OpportunityStage.CLOSED_WON, tenantId);
+        long lost = opportunityRepository.countByStageAndTenantIdAndIsDeletedFalse(OpportunityStage.CLOSED_LOST, tenantId);
 
         BigDecimal totalValue = allOpportunities.stream()
                 .map(Opportunity::getAmount)

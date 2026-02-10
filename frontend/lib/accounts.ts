@@ -1,11 +1,11 @@
 import { Account, CreateAccountRequest, UpdateAccountRequest } from "@/types/account";
-import { ApiResponse } from "@/types/api";
+import { ApiResponse } from "@/types/auth";
 import { authService } from "./auth";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api/v1";
 
 class AccountService {
-  private getAuthHeader() {
+  private getAuthHeader(): Record<string, string> {
     const token = authService.getToken();
     return token ? { Authorization: `Bearer ${token}` } : {};
   }
@@ -26,6 +26,9 @@ class AccountService {
     }
 
     const result: ApiResponse<Account> = await response.json();
+    if (!result.data) {
+      throw new Error("No data returned from API");
+    }
     return result.data;
   }
 
@@ -43,7 +46,7 @@ class AccountService {
     }
 
     const result: ApiResponse<Account[]> = await response.json();
-    return result.data;
+    return result.data || [];
   }
 
   async getAccountById(id: string): Promise<Account> {
@@ -60,6 +63,9 @@ class AccountService {
     }
 
     const result: ApiResponse<Account> = await response.json();
+    if (!result.data) {
+      throw new Error("Account not found");
+    }
     return result.data;
   }
 
@@ -77,6 +83,9 @@ class AccountService {
     }
 
     const result: ApiResponse<Account> = await response.json();
+    if (!result.data) {
+      throw new Error("Account not found");
+    }
     return result.data;
   }
 
@@ -94,7 +103,7 @@ class AccountService {
     }
 
     const result: ApiResponse<Account[]> = await response.json();
-    return result.data;
+    return result.data || [];
   }
 
   async updateAccount(id: string, request: UpdateAccountRequest): Promise<Account> {
@@ -113,6 +122,9 @@ class AccountService {
     }
 
     const result: ApiResponse<Account> = await response.json();
+    if (!result.data) {
+      throw new Error("No data returned from API");
+    }
     return result.data;
   }
 
@@ -145,7 +157,7 @@ class AccountService {
     }
 
     const result: ApiResponse<number> = await response.json();
-    return result.data;
+    return result.data ?? 0;
   }
 }
 

@@ -27,6 +27,10 @@ public class Activity {
     @Indexed(unique = true)
     private String activityId; // ACT-YYYY-MM-XXXXX
 
+    // Multi-tenancy
+    @Indexed
+    private String tenantId;
+
     // Basic Information
     private String subject;
     private ActivityType type;

@@ -23,6 +23,25 @@ export async function apiRequest<T>(endpoint: string, options: RequestInit = {})
 
   if (token && !endpoint.includes("/auth/")) {
     headers["Authorization"] = `Bearer ${token}`;
+
+    // Add Tenant ID if available in token or localStorage
+    try {
+      // Decode locally if needed or get from storage (simpler)
+      // For now, let's rely on what's in localStorage 'user' object or the store
+      // But purely inside api-client, we can't easily access Zustand store without hooks
+      // Best approach: Parse token or separate storage
+
+      // Simple parse of token to get tenantId
+      const parts = token.split('.');
+      if (parts.length === 3) {
+        const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
+        if (payload.tenantId) {
+          headers["X-Tenant-ID"] = payload.tenantId;
+        }
+      }
+    } catch (e) {
+      // Ignore token parse errors
+    }
   }
 
   const config: RequestInit = {

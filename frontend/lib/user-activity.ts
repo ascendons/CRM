@@ -1,6 +1,6 @@
 import { ActionType, UserActivity } from "@/types/user-activity";
 import { authService } from "./auth";
-import { ApiResponse, PaginatedResponse } from "@/types/api";
+import { ApiResponse, PaginatedResponse } from "@/types/auth";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api/v1";
 
@@ -14,7 +14,7 @@ interface GetActivitiesParams {
 }
 
 class UserActivityService {
-    private getAuthHeader() {
+    private getAuthHeader(): Record<string, string> {
         const token = authService.getToken();
         return token ? { Authorization: `Bearer ${token}` } : {};
     }
@@ -40,6 +40,19 @@ class UserActivityService {
         }
 
         const result: ApiResponse<PaginatedResponse<UserActivity>> = await response.json();
+        if (!result.data) {
+            // Return empty pagination structure if no data
+            return {
+                content: [],
+                pageNumber: params.page || 0,
+                pageSize: params.size || 10,
+                totalElements: 0,
+                totalPages: 0,
+                last: true,
+                first: true,
+                empty: true
+            };
+        }
         return result.data;
     }
 
@@ -60,7 +73,7 @@ class UserActivityService {
         }
 
         const result: ApiResponse<Record<string, any>> = await response.json();
-        return result.data;
+        return result.data || {};
     }
 
     async logPageView(pageUrl: string, pageTitle: string, previousPage?: string): Promise<void> {

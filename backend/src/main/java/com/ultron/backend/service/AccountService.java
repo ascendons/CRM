@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class AccountService {
+public class AccountService extends BaseTenantService {
 
     private final AccountRepository accountRepository;
     private final AccountIdGeneratorService accountIdGenerator;
@@ -28,11 +28,14 @@ public class AccountService {
      * Create a new account
      */
     public AccountResponse createAccount(CreateAccountRequest request, String createdByUserId) {
-        log.info("Creating account: {}", request.getAccountName());
+        // Get current tenant ID for multi-tenancy
+        String tenantId = getCurrentTenantId();
 
-        // Check if account name already exists
-        if (accountRepository.existsByAccountNameAndIsDeletedFalse(request.getAccountName())) {
-            throw new UserAlreadyExistsException("Account with name " + request.getAccountName() + " already exists");
+        log.info("[Tenant: {}] Creating account: {}", tenantId, request.getAccountName());
+
+        // Check if account name already exists within this tenant
+        if (accountRepository.existsByAccountNameAndTenantIdAndIsDeletedFalse(request.getAccountName(), tenantId)) {
+            throw new UserAlreadyExistsException("Account with name " + request.getAccountName() + " already exists in your organization");
         }
 
         String createdByName = userService.getUserFullName(createdByUserId);
@@ -40,6 +43,7 @@ public class AccountService {
         // Build account entity
         Account account = Account.builder()
                 .accountId(accountIdGenerator.generateAccountId())
+                .tenantId(tenantId)  // CRITICAL: Set tenant ID for data isolation
                 .accountName(request.getAccountName())
                 .parentAccountId(request.getParentAccountId())
                 .accountType(request.getAccountType())
@@ -103,11 +107,12 @@ public class AccountService {
     }
 
     /**
-     * Get all accounts
+     * Get all accounts for current tenant
      */
     public List<AccountResponse> getAllAccounts() {
-        log.info("Fetching all accounts");
-        return accountRepository.findByIsDeletedFalse().stream()
+        String tenantId = getCurrentTenantId();
+        log.debug("[Tenant: {}] Fetching all accounts", tenantId);
+        return accountRepository.findByTenantIdAndIsDeletedFalse(tenantId).stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
@@ -119,25 +124,31 @@ public class AccountService {
         log.info("Fetching account with id: {}", id);
         Account account = accountRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Account not found"));
+
+        // Validate tenant ownership
+        validateResourceTenantOwnership(account.getTenantId());
+
         return mapToResponse(account);
     }
 
     /**
-     * Get account by accountId
+     * Get account by accountId (ACC-YYYY-MM-XXXXX) within current tenant
      */
     public AccountResponse getAccountByAccountId(String accountId) {
-        log.info("Fetching account with accountId: {}", accountId);
-        Account account = accountRepository.findByAccountId(accountId)
+        String tenantId = getCurrentTenantId();
+        log.info("[Tenant: {}] Fetching account with accountId: {}", tenantId, accountId);
+        Account account = accountRepository.findByAccountIdAndTenantId(accountId, tenantId)
                 .orElseThrow(() -> new RuntimeException("Account not found"));
         return mapToResponse(account);
     }
 
     /**
-     * Search accounts
+     * Search accounts within current tenant
      */
     public List<AccountResponse> searchAccounts(String searchTerm) {
-        log.info("Searching accounts with term: {}", searchTerm);
-        return accountRepository.searchAccounts(searchTerm).stream()
+        String tenantId = getCurrentTenantId();
+        log.info("[Tenant: {}] Searching accounts with term: {}", tenantId, searchTerm);
+        return accountRepository.searchAccountsByTenantId(searchTerm, tenantId).stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
@@ -146,15 +157,19 @@ public class AccountService {
      * Update account
      */
     public AccountResponse updateAccount(String id, UpdateAccountRequest request, String updatedByUserId) {
-        log.info("Updating account {} by user {}", id, updatedByUserId);
+        String tenantId = getCurrentTenantId();
+        log.info("[Tenant: {}] Updating account {} by user {}", tenantId, id, updatedByUserId);
 
         Account account = accountRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Account not found with id: " + id));
 
-        // Check name uniqueness if changed
+        // Validate tenant ownership
+        validateResourceTenantOwnership(account.getTenantId());
+
+        // Check name uniqueness if changed within tenant
         if (request.getAccountName() != null && !request.getAccountName().equals(account.getAccountName())) {
-            if (accountRepository.existsByAccountNameAndIsDeletedFalse(request.getAccountName())) {
-                throw new UserAlreadyExistsException("Account with name " + request.getAccountName() + " already exists");
+            if (accountRepository.existsByAccountNameAndTenantIdAndIsDeletedFalse(request.getAccountName(), tenantId)) {
+                throw new UserAlreadyExistsException("Account with name " + request.getAccountName() + " already exists in your organization");
             }
         }
 
@@ -230,6 +245,9 @@ public class AccountService {
         Account account = accountRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Account not found"));
 
+        // Validate tenant ownership
+        validateResourceTenantOwnership(account.getTenantId());
+
         account.setIsDeleted(true);
         account.setDeletedAt(LocalDateTime.now());
         account.setDeletedBy(deletedByUserId);
@@ -239,10 +257,52 @@ public class AccountService {
     }
 
     /**
-     * Get account count
+     * Get account count for current tenant
      */
     public long getAccountCount() {
-        return accountRepository.countByIsDeletedFalse();
+        String tenantId = getCurrentTenantId();
+        return accountRepository.countByTenantIdAndIsDeletedFalse(tenantId);
+    }
+
+    /**
+     * Get accounts by owner within current tenant
+     */
+    public List<AccountResponse> getAccountsByOwner(String ownerId) {
+        String tenantId = getCurrentTenantId();
+        return accountRepository.findByOwnerIdAndTenantIdAndIsDeletedFalse(ownerId, tenantId)
+                .stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Get accounts by status within current tenant
+     */
+    public List<AccountResponse> getAccountsByStatus(String status) {
+        String tenantId = getCurrentTenantId();
+        return accountRepository.findByAccountStatusAndTenantIdAndIsDeletedFalse(status, tenantId)
+                .stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Get statistics for current tenant
+     */
+    public AccountStatistics getStatistics() {
+        String tenantId = getCurrentTenantId();
+
+        long totalAccounts = accountRepository.countByTenantIdAndIsDeletedFalse(tenantId);
+        long activeAccounts = accountRepository.countByAccountStatusAndTenantIdAndIsDeletedFalse("Active", tenantId);
+        long prospectAccounts = accountRepository.countByAccountStatusAndTenantIdAndIsDeletedFalse("Prospecting", tenantId);
+        long customerAccounts = accountRepository.countByAccountStatusAndTenantIdAndIsDeletedFalse("Customer", tenantId);
+
+        return AccountStatistics.builder()
+                .totalAccounts(totalAccounts)
+                .activeAccounts(activeAccounts)
+                .prospectAccounts(prospectAccounts)
+                .customerAccounts(customerAccounts)
+                .build();
     }
 
     /**
@@ -314,5 +374,17 @@ public class AccountService {
                 .lastModifiedBy(account.getLastModifiedBy())
                 .lastModifiedByName(account.getLastModifiedByName())
                 .build();
+    }
+
+    /**
+     * Statistics inner class
+     */
+    @lombok.Data
+    @lombok.Builder
+    public static class AccountStatistics {
+        private long totalAccounts;
+        private long activeAccounts;
+        private long prospectAccounts;
+        private long customerAccounts;
     }
 }

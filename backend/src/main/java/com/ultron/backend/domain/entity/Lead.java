@@ -28,6 +28,10 @@ public class Lead {
     @Indexed(unique = true)
     private String leadId;
 
+    // Multi-tenancy
+    @Indexed
+    private String tenantId;
+
     // ===== Basic Information =====
     private String firstName;
     private String lastName;

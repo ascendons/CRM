@@ -17,8 +17,8 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { EmptyState } from "@/components/shared/EmptyState";
-import { ConfirmModal } from "@/components/shared/ConfirmModal";
+import { EmptyState } from "@/components/EmptyState";
+import ConfirmModal from "@/components/ConfirmModal";
 
 export default function ProductsPage() {
   const router = useRouter();
@@ -46,7 +46,7 @@ export default function ProductsPage() {
     try {
       setLoading(true);
       const data = await productsService.getAllProducts();
-      setProducts(data);
+      setProducts(Array.isArray(data) ? data : (data as any).content || []);
     } catch (error: any) {
       toast.error(error.message || "Failed to fetch products");
     } finally {
@@ -186,7 +186,8 @@ export default function ProductsPage() {
               ? "Try adjusting your filters"
               : "Get started by creating your first product"
           }
-          action={
+          action={undefined}
+          customAction={
             !searchQuery && statusFilter === "all" && categoryFilter === "all" ? (
               <Button asChild>
                 <Link href="/admin/products/new">
@@ -334,13 +335,13 @@ export default function ProductsPage() {
 
       {/* Delete Confirmation Modal */}
       <ConfirmModal
-        open={deleteModal.open}
-        onClose={() => setDeleteModal({ open: false, productId: null })}
+        isOpen={deleteModal.open}
+        onCancel={() => setDeleteModal({ open: false, productId: null })}
         onConfirm={handleDeleteProduct}
         title="Delete Product"
-        description="Are you sure you want to delete this product? This action cannot be undone."
-        confirmText="Delete"
-        loading={deleting}
+        message="Are you sure you want to delete this product? This action cannot be undone."
+        confirmLabel="Delete"
+        isLoading={deleting}
       />
     </div>
   );

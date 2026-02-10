@@ -28,7 +28,7 @@ export function PermissionGuard({
             // Avoid setting state if user hasn't changed to prevent infinite loops
             // assuming user id is unique and sufficient for equality check
             setUser((prev) => {
-                if (prev?.id === currentUser?.id && prev?.role === currentUser?.role) {
+                if (prev?.userId === currentUser?.userId && prev?.role === currentUser?.role) {
                     return prev;
                 }
                 return currentUser;

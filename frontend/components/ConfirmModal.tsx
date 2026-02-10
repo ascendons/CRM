@@ -13,6 +13,7 @@ interface ConfirmModalProps {
   onConfirm: () => void;
   onCancel: () => void;
   isLoading?: boolean;
+  children?: React.ReactNode;
 }
 
 export default function ConfirmModal({
@@ -26,7 +27,13 @@ export default function ConfirmModal({
   onConfirm,
   onCancel,
   isLoading = false,
+  children,
 }: ConfirmModalProps) {
+  // ... (keep existing getButtonClass, getIconClass, getIconName, useEffect as is, implied in context or unmodified if not targeted)
+
+  /* Note: Since I cannot easily skip lines in replacement without showing them, and I want to minimize context, I will target specific blocks. */
+  /* Better to do 2 separate edits: one for interface, one for component signature and rendering. */
+  /* Let's try to target the interface first. */
   // Determine button class based on variant if confirmButtonClass is not provided
   const getButtonClass = () => {
     if (confirmButtonClass) return confirmButtonClass;
@@ -117,6 +124,7 @@ export default function ConfirmModal({
             {/* Message */}
             <div className="mt-4 ml-16">
               <p className="text-sm text-gray-600">{message}</p>
+              {children && <div className="mt-4">{children}</div>}
             </div>
           </div>
 

@@ -217,16 +217,16 @@ export default function UsersPage() {
             action={
               searchTerm || statusFilter !== "all"
                 ? {
-                    label: "Clear filters",
-                    onClick: () => {
-                      setSearchTerm("");
-                      setStatusFilter("all");
-                    },
-                  }
+                  label: "Clear filters",
+                  onClick: () => {
+                    setSearchTerm("");
+                    setStatusFilter("all");
+                  },
+                }
                 : {
-                    label: "Create user",
-                    onClick: () => router.push("/admin/users/new"),
-                  }
+                  label: "Create user",
+                  onClick: () => router.push("/admin/users/new"),
+                }
             }
           />
         ) : (
@@ -294,7 +294,7 @@ export default function UsersPage() {
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {formatDate(user.security.lastLoginAt)}
+                        {formatDate(user.security?.lastLoginAt)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <button

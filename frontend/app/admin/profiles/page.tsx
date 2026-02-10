@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { profilesService } from "@/lib/profiles";
 import type { ProfileResponse } from "@/types/profile";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/EmptyState";
 import { AdminRoute } from "@/components/AdminRoute";
 import { Plus, Search, FileText, Trash2, Edit, Eye } from "lucide-react";
@@ -95,7 +95,7 @@ function ProfilesPageContent() {
           <p className="text-gray-600 mt-1">Manage object, field, and system permissions</p>
         </div>
         <Button
-          variant="primary"
+          variant="default"
           onClick={() => router.push("/admin/profiles/new")}
           className="inline-flex items-center"
         >
@@ -142,9 +142,10 @@ function ProfilesPageContent() {
               ? "No profiles match your search criteria."
               : "Get started by creating your first profile."
           }
-          action={
+          action={undefined}
+          customAction={
             !searchTerm ? (
-              <Button variant="primary" onClick={() => router.push("/admin/profiles/new")}>
+              <Button variant="default" onClick={() => router.push("/admin/profiles/new")}>
                 <Plus className="h-4 w-4 mr-2" />
                 Create Profile
               </Button>
@@ -212,11 +213,10 @@ function ProfilesPageContent() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span
-                      className={`px-2 py-1 text-xs font-medium rounded-full ${
-                        profile.isActive
-                          ? "bg-green-100 text-green-800"
-                          : "bg-gray-100 text-gray-800"
-                      }`}
+                      className={`px-2 py-1 text-xs font-medium rounded-full ${profile.isActive
+                        ? "bg-green-100 text-green-800"
+                        : "bg-gray-100 text-gray-800"
+                        }`}
                     >
                       {profile.isActive ? "Active" : "Inactive"}
                     </span>

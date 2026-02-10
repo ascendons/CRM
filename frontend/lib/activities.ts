@@ -1,11 +1,11 @@
 import { Activity, CreateActivityRequest, UpdateActivityRequest, ActivityStatistics, ActivityType, ActivityStatus, ActivityPriority } from '@/types/activity';
-import { ApiResponse } from '@/types/api';
+import { ApiResponse } from '@/types/auth';
 import { authService } from './auth';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api/v1';
 
 class ActivityService {
-  private getAuthHeader() {
+  private getAuthHeader(): Record<string, string> {
     const token = authService.getToken();
     return token ? { 'Authorization': `Bearer ${token}` } : {};
   }
@@ -26,6 +26,9 @@ class ActivityService {
     }
 
     const result: ApiResponse<Activity> = await response.json();
+    if (!result.data) {
+      throw new Error("No data returned from API");
+    }
     return result.data;
   }
 
@@ -43,7 +46,7 @@ class ActivityService {
     }
 
     const result: ApiResponse<Activity[]> = await response.json();
-    return result.data;
+    return result.data || [];
   }
 
   async getActivityById(id: string): Promise<Activity> {
@@ -60,6 +63,9 @@ class ActivityService {
     }
 
     const result: ApiResponse<Activity> = await response.json();
+    if (!result.data) {
+      throw new Error("Activity not found");
+    }
     return result.data;
   }
 
@@ -77,6 +83,9 @@ class ActivityService {
     }
 
     const result: ApiResponse<Activity> = await response.json();
+    if (!result.data) {
+      throw new Error("Activity not found");
+    }
     return result.data;
   }
 
@@ -94,7 +103,7 @@ class ActivityService {
     }
 
     const result: ApiResponse<Activity[]> = await response.json();
-    return result.data;
+    return result.data || [];
   }
 
   async getActivitiesByStatus(status: ActivityStatus): Promise<Activity[]> {
@@ -111,7 +120,7 @@ class ActivityService {
     }
 
     const result: ApiResponse<Activity[]> = await response.json();
-    return result.data;
+    return result.data || [];
   }
 
   async getActivitiesByPriority(priority: ActivityPriority): Promise<Activity[]> {
@@ -128,7 +137,7 @@ class ActivityService {
     }
 
     const result: ApiResponse<Activity[]> = await response.json();
-    return result.data;
+    return result.data || [];
   }
 
   async getActivitiesByLead(leadId: string): Promise<Activity[]> {
@@ -145,7 +154,7 @@ class ActivityService {
     }
 
     const result: ApiResponse<Activity[]> = await response.json();
-    return result.data;
+    return result.data || [];
   }
 
   async getActivitiesByContact(contactId: string): Promise<Activity[]> {
@@ -162,7 +171,7 @@ class ActivityService {
     }
 
     const result: ApiResponse<Activity[]> = await response.json();
-    return result.data;
+    return result.data || [];
   }
 
   async getActivitiesByAccount(accountId: string): Promise<Activity[]> {
@@ -179,7 +188,7 @@ class ActivityService {
     }
 
     const result: ApiResponse<Activity[]> = await response.json();
-    return result.data;
+    return result.data || [];
   }
 
   async getActivitiesByOpportunity(opportunityId: string): Promise<Activity[]> {
@@ -196,7 +205,7 @@ class ActivityService {
     }
 
     const result: ApiResponse<Activity[]> = await response.json();
-    return result.data;
+    return result.data || [];
   }
 
   async getActivitiesByUser(userId: string): Promise<Activity[]> {
@@ -213,7 +222,7 @@ class ActivityService {
     }
 
     const result: ApiResponse<Activity[]> = await response.json();
-    return result.data;
+    return result.data || [];
   }
 
   async getActiveActivities(): Promise<Activity[]> {
@@ -230,7 +239,7 @@ class ActivityService {
     }
 
     const result: ApiResponse<Activity[]> = await response.json();
-    return result.data;
+    return result.data || [];
   }
 
   async getOverdueActivities(): Promise<Activity[]> {
@@ -247,7 +256,7 @@ class ActivityService {
     }
 
     const result: ApiResponse<Activity[]> = await response.json();
-    return result.data;
+    return result.data || [];
   }
 
   async searchActivities(query: string): Promise<Activity[]> {
@@ -264,7 +273,7 @@ class ActivityService {
     }
 
     const result: ApiResponse<Activity[]> = await response.json();
-    return result.data;
+    return result.data || [];
   }
 
   async updateActivity(id: string, request: UpdateActivityRequest): Promise<Activity> {
@@ -283,6 +292,9 @@ class ActivityService {
     }
 
     const result: ApiResponse<Activity> = await response.json();
+    if (!result.data) {
+      throw new Error("No data returned from API");
+    }
     return result.data;
   }
 
@@ -315,7 +327,7 @@ class ActivityService {
     }
 
     const result: ApiResponse<number> = await response.json();
-    return result.data;
+    return result.data ?? 0;
   }
 
   async getStatistics(): Promise<ActivityStatistics> {
@@ -332,6 +344,9 @@ class ActivityService {
     }
 
     const result: ApiResponse<ActivityStatistics> = await response.json();
+    if (!result.data) {
+      throw new Error("No statistics data returned");
+    }
     return result.data;
   }
 }

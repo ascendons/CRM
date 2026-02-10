@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { rolesService } from "@/lib/roles";
 import type { RoleResponse } from "@/types/role";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/EmptyState";
 import { AdminRoute } from "@/components/AdminRoute";
 import { Plus, Search, Shield, Trash2, Edit, Eye } from "lucide-react";
@@ -95,7 +95,7 @@ function RolesPageContent() {
           <p className="text-gray-600 mt-1">Manage hierarchical roles and permissions</p>
         </div>
         <Button
-          variant="primary"
+          variant="default"
           onClick={() => router.push("/admin/roles/new")}
           className="inline-flex items-center"
         >
@@ -142,9 +142,10 @@ function RolesPageContent() {
               ? "No roles match your search criteria."
               : "Get started by creating your first role."
           }
-          action={
+          action={undefined}
+          customAction={
             !searchTerm ? (
-              <Button variant="primary" onClick={() => router.push("/admin/roles/new")}>
+              <Button variant="default" onClick={() => router.push("/admin/roles/new")}>
                 <Plus className="h-4 w-4 mr-2" />
                 Create Role
               </Button>
@@ -209,11 +210,10 @@ function RolesPageContent() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span
-                      className={`px-2 py-1 text-xs font-medium rounded-full ${
-                        role.isActive
-                          ? "bg-green-100 text-green-800"
-                          : "bg-gray-100 text-gray-800"
-                      }`}
+                      className={`px-2 py-1 text-xs font-medium rounded-full ${role.isActive
+                        ? "bg-green-100 text-green-800"
+                        : "bg-gray-100 text-gray-800"
+                        }`}
                     >
                       {role.isActive ? "Active" : "Inactive"}
                     </span>

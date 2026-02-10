@@ -13,6 +13,22 @@ import java.util.Optional;
 @Repository
 public interface DynamicProductRepository extends MongoRepository<DynamicProduct, String> {
 
+    /**
+     * Find dynamic product by ID and tenantId
+     * MULTI-TENANT SAFE
+     */
+    Optional<DynamicProduct> findByIdAndTenantId(String id, String tenantId);
+
+    /**
+     * Find dynamic product by productId and tenantId
+     * MULTI-TENANT SAFE
+     */
+    Optional<DynamicProduct> findByProductIdAndTenantId(String productId, String tenantId);
+
+    /**
+     * ⚠️ ADMIN ONLY - Find dynamic product by productId across ALL tenants
+     * Use with EXTREME caution
+     */
     Optional<DynamicProduct> findByProductId(String productId);
 
     // Full-text search using MongoDB text index

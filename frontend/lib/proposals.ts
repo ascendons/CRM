@@ -130,4 +130,11 @@ export const proposalsService = {
   async deleteProposal(id: string): Promise<void> {
     return api.delete(`/proposals/${id}`);
   },
+
+  /**
+   * Download proposal invoice PDF
+   */
+  async downloadInvoice(id: string): Promise<Blob> {
+    return api.download(`/proposals/${id}/pdf`);
+  },
 };

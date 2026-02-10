@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class LeadService {
+public class LeadService extends BaseTenantService {
 
     private final LeadRepository leadRepository;
     private final LeadIdGeneratorService leadIdGenerator;
@@ -42,16 +42,20 @@ public class LeadService {
      * Create a new lead
      */
     public LeadResponse createLead(CreateLeadRequest request, String createdByUserId) {
-        log.info("Creating lead for email: {}", request.getEmail());
+        // Get current tenant ID for multi-tenancy
+        String tenantId = getCurrentTenantId();
 
-        // Check if email already exists
-        if (leadRepository.existsByEmailAndIsDeletedFalse(request.getEmail())) {
-            throw new UserAlreadyExistsException("Lead with email " + request.getEmail() + " already exists");
+        log.info("[Tenant: {}] Creating lead for email: {}", tenantId, request.getEmail());
+
+        // Check if email already exists within this tenant
+        if (leadRepository.existsByEmailAndTenantIdAndIsDeletedFalse(request.getEmail(), tenantId)) {
+            throw new UserAlreadyExistsException("Lead with email " + request.getEmail() + " already exists in your organization");
         }
 
         // Build lead entity
         Lead lead = Lead.builder()
                 .leadId(leadIdGenerator.generateLeadId())
+                .tenantId(tenantId)  // CRITICAL: Set tenant ID for data isolation
                 // Basic info
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
@@ -114,49 +118,55 @@ public class LeadService {
     }
 
     /**
-     * Get lead by leadId (LEAD-YYYY-MM-XXXXX)
+     * Get lead by leadId (LEAD-YYYY-MM-XXXXX) within current tenant
      */
     public Optional<LeadResponse> getLeadByLeadId(String leadId) {
-        return leadRepository.findByLeadId(leadId)
+        String tenantId = getCurrentTenantId();
+        return leadRepository.findByLeadIdAndTenantId(leadId, tenantId)
                 .filter(lead -> !lead.getIsDeleted())
                 .map(this::mapToResponse);
     }
 
     /**
-     * Get all leads
+     * Get all leads for current tenant
      */
     public List<LeadResponse> getAllLeads() {
-        return leadRepository.findByIsDeletedFalse()
+        String tenantId = getCurrentTenantId();
+        log.debug("[Tenant: {}] Fetching all leads", tenantId);
+        return leadRepository.findByTenantIdAndIsDeletedFalse(tenantId)
                 .stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
 
     /**
-     * Get leads by owner
+     * Get leads by owner within current tenant
      */
     public List<LeadResponse> getLeadsByOwner(String ownerId) {
-        return leadRepository.findByLeadOwnerIdAndIsDeletedFalse(ownerId)
+        String tenantId = getCurrentTenantId();
+        return leadRepository.findByLeadOwnerIdAndTenantIdAndIsDeletedFalse(ownerId, tenantId)
                 .stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
 
     /**
-     * Get leads by status
+     * Get leads by status within current tenant
      */
     public List<LeadResponse> getLeadsByStatus(LeadStatus status) {
-        return leadRepository.findByLeadStatusAndIsDeletedFalse(status)
+        String tenantId = getCurrentTenantId();
+        return leadRepository.findByLeadStatusAndTenantIdAndIsDeletedFalse(status, tenantId)
                 .stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
 
     /**
-     * Search leads
+     * Search leads within current tenant
      */
     public List<LeadResponse> searchLeads(String searchTerm) {
-        return leadRepository.searchLeads(searchTerm)
+        String tenantId = getCurrentTenantId();
+        return leadRepository.searchLeadsByTenantId(searchTerm, tenantId)
                 .stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
@@ -168,6 +178,9 @@ public class LeadService {
     public LeadResponse updateLeadStatus(String id, LeadStatus newStatus, String updatedByUserId) {
         Lead lead = leadRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Lead not found"));
+
+        // Validate tenant ownership
+        validateResourceTenantOwnership(lead.getTenantId());
 
         lead.setLeadStatus(newStatus);
         lead.setLastModifiedAt(LocalDateTime.now());
@@ -187,15 +200,19 @@ public class LeadService {
      * Only updates fields that are provided (not null)
      */
     public LeadResponse updateLead(String id, UpdateLeadRequest request, String updatedByUserId) {
-        log.info("Updating lead {} by user {}", id, updatedByUserId);
+        String tenantId = getCurrentTenantId();
+        log.info("[Tenant: {}] Updating lead {} by user {}", tenantId, id, updatedByUserId);
 
         Lead lead = leadRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Lead not found with id: " + id));
 
-        // Check if email is being updated and if it's unique
+        // Validate tenant ownership
+        validateResourceTenantOwnership(lead.getTenantId());
+
+        // Check if email is being updated and if it's unique within tenant
         if (request.getEmail() != null && !request.getEmail().equals(lead.getEmail())) {
-            if (leadRepository.existsByEmailAndIsDeletedFalse(request.getEmail())) {
-                throw new UserAlreadyExistsException("Lead with email " + request.getEmail() + " already exists");
+            if (leadRepository.existsByEmailAndTenantIdAndIsDeletedFalse(request.getEmail(), tenantId)) {
+                throw new UserAlreadyExistsException("Lead with email " + request.getEmail() + " already exists in your organization");
             }
         }
 
@@ -350,6 +367,9 @@ public class LeadService {
         Lead lead = leadRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Lead not found"));
 
+        // Validate tenant ownership
+        validateResourceTenantOwnership(lead.getTenantId());
+
         lead.setIsDeleted(true);
         lead.setDeletedAt(LocalDateTime.now());
         lead.setDeletedBy(deletedByUserId);
@@ -365,6 +385,9 @@ public class LeadService {
     public LeadResponse convertLead(String id, String convertedByUserId) {
         Lead lead = leadRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Lead not found"));
+
+        // Validate tenant ownership
+        validateResourceTenantOwnership(lead.getTenantId());
 
         // Validate lead can be converted
         if (lead.getLeadStatus() != LeadStatus.QUALIFIED) {
@@ -454,14 +477,16 @@ public class LeadService {
     }
 
     /**
-     * Get statistics
+     * Get statistics for current tenant
      */
     public LeadStatistics getStatistics() {
-        long totalLeads = leadRepository.count();
-        long newLeads = leadRepository.countByLeadStatusAndIsDeletedFalse(LeadStatus.NEW);
-        long contactedLeads = leadRepository.countByLeadStatusAndIsDeletedFalse(LeadStatus.CONTACTED);
-        long qualifiedLeads = leadRepository.countByLeadStatusAndIsDeletedFalse(LeadStatus.QUALIFIED);
-        long convertedLeads = leadRepository.countByLeadStatusAndIsDeletedFalse(LeadStatus.CONVERTED);
+        String tenantId = getCurrentTenantId();
+
+        long totalLeads = leadRepository.countByTenantIdAndIsDeletedFalse(tenantId);
+        long newLeads = leadRepository.countByLeadStatusAndTenantIdAndIsDeletedFalse(LeadStatus.NEW, tenantId);
+        long contactedLeads = leadRepository.countByLeadStatusAndTenantIdAndIsDeletedFalse(LeadStatus.CONTACTED, tenantId);
+        long qualifiedLeads = leadRepository.countByLeadStatusAndTenantIdAndIsDeletedFalse(LeadStatus.QUALIFIED, tenantId);
+        long convertedLeads = leadRepository.countByLeadStatusAndTenantIdAndIsDeletedFalse(LeadStatus.CONVERTED, tenantId);
 
         return LeadStatistics.builder()
                 .totalLeads(totalLeads)

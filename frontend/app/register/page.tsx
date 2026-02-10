@@ -54,7 +54,7 @@ export default function RegisterPage() {
 
     try {
       await authService.register(formData);
-      router.push("/dashboard");
+      window.location.href = "/dashboard";
     } catch (err) {
       if (err instanceof ApiError) {
         setError(err.message);
@@ -102,6 +102,12 @@ export default function RegisterPage() {
             Already have an account?{" "}
             <Link href="/login" className="font-semibold text-primary hover:text-primary/80 transition-colors">
               Sign in
+            </Link>
+          </p>
+          <p className="mt-1 text-center text-sm text-gray-600">
+            Want to create an organization?{" "}
+            <Link href="/register-organization" className="font-semibold text-indigo-600 hover:text-indigo-500 transition-colors">
+              Register Organization →
             </Link>
           </p>
         </div>

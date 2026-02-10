@@ -319,7 +319,7 @@ export default function EditActivityPage() {
                     <option value="">None</option>
                     {leads.map(lead => (
                       <option key={lead.id} value={lead.id}>
-                        {lead.firstName} {lead.lastName} - {lead.company}
+                        {lead.firstName} {lead.lastName} - {lead.companyName}
                       </option>
                     ))}
                   </select>

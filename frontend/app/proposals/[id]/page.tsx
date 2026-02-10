@@ -12,6 +12,7 @@ import {
   getProposalStatusLabel,
 
 } from "@/types/proposal";
+import { ArrowLeft, Edit, Trash2, Send, CheckCircle, XCircle, Download } from "lucide-react";
 import { proposalsService } from "@/lib/proposals";
 import { authService } from "@/lib/auth";
 import { showToast } from "@/lib/toast";
@@ -118,9 +119,29 @@ export default function ProposalDetailPage({
       showToast.success("Proposal deleted successfully");
       router.push("/proposals");
     } catch (err) {
-      showToast.error(
-        err instanceof Error ? err.message : "Failed to delete proposal"
-      );
+      console.error("Error deleting proposal:", err);
+      showToast.error("Failed to delete proposal");
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleDownloadPdf = async () => {
+    if (!proposal) return;
+    try {
+      setActionLoading(true);
+      const blob = await proposalsService.downloadInvoice(proposal.id);
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `proposal-${proposal.proposalNumber}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error("Error downloading PDF:", error);
+      showToast.error("Failed to download PDF");
     } finally {
       setActionLoading(false);
     }
@@ -237,10 +258,18 @@ export default function ProposalDetailPage({
             <div className="flex gap-2">
               <Link
                 href="/proposals"
-                className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50"
+                className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center gap-2"
               >
                 Back
               </Link>
+              <button
+                onClick={handleDownloadPdf}
+                disabled={actionLoading}
+                className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 flex items-center gap-2 disabled:opacity-50"
+              >
+                <Download className="h-4 w-4" />
+                Invoice
+              </button>
               {proposal.status === ProposalStatus.DRAFT && (
                 <PermissionGuard resource="PROPOSAL" action="SEND">
                   <button

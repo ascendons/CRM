@@ -13,63 +13,101 @@ import java.util.Optional;
 public interface LeadRepository extends MongoRepository<Lead, String> {
 
     /**
-     * Find lead by unique leadId (LEAD-YYYY-MM-XXXXX)
+     * Find lead by unique leadId and tenantId (LEAD-YYYY-MM-XXXXX)
+     * MULTI-TENANT SAFE
      */
-    Optional<Lead> findByLeadId(String leadId);
+    Optional<Lead> findByLeadIdAndTenantId(String leadId, String tenantId);
 
     /**
-     * Find lead by email (for duplicate detection)
+     * Find lead by email and tenantId (for duplicate detection)
+     * MULTI-TENANT SAFE
      */
-    Optional<Lead> findByEmail(String email);
+    Optional<Lead> findByEmailAndTenantId(String email, String tenantId);
 
     /**
-     * Check if email already exists (excluding deleted leads)
+     * Check if email already exists within tenant (excluding deleted leads)
+     * MULTI-TENANT SAFE
      */
-    boolean existsByEmailAndIsDeletedFalse(String email);
+    boolean existsByEmailAndTenantIdAndIsDeletedFalse(String email, String tenantId);
 
     /**
-     * Find all leads by owner (excluding deleted)
+     * Find all leads by owner and tenant (excluding deleted)
+     * MULTI-TENANT SAFE
      */
-    List<Lead> findByLeadOwnerIdAndIsDeletedFalse(String ownerId);
+    List<Lead> findByLeadOwnerIdAndTenantIdAndIsDeletedFalse(String ownerId, String tenantId);
 
     /**
-     * Find all leads by status (excluding deleted)
+     * Find all leads by status and tenant (excluding deleted)
+     * MULTI-TENANT SAFE
      */
-    List<Lead> findByLeadStatusAndIsDeletedFalse(LeadStatus status);
+    List<Lead> findByLeadStatusAndTenantIdAndIsDeletedFalse(LeadStatus status, String tenantId);
 
     /**
-     * Find all active leads (not deleted)
+     * Find all active leads for a specific tenant (not deleted)
+     * MULTI-TENANT SAFE
      */
-    List<Lead> findByIsDeletedFalse();
+    List<Lead> findByTenantIdAndIsDeletedFalse(String tenantId);
 
     /**
-     * Find leads by company name (for enrichment lookup)
+     * Find leads by company name within tenant (for enrichment lookup)
+     * MULTI-TENANT SAFE
      */
-    List<Lead> findByCompanyNameContainingIgnoreCaseAndIsDeletedFalse(String companyName);
+    List<Lead> findByCompanyNameContainingIgnoreCaseAndTenantIdAndIsDeletedFalse(String companyName, String tenantId);
 
     /**
-     * Search leads by name, email, or company (for autocomplete)
+     * Search leads by name, email, or company within tenant (for autocomplete)
+     * MULTI-TENANT SAFE
      */
-    @Query("{ $or: [ " +
+    @Query("{ 'tenantId': ?1, $or: [ " +
             "{ 'firstName': { $regex: ?0, $options: 'i' } }, " +
             "{ 'lastName': { $regex: ?0, $options: 'i' } }, " +
             "{ 'email': { $regex: ?0, $options: 'i' } }, " +
             "{ 'companyName': { $regex: ?0, $options: 'i' } } " +
             "], 'isDeleted': false }")
-    List<Lead> searchLeads(String searchTerm);
+    List<Lead> searchLeadsByTenantId(String searchTerm, String tenantId);
 
     /**
-     * Count leads by status (for dashboard stats)
+     * Count leads by status and tenant (for dashboard stats)
+     * MULTI-TENANT SAFE
      */
-    long countByLeadStatusAndIsDeletedFalse(LeadStatus status);
+    long countByLeadStatusAndTenantIdAndIsDeletedFalse(LeadStatus status, String tenantId);
 
     /**
-     * Count leads by owner (for workload distribution)
+     * Count leads by owner and tenant (for workload distribution)
+     * MULTI-TENANT SAFE
      */
-    long countByLeadOwnerIdAndIsDeletedFalse(String ownerId);
+    long countByLeadOwnerIdAndTenantIdAndIsDeletedFalse(String ownerId, String tenantId);
 
     /**
-     * Get the latest lead for ID generation
+     * Count total leads for tenant
+     * MULTI-TENANT SAFE
+     */
+    long countByTenantIdAndIsDeletedFalse(String tenantId);
+
+    /**
+     * Get the latest lead for a specific tenant (for ID generation)
+     * MULTI-TENANT SAFE
+     */
+    Optional<Lead> findFirstByTenantIdOrderByCreatedAtDesc(String tenantId);
+
+    // ===== DANGEROUS METHODS - DO NOT USE IN BUSINESS LOGIC =====
+    // These methods are ONLY for admin/migration purposes
+
+    /**
+     * ⚠️ ADMIN ONLY - Find lead by leadId across ALL tenants
+     * Use with EXTREME caution
+     */
+    Optional<Lead> findByLeadId(String leadId);
+
+    /**
+     * ⚠️ ADMIN ONLY - Find lead by email across ALL tenants
+     * Use with EXTREME caution
+     */
+    Optional<Lead> findByEmail(String email);
+
+    /**
+     * ⚠️ ADMIN ONLY - Get latest lead across ALL tenants
+     * Use ONLY for global ID generation
      */
     Optional<Lead> findFirstByOrderByCreatedAtDesc();
 }
