@@ -106,6 +106,11 @@ export interface Lead {
   convertedDate?: string;
   convertedToOpportunityId?: string;
 
+  // Assignment
+  assignedUserId?: string;
+  assignedUserName?: string;
+  assignedAt?: string;
+
   // System Fields
   createdAt: string;
   createdBy?: string;

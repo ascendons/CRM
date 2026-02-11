@@ -90,6 +90,12 @@ public interface LeadRepository extends MongoRepository<Lead, String> {
      */
     Optional<Lead> findFirstByTenantIdOrderByCreatedAtDesc(String tenantId);
 
+    /**
+     * Find all leads assigned to specific users (for least-loaded strategy)
+     * MULTI-TENANT SAFE
+     */
+    List<Lead> findByAssignedUserIdInAndIsDeletedFalse(List<String> userIds);
+
     // ===== DANGEROUS METHODS - DO NOT USE IN BUSINESS LOGIC =====
     // These methods are ONLY for admin/migration purposes
 

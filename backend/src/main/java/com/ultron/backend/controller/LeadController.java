@@ -1,10 +1,12 @@
 package com.ultron.backend.controller;
 
 import com.ultron.backend.domain.enums.LeadStatus;
+import com.ultron.backend.dto.request.AssignLeadRequest;
 import com.ultron.backend.dto.request.CreateLeadRequest;
 import com.ultron.backend.dto.request.UpdateLeadRequest;
 import com.ultron.backend.dto.response.ApiResponse;
 import com.ultron.backend.dto.response.LeadResponse;
+import com.ultron.backend.service.LeadAssignmentService;
 import com.ultron.backend.service.LeadService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +27,7 @@ import java.util.List;
 public class LeadController {
 
     private final LeadService leadService;
+    private final LeadAssignmentService leadAssignmentService;
 
     /**
      * Create a new lead
@@ -251,6 +254,31 @@ public class LeadController {
                 ApiResponse.<LeadResponse>builder()
                         .success(true)
                         .message("Lead converted successfully")
+                        .data(lead)
+                        .build());
+    }
+
+    /**
+     * Manually assign or reassign lead to a user
+     * POST /api/v1/leads/{id}/assign
+     */
+    @PostMapping("/{id}/assign")
+    @PreAuthorize("hasPermission('LEAD', 'EDIT')")
+    public ResponseEntity<ApiResponse<LeadResponse>> assignLead(
+            @PathVariable String id,
+            @Valid @RequestBody AssignLeadRequest request) {
+
+        String currentUserId = getCurrentUserId();
+        log.info("User {} manually assigning lead {} to user {}", currentUserId, id, request.getUserId());
+
+        leadAssignmentService.manuallyAssignLead(id, request.getUserId(), currentUserId);
+        LeadResponse lead = leadService.getLeadById(id)
+                .orElseThrow(() -> new RuntimeException("Lead not found after assignment"));
+
+        return ResponseEntity.ok(
+                ApiResponse.<LeadResponse>builder()
+                        .success(true)
+                        .message("Lead assigned successfully")
                         .data(lead)
                         .build());
     }

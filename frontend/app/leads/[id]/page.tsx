@@ -21,6 +21,8 @@ import {
 } from "@/types/proposal";
 import { showToast } from "@/lib/toast";
 import ConfirmModal from "@/components/ConfirmModal";
+import { AssignLeadModal } from "@/components/leads/AssignLeadModal";
+import { UserPlus } from "lucide-react";
 
 export default function LeadDetailPage() {
   const router = useRouter();
@@ -35,6 +37,7 @@ export default function LeadDetailPage() {
   const [newStatus, setNewStatus] = useState<LeadStatus>(LeadStatus.NEW);
   const [showConvertModal, setShowConvertModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showAssignModal, setShowAssignModal] = useState(false);
   const [proposals, setProposals] = useState<ProposalResponse[]>([]);
   const [proposalsLoading, setProposalsLoading] = useState(false);
 
@@ -136,6 +139,11 @@ export default function LeadDetailPage() {
       setUpdating(false);
       setShowDeleteModal(false);
     }
+  };
+
+  const handleAssignSuccess = async () => {
+    await loadLead();
+    setShowAssignModal(false);
   };
 
   if (loading) {
@@ -485,6 +493,54 @@ export default function LeadDetailPage() {
               </div>
             </div>
 
+            {/* Assigned Sales Person */}
+            <div className="bg-white rounded-lg shadow p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold text-gray-900">Assigned To</h2>
+                <button
+                  onClick={() => setShowAssignModal(true)}
+                  className="text-blue-600 hover:text-blue-700 text-sm font-medium inline-flex items-center gap-1"
+                  title={lead.assignedUserName ? "Reassign lead" : "Assign lead"}
+                >
+                  <UserPlus className="h-4 w-4" />
+                  {lead.assignedUserName ? "Reassign" : "Assign"}
+                </button>
+              </div>
+              {lead.assignedUserName ? (
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3">
+                    <div className="h-12 w-12 rounded-full bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center text-purple-700 font-bold text-lg shadow-sm">
+                      {lead.assignedUserName.charAt(0).toUpperCase()}
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-gray-900">{lead.assignedUserName}</p>
+                      <p className="text-xs text-gray-500">Sales Representative</p>
+                    </div>
+                  </div>
+                  {lead.assignedAt && (
+                    <div className="pt-3 border-t border-gray-100">
+                      <p className="text-xs text-gray-500">
+                        Assigned on {new Date(lead.assignedAt).toLocaleDateString()}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="text-center py-4">
+                  <div className="h-12 w-12 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-2">
+                    <UserPlus className="h-6 w-6 text-gray-400" />
+                  </div>
+                  <p className="text-sm text-gray-500 mb-3">No sales person assigned</p>
+                  <button
+                    onClick={() => setShowAssignModal(true)}
+                    className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+                  >
+                    Assign Now
+                  </button>
+                </div>
+              )}
+            </div>
+
             {/* Lead Details */}
             <div className="bg-white rounded-lg shadow p-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">Lead Details</h2>
@@ -603,6 +659,18 @@ export default function LeadDetailPage() {
         onCancel={() => setShowDeleteModal(false)}
         isLoading={updating}
       />
+
+      {/* Assign Lead Modal */}
+      {lead && (
+        <AssignLeadModal
+          isOpen={showAssignModal}
+          onClose={() => setShowAssignModal(false)}
+          leadId={lead.id}
+          leadName={formatLeadName(lead)}
+          currentAssignedUserId={lead.assignedUserId}
+          onSuccess={handleAssignSuccess}
+        />
+      )}
     </div>
   );
 }

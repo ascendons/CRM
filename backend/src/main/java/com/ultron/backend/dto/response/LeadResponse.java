@@ -73,6 +73,11 @@ public class LeadResponse {
     private LocalDateTime convertedDate;
     private String convertedToOpportunityId;
 
+    // Assignment Fields
+    private String assignedUserId;
+    private String assignedUserName;
+    private LocalDateTime assignedAt;
+
     // System Fields
     private LocalDateTime createdAt;
     private String createdBy;

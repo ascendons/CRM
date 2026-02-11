@@ -35,6 +35,7 @@ import {
 } from "lucide-react";
 import { LeadKanbanBoard } from "@/components/leads/LeadKanbanBoard";
 import { MultiSelectDropdown } from "@/components/common/MultiSelectDropdown";
+import { AssignLeadModal } from "@/components/leads/AssignLeadModal";
 
 export default function LeadsPage() {
   const router = useRouter();
@@ -59,6 +60,10 @@ export default function LeadsPage() {
   const [selectedLeads, setSelectedLeads] = useState<string[]>([]);
   const [showBulkDeleteModal, setShowBulkDeleteModal] = useState(false);
   const [bulkActionLoading, setBulkActionLoading] = useState(false);
+
+  // Assign modal state
+  const [showAssignModal, setShowAssignModal] = useState(false);
+  const [leadToAssign, setLeadToAssign] = useState<Lead | null>(null);
 
   useEffect(() => {
     if (!authService.isAuthenticated()) {
@@ -220,6 +225,18 @@ export default function LeadsPage() {
     }
   };
 
+  const handleAssignClick = (lead: Lead, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setLeadToAssign(lead);
+    setShowAssignModal(true);
+  };
+
+  const handleAssignSuccess = async () => {
+    await loadLeads();
+    setShowAssignModal(false);
+    setLeadToAssign(null);
+  };
+
   const isAllSelected = paginatedLeads.length > 0 && selectedLeads.length === paginatedLeads.length;
   const isSomeSelected = selectedLeads.length > 0 && selectedLeads.length < paginatedLeads.length;
 
@@ -373,6 +390,7 @@ export default function LeadsPage() {
                         { key: 'company', label: 'Company' },
                         { key: 'score', label: 'Lead Score' },
                         { key: 'status', label: 'Status' },
+                        { key: 'assignedTo', label: 'Assigned To' },
                         { key: 'createdAt', label: 'Created' },
                       ].map((col) => (
                         <th
@@ -392,7 +410,7 @@ export default function LeadsPage() {
                   <tbody className="divide-y divide-slate-100 ">
                     {sortedLeads.length === 0 ? (
                       <tr>
-                        <td colSpan={7} className="p-12 text-center">
+                        <td colSpan={8} className="p-12 text-center">
                           {searchTerm || statusFilter.length > 0 ? (
                             <EmptyState
                               icon="search"
@@ -477,6 +495,31 @@ export default function LeadsPage() {
                               {lead.leadStatus.toLowerCase().replace("_", " ")}
                             </span>
                           </td>
+                          <td className="px-6 py-4" onClick={(e) => e.stopPropagation()}>
+                            {lead.assignedUserName ? (
+                              <div className="flex items-center gap-2">
+                                <div className="h-7 w-7 rounded-full bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center text-purple-700 font-bold text-xs">
+                                  {lead.assignedUserName.charAt(0).toUpperCase()}
+                                </div>
+                                <span className="text-sm text-slate-700">{lead.assignedUserName}</span>
+                                <button
+                                  onClick={(e) => handleAssignClick(lead, e)}
+                                  className="ml-1 p-1 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                                  title="Reassign lead"
+                                >
+                                  <UserPlus className="h-3.5 w-3.5" />
+                                </button>
+                              </div>
+                            ) : (
+                              <button
+                                onClick={(e) => handleAssignClick(lead, e)}
+                                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors"
+                              >
+                                <UserPlus className="h-3.5 w-3.5" />
+                                Assign
+                              </button>
+                            )}
+                          </td>
                           <td className="px-6 py-4 text-xs text-slate-500 ">
                             {new Date(lead.createdAt).toLocaleDateString()}
                           </td>
@@ -551,6 +594,21 @@ export default function LeadsPage() {
         onCancel={() => setShowBulkDeleteModal(false)}
         isLoading={bulkActionLoading}
       />
+
+      {/* Assign Lead Modal */}
+      {leadToAssign && (
+        <AssignLeadModal
+          isOpen={showAssignModal}
+          onClose={() => {
+            setShowAssignModal(false);
+            setLeadToAssign(null);
+          }}
+          leadId={leadToAssign.id}
+          leadName={formatLeadName(leadToAssign)}
+          currentAssignedUserId={leadToAssign.assignedUserId}
+          onSuccess={handleAssignSuccess}
+        />
+      )}
     </div>
   );
 }

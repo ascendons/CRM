@@ -119,6 +119,23 @@ public class Lead {
     private String convertedToContactId;
     private String convertedToAccountId;
 
+    // ===== Assignment Fields =====
+    /**
+     * ID of user assigned to this lead
+     */
+    @Indexed
+    private String assignedUserId;
+
+    /**
+     * Name of assigned user (denormalized for performance)
+     */
+    private String assignedUserName;
+
+    /**
+     * When the lead was assigned
+     */
+    private LocalDateTime assignedAt;
+
     // ===== System Fields =====
     private LocalDateTime createdAt;
     private String createdBy;

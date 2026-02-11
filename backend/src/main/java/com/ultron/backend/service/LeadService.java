@@ -15,8 +15,10 @@ import com.ultron.backend.exception.UserAlreadyExistsException;
 import com.ultron.backend.repository.AccountRepository;
 import com.ultron.backend.repository.ContactRepository;
 import com.ultron.backend.repository.LeadRepository;
+import com.ultron.backend.event.LeadCreatedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -37,6 +39,7 @@ public class LeadService extends BaseTenantService {
     private final AccountService accountService;
     private final ContactRepository contactRepository;
     private final AccountRepository accountRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     /**
      * Create a new lead
@@ -102,6 +105,9 @@ public class LeadService extends BaseTenantService {
 
         // Save to database
         Lead savedLead = leadRepository.save(lead);
+
+        // Publish event for auto-assignment
+        eventPublisher.publishEvent(new LeadCreatedEvent(this, savedLead));
 
         log.info("Lead created successfully with ID: {}", savedLead.getLeadId());
 
@@ -555,6 +561,10 @@ public class LeadService extends BaseTenantService {
                 // Conversion
                 .convertedDate(lead.getConvertedDate())
                 .convertedToOpportunityId(lead.getConvertedToOpportunityId())
+                // Assignment
+                .assignedUserId(lead.getAssignedUserId())
+                .assignedUserName(lead.getAssignedUserName())
+                .assignedAt(lead.getAssignedAt())
                 // System fields
                 .createdAt(lead.getCreatedAt())
                 .createdBy(lead.getCreatedBy())

@@ -88,6 +88,13 @@ public interface RoleRepository extends MongoRepository<Role, String> {
      */
     boolean existsByRoleNameAndTenantId(String roleName, String tenantId);
 
+    /**
+     * Find roles by role IDs within tenant
+     * Used for lead assignment configuration validation
+     * MULTI-TENANT SAFE
+     */
+    List<Role> findByTenantIdAndRoleIdIn(String tenantId, List<String> roleIds);
+
     // Count queries
     long countByIsDeletedFalse();
 

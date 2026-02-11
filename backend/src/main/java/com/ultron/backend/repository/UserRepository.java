@@ -112,6 +112,17 @@ public interface UserRepository extends MongoRepository<User, String> {
      */
     Optional<User> findFirstByTenantIdOrderByCreatedAtDesc(String tenantId);
 
+    /**
+     * Find active users with specific roles within tenant
+     * Used for lead auto-assignment
+     * MULTI-TENANT SAFE
+     */
+    List<User> findByTenantIdAndRoleIdInAndStatusAndIsDeletedFalse(
+            String tenantId,
+            List<String> roleIds,
+            UserStatus status
+    );
+
     // ===== DANGEROUS METHODS - ADMIN ONLY =====
     // ⚠️ These methods query across ALL tenants
     // Use with EXTREME caution - only for admin/migration purposes

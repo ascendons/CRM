@@ -1,5 +1,6 @@
 package com.ultron.backend.service;
 
+import com.ultron.backend.domain.entity.LeadAssignmentConfig;
 import com.ultron.backend.domain.entity.Organization;
 import com.ultron.backend.domain.entity.Profile;
 import com.ultron.backend.domain.entity.Role;
@@ -10,6 +11,7 @@ import com.ultron.backend.dto.request.OrganizationRegistrationRequest;
 import com.ultron.backend.dto.response.OrganizationRegistrationResponse;
 import com.ultron.backend.exception.BusinessException;
 import com.ultron.backend.exception.ResourceNotFoundException;
+import com.ultron.backend.repository.LeadAssignmentConfigRepository;
 import com.ultron.backend.repository.OrganizationRepository;
 import com.ultron.backend.repository.ProfileRepository;
 import com.ultron.backend.repository.RoleRepository;
@@ -37,6 +39,7 @@ public class OrganizationService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final ProfileRepository profileRepository;
+    private final LeadAssignmentConfigRepository leadAssignmentConfigRepository;
     private final RoleMigrationService roleMigrationService;
     private final ProfileMigrationService profileMigrationService;
     private final PasswordEncoder passwordEncoder;
@@ -98,6 +101,20 @@ public class OrganizationService {
                 .orElseThrow(() -> new RuntimeException("Admin profile not found after seeding"));
 
         log.info("Retrieved admin role: {} and profile: {} for tenant", adminRole.getRoleId(), adminProfile.getProfileId());
+
+        // 2.6. Create default lead assignment configuration (disabled by default)
+        log.info("Creating default lead assignment config for tenant: {}", savedOrg.getId());
+        LeadAssignmentConfig defaultConfig = LeadAssignmentConfig.builder()
+                .tenantId(savedOrg.getId())
+                .enabled(false)  // Disabled by default - admin must configure
+                .strategy(LeadAssignmentConfig.AssignmentStrategy.ROUND_ROBIN)
+                .eligibleRoleIds(java.util.Collections.emptyList())  // No roles configured yet
+                .lastAssignedIndex(0)
+                .createdAt(LocalDateTime.now())
+                .lastModifiedAt(LocalDateTime.now())
+                .build();
+        leadAssignmentConfigRepository.save(defaultConfig);
+        log.info("Created default lead assignment config for tenant: {}", savedOrg.getId());
 
         // 3. Create first admin user
         User adminUser = User.builder()
