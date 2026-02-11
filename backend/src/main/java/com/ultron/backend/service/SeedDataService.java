@@ -32,6 +32,15 @@ public class SeedDataService implements CommandLineRunner {
     @Override
     public void run(String... args) {
         log.info("Checking for seed data...");
+
+        // Skip if RBAC migration has already created system roles
+        long systemRoleCount = roleRepository.count();
+        if (systemRoleCount > 0) {
+            log.info("System roles already exist (count: {}). Skipping seed data creation.", systemRoleCount);
+            log.info("RBAC roles and profiles are managed by RbacInitializer.");
+            return;
+        }
+
         createDefaultAdminRoleIfNotExists();
         createDefaultAdminProfileIfNotExists();
         log.info("Seed data check complete");

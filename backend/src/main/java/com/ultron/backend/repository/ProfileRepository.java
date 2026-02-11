@@ -31,6 +31,54 @@ public interface ProfileRepository extends MongoRepository<Profile, String> {
     @Query("{ 'profileName': { $regex: ?0, $options: 'i' }, 'isDeleted': false }")
     List<Profile> searchProfiles(String searchTerm);
 
+    // ===== MULTI-TENANT QUERIES (Lean RBAC) =====
+
+    /**
+     * Find all profiles for a specific tenant (excluding deleted)
+     * MULTI-TENANT SAFE
+     */
+    List<Profile> findByTenantIdAndIsDeletedFalse(String tenantId);
+
+    /**
+     * Find profile by profileId and tenantId
+     * MULTI-TENANT SAFE
+     */
+    Optional<Profile> findByProfileIdAndTenantId(String profileId, String tenantId);
+
+    /**
+     * Find profile by profileName and tenantId
+     * MULTI-TENANT SAFE
+     */
+    Optional<Profile> findByProfileNameAndTenantId(String profileName, String tenantId);
+
+    /**
+     * Find active profiles for a tenant
+     * MULTI-TENANT SAFE
+     */
+    List<Profile> findByTenantIdAndIsActiveAndIsDeletedFalse(String tenantId, Boolean isActive);
+
+    /**
+     * Find system profiles (templates for new tenants)
+     */
+    List<Profile> findByIsSystemProfileTrueAndIsDeletedFalse();
+
+    /**
+     * Find system profile by name (for templates)
+     */
+    Optional<Profile> findByProfileNameAndIsSystemProfileTrue(String profileName);
+
+    /**
+     * Check if profile name exists within tenant
+     * MULTI-TENANT SAFE
+     */
+    boolean existsByProfileNameAndTenantId(String profileName, String tenantId);
+
     // Count queries
     long countByIsDeletedFalse();
+
+    /**
+     * Count profiles for a tenant
+     * MULTI-TENANT SAFE
+     */
+    long countByTenantIdAndIsDeletedFalse(String tenantId);
 }

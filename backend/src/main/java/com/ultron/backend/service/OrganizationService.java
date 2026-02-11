@@ -1,6 +1,8 @@
 package com.ultron.backend.service;
 
 import com.ultron.backend.domain.entity.Organization;
+import com.ultron.backend.domain.entity.Profile;
+import com.ultron.backend.domain.entity.Role;
 import com.ultron.backend.domain.entity.User;
 import com.ultron.backend.domain.enums.UserRole;
 import com.ultron.backend.domain.enums.UserStatus;
@@ -9,6 +11,8 @@ import com.ultron.backend.dto.response.OrganizationRegistrationResponse;
 import com.ultron.backend.exception.BusinessException;
 import com.ultron.backend.exception.ResourceNotFoundException;
 import com.ultron.backend.repository.OrganizationRepository;
+import com.ultron.backend.repository.ProfileRepository;
+import com.ultron.backend.repository.RoleRepository;
 import com.ultron.backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +35,10 @@ public class OrganizationService {
 
     private final OrganizationRepository organizationRepository;
     private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
+    private final ProfileRepository profileRepository;
+    private final RoleMigrationService roleMigrationService;
+    private final ProfileMigrationService profileMigrationService;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final OrganizationIdGeneratorService organizationIdGenerator;
@@ -78,6 +86,19 @@ public class OrganizationService {
         Organization savedOrg = organizationRepository.save(organization);
         log.info("Created organization: {} (tenantId: {})", savedOrg.getOrganizationName(), savedOrg.getId());
 
+        // 2.5. Seed default roles and profiles for this tenant
+        log.info("Seeding default roles and profiles for tenant: {}", savedOrg.getId());
+        roleMigrationService.seedDefaultRolesForTenant(savedOrg.getId());
+        profileMigrationService.seedDefaultProfilesForTenant(savedOrg.getId());
+
+        // Get the admin role and profile for this tenant (created above)
+        Role adminRole = roleRepository.findByRoleNameAndTenantId("System Administrator", savedOrg.getId())
+                .orElseThrow(() -> new RuntimeException("Admin role not found after seeding"));
+        Profile adminProfile = profileRepository.findByProfileNameAndTenantId("System Administrator", savedOrg.getId())
+                .orElseThrow(() -> new RuntimeException("Admin profile not found after seeding"));
+
+        log.info("Retrieved admin role: {} and profile: {} for tenant", adminRole.getRoleId(), adminProfile.getProfileId());
+
         // 3. Create first admin user
         User adminUser = User.builder()
                 .userId(userIdGenerator.generateUserId())
@@ -89,8 +110,10 @@ public class OrganizationService {
                 .profile(User.UserProfile.builder()
                         .fullName(request.getAdminName())
                         .build())
-                .role(UserRole.ADMIN)
-                .profileId(com.ultron.backend.constants.PredefinedProfiles.SYSTEM_ADMINISTRATOR.getId())
+                .role(UserRole.ADMIN)  // Legacy enum, kept for backward compatibility
+                .roleId(adminRole.getRoleId())  // Dynamic role ID from database
+                .roleName(adminRole.getRoleName())  // Dynamic role name
+                .profileId(adminProfile.getProfileId())  // Dynamic profile ID from database
                 .userType("TENANT_ADMIN")
                 .status(UserStatus.ACTIVE)
                 .createdAt(LocalDateTime.now())
@@ -100,12 +123,14 @@ public class OrganizationService {
         User savedUser = userRepository.save(adminUser);
         log.info("Created admin user: {} for organization: {}", savedUser.getEmail(), savedOrg.getOrganizationName());
 
-        // 4. Generate JWT token for immediate login
+        // 4. Generate JWT token for immediate login (with dynamic role/profile IDs)
         String token = jwtService.generateToken(
                 savedUser.getId(),
                 savedUser.getEmail(),
-                savedUser.getRole().name(),
-                savedOrg.getId()  // Include tenantId in token
+                savedUser.getRole().name(),  // Legacy enum
+                savedUser.getRoleId(),       // Dynamic role ID from database
+                savedUser.getProfileId(),    // Dynamic profile ID from database
+                savedOrg.getId()              // Include tenantId in token
         );
 
         // 5. Calculate trial days remaining

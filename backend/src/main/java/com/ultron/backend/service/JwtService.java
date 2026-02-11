@@ -28,20 +28,34 @@ public class JwtService {
     }
 
     /**
-     * Generate JWT token with tenant ID (Multi-tenant support)
+     * Generate JWT token with tenant ID and dynamic role/profile IDs (Multi-tenant + RBAC support)
      * @param userId User ID
      * @param email User email
-     * @param role User role
+     * @param role User role (legacy enum, kept for backward compatibility)
+     * @param roleId Dynamic role ID from database (ROLE-XXXXX)
+     * @param profileId Dynamic profile ID from database (PROFILE-XXXXX)
      * @param tenantId Organization/Tenant ID
      * @return JWT token
      */
-    public String generateToken(String userId, String email, String role, String tenantId) {
+    public String generateToken(String userId, String email, String role, String roleId, String profileId, String tenantId) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("userId", userId);
         claims.put("email", email);
-        claims.put("role", role);
+        claims.put("role", role);  // Legacy enum
+        claims.put("roleId", roleId);  // NEW: Dynamic role ID
+        claims.put("profileId", profileId);  // NEW: Dynamic profile ID
         claims.put("tenantId", tenantId);  // Multi-tenancy claim
         return createToken(claims, userId);
+    }
+
+    /**
+     * Backward compatibility - delegates to new method with default roleId/profileId
+     * @deprecated Use generateToken(userId, email, role, roleId, profileId, tenantId) instead
+     */
+    @Deprecated
+    public String generateToken(String userId, String email, String role, String tenantId) {
+        log.warn("generateToken called without roleId/profileId for user: {} - using legacy role enum", userId);
+        return generateToken(userId, email, role, null, null, tenantId);
     }
 
     /**
@@ -78,6 +92,24 @@ public class JwtService {
 
     public String extractRole(String token) {
         return extractClaim(token, claims -> claims.get("role", String.class));
+    }
+
+    /**
+     * Extract dynamic role ID from JWT token (RBAC)
+     * @param token JWT token
+     * @return Role ID (ROLE-XXXXX)
+     */
+    public String extractRoleId(String token) {
+        return extractClaim(token, claims -> claims.get("roleId", String.class));
+    }
+
+    /**
+     * Extract dynamic profile ID from JWT token (RBAC)
+     * @param token JWT token
+     * @return Profile ID (PROFILE-XXXXX)
+     */
+    public String extractProfileId(String token) {
+        return extractClaim(token, claims -> claims.get("profileId", String.class));
     }
 
     /**

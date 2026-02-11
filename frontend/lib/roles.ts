@@ -1,63 +1,104 @@
 import { api } from "./api-client";
-import type { RoleResponse, CreateRoleRequest, UpdateRoleRequest } from "@/types/role";
-import * as PredefinedRoles from "./predefined-roles";
+import type {
+  RoleResponse,
+  CreateRoleRequest,
+  UpdateRoleRequest,
+  ModulePermissionResponse,
+  UpdateModulePermissionsRequest,
+  ModuleDefinitionResponse,
+} from "@/types/role";
 
 /**
- * Roles service using predefined enums instead of database
- * All read operations use local predefined roles
- * Write operations are disabled (roles are hardcoded)
+ * Roles service for dynamic RBAC (database-driven roles)
+ * All operations now use the backend API
  */
 export const rolesService = {
+  /**
+   * Create a new role
+   */
   async createRole(data: CreateRoleRequest): Promise<RoleResponse> {
-    // Roles are predefined - cannot create new roles
-    throw new Error("Cannot create roles - roles are predefined in code");
+    return api.post<RoleResponse>("/roles", data);
   },
 
+  /**
+   * Get all roles for current tenant
+   */
   async getAllRoles(activeOnly = false): Promise<RoleResponse[]> {
-    // Use predefined roles instead of API call
-    return Promise.resolve(activeOnly ? PredefinedRoles.getActiveRoles() : PredefinedRoles.getAllRoles());
+    return api.get<RoleResponse[]>(`/roles?activeOnly=${activeOnly}`);
   },
 
+  /**
+   * Get role by MongoDB ID
+   */
   async getRoleById(id: string): Promise<RoleResponse> {
-    // Use predefined roles instead of API call
-    const role = PredefinedRoles.getRoleById(id);
-    if (!role) {
-      throw new Error(`Role not found with id: ${id}`);
-    }
-    return Promise.resolve(role);
+    return api.get<RoleResponse>(`/roles/${id}`);
   },
 
+  /**
+   * Get role by business roleId (ROLE-XXXXX)
+   */
   async getRoleByRoleId(roleId: string): Promise<RoleResponse> {
-    // Use predefined roles instead of API call
-    const role = PredefinedRoles.getRoleById(roleId);
-    if (!role) {
-      throw new Error(`Role not found with roleId: ${roleId}`);
-    }
-    return Promise.resolve(role);
+    return api.get<RoleResponse>(`/roles/code/${roleId}`);
   },
 
+  /**
+   * Get root roles (no parent)
+   */
   async getRootRoles(): Promise<RoleResponse[]> {
-    // Use predefined roles instead of API call
-    return Promise.resolve(PredefinedRoles.getRootRoles());
+    return api.get<RoleResponse[]>("/roles/root");
   },
 
+  /**
+   * Get child roles for a parent role
+   */
   async getChildRoles(parentRoleId: string): Promise<RoleResponse[]> {
-    // Use predefined roles instead of API call
-    return Promise.resolve(PredefinedRoles.getChildRoles(parentRoleId));
+    return api.get<RoleResponse[]>(`/roles/children/${parentRoleId}`);
   },
 
+  /**
+   * Search roles by name
+   */
   async searchRoles(query: string): Promise<RoleResponse[]> {
-    // Use predefined roles instead of API call
-    return Promise.resolve(PredefinedRoles.searchRoles(query));
+    return api.get<RoleResponse[]>(`/roles/search?query=${encodeURIComponent(query)}`);
   },
 
+  /**
+   * Update role details
+   */
   async updateRole(id: string, data: UpdateRoleRequest): Promise<RoleResponse> {
-    // Roles are predefined - cannot update roles
-    throw new Error("Cannot update roles - roles are predefined in code");
+    return api.put<RoleResponse>(`/roles/${id}`, data);
   },
 
+  /**
+   * Delete role (soft delete)
+   */
   async deleteRole(id: string): Promise<void> {
-    // Roles are predefined - cannot delete roles
-    throw new Error("Cannot delete roles - roles are predefined in code");
+    return api.delete<void>(`/roles/${id}`);
+  },
+
+  // ===== MODULE PERMISSION METHODS (LEAN RBAC) =====
+
+  /**
+   * Get module permissions for a role
+   */
+  async getModulePermissions(roleId: string): Promise<ModulePermissionResponse[]> {
+    return api.get<ModulePermissionResponse[]>(`/roles/${roleId}/modules`);
+  },
+
+  /**
+   * Update module permissions for a role
+   */
+  async updateModulePermissions(
+    roleId: string,
+    permissions: UpdateModulePermissionsRequest
+  ): Promise<void> {
+    return api.put<void>(`/roles/${roleId}/modules`, permissions);
+  },
+
+  /**
+   * Get available modules (for UI dropdowns)
+   */
+  async getAvailableModules(): Promise<ModuleDefinitionResponse[]> {
+    return api.get<ModuleDefinitionResponse[]>("/roles/modules/available");
   },
 };

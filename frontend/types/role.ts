@@ -46,3 +46,33 @@ export interface UpdateRoleRequest {
   parentRoleId?: string;
   permissions?: Partial<RolePermissions>;
 }
+
+// ===== MODULE PERMISSION TYPES (LEAN RBAC) =====
+
+export interface ModulePermissionResponse {
+  moduleName: string;
+  displayName: string;
+  canAccess: boolean;
+  includedPaths: string[];
+  description?: string;
+}
+
+export interface ModulePermission {
+  moduleName: string;
+  displayName: string;
+  canAccess: boolean;
+  includedPaths?: string[];
+  description?: string;
+}
+
+export interface UpdateModulePermissionsRequest {
+  modulePermissions: ModulePermission[];
+}
+
+export interface ModuleDefinitionResponse {
+  moduleName: string;
+  displayName: string;
+  includedPaths: string[];
+  description: string;
+  category: string;
+}

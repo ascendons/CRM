@@ -4,6 +4,7 @@ import "./globals.css";
 import Navigation from "./components/Navigation";
 import ToastProvider from "@/components/ToastProvider";
 import { TenantProvider } from "@/providers/TenantProvider";
+import { PermissionProvider } from "@/providers/PermissionProvider";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -32,9 +33,11 @@ export default function RootLayout({
       </head>
       <body className={`${inter.variable} font-display antialiased`} suppressHydrationWarning>
         <TenantProvider>
-          <ToastProvider />
-          <Navigation />
-          {children}
+          <PermissionProvider>
+            <ToastProvider />
+            <Navigation />
+            {children}
+          </PermissionProvider>
         </TenantProvider>
       </body>
     </html>

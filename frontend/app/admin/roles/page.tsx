@@ -7,7 +7,7 @@ import type { RoleResponse } from "@/types/role";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/EmptyState";
 import { AdminRoute } from "@/components/AdminRoute";
-import { Plus, Search, Shield, Trash2, Edit, Eye } from "lucide-react";
+import { Plus, Search, Shield, Trash2, Edit, Eye, Lock } from "lucide-react";
 import { toast } from "react-hot-toast";
 
 export default function RolesPage() {
@@ -196,7 +196,7 @@ function RolesPageContent() {
                           Parent: {role.parentRoleName}
                         </div>
                       )}
-                      {role.childRoleIds.length > 0 && (
+                      {role.childRoleIds && role.childRoleIds.length > 0 && (
                         <div className="text-xs text-gray-500">
                           {role.childRoleIds.length} child role(s)
                         </div>
@@ -233,6 +233,13 @@ function RolesPageContent() {
                         title="Edit"
                       >
                         <Edit className="h-4 w-4" />
+                      </button>
+                      <button
+                        onClick={() => router.push(`/admin/roles/${role.id}/permissions`)}
+                        className="text-gray-600 hover:text-purple-600"
+                        title="Manage Permissions"
+                      >
+                        <Lock className="h-4 w-4" />
                       </button>
                       <button
                         onClick={() => handleDelete(role.id, role.roleName)}

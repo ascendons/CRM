@@ -1,9 +1,16 @@
 package com.ultron.backend.controller;
 
+import com.ultron.backend.domain.entity.Profile;
+import com.ultron.backend.domain.entity.Role;
+import com.ultron.backend.domain.entity.User;
 import com.ultron.backend.dto.request.CreateUserRequest;
 import com.ultron.backend.dto.request.UpdateUserRequest;
 import com.ultron.backend.dto.response.ApiResponse;
+import com.ultron.backend.dto.response.UserPermissionsResponse;
 import com.ultron.backend.dto.response.UserResponse;
+import com.ultron.backend.repository.ProfileRepository;
+import com.ultron.backend.repository.RoleRepository;
+import com.ultron.backend.repository.UserRepository;
 import com.ultron.backend.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -24,9 +31,12 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
+    private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
+    private final ProfileRepository profileRepository;
 
     @PostMapping
-//    @PreAuthorize("hasPermission('USER', 'CREATE')")
+    @PreAuthorize("hasPermission('USER', 'CREATE')")
     public ResponseEntity<ApiResponse<UserResponse>> createUser(
             @Valid @RequestBody CreateUserRequest request) {
 
@@ -45,7 +55,7 @@ public class UserController {
     }
 
     @GetMapping
-//    @PreAuthorize("hasPermission('USER', 'READ')")
+    @PreAuthorize("hasPermission('USER', 'READ')")
     public ResponseEntity<ApiResponse<List<UserResponse>>> getAllUsers(
             @RequestParam(required = false, defaultValue = "false") boolean activeOnly) {
 
@@ -64,7 +74,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-//    @PreAuthorize("hasPermission('USER', 'READ')")
+    @PreAuthorize("hasPermission('USER', 'READ')")
     public ResponseEntity<ApiResponse<UserResponse>> getUserById(@PathVariable String id) {
         log.info("Fetching user with id: {}", id);
         UserResponse user = userService.getUserById(id);
@@ -78,7 +88,7 @@ public class UserController {
     }
 
     @GetMapping("/code/{userId}")
-//    @PreAuthorize("hasPermission('USER', 'READ')")
+    @PreAuthorize("hasPermission('USER', 'READ')")
     public ResponseEntity<ApiResponse<UserResponse>> getUserByUserId(
             @PathVariable String userId) {
         log.info("Fetching user with userId: {}", userId);
@@ -93,7 +103,7 @@ public class UserController {
     }
 
     @GetMapping("/role/{roleId}")
-//    @PreAuthorize("hasPermission('USER', 'READ')")
+    @PreAuthorize("hasPermission('USER', 'READ')")
     public ResponseEntity<ApiResponse<List<UserResponse>>> getUsersByRole(
             @PathVariable String roleId) {
         log.info("Fetching users with roleId: {}", roleId);
@@ -108,7 +118,7 @@ public class UserController {
     }
 
     @GetMapping("/subordinates/{managerId}")
-//    @PreAuthorize("hasPermission('USER', 'READ')")
+    @PreAuthorize("hasPermission('USER', 'READ')")
     public ResponseEntity<ApiResponse<List<UserResponse>>> getSubordinates(
             @PathVariable String managerId) {
         log.info("Fetching subordinates for manager: {}", managerId);
@@ -123,7 +133,7 @@ public class UserController {
     }
 
     @GetMapping("/search")
-//    @PreAuthorize("hasPermission('USER', 'READ')")
+    @PreAuthorize("hasPermission('USER', 'READ')")
     public ResponseEntity<ApiResponse<List<UserResponse>>> searchUsers(
             @RequestParam String q) {
         log.info("Searching users with query: {}", q);
@@ -138,7 +148,7 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-//    @PreAuthorize("hasPermission('USER', 'EDIT')")
+    @PreAuthorize("hasPermission('USER', 'EDIT')")
     public ResponseEntity<ApiResponse<UserResponse>> updateUser(
             @PathVariable String id,
             @Valid @RequestBody UpdateUserRequest request) {
@@ -157,7 +167,7 @@ public class UserController {
     }
 
     @PostMapping("/{id}/deactivate")
-//    @PreAuthorize("hasPermission('USER', 'DELETE')")
+    @PreAuthorize("hasPermission('USER', 'DELETE')")
     public ResponseEntity<ApiResponse<Void>> deactivateUser(
             @PathVariable String id,
             @RequestParam(required = false) String reason) {
@@ -175,7 +185,7 @@ public class UserController {
     }
 
     @PostMapping("/{id}/activate")
-//    @PreAuthorize("hasPermission('USER', 'EDIT')")
+    @PreAuthorize("hasPermission('USER', 'EDIT')")
     public ResponseEntity<ApiResponse<Void>> activateUser(@PathVariable String id) {
 
         String currentUserId = getCurrentUserId();
@@ -188,6 +198,52 @@ public class UserController {
                         .success(true)
                         .message("User activated successfully")
                         .build());
+    }
+
+    /**
+     * Get current user's full permission manifest
+     * Loaded once on login and cached in frontend for instant permission checks
+     */
+    @GetMapping("/me/permissions")
+    public ResponseEntity<ApiResponse<UserPermissionsResponse>> getMyPermissions(
+            Authentication authentication) {
+        String userId = authentication.getName();
+        log.info("Loading permission manifest for user: {}", userId);
+
+        // Get user
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // Get role from database (tenant-aware)
+        Role role = roleRepository.findByRoleIdAndTenantId(user.getRoleId(), user.getTenantId())
+                .orElseThrow(() -> new RuntimeException("Role not found"));
+
+        // Get profile from database (tenant-aware)
+        Profile profile = profileRepository.findByProfileIdAndTenantId(user.getProfileId(), user.getTenantId())
+                .orElseThrow(() -> new RuntimeException("Profile not found"));
+
+        // Build permission manifest
+        UserPermissionsResponse permissions = UserPermissionsResponse.builder()
+                .modules(role.getModulePermissions())
+                .objectPermissions(profile.getObjectPermissions())
+                .fieldPermissions(profile.getFieldPermissions())
+                .systemPermissions(UserPermissionsResponse.SystemPermissionsDTO.builder()
+                        .dataVisibility(role.getPermissions() != null ? role.getPermissions().getDataVisibility() : "OWN")
+                        .canManageUsers(role.getPermissions() != null ? role.getPermissions().getCanManageUsers() : false)
+                        .canManageRoles(role.getPermissions() != null ? role.getPermissions().getCanManageRoles() : false)
+                        .canManageProfiles(role.getPermissions() != null ? role.getPermissions().getCanManageProfiles() : false)
+                        .canViewSetup(role.getPermissions() != null ? role.getPermissions().getCanViewSetup() : false)
+                        .canManageSharing(role.getPermissions() != null ? role.getPermissions().getCanManageSharing() : false)
+                        .canViewAllData(role.getPermissions() != null ? role.getPermissions().getCanViewAllData() : false)
+                        .canModifyAllData(role.getPermissions() != null ? role.getPermissions().getCanModifyAllData() : false)
+                        .canViewAuditLog(role.getPermissions() != null ? role.getPermissions().getCanViewAuditLog() : false)
+                        .canExportData(role.getPermissions() != null ? role.getPermissions().getCanExportData() : false)
+                        .canImportData(role.getPermissions() != null ? role.getPermissions().getCanImportData() : false)
+                        .build())
+                .build();
+
+        log.info("Permission manifest loaded successfully for user: {}", userId);
+        return ResponseEntity.ok(ApiResponse.success("Permissions loaded successfully", permissions));
     }
 
     // Helper method to get current user ID from Security Context

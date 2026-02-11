@@ -17,6 +17,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -79,7 +80,7 @@ public class UserActivityController {
      * GET /api/v1/user-activities/all
      */
     @GetMapping("/all")
-//    @PreAuthorize("hasSystemPermission('canViewAllData')")
+    @PreAuthorize("hasSystemPermission('canViewAllData')")
     public ResponseEntity<ApiResponse<Page<UserActivityResponse>>> getAllActivities(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
@@ -191,7 +192,7 @@ public class UserActivityController {
      * GET /api/v1/user-activities/stats/global
      */
     @GetMapping("/stats/global")
-//    @PreAuthorize("hasSystemPermission('canViewAllData')")
+    @PreAuthorize("hasSystemPermission('canViewAllData')")
     public ResponseEntity<ApiResponse<Map<String, Object>>> getGlobalStats(
             @RequestParam(required = false) LocalDateTime startDate,
             @RequestParam(required = false) LocalDateTime endDate,

@@ -1,7 +1,5 @@
 package com.ultron.backend.service;
 
-import com.ultron.backend.constants.PredefinedProfiles;
-import com.ultron.backend.constants.PredefinedRoles;
 import com.ultron.backend.domain.entity.Profile;
 import com.ultron.backend.domain.entity.Role;
 import com.ultron.backend.domain.entity.User;
@@ -51,8 +49,9 @@ public class PermissionService extends BaseTenantService {
             return false;
         }
 
-        // Get user's profile from predefined profiles
-        Profile profile = PredefinedProfiles.getProfileById(user.getProfileId());
+        // Get user's profile from database (tenant-aware)
+        Profile profile = profileRepository.findByProfileIdAndTenantId(user.getProfileId(), user.getTenantId())
+                .orElse(null);
         if (profile == null || !profile.getIsActive() || profile.getIsDeleted()) {
             log.debug("Profile not found, inactive, or deleted");
             return false;
@@ -94,8 +93,9 @@ public class PermissionService extends BaseTenantService {
         User user = userRepository.findById(userId).orElse(null);
         if (user == null) return false;
 
-        // Check if user has "View All" permission on this object from predefined profiles
-        Profile profile = PredefinedProfiles.getProfileById(user.getProfileId());
+        // Check if user has "View All" permission on this object from database
+        Profile profile = profileRepository.findByProfileIdAndTenantId(user.getProfileId(), user.getTenantId())
+                .orElse(null);
         if (profile != null && profile.getObjectPermissions() != null) {
             for (Profile.ObjectPermission op : profile.getObjectPermissions()) {
                 if (op.getObjectName().equalsIgnoreCase(objectName) && op.getCanViewAll()) {
@@ -105,8 +105,9 @@ public class PermissionService extends BaseTenantService {
             }
         }
 
-        // Check role-based data visibility from predefined roles
-        Role role = PredefinedRoles.getRoleById(user.getRoleId());
+        // Check role-based data visibility from database (tenant-aware)
+        Role role = roleRepository.findByRoleIdAndTenantId(user.getRoleId(), user.getTenantId())
+                .orElse(null);
         if (role == null) return false;
 
         String dataVisibility = role.getPermissions() != null ? role.getPermissions().getDataVisibility() : "OWN";
@@ -175,8 +176,9 @@ public class PermissionService extends BaseTenantService {
         User user = userRepository.findById(userId).orElse(null);
         if (user == null) return false;
 
-        // Get role from predefined roles
-        Role role = PredefinedRoles.getRoleById(user.getRoleId());
+        // Get role from database (tenant-aware)
+        Role role = roleRepository.findByRoleIdAndTenantId(user.getRoleId(), user.getTenantId())
+                .orElse(null);
         if (role == null || role.getPermissions() == null) return false;
 
         Role.RolePermissions rolePerms = role.getPermissions();
@@ -222,8 +224,9 @@ public class PermissionService extends BaseTenantService {
         User user = userRepository.findById(userId).orElse(null);
         if (user == null) return false;
 
-        // Get profile from predefined profiles
-        Profile profile = PredefinedProfiles.getProfileById(user.getProfileId());
+        // Get profile from database (tenant-aware)
+        Profile profile = profileRepository.findByProfileIdAndTenantId(user.getProfileId(), user.getTenantId())
+                .orElse(null);
         if (profile == null || profile.getFieldPermissions() == null) return true;  // Default: allow if no field permissions
 
         // Check field-level permission
@@ -300,5 +303,89 @@ public class PermissionService extends BaseTenantService {
             // Recursively collect their subordinates
             collectSubordinates(subordinate.getUserId(), subordinates, visited);
         }
+    }
+
+    // ===== LEAN RBAC: MODULE-BASED PERMISSION CHECKS =====
+
+    /**
+     * Check if user can access a module (LEAN RBAC)
+     * Modules group multiple pages together (e.g., CRM module includes /leads, /contacts, /accounts)
+     *
+     * @param userId User ID
+     * @param moduleName Module name (CRM, ADMINISTRATION, ANALYTICS, PRODUCTS, ACTIVITIES)
+     * @return true if user can access the module
+     */
+    @Cacheable(value = "modulePermissions", key = "#userId + '-' + #moduleName")
+    public boolean canAccessModule(String userId, String moduleName) {
+        log.debug("Checking module access: userId={}, module={}", userId, moduleName);
+
+        User user = userRepository.findById(userId).orElse(null);
+        if (user == null || user.getStatus() != com.ultron.backend.domain.enums.UserStatus.ACTIVE) {
+            log.debug("User not found or inactive");
+            return false;
+        }
+
+        // Get role from database (tenant-aware)
+        Role role = roleRepository.findByRoleIdAndTenantId(user.getRoleId(), user.getTenantId())
+                .orElse(null);
+
+        if (role == null || role.getModulePermissions() == null) {
+            log.debug("Role not found or no module permissions defined");
+            return false;
+        }
+
+        // Check if module is accessible
+        boolean hasAccess = role.getModulePermissions().stream()
+                .anyMatch(mp -> mp.getModuleName().equalsIgnoreCase(moduleName) && mp.getCanAccess());
+
+        log.debug("Module access result: {}", hasAccess);
+        return hasAccess;
+    }
+
+    /**
+     * Check if user can access a specific path (LEAN RBAC)
+     * Path is matched against module's includedPaths list
+     *
+     * @param userId User ID
+     * @param path Path to check (e.g., /leads, /admin/users)
+     * @return true if user can access the path
+     */
+    @Cacheable(value = "pathPermissions", key = "#userId + '-' + #path")
+    public boolean canAccessPath(String userId, String path) {
+        log.debug("Checking path access: userId={}, path={}", userId, path);
+
+        User user = userRepository.findById(userId).orElse(null);
+        if (user == null || user.getStatus() != com.ultron.backend.domain.enums.UserStatus.ACTIVE) {
+            return false;
+        }
+
+        // Get role from database (tenant-aware)
+        Role role = roleRepository.findByRoleIdAndTenantId(user.getRoleId(), user.getTenantId())
+                .orElse(null);
+
+        if (role == null || role.getModulePermissions() == null) {
+            return false;
+        }
+
+        // Check if path belongs to any accessible module
+        boolean hasAccess = role.getModulePermissions().stream()
+                .filter(Role.ModulePermission::getCanAccess)
+                .anyMatch(mp -> mp.getIncludedPaths() != null &&
+                        mp.getIncludedPaths().stream().anyMatch(includedPath -> pathMatches(includedPath, path)));
+
+        log.debug("Path access result: {}", hasAccess);
+        return hasAccess;
+    }
+
+    /**
+     * Check if a path matches a pattern
+     * Supports wildcard matching: "/admin/*" matches "/admin/users"
+     */
+    private boolean pathMatches(String pattern, String path) {
+        if (pattern.endsWith("/*")) {
+            String prefix = pattern.substring(0, pattern.length() - 2);
+            return path.startsWith(prefix);
+        }
+        return pattern.equals(path);
     }
 }

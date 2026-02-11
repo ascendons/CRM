@@ -4,13 +4,17 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { UserMenu } from "@/components/UserMenu";
-import { meService, type CurrentUser, UserRole } from "@/lib/me";
+import { meService, type CurrentUser } from "@/lib/me";
 import { authService } from "@/lib/auth";
+import { usePermissionContext } from "@/providers/PermissionProvider";
 
 export default function Navigation() {
   const pathname = usePathname();
   const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null);
   const [loading, setLoading] = useState(true);
+
+  // Get permission checks from context (LEAN RBAC)
+  const { canAccessModule, canAccessPath, loading: permissionsLoading } = usePermissionContext();
 
   // Hide navigation on login and register pages
   const hideNavigation = pathname === "/login" || pathname === "/register";
@@ -40,15 +44,40 @@ export default function Navigation() {
     return null;
   }
 
-  // Check if user is admin using unified UserRole enum
-  const isAdmin = currentUser?.userRole === UserRole.ADMIN;
-
   const isActive = (path: string) => {
     if (path === "/dashboard") {
       return pathname === "/dashboard";
     }
     return pathname.startsWith(path);
   };
+
+  // Don't render navigation until permissions are loaded
+  if (permissionsLoading) {
+    return (
+      <header className="h-16 border-b border-slate-200 bg-white flex items-center justify-between px-6 lg:px-8 sticky top-0 z-10">
+        <div className="flex items-center gap-8">
+          <Link href="/dashboard" className="flex items-center gap-3">
+            <div className="size-10 bg-primary rounded-lg flex items-center justify-center text-white">
+              <span className="material-symbols-outlined">rocket_launch</span>
+            </div>
+            <div>
+              <h1 className="text-lg font-bold leading-none tracking-tight text-slate-900">
+                CRM Pro
+              </h1>
+              <p className="text-xs text-slate-700 font-medium">Enterprise Edition</p>
+            </div>
+          </Link>
+          <div className="h-8 w-px bg-slate-200 mx-2"></div>
+          <nav className="hidden lg:flex items-center gap-6">
+            <span className="text-sm text-slate-400">Loading...</span>
+          </nav>
+        </div>
+        <div className="flex items-center gap-4">
+          <UserMenu />
+        </div>
+      </header>
+    );
+  }
 
   return (
     <header className="h-16 border-b border-slate-200 bg-white flex items-center justify-between px-6 lg:px-8 sticky top-0 z-10">
@@ -66,6 +95,7 @@ export default function Navigation() {
         </Link>
         <div className="h-8 w-px bg-slate-200 mx-2"></div>
         <nav className="hidden lg:flex items-center gap-6">
+          {/* Dashboard - always visible */}
           <Link
             href="/dashboard"
             className={`text-sm font-medium transition-colors ${isActive("/dashboard")
@@ -75,79 +105,100 @@ export default function Navigation() {
           >
             Dashboard
           </Link>
-          <Link
-            href="/analytics"
-            className={`text-sm font-medium transition-colors ${isActive("/analytics")
-              ? "text-primary border-b-2 border-primary pb-1 font-semibold"
-              : "text-slate-700 hover:text-primary"
-              }`}
-          >
-            Analytics
-          </Link>
-          <Link
-            href="/leads"
-            className={`text-sm font-medium transition-colors ${isActive("/leads")
-              ? "text-primary border-b-2 border-primary pb-1 font-semibold"
-              : "text-slate-700 hover:text-primary"
-              }`}
-          >
-            Leads
-          </Link>
-          <Link
-            href="/opportunities"
-            className={`text-sm font-medium transition-colors ${isActive("/opportunities")
-              ? "text-primary border-b-2 border-primary pb-1 font-semibold"
-              : "text-slate-700 hover:text-primary"
-              }`}
-          >
-            Deals
-          </Link>
-          <Link
-            href="/contacts"
-            className={`text-sm font-medium transition-colors ${isActive("/contacts")
-              ? "text-primary border-b-2 border-primary pb-1 font-semibold"
-              : "text-slate-700 hover:text-primary"
-              }`}
-          >
-            Contacts
-          </Link>
-          <Link
-            href="/accounts"
-            className={`text-sm font-medium transition-colors ${isActive("/accounts")
-              ? "text-primary border-b-2 border-primary pb-1 font-semibold"
-              : "text-slate-700 hover:text-primary"
-              }`}
-          >
-            Accounts
-          </Link>
-          <Link
-            href="/proposals"
-            className={`text-sm font-medium transition-colors ${isActive("/proposals")
-              ? "text-primary border-b-2 border-primary pb-1 font-semibold"
-              : "text-slate-700 hover:text-primary"
-              }`}
-          >
-            Proposals
-          </Link>
-          {/* <Link
-            href="/products"
-            className={`text-sm font-medium transition-colors ${isActive("/products")
+
+          {/* Analytics - Module: ANALYTICS */}
+          {canAccessModule("ANALYTICS") && (
+            <Link
+              href="/analytics"
+              className={`text-sm font-medium transition-colors ${isActive("/analytics")
                 ? "text-primary border-b-2 border-primary pb-1 font-semibold"
                 : "text-slate-700 hover:text-primary"
-              }`}
-          >
-            Products
-          </Link> */}
-          <Link
-            href="/catalog"
-            className={`text-sm font-medium transition-colors ${isActive("/catalog")
-              ? "text-primary border-b-2 border-primary pb-1 font-semibold"
-              : "text-slate-700 hover:text-primary"
-              }`}
-          >
-            Catalog
-          </Link>
-          {isAdmin && (
+                }`}
+            >
+              Analytics
+            </Link>
+          )}
+
+          {/* Leads - Module: CRM */}
+          {canAccessModule("CRM") && (
+            <Link
+              href="/leads"
+              className={`text-sm font-medium transition-colors ${isActive("/leads")
+                ? "text-primary border-b-2 border-primary pb-1 font-semibold"
+                : "text-slate-700 hover:text-primary"
+                }`}
+            >
+              Leads
+            </Link>
+          )}
+
+          {/* Opportunities/Deals - Module: CRM */}
+          {canAccessModule("CRM") && (
+            <Link
+              href="/opportunities"
+              className={`text-sm font-medium transition-colors ${isActive("/opportunities")
+                ? "text-primary border-b-2 border-primary pb-1 font-semibold"
+                : "text-slate-700 hover:text-primary"
+                }`}
+            >
+              Deals
+            </Link>
+          )}
+
+          {/* Contacts - Module: CRM */}
+          {canAccessModule("CRM") && (
+            <Link
+              href="/contacts"
+              className={`text-sm font-medium transition-colors ${isActive("/contacts")
+                ? "text-primary border-b-2 border-primary pb-1 font-semibold"
+                : "text-slate-700 hover:text-primary"
+                }`}
+            >
+              Contacts
+            </Link>
+          )}
+
+          {/* Accounts - Module: CRM */}
+          {canAccessModule("CRM") && (
+            <Link
+              href="/accounts"
+              className={`text-sm font-medium transition-colors ${isActive("/accounts")
+                ? "text-primary border-b-2 border-primary pb-1 font-semibold"
+                : "text-slate-700 hover:text-primary"
+                }`}
+            >
+              Accounts
+            </Link>
+          )}
+
+          {/* Proposals - Module: PRODUCTS */}
+          {canAccessModule("PRODUCTS") && (
+            <Link
+              href="/proposals"
+              className={`text-sm font-medium transition-colors ${isActive("/proposals")
+                ? "text-primary border-b-2 border-primary pb-1 font-semibold"
+                : "text-slate-700 hover:text-primary"
+                }`}
+            >
+              Proposals
+            </Link>
+          )}
+
+          {/* Catalog - Module: PRODUCTS */}
+          {canAccessModule("PRODUCTS") && (
+            <Link
+              href="/catalog"
+              className={`text-sm font-medium transition-colors ${isActive("/catalog")
+                ? "text-primary border-b-2 border-primary pb-1 font-semibold"
+                : "text-slate-700 hover:text-primary"
+                }`}
+            >
+              Catalog
+            </Link>
+          )}
+
+          {/* Admin - Module: ADMINISTRATION */}
+          {canAccessModule("ADMINISTRATION") && (
             <Link
               href="/admin"
               className={`text-sm font-medium transition-colors ${isActive("/admin")

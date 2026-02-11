@@ -25,6 +25,14 @@ public class Profile {
     @Indexed(unique = true)
     private String profileId;
 
+    // Multi-Tenancy Support
+    @Indexed
+    private String tenantId;  // Organization this profile belongs to (null for system profiles)
+
+    // System vs Custom Profile
+    @Builder.Default
+    private Boolean isSystemProfile = false;  // true = default template, false = custom profile
+
     // Basic Information
     @Indexed
     private String profileName;

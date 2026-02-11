@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class RoleService {
+public class RoleService extends BaseTenantService {
 
     private final RoleRepository roleRepository;
     private final RoleIdGeneratorService roleIdGeneratorService;
@@ -126,57 +126,149 @@ public class RoleService {
         return mapToResponse(savedRole);
     }
 
+    /**
+     * Get role by MongoDB ID
+     * MULTI-TENANT SAFE: Validates role belongs to current tenant
+     */
     public RoleResponse getRoleById(String id) {
-        // Use predefined roles instead of database
-        Role role = PredefinedRoles.getRoleById(id);
-        if (role == null) {
-            throw new ResourceNotFoundException("Role not found with id: " + id);
-        }
+        String tenantId = getCurrentTenantId();
+        log.debug("[Tenant: {}] Getting role by id: {}", tenantId, id);
+
+        Role role = roleRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Role not found with id: " + id));
+
+        // Validate tenant ownership
+        validateResourceTenantOwnership(role.getTenantId());
+
         return mapToResponse(role);
     }
 
+    /**
+     * Get role by business roleId (ROLE-XXXXX)
+     * MULTI-TENANT SAFE: Only returns roles for current tenant
+     */
     public RoleResponse getRoleByRoleId(String roleId) {
-        // Use predefined roles instead of database
-        Role role = PredefinedRoles.getRoleById(roleId);
-        if (role == null) {
-            throw new ResourceNotFoundException("Role not found with roleId: " + roleId);
-        }
+        String tenantId = getCurrentTenantId();
+        log.debug("[Tenant: {}] Getting role by roleId: {}", tenantId, roleId);
+
+        Role role = roleRepository.findByRoleIdAndTenantId(roleId, tenantId)
+                .orElseThrow(() -> new ResourceNotFoundException("Role not found with roleId: " + roleId));
+
         return mapToResponse(role);
     }
 
+    /**
+     * Get all roles for current tenant
+     * MULTI-TENANT SAFE
+     */
     public List<RoleResponse> getAllRoles() {
-        // Use predefined roles instead of database
-        return PredefinedRoles.getAllRoles().stream()
+        String tenantId = getCurrentTenantId();
+        log.debug("[Tenant: {}] Getting all roles", tenantId);
+
+        return roleRepository.findByTenantIdAndIsDeletedFalse(tenantId).stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Get active roles for current tenant
+     * MULTI-TENANT SAFE
+     */
     public List<RoleResponse> getActiveRoles() {
-        // Use predefined roles instead of database
-        return PredefinedRoles.getActiveRoles().stream()
+        String tenantId = getCurrentTenantId();
+        log.debug("[Tenant: {}] Getting active roles", tenantId);
+
+        return roleRepository.findByTenantIdAndIsActiveAndIsDeletedFalse(tenantId, true).stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Get root roles (no parent) for current tenant
+     * MULTI-TENANT SAFE
+     */
     public List<RoleResponse> getRootRoles() {
-        // Use predefined roles instead of database
-        return PredefinedRoles.getRootRoles().stream()
+        String tenantId = getCurrentTenantId();
+        log.debug("[Tenant: {}] Getting root roles", tenantId);
+
+        return roleRepository.findByTenantIdAndIsDeletedFalse(tenantId).stream()
+                .filter(role -> role.getParentRoleId() == null)
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Get child roles for a parent role within current tenant
+     * MULTI-TENANT SAFE
+     */
     public List<RoleResponse> getChildRoles(String parentRoleId) {
-        // Use predefined roles instead of database
-        return PredefinedRoles.getChildRoles(parentRoleId).stream()
+        String tenantId = getCurrentTenantId();
+        log.debug("[Tenant: {}] Getting child roles for parent: {}", tenantId, parentRoleId);
+
+        return roleRepository.findByTenantIdAndParentRoleIdAndIsDeletedFalse(tenantId, parentRoleId).stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Search roles by name within current tenant
+     * MULTI-TENANT SAFE
+     */
     public List<RoleResponse> searchRoles(String searchTerm) {
-        // Use predefined roles instead of database
-        return PredefinedRoles.searchRoles(searchTerm).stream()
+        String tenantId = getCurrentTenantId();
+        log.debug("[Tenant: {}] Searching roles with term: {}", tenantId, searchTerm);
+
+        return roleRepository.findByTenantIdAndIsDeletedFalse(tenantId).stream()
+                .filter(role -> role.getRoleName().toLowerCase().contains(searchTerm.toLowerCase()))
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * Get module permissions for a role (LEAN RBAC)
+     * MULTI-TENANT SAFE
+     * @param id MongoDB _id of the role
+     */
+    public List<Role.ModulePermission> getModulePermissions(String id) {
+        String tenantId = getCurrentTenantId();
+        log.debug("[Tenant: {}] Getting module permissions for role id: {}", tenantId, id);
+
+        Role role = roleRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Role not found with id: " + id));
+
+        // Validate tenant ownership
+        validateResourceTenantOwnership(role.getTenantId());
+
+        return role.getModulePermissions() != null ? role.getModulePermissions() : new ArrayList<>();
+    }
+
+    /**
+     * Update module permissions for a role (LEAN RBAC)
+     * MULTI-TENANT SAFE
+     * @param id MongoDB _id of the role
+     */
+    @Transactional
+    public void updateModulePermissions(String id, List<Role.ModulePermission> modulePermissions, String modifiedBy) {
+        String tenantId = getCurrentTenantId();
+        log.info("[Tenant: {}] Updating module permissions for role id: {}", tenantId, id);
+
+        Role role = roleRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Role not found with id: " + id));
+
+        // Validate tenant ownership
+        validateResourceTenantOwnership(role.getTenantId());
+
+        // Validate not a system role
+        if (Boolean.TRUE.equals(role.getIsSystemRole())) {
+            throw new IllegalStateException("Cannot modify system role permissions");
+        }
+
+        role.setModulePermissions(modulePermissions);
+        role.setLastModifiedAt(LocalDateTime.now());
+        role.setLastModifiedBy(modifiedBy);
+
+        roleRepository.save(role);
+        log.info("[Tenant: {}] Module permissions updated for role: {}", tenantId, role.getRoleId());
     }
 
     @Transactional

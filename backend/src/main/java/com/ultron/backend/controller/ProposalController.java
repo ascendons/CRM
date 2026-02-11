@@ -33,7 +33,7 @@ public class ProposalController {
      * POST /api/v1/proposals
      */
     @PostMapping
-//    @PreAuthorize("hasPermission('PROPOSAL', 'CREATE')")
+    @PreAuthorize("hasPermission('PROPOSAL', 'CREATE')")
     public ResponseEntity<ApiResponse<ProposalResponse>> createProposal(
             @Valid @RequestBody CreateProposalRequest request,
             Authentication authentication) {
@@ -58,7 +58,7 @@ public class ProposalController {
      * Supports pagination with query params: page, size, sort
      */
     @GetMapping
-//    @PreAuthorize("hasPermission('PROPOSAL', 'READ')")
+    @PreAuthorize("hasPermission('PROPOSAL', 'READ')")
     public ResponseEntity<ApiResponse<?>> getAllProposals(Pageable pageable) {
         log.info("Fetching all proposals (pageable: {})", pageable.isPaged());
 
@@ -126,7 +126,7 @@ public class ProposalController {
      * Supports pagination with query params: page, size, sort
      */
     @GetMapping("/source/{source}/{sourceId}")
-//    @PreAuthorize("hasPermission('PROPOSAL', 'READ')")
+    @PreAuthorize("hasPermission('PROPOSAL', 'READ')")
     public ResponseEntity<ApiResponse<?>> getProposalsBySource(
             @PathVariable ProposalSource source,
             @PathVariable String sourceId,
@@ -159,7 +159,7 @@ public class ProposalController {
      * Supports pagination with query params: page, size, sort
      */
     @GetMapping("/status/{status}")
-//    @PreAuthorize("hasPermission('PROPOSAL', 'READ')")
+    @PreAuthorize("hasPermission('PROPOSAL', 'READ')")
     public ResponseEntity<ApiResponse<?>> getProposalsByStatus(
             @PathVariable ProposalStatus status,
             Pageable pageable) {
@@ -191,7 +191,7 @@ public class ProposalController {
      * Supports pagination with query params: page, size, sort
      */
     @GetMapping("/owner/{ownerId}")
-//    @PreAuthorize("hasPermission('PROPOSAL', 'READ')")
+    @PreAuthorize("hasPermission('PROPOSAL', 'READ')")
     public ResponseEntity<ApiResponse<?>> getProposalsByOwner(
             @PathVariable String ownerId,
             Pageable pageable) {
@@ -222,7 +222,7 @@ public class ProposalController {
      * PUT /api/v1/proposals/{id}
      */
     @PutMapping("/{id}")
-//    @PreAuthorize("hasPermission('PROPOSAL', 'EDIT')")
+    @PreAuthorize("hasPermission('PROPOSAL', 'EDIT')")
     public ResponseEntity<ApiResponse<ProposalResponse>> updateProposal(
             @PathVariable String id,
             @Valid @RequestBody UpdateProposalRequest request,
@@ -247,7 +247,7 @@ public class ProposalController {
      * Requires PROPOSAL:SEND permission (separate from EDIT to allow delegation)
      */
     @PostMapping("/{id}/send")
-//    @PreAuthorize("hasPermission('PROPOSAL', 'SEND') or hasPermission('PROPOSAL', 'EDIT')")
+    @PreAuthorize("hasPermission('PROPOSAL', 'SEND') or hasPermission('PROPOSAL', 'EDIT')")
     public ResponseEntity<ApiResponse<ProposalResponse>> sendProposal(
             @PathVariable String id,
             Authentication authentication) {
@@ -272,7 +272,7 @@ public class ProposalController {
      * Typically only managers or customers should have this permission
      */
     @PostMapping("/{id}/accept")
-//    @PreAuthorize("hasPermission('PROPOSAL', 'APPROVE')")
+    @PreAuthorize("hasPermission('PROPOSAL', 'APPROVE')")
     public ResponseEntity<ApiResponse<ProposalResponse>> acceptProposal(
             @PathVariable String id,
             Authentication authentication) {
@@ -297,7 +297,7 @@ public class ProposalController {
      * Typically only managers or customers should have this permission
      */
     @PostMapping("/{id}/reject")
-//    @PreAuthorize("hasPermission('PROPOSAL', 'REJECT')")
+    @PreAuthorize("hasPermission('PROPOSAL', 'REJECT')")
     public ResponseEntity<ApiResponse<ProposalResponse>> rejectProposal(
             @PathVariable String id,
             @RequestParam String reason,
@@ -321,7 +321,7 @@ public class ProposalController {
      * DELETE /api/v1/proposals/{id}
      */
     @DeleteMapping("/{id}")
-//    @PreAuthorize("hasPermission('PROPOSAL', 'DELETE')")
+    @PreAuthorize("hasPermission('PROPOSAL', 'DELETE')")
     public ResponseEntity<ApiResponse<Void>> deleteProposal(
             @PathVariable String id,
             Authentication authentication) {
