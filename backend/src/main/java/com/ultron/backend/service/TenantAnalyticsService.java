@@ -27,31 +27,35 @@ public class TenantAnalyticsService extends BaseTenantService {
 
     /**
      * Get comprehensive dashboard statistics for the current tenant
+     * MULTI-TENANT SAFE
      */
     public DashboardStats getDashboardStats() {
         String tenantId = getCurrentTenantId();
         log.info("[Tenant: {}] Getting dashboard stats", tenantId);
 
         return DashboardStats.builder()
-                .totalLeads(leadRepository.count())
-                .totalContacts(contactRepository.count())
-                .totalOpportunities(opportunityRepository.count())
-                .totalActivities(activityRepository.count())
+                .totalLeads(leadRepository.countByTenantIdAndIsDeletedFalse(tenantId))
+                .totalContacts(contactRepository.countByTenantIdAndIsDeletedFalse(tenantId))
+                .totalOpportunities(opportunityRepository.countByTenantIdAndIsDeletedFalse(tenantId))
+                .totalActivities(activityRepository.countByTenantIdAndIsDeletedFalse(tenantId))
                 .build();
     }
 
     /**
      * Get growth trends over specified period
+     * MULTI-TENANT SAFE
      */
     public GrowthTrends getGrowthTrends(int days) {
         String tenantId = getCurrentTenantId();
         log.info("[Tenant: {}] Getting growth trends for {} days", tenantId, days);
 
+        // TODO: Implement actual growth calculation based on date ranges
+        // For now, returning current counts
         return GrowthTrends.builder()
                 .period(days + " days")
-                .leadGrowth(leadRepository.count())
-                .contactGrowth(contactRepository.count())
-                .opportunityGrowth(opportunityRepository.count())
+                .leadGrowth(leadRepository.countByTenantIdAndIsDeletedFalse(tenantId))
+                .contactGrowth(contactRepository.countByTenantIdAndIsDeletedFalse(tenantId))
+                .opportunityGrowth(opportunityRepository.countByTenantIdAndIsDeletedFalse(tenantId))
                 .build();
     }
 

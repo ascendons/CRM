@@ -86,7 +86,7 @@ public class ProposalController {
      * GET /api/v1/proposals/{id}
      */
     @GetMapping("/{id}")
-    @PreAuthorize("hasPermission('PROPOSAL', 'VIEW')")
+    @PreAuthorize("hasPermission('PROPOSAL', 'READ')")
     public ResponseEntity<ApiResponse<ProposalResponse>> getProposalById(@PathVariable String id) {
         log.info("Fetching proposal with ID: {}", id);
 
@@ -105,7 +105,7 @@ public class ProposalController {
      * GET /api/v1/proposals/{id}/pdf
      */
     @GetMapping("/{id}/pdf")
-    @PreAuthorize("hasPermission('PROPOSAL', 'VIEW')")
+    @PreAuthorize("hasPermission('PROPOSAL', 'READ')")
     public ResponseEntity<byte[]> getProposalPdf(@PathVariable String id) {
         log.info("Generating PDF for proposal: {}", id);
 

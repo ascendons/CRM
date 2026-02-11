@@ -31,6 +31,10 @@ public class DynamicProduct {
     @Indexed(unique = true)
     private String productId;
 
+    // Multi-tenancy
+    @Indexed
+    private String tenantId;
+
     // Display name extracted from first meaningful column
     @TextIndexed(weight = 3)
     private String displayName;

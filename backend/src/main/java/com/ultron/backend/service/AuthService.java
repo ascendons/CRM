@@ -149,15 +149,15 @@ public class AuthService {
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             log.warn("Login failed - invalid password for email: {}", request.getEmail());
-            // Log failed login attempt (without tenant context during login)
-            userActivityService.logLogin(user.getId(), false);
+            // Log failed login attempt (with explicit tenantId since context not set during login)
+            userActivityService.logLogin(user.getId(), user.getTenantId(), false);
             throw new InvalidCredentialsException("Invalid email or password");
         }
 
         if (user.getStatus() != UserStatus.ACTIVE) {
             log.warn("Login failed - user account is not active: {}", request.getEmail());
-            // Log failed login attempt
-            userActivityService.logLogin(user.getId(), false);
+            // Log failed login attempt (with explicit tenantId since context not set during login)
+            userActivityService.logLogin(user.getId(), user.getTenantId(), false);
             throw new UserInactiveException("Your account is not active. Please contact support.");
         }
 
@@ -186,8 +186,8 @@ public class AuthService {
 
         log.info("User logged in successfully: {} (tenant: {})", user.getId(), tenantId);
 
-        // Log login activity
-        userActivityService.logLogin(user.getId(), true);
+        // Log login activity (with explicit tenantId since context not set during login)
+        userActivityService.logLogin(user.getId(), tenantId, true);
 
         // Generate JWT token with tenantId for multi-tenancy
         String token;

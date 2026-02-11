@@ -61,6 +61,19 @@ public class UserActivityService extends BaseTenantService {
         // Get current tenant ID for multi-tenancy
         String tenantId = getCurrentTenantId();
 
+        return logActivityWithTenant(userId, tenantId, actionType, action, entityType, entityId,
+                                     entityName, description, oldValue, newValue, metadata);
+    }
+
+    /**
+     * Log a user activity with explicit tenantId (used when tenant context is not available)
+     * Use this during authentication or other scenarios where tenant context isn't set yet
+     */
+    public UserActivity logActivityWithTenant(String userId, String tenantId, ActionType actionType, String action,
+                                             String entityType, String entityId, String entityName,
+                                             String description, String oldValue, String newValue,
+                                             Map<String, Object> metadata) {
+
         String userName = getUserName(userId);
         String activityId = idGeneratorService.generateActivityId();
 
@@ -143,6 +156,21 @@ public class UserActivityService extends BaseTenantService {
         metadata.put("success", success);
 
         return logActivity(userId, ActionType.LOGIN, action,
+                          null, null, null,
+                          description, null, null, metadata);
+    }
+
+    /**
+     * Log a login activity with explicit tenantId (used during authentication before context is set)
+     */
+    public UserActivity logLogin(String userId, String tenantId, boolean success) {
+        String action = success ? "LOGIN_SUCCESS" : "LOGIN_FAILED";
+        String description = success ? "User logged in successfully" : "Login attempt failed";
+
+        Map<String, Object> metadata = new HashMap<>();
+        metadata.put("success", success);
+
+        return logActivityWithTenant(userId, tenantId, ActionType.LOGIN, action,
                           null, null, null,
                           description, null, null, metadata);
     }

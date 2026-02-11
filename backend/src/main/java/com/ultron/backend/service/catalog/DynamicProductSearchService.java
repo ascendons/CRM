@@ -3,6 +3,7 @@ package com.ultron.backend.service.catalog;
 import com.ultron.backend.domain.entity.DynamicProduct;
 import com.ultron.backend.domain.entity.DynamicProduct.ProductAttribute;
 import com.ultron.backend.repository.DynamicProductRepository;
+import com.ultron.backend.service.BaseTenantService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -19,11 +20,12 @@ import java.util.stream.Collectors;
 /**
  * Dynamic search service with keyword search, filters, and relevance ranking
  * Key principle: ALL search logic is metadata-driven, NO hardcoding
+ * MULTI-TENANT AWARE: All operations are scoped to current tenant
  */
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class DynamicProductSearchService {
+public class DynamicProductSearchService extends BaseTenantService {
 
     private final DynamicProductRepository repository;
     private final MongoTemplate mongoTemplate;
@@ -31,9 +33,13 @@ public class DynamicProductSearchService {
 
     /**
      * Search products with keyword and dynamic filters
+     * MULTI-TENANT SAFE
      */
     public Page<DynamicProduct> search(SearchRequest searchRequest, Pageable pageable) {
+        String tenantId = getCurrentTenantId();
+
         Query query = new Query();
+        query.addCriteria(Criteria.where("tenantId").is(tenantId));
         query.addCriteria(Criteria.where("isDeleted").is(false));
 
         // Apply keyword search
@@ -222,10 +228,14 @@ public class DynamicProductSearchService {
 
     /**
      * Get available filters dynamically from data
+     * MULTI-TENANT SAFE
      */
     public List<AvailableFilter> getAvailableFilters() {
-        List<DynamicProduct> allProducts = repository.findByIsDeletedFalseOrderByCreatedAtDesc(
-                Pageable.unpaged()).getContent();
+        String tenantId = getCurrentTenantId();
+        log.debug("[Tenant: {}] Getting available filters", tenantId);
+
+        List<DynamicProduct> allProducts = repository.findByTenantIdAndIsDeletedFalseOrderByCreatedAtDesc(
+                tenantId, Pageable.unpaged()).getContent();
 
         if (allProducts.isEmpty()) {
             return Collections.emptyList();
@@ -270,9 +280,13 @@ public class DynamicProductSearchService {
 
     /**
      * Get distinct values for a specific attribute
+     * MULTI-TENANT SAFE
      */
     public List<String> getDistinctValues(String attributeKey) {
-        List<DynamicProduct> products = repository.findByAttributeKey(attributeKey);
+        String tenantId = getCurrentTenantId();
+        log.debug("[Tenant: {}] Getting distinct values for attribute: {}", tenantId, attributeKey);
+
+        List<DynamicProduct> products = repository.findByAttributeKeyAndTenantId(attributeKey, tenantId);
 
         Set<String> values = new HashSet<>();
         for (DynamicProduct product : products) {

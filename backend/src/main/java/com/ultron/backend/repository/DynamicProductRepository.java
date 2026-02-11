@@ -71,4 +71,23 @@ public interface DynamicProductRepository extends MongoRepository<DynamicProduct
 
     // Find non-deleted products
     Page<DynamicProduct> findByIsDeletedFalseOrderByCreatedAtDesc(Pageable pageable);
+
+    /**
+     * Find non-deleted products by tenant
+     * MULTI-TENANT SAFE
+     */
+    Page<DynamicProduct> findByTenantIdAndIsDeletedFalseOrderByCreatedAtDesc(String tenantId, Pageable pageable);
+
+    /**
+     * Find products with specific attribute key by tenant
+     * MULTI-TENANT SAFE
+     */
+    @Query("{ 'tenantId': ?1, 'attributes.key': ?0 }")
+    List<DynamicProduct> findByAttributeKeyAndTenantId(String attributeKey, String tenantId);
+
+    /**
+     * Count products by tenant
+     * MULTI-TENANT SAFE
+     */
+    long countByTenantIdAndIsDeletedFalse(String tenantId);
 }

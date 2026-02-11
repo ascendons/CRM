@@ -90,6 +90,7 @@ public class OrganizationService {
                         .fullName(request.getAdminName())
                         .build())
                 .role(UserRole.ADMIN)
+                .profileId(com.ultron.backend.constants.PredefinedProfiles.SYSTEM_ADMINISTRATOR.getId())
                 .userType("TENANT_ADMIN")
                 .status(UserStatus.ACTIVE)
                 .createdAt(LocalDateTime.now())

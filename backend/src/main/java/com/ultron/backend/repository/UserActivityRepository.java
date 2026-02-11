@@ -132,7 +132,7 @@ public interface UserActivityRepository extends MongoRepository<UserActivity, St
      * Get latest activity for tenant (for ID generation)
      * MULTI-TENANT SAFE
      */
-    Optional<UserActivity> findFirstByTenantIdOrderByCreatedAtDesc(String tenantId);
+    Optional<UserActivity> findFirstByTenantIdOrderByTimestampDesc(String tenantId);
 
     // ===== DANGEROUS METHODS - ADMIN ONLY =====
     // ⚠️ These methods query across ALL tenants

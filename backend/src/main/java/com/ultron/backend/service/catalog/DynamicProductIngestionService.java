@@ -7,6 +7,7 @@ import com.ultron.backend.domain.entity.DynamicProduct.ProductAttribute;
 import com.ultron.backend.domain.entity.DynamicProduct.SourceMetadata;
 import com.ultron.backend.exception.BadRequestException;
 import com.ultron.backend.repository.DynamicProductRepository;
+import com.ultron.backend.service.BaseTenantService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.*;
@@ -23,11 +24,12 @@ import java.util.stream.Collectors;
 /**
  * Core ingestion service for schema-less product catalog
  * Pipeline: Upload → Parse → Normalize → Detect Types → Store → Index
+ * MULTI-TENANT AWARE: All products are associated with current tenant
  */
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class DynamicProductIngestionService {
+public class DynamicProductIngestionService extends BaseTenantService {
 
     private final DynamicProductRepository repository;
     private final HeaderNormalizer headerNormalizer;
@@ -36,21 +38,23 @@ public class DynamicProductIngestionService {
 
     /**
      * Ingest products from uploaded Excel/CSV file
+     * MULTI-TENANT SAFE: All products are associated with current tenant
      */
     public IngestionResult ingestProducts(MultipartFile file, String userId) {
+        String tenantId = getCurrentTenantId();
         String filename = file.getOriginalFilename();
         if (filename == null) {
             throw new BadRequestException("Invalid file");
         }
 
-        log.info("Starting ingestion for file: {}", filename);
+        log.info("[Tenant: {}] Starting ingestion for file: {}", tenantId, filename);
 
         List<DynamicProduct> products;
         try {
             if (filename.endsWith(".csv")) {
-                products = parseAndIngestCsv(file, userId, filename);
+                products = parseAndIngestCsv(file, userId, tenantId, filename);
             } else if (filename.endsWith(".xlsx") || filename.endsWith(".xls")) {
-                products = parseAndIngestExcel(file, userId, filename);
+                products = parseAndIngestExcel(file, userId, tenantId, filename);
             } else {
                 throw new BadRequestException("Unsupported file format. Use CSV or Excel.");
             }
@@ -75,7 +79,7 @@ public class DynamicProductIngestionService {
     /**
      * Parse and ingest from CSV
      */
-    private List<DynamicProduct> parseAndIngestCsv(MultipartFile file, String userId, String filename)
+    private List<DynamicProduct> parseAndIngestCsv(MultipartFile file, String userId, String tenantId, String filename)
             throws IOException, CsvValidationException {
 
         List<DynamicProduct> products = new ArrayList<>();
@@ -97,7 +101,7 @@ public class DynamicProductIngestionService {
             int rowNumber = 1; // Excel row numbers start at 1 (0 is header)
             while ((row = csvReader.readNext()) != null) {
                 rowNumber++;
-                DynamicProduct product = createProductFromRow(row, headerMap, filename, "CSV", rowNumber, userId);
+                DynamicProduct product = createProductFromRow(row, headerMap, filename, "CSV", rowNumber, userId, tenantId);
                 if (product != null) {
                     products.add(product);
                 }
@@ -110,7 +114,7 @@ public class DynamicProductIngestionService {
     /**
      * Parse and ingest from Excel
      */
-    private List<DynamicProduct> parseAndIngestExcel(MultipartFile file, String userId, String filename)
+    private List<DynamicProduct> parseAndIngestExcel(MultipartFile file, String userId, String tenantId, String filename)
             throws IOException {
 
         List<DynamicProduct> products = new ArrayList<>();
@@ -131,7 +135,7 @@ public class DynamicProductIngestionService {
                 Row row = sheet.getRow(i);
                 if (row == null) continue;
 
-                DynamicProduct product = createProductFromExcelRow(row, headerMap, filename, "XLSX", i + 1, userId);
+                DynamicProduct product = createProductFromExcelRow(row, headerMap, filename, "XLSX", i + 1, userId, tenantId);
                 if (product != null) {
                     products.add(product);
                 }
@@ -177,7 +181,7 @@ public class DynamicProductIngestionService {
      * Create DynamicProduct from CSV row
      */
     private DynamicProduct createProductFromRow(String[] row, Map<Integer, HeaderInfo> headerMap,
-                                               String filename, String fileType, int rowNumber, String userId) {
+                                               String filename, String fileType, int rowNumber, String userId, String tenantId) {
 
         if (row.length == 0) return null;
 
@@ -261,6 +265,7 @@ public class DynamicProductIngestionService {
 
         return DynamicProduct.builder()
                 .productId(productId)
+                .tenantId(tenantId)
                 .displayName(displayName)
                 .category(category)
                 .attributes(attributes)
@@ -278,7 +283,7 @@ public class DynamicProductIngestionService {
      * Create DynamicProduct from Excel row
      */
     private DynamicProduct createProductFromExcelRow(Row row, Map<Integer, HeaderInfo> headerMap,
-                                                    String filename, String fileType, int rowNumber, String userId) {
+                                                    String filename, String fileType, int rowNumber, String userId, String tenantId) {
 
         // Convert Excel row to string array
         String[] rowData = new String[headerMap.size()];
@@ -296,7 +301,7 @@ public class DynamicProductIngestionService {
 
         if (isEmpty) return null;
 
-        return createProductFromRow(rowData, headerMap, filename, fileType, rowNumber, userId);
+        return createProductFromRow(rowData, headerMap, filename, fileType, rowNumber, userId, tenantId);
     }
 
     /**
