@@ -1,18 +1,13 @@
 import type { NextConfig } from "next";
+import path from "path";
 
 const nextConfig: NextConfig = {
   /* config options here */
-  experimental: {
-    // Disable turbopack for builds due to path resolution issues
-    turbo: undefined,
-  },
-  // Ensure proper module resolution
-  webpack: (config) => {
-    config.resolve.alias = {
-      ...config.resolve.alias,
-      '@': require('path').resolve(__dirname, './'),
-    };
-    return config;
+  // Configure Turbopack (default in Next.js 16)
+  turbopack: {
+    resolveAlias: {
+      '@': path.resolve(__dirname, './'),
+    },
   },
 };
 
