@@ -14,7 +14,7 @@ import type { NextRequest } from "next/server";
  * 2. Caches permissions in memory for instant checks
  * 3. Allows fine-grained UI control (hide buttons, disable fields, etc.)
  */
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const token = request.cookies.get("auth_token")?.value;
   const { pathname } = request.nextUrl;
 

@@ -13,8 +13,10 @@ const nextConfig: NextConfig = {
     return config;
   },
 
-  // Explicitly empty turbopack config to avoid errors
-  turbopack: {},
+  // Explicitly set turbopack root to resolve workspace inference issues
+  turbopack: {
+    root: __dirname,
+  },
 };
 
 export default nextConfig;
