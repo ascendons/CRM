@@ -25,7 +25,7 @@ import java.util.Set;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class PermissionService {
+public class PermissionService extends BaseTenantService {
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
@@ -293,7 +293,8 @@ public class PermissionService {
         }
         visited.add(managerId);
 
-        List<User> directSubordinates = userRepository.findByManagerIdAndIsDeletedFalse(managerId);
+        String tenantId = getCurrentTenantId();
+        List<User> directSubordinates = userRepository.findByManagerIdAndTenantIdAndIsDeletedFalse(managerId, tenantId);
         for (User subordinate : directSubordinates) {
             subordinates.add(subordinate.getUserId());
             // Recursively collect their subordinates

@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class ActivityService {
+public class ActivityService extends BaseTenantService {
 
     private final ActivityRepository activityRepository;
     private final ActivityIdGeneratorService activityIdGeneratorService;
@@ -42,10 +42,16 @@ public class ActivityService {
 
     @Transactional
     public ActivityResponse createActivity(CreateActivityRequest request, String currentUserId) {
+        // Get current tenant ID for multi-tenancy
+        String tenantId = getCurrentTenantId();
+
+        log.info("[Tenant: {}] Creating activity with subject: {}", tenantId, request.getSubject());
+
         String currentUserName = userService.getUserFullName(currentUserId);
 
         Activity activity = Activity.builder()
                 .activityId(activityIdGeneratorService.generateActivityId())
+                .tenantId(tenantId)  // CRITICAL: Set tenant ID for data isolation
                 .subject(request.getSubject())
                 .type(request.getType())
                 .status(request.getStatus())
@@ -87,10 +93,11 @@ public class ActivityService {
                 .isDeleted(false)
                 .build();
 
-        // Set related entity names
+        // Set related entity names (with tenant validation)
         if (request.getLeadId() != null) {
             Lead lead = leadRepository.findById(request.getLeadId())
                     .orElseThrow(() -> new ResourceNotFoundException("Lead not found"));
+            validateResourceTenantOwnership(lead.getTenantId());
             activity.setLeadId(lead.getId());
             activity.setLeadName(lead.getFirstName() + " " + lead.getLastName());
         }
@@ -98,6 +105,7 @@ public class ActivityService {
         if (request.getContactId() != null) {
             Contact contact = contactRepository.findById(request.getContactId())
                     .orElseThrow(() -> new ResourceNotFoundException("Contact not found"));
+            validateResourceTenantOwnership(contact.getTenantId());
             activity.setContactId(contact.getId());
             activity.setContactName(contact.getFirstName() + " " + contact.getLastName());
         }
@@ -105,6 +113,7 @@ public class ActivityService {
         if (request.getAccountId() != null) {
             Account account = accountRepository.findById(request.getAccountId())
                     .orElseThrow(() -> new ResourceNotFoundException("Account not found"));
+            validateResourceTenantOwnership(account.getTenantId());
             activity.setAccountId(account.getId());
             activity.setAccountName(account.getAccountName());
         }
@@ -112,6 +121,7 @@ public class ActivityService {
         if (request.getOpportunityId() != null) {
             Opportunity opportunity = opportunityRepository.findById(request.getOpportunityId())
                     .orElseThrow(() -> new ResourceNotFoundException("Opportunity not found"));
+            validateResourceTenantOwnership(opportunity.getTenantId());
             activity.setOpportunityId(opportunity.getId());
             activity.setOpportunityName(opportunity.getOpportunityName());
         }
@@ -123,11 +133,14 @@ public class ActivityService {
         }
 
         Activity savedActivity = activityRepository.save(activity);
+        log.info("Activity created successfully with ID: {}", savedActivity.getActivityId());
         return mapToResponse(savedActivity);
     }
 
     public List<ActivityResponse> getAllActivities() {
-        return activityRepository.findByIsDeletedFalse().stream()
+        String tenantId = getCurrentTenantId();
+        log.debug("[Tenant: {}] Fetching all activities", tenantId);
+        return activityRepository.findByTenantIdAndIsDeletedFalse(tenantId).stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
@@ -135,6 +148,9 @@ public class ActivityService {
     public ActivityResponse getActivityById(String id) {
         Activity activity = activityRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Activity not found"));
+
+        // Validate tenant ownership
+        validateResourceTenantOwnership(activity.getTenantId());
 
         if (activity.getIsDeleted()) {
             throw new ResourceNotFoundException("Activity not found");
@@ -144,7 +160,8 @@ public class ActivityService {
     }
 
     public ActivityResponse getActivityByActivityId(String activityId) {
-        Activity activity = activityRepository.findByActivityId(activityId)
+        String tenantId = getCurrentTenantId();
+        Activity activity = activityRepository.findByActivityIdAndTenantId(activityId, tenantId)
                 .orElseThrow(() -> new ResourceNotFoundException("Activity not found"));
 
         if (activity.getIsDeleted()) {
@@ -155,75 +172,92 @@ public class ActivityService {
     }
 
     public List<ActivityResponse> getActivitiesByType(ActivityType type) {
-        return activityRepository.findByTypeAndIsDeletedFalse(type).stream()
+        String tenantId = getCurrentTenantId();
+        return activityRepository.findByTypeAndTenantIdAndIsDeletedFalse(type, tenantId).stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
 
     public List<ActivityResponse> getActivitiesByStatus(ActivityStatus status) {
-        return activityRepository.findByStatusAndIsDeletedFalse(status).stream()
+        String tenantId = getCurrentTenantId();
+        return activityRepository.findByStatusAndTenantIdAndIsDeletedFalse(status, tenantId).stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
 
     public List<ActivityResponse> getActivitiesByPriority(ActivityPriority priority) {
-        return activityRepository.findByPriorityAndIsDeletedFalse(priority).stream()
+        String tenantId = getCurrentTenantId();
+        return activityRepository.findByPriorityAndTenantIdAndIsDeletedFalse(priority, tenantId).stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
 
     public List<ActivityResponse> getActivitiesByLead(String leadId) {
-        return activityRepository.findByLeadIdAndIsDeletedFalse(leadId).stream()
+        String tenantId = getCurrentTenantId();
+        return activityRepository.findByLeadIdAndTenantIdAndIsDeletedFalse(leadId, tenantId).stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
 
     public List<ActivityResponse> getActivitiesByContact(String contactId) {
-        return activityRepository.findByContactIdAndIsDeletedFalse(contactId).stream()
+        String tenantId = getCurrentTenantId();
+        return activityRepository.findByContactIdAndTenantIdAndIsDeletedFalse(contactId, tenantId).stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
 
     public List<ActivityResponse> getActivitiesByAccount(String accountId) {
-        return activityRepository.findByAccountIdAndIsDeletedFalse(accountId).stream()
+        String tenantId = getCurrentTenantId();
+        return activityRepository.findByAccountIdAndTenantIdAndIsDeletedFalse(accountId, tenantId).stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
 
     public List<ActivityResponse> getActivitiesByOpportunity(String opportunityId) {
-        return activityRepository.findByOpportunityIdAndIsDeletedFalse(opportunityId).stream()
+        String tenantId = getCurrentTenantId();
+        return activityRepository.findByOpportunityIdAndTenantIdAndIsDeletedFalse(opportunityId, tenantId).stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
 
     public List<ActivityResponse> getActivitiesByUser(String userId) {
-        return activityRepository.findByAssignedToIdAndIsDeletedFalse(userId).stream()
+        String tenantId = getCurrentTenantId();
+        return activityRepository.findByAssignedToIdAndTenantIdAndIsDeletedFalse(userId, tenantId).stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
 
     public List<ActivityResponse> getActiveActivities() {
-        return activityRepository.findActiveActivities().stream()
+        String tenantId = getCurrentTenantId();
+        return activityRepository.findActiveActivitiesByTenantId(tenantId).stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
 
     public List<ActivityResponse> getOverdueActivities() {
-        return activityRepository.findOverdueActivities(LocalDateTime.now()).stream()
+        String tenantId = getCurrentTenantId();
+        return activityRepository.findOverdueActivitiesByTenantId(LocalDateTime.now(), tenantId).stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
 
     public List<ActivityResponse> searchActivities(String query) {
-        return activityRepository.searchActivities(query).stream()
+        String tenantId = getCurrentTenantId();
+        return activityRepository.searchActivitiesByTenantId(query, tenantId).stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
 
     @Transactional
     public ActivityResponse updateActivity(String id, UpdateActivityRequest request, String currentUserId) {
+        String tenantId = getCurrentTenantId();
+        log.info("[Tenant: {}] Updating activity with id: {}", tenantId, id);
+
         Activity activity = activityRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Activity not found"));
+
+        // Validate tenant ownership
+        validateResourceTenantOwnership(activity.getTenantId());
 
         if (activity.getIsDeleted()) {
             throw new ResourceNotFoundException("Activity not found");
@@ -270,10 +304,11 @@ public class ActivityService {
         if (request.getReminderSet() != null) activity.setReminderSet(request.getReminderSet());
         if (request.getReminderDate() != null) activity.setReminderDate(request.getReminderDate());
 
-        // Update related entities if changed
+        // Update related entities if changed (with tenant validation)
         if (request.getLeadId() != null && !request.getLeadId().equals(activity.getLeadId())) {
             Lead lead = leadRepository.findById(request.getLeadId())
                     .orElseThrow(() -> new ResourceNotFoundException("Lead not found"));
+            validateResourceTenantOwnership(lead.getTenantId());
             activity.setLeadId(lead.getId());
             activity.setLeadName(lead.getFirstName() + " " + lead.getLastName());
         }
@@ -281,6 +316,7 @@ public class ActivityService {
         if (request.getContactId() != null && !request.getContactId().equals(activity.getContactId())) {
             Contact contact = contactRepository.findById(request.getContactId())
                     .orElseThrow(() -> new ResourceNotFoundException("Contact not found"));
+            validateResourceTenantOwnership(contact.getTenantId());
             activity.setContactId(contact.getId());
             activity.setContactName(contact.getFirstName() + " " + contact.getLastName());
         }
@@ -288,6 +324,7 @@ public class ActivityService {
         if (request.getAccountId() != null && !request.getAccountId().equals(activity.getAccountId())) {
             Account account = accountRepository.findById(request.getAccountId())
                     .orElseThrow(() -> new ResourceNotFoundException("Account not found"));
+            validateResourceTenantOwnership(account.getTenantId());
             activity.setAccountId(account.getId());
             activity.setAccountName(account.getAccountName());
         }
@@ -295,6 +332,7 @@ public class ActivityService {
         if (request.getOpportunityId() != null && !request.getOpportunityId().equals(activity.getOpportunityId())) {
             Opportunity opportunity = opportunityRepository.findById(request.getOpportunityId())
                     .orElseThrow(() -> new ResourceNotFoundException("Opportunity not found"));
+            validateResourceTenantOwnership(opportunity.getTenantId());
             activity.setOpportunityId(opportunity.getId());
             activity.setOpportunityName(opportunity.getOpportunityName());
         }
@@ -310,6 +348,7 @@ public class ActivityService {
         activity.setLastModifiedByName(currentUserName);
 
         Activity updatedActivity = activityRepository.save(activity);
+        log.info("Activity {} updated successfully", id);
         return mapToResponse(updatedActivity);
     }
 
@@ -317,6 +356,9 @@ public class ActivityService {
     public void deleteActivity(String id, String currentUserId) {
         Activity activity = activityRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Activity not found"));
+
+        // Validate tenant ownership
+        validateResourceTenantOwnership(activity.getTenantId());
 
         if (activity.getIsDeleted()) {
             throw new ResourceNotFoundException("Activity not found");
@@ -327,31 +369,36 @@ public class ActivityService {
         activity.setDeletedAt(LocalDateTime.now());
 
         activityRepository.save(activity);
+        log.info("Activity {} soft deleted by user {}", id, currentUserId);
     }
 
     public long getActivityCount() {
-        return activityRepository.countByIsDeletedFalse();
+        String tenantId = getCurrentTenantId();
+        return activityRepository.countByTenantIdAndIsDeletedFalse(tenantId);
     }
 
     public ActivityStatistics getStatistics() {
-        List<Activity> allActivities = activityRepository.findByIsDeletedFalse();
-        List<Activity> activeActivities = activityRepository.findActiveActivities();
-        List<Activity> completedActivities = activityRepository.findCompletedActivities();
-        List<Activity> overdueActivities = activityRepository.findOverdueActivities(LocalDateTime.now());
+        String tenantId = getCurrentTenantId();
+        log.debug("[Tenant: {}] Fetching activity statistics", tenantId);
+
+        List<Activity> allActivities = activityRepository.findByTenantIdAndIsDeletedFalse(tenantId);
+        List<Activity> activeActivities = activityRepository.findActiveActivitiesByTenantId(tenantId);
+        List<Activity> completedActivities = activityRepository.findCompletedActivitiesByTenantId(tenantId);
+        List<Activity> overdueActivities = activityRepository.findOverdueActivitiesByTenantId(LocalDateTime.now(), tenantId);
 
         long cancelledCount = allActivities.stream()
                 .filter(a -> a.getStatus() == ActivityStatus.CANCELLED)
                 .count();
 
-        long taskCount = activityRepository.countByTypeAndIsDeletedFalse(ActivityType.TASK);
-        long emailCount = activityRepository.countByTypeAndIsDeletedFalse(ActivityType.EMAIL);
-        long callCount = activityRepository.countByTypeAndIsDeletedFalse(ActivityType.CALL);
-        long meetingCount = activityRepository.countByTypeAndIsDeletedFalse(ActivityType.MEETING);
-        long noteCount = activityRepository.countByTypeAndIsDeletedFalse(ActivityType.NOTE);
+        long taskCount = activityRepository.countByTypeAndTenantIdAndIsDeletedFalse(ActivityType.TASK, tenantId);
+        long emailCount = activityRepository.countByTypeAndTenantIdAndIsDeletedFalse(ActivityType.EMAIL, tenantId);
+        long callCount = activityRepository.countByTypeAndTenantIdAndIsDeletedFalse(ActivityType.CALL, tenantId);
+        long meetingCount = activityRepository.countByTypeAndTenantIdAndIsDeletedFalse(ActivityType.MEETING, tenantId);
+        long noteCount = activityRepository.countByTypeAndTenantIdAndIsDeletedFalse(ActivityType.NOTE, tenantId);
 
-        long pendingCount = activityRepository.countByStatusAndIsDeletedFalse(ActivityStatus.PENDING);
-        long inProgressCount = activityRepository.countByStatusAndIsDeletedFalse(ActivityStatus.IN_PROGRESS);
-        long completedCount = activityRepository.countByStatusAndIsDeletedFalse(ActivityStatus.COMPLETED);
+        long pendingCount = activityRepository.countByStatusAndTenantIdAndIsDeletedFalse(ActivityStatus.PENDING, tenantId);
+        long inProgressCount = activityRepository.countByStatusAndTenantIdAndIsDeletedFalse(ActivityStatus.IN_PROGRESS, tenantId);
+        long completedCount = activityRepository.countByStatusAndTenantIdAndIsDeletedFalse(ActivityStatus.COMPLETED, tenantId);
 
         long urgentCount = allActivities.stream()
                 .filter(a -> a.getPriority() == ActivityPriority.URGENT)

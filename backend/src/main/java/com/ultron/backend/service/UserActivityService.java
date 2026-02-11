@@ -23,11 +23,13 @@ import java.util.Optional;
 /**
  * Service for tracking user activities across the dashboard
  * Provides comprehensive activity monitoring and analytics
+ *
+ * MULTI-TENANT AWARE: All operations are scoped to current tenant context
  */
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class UserActivityService {
+public class UserActivityService extends BaseTenantService {
 
     private final UserActivityRepository userActivityRepository;
     private final UserRepository userRepository;
@@ -36,6 +38,7 @@ public class UserActivityService {
     /**
      * Log a user activity asynchronously
      * This method runs in a separate thread to avoid impacting main transaction performance
+     * MULTI-TENANT AWARE: TenantContext is propagated to async thread
      */
     @Async
     public void logActivityAsync(String userId, ActionType actionType, String action,
@@ -48,11 +51,15 @@ public class UserActivityService {
 
     /**
      * Log a user activity synchronously with full details
+     * MULTI-TENANT AWARE: Sets tenantId for data isolation
      */
     public UserActivity logActivity(String userId, ActionType actionType, String action,
                                     String entityType, String entityId, String entityName,
                                     String description, String oldValue, String newValue,
                                     Map<String, Object> metadata) {
+
+        // Get current tenant ID for multi-tenancy
+        String tenantId = getCurrentTenantId();
 
         String userName = getUserName(userId);
         String activityId = idGeneratorService.generateActivityId();
@@ -62,6 +69,7 @@ public class UserActivityService {
 
         UserActivity activity = UserActivity.builder()
                 .activityId(activityId)
+                .tenantId(tenantId)  // CRITICAL: Set tenant ID for data isolation
                 .userId(userId)
                 .userName(userName)
                 .actionType(actionType)
@@ -82,8 +90,8 @@ public class UserActivityService {
 
         UserActivity saved = userActivityRepository.save(activity);
 
-        log.debug("User activity logged: activityId={}, user={}, action={}, entityType={}",
-                activityId, userName, action, entityType);
+        log.debug("[Tenant: {}] User activity logged: activityId={}, user={}, action={}, entityType={}",
+                tenantId, activityId, userName, action, entityType);
 
         return saved;
     }
@@ -157,82 +165,110 @@ public class UserActivityService {
                           description, null, null, metadata);
     }
 
-    // Query methods
+    // Query methods - MULTI-TENANT SAFE
 
     /**
-     * Get activities for a specific user
+     * Get activities for a specific user within tenant
+     * MULTI-TENANT SAFE
      */
     public Page<UserActivity> getUserActivities(String userId, Pageable pageable) {
-        return userActivityRepository.findByUserIdOrderByTimestampDesc(userId, pageable);
+        String tenantId = getCurrentTenantId();
+        log.debug("[Tenant: {}] Fetching activities for user: {}", tenantId, userId);
+        return userActivityRepository.findByUserIdAndTenantIdOrderByTimestampDesc(userId, tenantId, pageable);
     }
 
     /**
-     * Get all activities (admin view)
+     * Get all activities within tenant (admin view)
+     * MULTI-TENANT SAFE
      */
     public Page<UserActivity> getAllActivities(Pageable pageable) {
-        return userActivityRepository.findAllByOrderByTimestampDesc(pageable);
+        String tenantId = getCurrentTenantId();
+        log.debug("[Tenant: {}] Fetching all activities", tenantId);
+        return userActivityRepository.findByTenantIdOrderByTimestampDesc(tenantId, pageable);
     }
 
     /**
-     * Get activities by action type
+     * Get activities by action type within tenant
+     * MULTI-TENANT SAFE
      */
     public Page<UserActivity> getActivitiesByActionType(ActionType actionType, Pageable pageable) {
-        return userActivityRepository.findByActionTypeOrderByTimestampDesc(actionType, pageable);
+        String tenantId = getCurrentTenantId();
+        log.debug("[Tenant: {}] Fetching activities by action type: {}", tenantId, actionType);
+        return userActivityRepository.findByActionTypeAndTenantIdOrderByTimestampDesc(actionType, tenantId, pageable);
     }
 
     /**
-     * Get user activities by action type
+     * Get user activities by action type within tenant
+     * MULTI-TENANT SAFE
      */
     public Page<UserActivity> getUserActivitiesByActionType(String userId, ActionType actionType, Pageable pageable) {
-        return userActivityRepository.findByUserIdAndActionTypeOrderByTimestampDesc(userId, actionType, pageable);
+        String tenantId = getCurrentTenantId();
+        log.debug("[Tenant: {}] Fetching activities for user {} by action type: {}", tenantId, userId, actionType);
+        return userActivityRepository.findByUserIdAndActionTypeAndTenantIdOrderByTimestampDesc(userId, actionType, tenantId, pageable);
     }
 
     /**
-     * Get activities by entity type
+     * Get activities by entity type within tenant
+     * MULTI-TENANT SAFE
      */
     public Page<UserActivity> getActivitiesByEntityType(String entityType, Pageable pageable) {
-        return userActivityRepository.findByEntityTypeOrderByTimestampDesc(entityType, pageable);
+        String tenantId = getCurrentTenantId();
+        log.debug("[Tenant: {}] Fetching activities by entity type: {}", tenantId, entityType);
+        return userActivityRepository.findByEntityTypeAndTenantIdOrderByTimestampDesc(entityType, tenantId, pageable);
     }
 
     /**
-     * Get activities for a specific entity
+     * Get activities for a specific entity within tenant
+     * MULTI-TENANT SAFE
      */
     public Page<UserActivity> getEntityActivities(String entityType, String entityId, Pageable pageable) {
-        return userActivityRepository.findByEntityTypeAndEntityIdOrderByTimestampDesc(
-                entityType, entityId, pageable);
+        String tenantId = getCurrentTenantId();
+        log.debug("[Tenant: {}] Fetching activities for entity: {}:{}", tenantId, entityType, entityId);
+        return userActivityRepository.findByEntityTypeAndEntityIdAndTenantIdOrderByTimestampDesc(
+                entityType, entityId, tenantId, pageable);
     }
 
     /**
-     * Get activities within a time range
+     * Get activities within a time range within tenant
+     * MULTI-TENANT SAFE
      */
     public Page<UserActivity> getActivitiesByTimeRange(LocalDateTime start, LocalDateTime end,
                                                        Pageable pageable) {
-        return userActivityRepository.findByTimestampBetweenOrderByTimestampDesc(start, end, pageable);
+        String tenantId = getCurrentTenantId();
+        log.debug("[Tenant: {}] Fetching activities between {} and {}", tenantId, start, end);
+        return userActivityRepository.findByTimestampBetweenAndTenantIdOrderByTimestampDesc(start, end, tenantId, pageable);
     }
 
     /**
-     * Get user activities within a time range
+     * Get user activities within a time range within tenant
+     * MULTI-TENANT SAFE
      */
     public Page<UserActivity> getUserActivitiesByTimeRange(String userId, LocalDateTime start,
                                                            LocalDateTime end, Pageable pageable) {
-        return userActivityRepository.findByUserIdAndTimestampBetweenOrderByTimestampDesc(
-                userId, start, end, pageable);
+        String tenantId = getCurrentTenantId();
+        log.debug("[Tenant: {}] Fetching activities for user {} between {} and {}", tenantId, userId, start, end);
+        return userActivityRepository.findByUserIdAndTimestampBetweenAndTenantIdOrderByTimestampDesc(
+                userId, start, end, tenantId, pageable);
     }
 
     /**
-     * Get activity statistics for a user
+     * Get activity statistics for a user within tenant
+     * MULTI-TENANT SAFE
      */
     public Map<String, Object> getUserActivityStats(String userId, LocalDateTime start, LocalDateTime end) {
+        String tenantId = getCurrentTenantId();
+        log.debug("[Tenant: {}] Fetching activity stats for user: {}", tenantId, userId);
+
         Map<String, Object> stats = new HashMap<>();
 
-        long totalActivities = userActivityRepository.countByUserIdAndTimestampBetween(userId, start, end);
+        long totalActivities = userActivityRepository.countByUserIdAndTimestampBetweenAndTenantId(userId, start, end, tenantId);
         stats.put("totalActivities", totalActivities);
 
-        // Count by action type
+        // Count by action type within tenant
         Map<String, Long> actionTypeCounts = new HashMap<>();
         for (ActionType actionType : ActionType.values()) {
             List<UserActivity> activities = userActivityRepository
-                    .findByUserIdAndActionTypeOrderByTimestampDesc(userId, actionType);
+                    .findByUserIdAndActionTypeAndTenantIdOrderByTimestampDesc(userId, actionType, tenantId);
             actionTypeCounts.put(actionType.name(), (long) activities.size());
         }
         stats.put("actionTypeCounts", actionTypeCounts);
@@ -241,23 +277,65 @@ public class UserActivityService {
     }
 
     /**
-     * Get global activity statistics (admin)
+     * Get tenant-wide activity statistics (admin)
+     * MULTI-TENANT SAFE
      */
     public Map<String, Object> getGlobalActivityStats(LocalDateTime start, LocalDateTime end) {
+        String tenantId = getCurrentTenantId();
+        log.debug("[Tenant: {}] Fetching global activity stats", tenantId);
+
         Map<String, Object> stats = new HashMap<>();
 
-        long totalActivities = userActivityRepository.countByTimestampBetween(start, end);
+        long totalActivities = userActivityRepository.countByTimestampBetweenAndTenantId(start, end, tenantId);
         stats.put("totalActivities", totalActivities);
 
-        // Count by action type
+        // Count by action type within tenant
         Map<String, Long> actionTypeCounts = new HashMap<>();
         for (ActionType actionType : ActionType.values()) {
-            long count = userActivityRepository.countByActionType(actionType);
+            long count = userActivityRepository.countByActionTypeAndTenantId(actionType, tenantId);
             actionTypeCounts.put(actionType.name(), count);
         }
         stats.put("actionTypeCounts", actionTypeCounts);
 
         return stats;
+    }
+
+    /**
+     * Get activity by ID with tenant validation
+     * MULTI-TENANT SAFE
+     */
+    public Optional<UserActivity> getActivityById(String activityId) {
+        String tenantId = getCurrentTenantId();
+        log.debug("[Tenant: {}] Fetching activity by ID: {}", tenantId, activityId);
+
+        Optional<UserActivity> activity = userActivityRepository.findByActivityIdAndTenantId(activityId, tenantId);
+
+        if (activity.isPresent()) {
+            // Double-check tenant ownership
+            validateResourceTenantOwnership(activity.get().getTenantId());
+        }
+
+        return activity;
+    }
+
+    /**
+     * Count total activities within tenant
+     * MULTI-TENANT SAFE
+     */
+    public long countActivities() {
+        String tenantId = getCurrentTenantId();
+        log.debug("[Tenant: {}] Counting total activities", tenantId);
+        return userActivityRepository.countByTenantId(tenantId);
+    }
+
+    /**
+     * Count activities by user within tenant
+     * MULTI-TENANT SAFE
+     */
+    public long countUserActivities(String userId) {
+        String tenantId = getCurrentTenantId();
+        log.debug("[Tenant: {}] Counting activities for user: {}", tenantId, userId);
+        return userActivityRepository.countByUserIdAndTenantId(userId, tenantId);
     }
 
     // Helper methods

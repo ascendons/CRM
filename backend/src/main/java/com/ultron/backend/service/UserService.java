@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class UserService {
+public class UserService extends BaseTenantService {
 
     private final UserRepository userRepository;
     private final UserIdGeneratorService userIdGeneratorService;
@@ -59,14 +59,17 @@ public class UserService {
 
     @Transactional
     public UserResponse createUser(CreateUserRequest request, String createdBy) {
-        log.info("Creating new user with username: {}", request.getUsername());
+        // Get current tenant ID for multi-tenancy
+        String tenantId = getCurrentTenantId();
 
-        // Validate unique constraints
-        if (userRepository.existsByUsername(request.getUsername())) {
-            throw new UserAlreadyExistsException("Username already exists: " + request.getUsername());
+        log.info("[Tenant: {}] Creating new user with username: {}", tenantId, request.getUsername());
+
+        // Validate unique constraints within tenant
+        if (userRepository.existsByUsernameAndTenantId(request.getUsername(), tenantId)) {
+            throw new UserAlreadyExistsException("Username already exists in your organization: " + request.getUsername());
         }
-        if (userRepository.existsByEmail(request.getEmail())) {
-            throw new UserAlreadyExistsException("Email already exists: " + request.getEmail());
+        if (userRepository.existsByEmailAndTenantId(request.getEmail(), tenantId)) {
+            throw new UserAlreadyExistsException("Email already exists in your organization: " + request.getEmail());
         }
 
         // Generate user ID
@@ -108,6 +111,7 @@ public class UserService {
         // Build user entity
         User user = User.builder()
                 .userId(userId)
+                .tenantId(tenantId)  // CRITICAL: Set tenant ID for data isolation
                 .username(request.getUsername())
                 .email(request.getEmail())
                 .password(hashedPassword)
@@ -141,15 +145,19 @@ public class UserService {
 
     @Transactional
     public UserResponse updateUser(String id, UpdateUserRequest request, String modifiedBy) {
-        log.info("Updating user with id: {}", id);
+        String tenantId = getCurrentTenantId();
+        log.info("[Tenant: {}] Updating user with id: {}", tenantId, id);
 
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
 
-        // Update email if provided
+        // Validate tenant ownership
+        validateResourceTenantOwnership(user.getTenantId());
+
+        // Update email if provided and check uniqueness within tenant
         if (request.getEmail() != null && !request.getEmail().equals(user.getEmail())) {
-            if (userRepository.existsByEmail(request.getEmail())) {
-                throw new UserAlreadyExistsException("Email already exists: " + request.getEmail());
+            if (userRepository.existsByEmailAndTenantId(request.getEmail(), tenantId)) {
+                throw new UserAlreadyExistsException("Email already exists in your organization: " + request.getEmail());
             }
             user.setEmail(request.getEmail());
         }
@@ -314,37 +322,44 @@ public class UserService {
     }
 
     public UserResponse getUserByUserId(String userId) {
-        User user = userRepository.findByUserId(userId)
+        String tenantId = getCurrentTenantId();
+        User user = userRepository.findByUserIdAndTenantId(userId, tenantId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with userId: " + userId));
         return mapToResponse(user);
     }
 
     public List<UserResponse> getAllUsers() {
-        return userRepository.findByIsDeletedFalse().stream()
+        String tenantId = getCurrentTenantId();
+        log.debug("[Tenant: {}] Fetching all users", tenantId);
+        return userRepository.findByTenantIdAndIsDeletedFalse(tenantId).stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
 
     public List<UserResponse> getActiveUsers() {
-        return userRepository.findByStatusAndIsDeletedFalse(UserStatus.ACTIVE).stream()
+        String tenantId = getCurrentTenantId();
+        return userRepository.findByStatusAndTenantIdAndIsDeletedFalse(UserStatus.ACTIVE, tenantId).stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
 
     public List<UserResponse> getUsersByRole(String roleId) {
-        return userRepository.findByRoleIdAndIsDeletedFalse(roleId).stream()
+        String tenantId = getCurrentTenantId();
+        return userRepository.findByRoleIdAndTenantIdAndIsDeletedFalse(roleId, tenantId).stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
 
     public List<UserResponse> getSubordinates(String managerId) {
-        return userRepository.findByManagerIdAndIsDeletedFalse(managerId).stream()
+        String tenantId = getCurrentTenantId();
+        return userRepository.findByManagerIdAndTenantIdAndIsDeletedFalse(managerId, tenantId).stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
 
     public List<UserResponse> searchUsers(String searchTerm) {
-        return userRepository.searchUsers(searchTerm).stream()
+        String tenantId = getCurrentTenantId();
+        return userRepository.searchUsersByTenantId(searchTerm, tenantId).stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
@@ -355,6 +370,9 @@ public class UserService {
 
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
+
+        // Validate tenant ownership
+        validateResourceTenantOwnership(user.getTenantId());
 
         user.setStatus(UserStatus.INACTIVE);
         user.setIsDeleted(true);
@@ -374,6 +392,9 @@ public class UserService {
 
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
+
+        // Validate tenant ownership
+        validateResourceTenantOwnership(user.getTenantId());
 
         user.setStatus(UserStatus.ACTIVE);
         user.setIsDeleted(false);
