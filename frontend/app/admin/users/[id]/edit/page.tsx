@@ -208,9 +208,8 @@ export default function EditUserPage({ params }: { params: Promise<{ id: string 
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
-                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                    errors.email ? "border-red-500" : "border-gray-300"
-                  }`}
+                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.email ? "border-red-500" : "border-gray-300"
+                    }`}
                 />
                 {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
               </div>
@@ -228,9 +227,8 @@ export default function EditUserPage({ params }: { params: Promise<{ id: string 
                   name="firstName"
                   value={formData.firstName}
                   onChange={handleChange}
-                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                    errors.firstName ? "border-red-500" : "border-gray-300"
-                  }`}
+                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.firstName ? "border-red-500" : "border-gray-300"
+                    }`}
                 />
                 {errors.firstName && <p className="mt-1 text-sm text-red-600">{errors.firstName}</p>}
               </div>
@@ -242,9 +240,8 @@ export default function EditUserPage({ params }: { params: Promise<{ id: string 
                   name="lastName"
                   value={formData.lastName}
                   onChange={handleChange}
-                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                    errors.lastName ? "border-red-500" : "border-gray-300"
-                  }`}
+                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.lastName ? "border-red-500" : "border-gray-300"
+                    }`}
                 />
                 {errors.lastName && <p className="mt-1 text-sm text-red-600">{errors.lastName}</p>}
               </div>
@@ -310,13 +307,12 @@ export default function EditUserPage({ params }: { params: Promise<{ id: string 
                   value={formData.roleId || ""}
                   onChange={handleChange}
                   disabled={loadingData}
-                  className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                    loadingData ? "bg-gray-100 cursor-not-allowed" : ""
-                  }`}
+                  className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${loadingData ? "bg-gray-100 cursor-not-allowed" : ""
+                    }`}
                 >
                   <option value="">Select a role...</option>
                   {roles.map((role) => (
-                    <option key={role.id} value={role.id}>
+                    <option key={role.id} value={role.roleId}>
                       {role.roleName} ({role.roleId})
                     </option>
                   ))}
@@ -331,13 +327,12 @@ export default function EditUserPage({ params }: { params: Promise<{ id: string 
                   value={formData.profileId || ""}
                   onChange={handleChange}
                   disabled={loadingData}
-                  className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                    loadingData ? "bg-gray-100 cursor-not-allowed" : ""
-                  }`}
+                  className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${loadingData ? "bg-gray-100 cursor-not-allowed" : ""
+                    }`}
                 >
                   <option value="">Select a profile...</option>
                   {profiles.map((profile) => (
-                    <option key={profile.id} value={profile.id}>
+                    <option key={profile.id} value={profile.profileId}>
                       {profile.profileName} ({profile.profileId})
                     </option>
                   ))}
