@@ -1,0 +1,72 @@
+# Render Blueprint - Deploy Both Frontend & Backend Together
+# This file enables one-click deployment of the entire CRM application on Render
+
+services:
+  # ==========================================
+  # Backend Service (Spring Boot)
+  # ==========================================
+  - type: web
+    name: crm-backend
+    env: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    plan: starter  # or 'free' for testing
+    region: oregon  # or singapore, frankfurt, ohio
+    healthCheckPath: /api/v1/actuator/health
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      - key: SPRING_DATA_MONGODB_URI
+        sync: false  # Set manually in Render dashboard
+      - key: JWT_SECRET
+        generateValue: true  # Auto-generate secure secret
+      - key: CORS_ALLOWED_ORIGINS
+        fromService:
+          type: web
+          name: crm-frontend
+          property: host
+      - key: SERVER_PORT
+        value: 8080
+    buildCommand: ./mvnw clean package -DskipTests
+    startCommand: java -Djava.security.egd=file:/dev/./urandom -Dspring.profiles.active=prod -jar target/backend-*.jar
+
+  # ==========================================
+  # Frontend Service (Next.js)
+  # ==========================================
+  - type: web
+    name: crm-frontend
+    env: node
+    plan: starter  # or 'free' for testing
+    region: oregon  # Match backend region
+    buildCommand: cd frontend && npm install && npm run build
+    startCommand: cd frontend && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NEXT_PUBLIC_API_URL
+        fromService:
+          type: web
+          name: crm-backend
+          property: host
+          envVarKey: NEXT_PUBLIC_API_URL
+      - key: NEXT_PUBLIC_APP_URL
+        fromService:
+          type: web
+          name: crm-frontend
+          property: host
+    healthCheckPath: /
+
+# ==========================================
+# Database (MongoDB Atlas - External)
+# ==========================================
+# Note: Render doesn't offer managed MongoDB
+# Use MongoDB Atlas (free tier available)
+# Set MONGODB_URI manually in Render dashboard
+
+# ==========================================
+# Estimated Monthly Cost
+# ==========================================
+# Free Tier: $0 (limited hours, spins down after inactivity)
+# Starter Plan: $14/service = $28/month total
+# Standard Plan: $25/service = $50/month total
+# Pro Plan: $85/service = $170/month total
