@@ -14,7 +14,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "CRM Platform",
+  title: "Ascendons CRM",
   description: "Enterprise CRM Management System",
 };
 

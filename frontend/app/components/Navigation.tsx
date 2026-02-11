@@ -62,9 +62,8 @@ export default function Navigation() {
             </div>
             <div>
               <h1 className="text-lg font-bold leading-none tracking-tight text-slate-900">
-                CRM Pro
+                Ascendons CRM
               </h1>
-              <p className="text-xs text-slate-700 font-medium">Enterprise Edition</p>
             </div>
           </Link>
           <div className="h-8 w-px bg-slate-200 mx-2"></div>
@@ -88,7 +87,7 @@ export default function Navigation() {
           </div>
           <div>
             <h1 className="text-lg font-bold leading-none tracking-tight text-slate-900">
-              CRM Pro
+              Ascendons CRM
             </h1>
             <p className="text-xs text-slate-700 font-medium">Enterprise Edition</p>
           </div>
