@@ -31,15 +31,16 @@ services:
     env: node
     plan: free  # Change to 'starter' for production
     region: oregon
-    buildCommand: cd frontend && npm install && npm run build
-    startCommand: cd frontend && npm start
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    startCommand: npm start
     envVars:
       - key: NODE_ENV
         value: production
       - key: NEXT_PUBLIC_API_URL
         sync: false  # Set manually after backend deploys
       - key: PORT
-        value: 3000
+        value: 10000
     healthCheckPath: /
 
 # ==========================================
