@@ -7,7 +7,7 @@ import toast from "react-hot-toast";
 import { Button } from "@/components/ui/button";
 import { usersService } from "@/lib/users";
 import { leadAssignmentService } from "@/lib/leadAssignment";
-import type { UserProfile, UserResponse } from "@/types/user";
+import type { UserResponse } from "@/types/user";
 
 interface AssignLeadModalProps {
   isOpen: boolean;
