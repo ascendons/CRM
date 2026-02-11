@@ -31,9 +31,8 @@ services:
     env: node
     plan: free  # Change to 'starter' for production
     region: oregon
-    rootDir: frontend
-    buildCommand: npm install && npm run build
-    startCommand: npm start
+    buildCommand: cd frontend && npm ci && npm run build
+    startCommand: cd frontend && npm start
     envVars:
       - key: NODE_ENV
         value: production
