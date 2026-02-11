@@ -7,7 +7,7 @@ import toast from "react-hot-toast";
 import { Button } from "@/components/ui/button";
 import { usersService } from "@/lib/users";
 import { leadAssignmentService } from "@/lib/leadAssignment";
-import type { User } from "@/types/user";
+import type { UserProfile, UserResponse } from "@/types/user";
 
 interface AssignLeadModalProps {
   isOpen: boolean;
@@ -26,8 +26,8 @@ export function AssignLeadModal({
   currentAssignedUserId,
   onSuccess,
 }: AssignLeadModalProps) {
-  const [users, setUsers] = useState<User[]>([]);
-  const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
+  const [users, setUsers] = useState<UserResponse[]>([]);
+  const [filteredUsers, setFilteredUsers] = useState<UserResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState<string>("");
@@ -172,9 +172,8 @@ export function AssignLeadModal({
                         {filteredUsers.map((user) => (
                           <label
                             key={user.id}
-                            className={`flex items-center p-3 cursor-pointer hover:bg-gray-50 transition-colors ${
-                              selectedUserId === user.userId ? "bg-blue-50" : ""
-                            }`}
+                            className={`flex items-center p-3 cursor-pointer hover:bg-gray-50 transition-colors ${selectedUserId === user.userId ? "bg-blue-50" : ""
+                              }`}
                           >
                             <input
                               type="radio"
