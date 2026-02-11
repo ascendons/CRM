@@ -31,7 +31,7 @@ services:
     env: node
     plan: free  # Change to 'starter' for production
     region: oregon
-    buildCommand: cd frontend && npm ci && npm run build
+    buildCommand: cd frontend && npm ci && npm run build -- --no-turbo
     startCommand: cd frontend && npm start
     envVars:
       - key: NODE_ENV
