@@ -102,19 +102,25 @@ public class OrganizationService {
 
         log.info("Retrieved admin role: {} and profile: {} for tenant", adminRole.getRoleId(), adminProfile.getProfileId());
 
-        // 2.6. Create default lead assignment configuration (disabled by default)
-        log.info("Creating default lead assignment config for tenant: {}", savedOrg.getId());
+        // 2.6. Create lead assignment configuration with eligible roles auto-configured
+        log.info("Creating lead assignment config for tenant: {}", savedOrg.getId());
+        java.util.List<Role> tenantRoles = roleRepository.findByTenantIdAndIsDeletedFalse(savedOrg.getId());
+        java.util.List<String> eligibleRoleIds = tenantRoles.stream()
+                .filter(r -> !"Read-Only User".equals(r.getRoleName()))
+                .map(Role::getRoleId)
+                .collect(java.util.stream.Collectors.toList());
+
         LeadAssignmentConfig defaultConfig = LeadAssignmentConfig.builder()
                 .tenantId(savedOrg.getId())
-                .enabled(false)  // Disabled by default - admin must configure
+                .enabled(true)
                 .strategy(LeadAssignmentConfig.AssignmentStrategy.ROUND_ROBIN)
-                .eligibleRoleIds(java.util.Collections.emptyList())  // No roles configured yet
+                .eligibleRoleIds(eligibleRoleIds)
                 .lastAssignedIndex(0)
                 .createdAt(LocalDateTime.now())
                 .lastModifiedAt(LocalDateTime.now())
                 .build();
         leadAssignmentConfigRepository.save(defaultConfig);
-        log.info("Created default lead assignment config for tenant: {}", savedOrg.getId());
+        log.info("Created lead assignment config for tenant: {} with {} eligible roles", savedOrg.getId(), eligibleRoleIds.size());
 
         // 3. Create first admin user
         User adminUser = User.builder()

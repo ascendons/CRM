@@ -92,16 +92,26 @@ public class LeadAssignmentConfigService {
     }
 
     /**
-     * Create default configuration
+     * Create default configuration with eligible roles auto-populated
      */
     private LeadAssignmentConfig createDefaultConfig(String tenantId) {
-        return LeadAssignmentConfig.builder()
+        // Auto-populate eligible roles (all except Read-Only User)
+        List<String> eligibleRoleIds = roleRepository.findByTenantIdAndIsDeletedFalse(tenantId)
+                .stream()
+                .filter(r -> !"Read-Only User".equals(r.getRoleName()))
+                .map(Role::getRoleId)
+                .collect(Collectors.toList());
+
+        LeadAssignmentConfig config = LeadAssignmentConfig.builder()
                 .tenantId(tenantId)
-                .enabled(false)
+                .enabled(!eligibleRoleIds.isEmpty())
                 .strategy(LeadAssignmentConfig.AssignmentStrategy.ROUND_ROBIN)
-                .eligibleRoleIds(List.of())
+                .eligibleRoleIds(eligibleRoleIds)
                 .createdAt(LocalDateTime.now())
                 .build();
+
+        // Save so it persists for future requests
+        return configRepository.save(config);
     }
 
     /**

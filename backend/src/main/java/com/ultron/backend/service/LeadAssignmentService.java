@@ -7,8 +7,10 @@ import com.ultron.backend.domain.enums.UserStatus;
 import com.ultron.backend.dto.response.LeadResponse;
 import com.ultron.backend.exception.BusinessException;
 import com.ultron.backend.multitenancy.TenantContext;
+import com.ultron.backend.domain.entity.Role;
 import com.ultron.backend.repository.LeadAssignmentConfigRepository;
 import com.ultron.backend.repository.LeadRepository;
+import com.ultron.backend.repository.RoleRepository;
 import com.ultron.backend.repository.UserRepository;
 import com.ultron.backend.strategy.LeadAssignmentStrategy;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +33,7 @@ public class LeadAssignmentService {
     private final LeadAssignmentConfigRepository configRepository;
     private final UserRepository userRepository;
     private final LeadRepository leadRepository;
+    private final RoleRepository roleRepository;
     private final Map<String, LeadAssignmentStrategy> assignmentStrategies;
 
     /**
@@ -46,15 +49,39 @@ public class LeadAssignmentService {
         LeadAssignmentConfig config = configRepository.findByTenantId(tenantId)
                 .orElse(null);
 
-        // Check if auto-assignment is enabled
-        if (config == null || !Boolean.TRUE.equals(config.getEnabled())) {
-            log.info("Auto-assignment disabled for tenant: {}", tenantId);
-            return;
+        // Auto-configure if config is missing or has no eligible roles
+        if (config == null || config.getEligibleRoleIds() == null || config.getEligibleRoleIds().isEmpty()) {
+            List<String> eligibleRoleIds = roleRepository.findByTenantIdAndIsDeletedFalse(tenantId)
+                    .stream()
+                    .filter(r -> !"Read-Only User".equals(r.getRoleName()))
+                    .map(Role::getRoleId)
+                    .collect(java.util.stream.Collectors.toList());
+
+            if (eligibleRoleIds.isEmpty()) {
+                log.warn("No roles found for tenant: {}", tenantId);
+                return;
+            }
+
+            if (config == null) {
+                config = LeadAssignmentConfig.builder()
+                        .tenantId(tenantId)
+                        .enabled(true)
+                        .strategy(LeadAssignmentConfig.AssignmentStrategy.ROUND_ROBIN)
+                        .eligibleRoleIds(eligibleRoleIds)
+                        .createdAt(LocalDateTime.now())
+                        .build();
+            } else {
+                config.setEligibleRoleIds(eligibleRoleIds);
+                config.setEnabled(true);
+                config.setLastModifiedAt(LocalDateTime.now());
+            }
+            configRepository.save(config);
+            log.info("[Tenant: {}] Auto-configured lead assignment with {} eligible roles", tenantId, eligibleRoleIds.size());
         }
 
-        // Validate eligible roles configured
-        if (config.getEligibleRoleIds() == null || config.getEligibleRoleIds().isEmpty()) {
-            log.warn("No eligible roles configured for tenant: {}", tenantId);
+        // Check if auto-assignment is enabled
+        if (!Boolean.TRUE.equals(config.getEnabled())) {
+            log.info("Auto-assignment disabled for tenant: {}", tenantId);
             return;
         }
 
@@ -117,9 +144,34 @@ public class LeadAssignmentService {
 
         // Validate user has eligible role
         LeadAssignmentConfig config = configRepository.findByTenantId(tenantId)
-                .orElseThrow(() -> new BusinessException("Lead assignment not configured"));
+                .orElse(null);
 
-        if (config.getEligibleRoleIds() == null || !config.getEligibleRoleIds().contains(user.getRoleId())) {
+        // Auto-configure if config is missing or has no eligible roles
+        if (config == null || config.getEligibleRoleIds() == null || config.getEligibleRoleIds().isEmpty()) {
+            List<String> eligibleRoleIds = roleRepository.findByTenantIdAndIsDeletedFalse(tenantId)
+                    .stream()
+                    .filter(r -> !"Read-Only User".equals(r.getRoleName()))
+                    .map(Role::getRoleId)
+                    .collect(java.util.stream.Collectors.toList());
+
+            if (config == null) {
+                config = LeadAssignmentConfig.builder()
+                        .tenantId(tenantId)
+                        .enabled(true)
+                        .strategy(LeadAssignmentConfig.AssignmentStrategy.ROUND_ROBIN)
+                        .eligibleRoleIds(eligibleRoleIds)
+                        .createdAt(LocalDateTime.now())
+                        .build();
+            } else {
+                config.setEligibleRoleIds(eligibleRoleIds);
+                config.setEnabled(true);
+                config.setLastModifiedAt(LocalDateTime.now());
+            }
+            configRepository.save(config);
+            log.info("[Tenant: {}] Auto-configured lead assignment with {} eligible roles", tenantId, eligibleRoleIds.size());
+        }
+
+        if (!config.getEligibleRoleIds().contains(user.getRoleId())) {
             throw new BusinessException(
                     "User does not have an eligible role for lead assignment. " +
                     "Contact admin to configure eligible roles."
