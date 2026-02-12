@@ -91,10 +91,16 @@ export default function RegisterOrganizationPage() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        console.log("[RegisterOrganizationPage] Form submitted", {
+            organizationName: formData.organizationName,
+            subdomain: formData.subdomain,
+            adminEmail: formData.adminEmail
+        });
         setError("");
 
         // Validate subdomain is available
         if (!subdomainStatus.available) {
+            console.warn("[RegisterOrganizationPage] Subdomain not available", formData.subdomain);
             setError("Please choose an available subdomain");
             return;
         }
@@ -102,6 +108,7 @@ export default function RegisterOrganizationPage() {
         setIsLoading(true);
 
         try {
+            console.log("[RegisterOrganizationPage] Calling organizationApi.register...");
             const response = await organizationApi.register({
                 organizationName: formData.organizationName,
                 subdomain: formData.subdomain.toLowerCase(),
@@ -110,6 +117,11 @@ export default function RegisterOrganizationPage() {
                 adminEmail: formData.adminEmail,
                 password: formData.adminPassword,
                 adminName: formData.adminFullName,
+            });
+
+            console.log("[RegisterOrganizationPage] Registration response success", {
+                tenantId: response.tenantId,
+                organizationId: response.organizationId
             });
 
             // Set auth from registration response
@@ -127,11 +139,14 @@ export default function RegisterOrganizationPage() {
             // Redirect to dashboard
             if (process.env.NODE_ENV === 'production') {
                 const subdomainUrl = buildSubdomainUrl(formData.subdomain, '/dashboard');
+                console.log("[RegisterOrganizationPage] Redirecting to production subdomain URL", subdomainUrl);
                 window.location.href = subdomainUrl;
             } else {
+                console.log("[RegisterOrganizationPage] Redirecting to local dashboard");
                 window.location.href = '/dashboard';
             }
         } catch (err) {
+            console.error("[RegisterOrganizationOrganizationPage] Registration failed", err);
             if (err instanceof ApiError) {
                 setError(err.message);
             } else {

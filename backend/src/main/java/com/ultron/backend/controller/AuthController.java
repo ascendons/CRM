@@ -22,10 +22,16 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<AuthResponse>> register(@Valid @RequestBody RegisterRequest request) {
-        log.info("POST /auth/register - Email: {}", request.getEmail());
-        AuthResponse response = authService.register(request);
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.success("User registered successfully", response));
+        log.info("RECEIVED: POST /auth/register - Email: {}, FullName: {}", request.getEmail(), request.getFullName());
+        try {
+            AuthResponse response = authService.register(request);
+            log.info("SUCCESS: POST /auth/register - User created with ID: {}", response.getUserId());
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(ApiResponse.success("User registered successfully", response));
+        } catch (Exception e) {
+            log.error("ERROR: POST /auth/register - Failed to register user: {}", e.getMessage(), e);
+            throw e;
+        }
     }
 
     @PostMapping("/login")

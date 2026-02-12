@@ -48,14 +48,18 @@ export default function RegisterPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log("[RegisterPage] Form submitted", { email: formData.email, fullName: formData.fullName });
     setError("");
     setFieldErrors({});
     setIsLoading(true);
 
     try {
+      console.log("[RegisterPage] Calling authService.register...");
       await authService.register(formData);
+      console.log("[RegisterPage] Registration successful, redirecting to /dashboard");
       window.location.href = "/dashboard";
     } catch (err) {
+      console.error("[RegisterPage] Registration failed", err);
       if (err instanceof ApiError) {
         setError(err.message);
         if (err.errors) {

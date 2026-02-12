@@ -36,31 +36,37 @@ public class AuthService {
     /**
      * User registration (Legacy method - Pre-multi-tenancy)
      *
-     * NOTE: For multi-tenant deployments, use OrganizationService.registerOrganization() instead.
-     * This method is kept for backward compatibility and creates users without tenant context.
+     * NOTE: For multi-tenant deployments, use
+     * OrganizationService.registerOrganization() instead.
+     * This method is kept for backward compatibility and creates users without
+     * tenant context.
      *
-     * @deprecated Use OrganizationService.registerOrganization() for new tenant onboarding
+     * @deprecated Use OrganizationService.registerOrganization() for new tenant
+     *             onboarding
      */
     @Deprecated
     public AuthResponse register(RegisterRequest request) {
-        log.info("Attempting to register user with email: {}", request.getEmail());
-        log.warn("Using deprecated register method - consider using OrganizationService.registerOrganization() for multi-tenancy");
+        log.info("START: register - Attempting to register user with email: {}", request.getEmail());
+        log.warn(
+                "Using deprecated register method - consider using OrganizationService.registerOrganization() for multi-tenancy");
 
         if (userService.existsByEmail(request.getEmail())) {
-            log.warn("Registration failed - email already exists: {}", request.getEmail());
+            log.warn("FAILED: register - email already exists: {}", request.getEmail());
             throw new UserAlreadyExistsException("Email already registered");
         }
 
         // Check if this is the first user (auto-assign admin)
         long userCount = userRepository.count();
         boolean isFirstUser = userCount == 0;
+        log.info("register - Current user count: {}, isFirstUser: {}", userCount, isFirstUser);
 
         if (isFirstUser) {
-            log.info("First user registration detected - assigning System Administrator role and profile");
+            log.info("register - First user registration detected - assigning System Administrator role and profile");
         }
 
         // Generate user ID
         String userId = userIdGeneratorService.generateUserId();
+        log.debug("register - Generated userId: {}", userId);
 
         // Parse full name into first/last name
         String[] nameParts = request.getFullName().trim().split(" ", 2);
@@ -121,20 +127,22 @@ public class AuthService {
         }
 
         User user = userBuilder.build();
+        log.debug("register - Saving user to database...");
         User savedUser = userService.save(user);
 
         if (isFirstUser) {
-            log.info("First user created as System Administrator: {}", savedUser.getUserId());
+            log.info("register - First user created as System Administrator: {}", savedUser.getUserId());
         } else {
-            log.info("User registered successfully: {}", savedUser.getUserId());
+            log.info("register - User registered successfully: {}", savedUser.getUserId());
         }
 
+        log.debug("register - Generating JWT token...");
         String token = jwtService.generateToken(
                 savedUser.getId(),
                 savedUser.getEmail(),
-                savedUser.getRole().name()
-        );
+                savedUser.getRole().name());
 
+        log.info("END: register - registration complete for: {}", savedUser.getEmail());
         return buildAuthResponse(savedUser, token);
     }
 
@@ -149,14 +157,16 @@ public class AuthService {
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             log.warn("Login failed - invalid password for email: {}", request.getEmail());
-            // Log failed login attempt (with explicit tenantId since context not set during login)
+            // Log failed login attempt (with explicit tenantId since context not set during
+            // login)
             userActivityService.logLogin(user.getId(), user.getTenantId(), false);
             throw new InvalidCredentialsException("Invalid email or password");
         }
 
         if (user.getStatus() != UserStatus.ACTIVE) {
             log.warn("Login failed - user account is not active: {}", request.getEmail());
-            // Log failed login attempt (with explicit tenantId since context not set during login)
+            // Log failed login attempt (with explicit tenantId since context not set during
+            // login)
             userActivityService.logLogin(user.getId(), user.getTenantId(), false);
             throw new UserInactiveException("Your account is not active. Please contact support.");
         }
@@ -173,20 +183,23 @@ public class AuthService {
             }
 
             if (organization.getStatus() == Organization.OrganizationStatus.SUSPENDED ||
-                organization.getStatus() == Organization.OrganizationStatus.CANCELLED) {
+                    organization.getStatus() == Organization.OrganizationStatus.CANCELLED) {
                 log.warn("Login failed - organization is {}: {}", organization.getStatus(), tenantId);
-                throw new UserInactiveException("Your organization account is " + organization.getStatus().name().toLowerCase() + ". Please contact support.");
+                throw new UserInactiveException("Your organization account is "
+                        + organization.getStatus().name().toLowerCase() + ". Please contact support.");
             }
 
             if (organization.getStatus() == Organization.OrganizationStatus.EXPIRED) {
                 log.warn("Login failed - organization trial/subscription expired: {}", tenantId);
-                throw new UserInactiveException("Your organization subscription has expired. Please renew to continue.");
+                throw new UserInactiveException(
+                        "Your organization subscription has expired. Please renew to continue.");
             }
         }
 
         log.info("User logged in successfully: {} (tenant: {})", user.getId(), tenantId);
 
-        // Log login activity (with explicit tenantId since context not set during login)
+        // Log login activity (with explicit tenantId since context not set during
+        // login)
         userActivityService.logLogin(user.getId(), tenantId, true);
 
         // Generate JWT token with tenantId for multi-tenancy
@@ -196,7 +209,7 @@ public class AuthService {
                     user.getId(),
                     user.getEmail(),
                     user.getRole().name(),
-                    tenantId  // Include tenantId in JWT
+                    tenantId // Include tenantId in JWT
             );
         } else {
             // Fallback for legacy users without tenantId - use DEFAULT tenant
@@ -205,7 +218,7 @@ public class AuthService {
                     user.getId(),
                     user.getEmail(),
                     user.getRole().name(),
-                    "DEFAULT"  // Default tenant for legacy users
+                    "DEFAULT" // Default tenant for legacy users
             );
         }
 

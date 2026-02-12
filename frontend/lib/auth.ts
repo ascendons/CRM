@@ -3,9 +3,16 @@ import { AuthResponse, LoginRequest, RegisterRequest, User } from "@/types/auth"
 
 export const authService = {
   async register(data: RegisterRequest): Promise<AuthResponse> {
-    const response = await api.post<AuthResponse>("/auth/register", data);
-    this.setAuth(response);
-    return response;
+    console.log("[authService] register called", { email: data.email });
+    try {
+      const response = await api.post<AuthResponse>("/auth/register", data);
+      console.log("[authService] register API response success", { userId: response.userId });
+      this.setAuth(response);
+      return response;
+    } catch (error) {
+      console.error("[authService] register API error", error);
+      throw error;
+    }
   },
 
   async login(data: LoginRequest): Promise<AuthResponse> {
