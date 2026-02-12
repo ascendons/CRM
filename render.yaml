@@ -36,8 +36,12 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
-      - key: NEXT_PUBLIC_API_URL
-        sync: false  # Set manually after backend deploys
+      - key: BACKEND_URL
+        fromService:
+          type: web
+          name: crm-backend
+          envVarKey: RENDER_EXTERNAL_URL
+        # Automatically uses backend URL regardless of random suffix
       - key: PORT
         value: 10000
       - key: TURBOPACK

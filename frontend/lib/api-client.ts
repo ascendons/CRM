@@ -1,6 +1,9 @@
 import { ApiResponse } from "@/types/auth";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api/v1";
+// Use Next.js proxy in production, direct URL in development
+const API_URL = process.env.NODE_ENV === "production"
+  ? "/crm-backend"  // Proxy route (handled by next.config.ts rewrites)
+  : "http://localhost:8080/api/v1";
 
 export class ApiError extends Error {
   constructor(

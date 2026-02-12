@@ -19,10 +19,11 @@ const nextConfig: NextConfig = {
   },
 
   async rewrites() {
+    const backendUrl = process.env.BACKEND_URL || 'http://localhost:8080';
     return [
       {
         source: '/crm-backend/:path*',
-        destination: `${process.env.BACKEND_URL || 'https://crm-backend-v3ne.onrender.com'}/api/v1/:path*`,
+        destination: `${backendUrl}/api/v1/:path*`,
       },
     ];
   },
