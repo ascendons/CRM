@@ -35,7 +35,7 @@ RUN mkdir -p /var/log/crm && \
 # Switch to non-root user
 USER spring:spring
 
-# Expose port
+# Expose port (informational)
 EXPOSE 8080
 
 # Health check
