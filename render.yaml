@@ -22,6 +22,11 @@ services:
         generateValue: true  # Auto-generate secure secret
       - key: SERVER_PORT
         value: 8080
+      - key: FRONTEND_URL
+        fromService:
+          type: web
+          name: crm-frontend
+          envVarKey: RENDER_EXTERNAL_URL
 
   # ==========================================
   # Frontend Service (Next.js)

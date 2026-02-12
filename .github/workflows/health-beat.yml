@@ -2,8 +2,8 @@ name: Health Beat - Keep Render Alive
 
 on:
   schedule:
-    # Run every 14 minutes to prevent Render free tier spin-down (15 min inactivity)
-    - cron: '*/14 * * * *'
+    # Run every 5 minutes to prevent Render free tier spin-down
+    - cron: '*/5 * * * *'
   workflow_dispatch: # Allow manual trigger
 
 jobs:
@@ -13,11 +13,11 @@ jobs:
       - name: Ping Backend
         run: |
           curl -fsS --retry 3 --retry-delay 10 --max-time 60 \
-            "${{ secrets.BACKEND_URL }}/api/v1/actuator/health" \
+            "${{ secrets.BACKEND_URL }}/api/v1/ping" \
             -o /dev/null -w "Backend: HTTP %{http_code} (%{time_total}s)\n"
 
       - name: Ping Frontend
         run: |
           curl -fsS --retry 3 --retry-delay 10 --max-time 60 \
-            "${{ secrets.FRONTEND_URL }}" \
+            "${{ secrets.FRONTEND_URL }}/api/ping" \
             -o /dev/null -w "Frontend: HTTP %{http_code} (%{time_total}s)\n"
