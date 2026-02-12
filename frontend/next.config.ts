@@ -22,7 +22,7 @@ const nextConfig: NextConfig = {
     return [
       {
         source: '/crm-backend/:path*',
-        destination: `${process.env.BACKEND_URL || 'https://crm-backend-s1k6.onrender.com'}/api/v1/:path*`,
+        destination: `${process.env.BACKEND_URL || 'https://crm-backend-v3ne.onrender.com'}/api/v1/:path*`,
       },
     ];
   },
