@@ -22,7 +22,8 @@ import java.time.LocalDateTime;
  *
  * Run once during deployment to multi-tenant architecture
  *
- * To disable after migration, set: migration.multitenancy.enabled=false in application.properties
+ * To disable after migration, set: migration.multitenancy.enabled=false in
+ * application.properties
  */
 @Component
 @RequiredArgsConstructor
@@ -33,7 +34,7 @@ public class MultiTenancyMigration implements CommandLineRunner {
     private final OrganizationRepository organizationRepository;
 
     // Set to false after migration is complete
-    private static final boolean MIGRATION_ENABLED = true;
+    private static final boolean MIGRATION_ENABLED = false;
 
     @Override
     public void run(String... args) throws Exception {
@@ -182,9 +183,9 @@ public class MultiTenancyMigration implements CommandLineRunner {
         log.warn("Rolling back migration for tenant: {}", tenantId);
         log.warn("========================================");
 
-        String[] collections = {"users", "leads", "contacts", "accounts",
-                               "opportunities", "products", "proposals", "activities",
-                               "audit_logs", "user_activities"};
+        String[] collections = { "users", "leads", "contacts", "accounts",
+                "opportunities", "products", "proposals", "activities",
+                "audit_logs", "user_activities" };
 
         for (String collection : collections) {
             Query query = new Query(Criteria.where("tenantId").is(tenantId));
