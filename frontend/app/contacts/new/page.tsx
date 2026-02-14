@@ -7,6 +7,7 @@ import { contactsService } from "@/lib/contacts";
 import { accountsService } from "@/lib/accounts";
 import { Account } from "@/types/account";
 import { authService } from "@/lib/auth";
+import { CountryStateSelector } from "@/components/common/CountryStateSelector";
 
 export default function NewContactPage() {
   const router = useRouter();
@@ -411,19 +412,6 @@ export default function NewContactPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  State/Province
-                </label>
-                <input
-                  type="text"
-                  name="mailingState"
-                  value={formData.mailingState}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-
-              <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Postal Code</label>
                 <input
                   type="text"
@@ -434,14 +422,12 @@ export default function NewContactPage() {
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Country</label>
-                <input
-                  type="text"
-                  name="mailingCountry"
-                  value={formData.mailingCountry}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              <div className="md:col-span-2">
+                <CountryStateSelector
+                  countryValue={formData.mailingCountry || ""}
+                  stateValue={formData.mailingState || ""}
+                  onCountryChange={(val) => setFormData((prev) => ({ ...prev, mailingCountry: val }))}
+                  onStateChange={(val) => setFormData((prev) => ({ ...prev, mailingState: val }))}
                 />
               </div>
             </div>
@@ -474,19 +460,6 @@ export default function NewContactPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  State/Province
-                </label>
-                <input
-                  type="text"
-                  name="otherState"
-                  value={formData.otherState}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-
-              <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Postal Code</label>
                 <input
                   type="text"
@@ -497,14 +470,12 @@ export default function NewContactPage() {
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Country</label>
-                <input
-                  type="text"
-                  name="otherCountry"
-                  value={formData.otherCountry}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              <div className="md:col-span-2">
+                <CountryStateSelector
+                  countryValue={formData.otherCountry || ""}
+                  stateValue={formData.otherState || ""}
+                  onCountryChange={(val) => setFormData((prev) => ({ ...prev, otherCountry: val }))}
+                  onStateChange={(val) => setFormData((prev) => ({ ...prev, otherState: val }))}
                 />
               </div>
             </div>

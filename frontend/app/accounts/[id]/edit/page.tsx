@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Account, UpdateAccountRequest } from "@/types/account";
 import { accountsService } from "@/lib/accounts";
 import { authService } from "@/lib/auth";
+import { CountryStateSelector } from "@/components/common/CountryStateSelector";
 
 export default function EditAccountPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -341,19 +342,6 @@ export default function EditAccountPage({ params }: { params: Promise<{ id: stri
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  State/Province
-                </label>
-                <input
-                  type="text"
-                  name="billingState"
-                  value={formData.billingState || ""}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-
-              <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Postal Code</label>
                 <input
                   type="text"
@@ -364,14 +352,12 @@ export default function EditAccountPage({ params }: { params: Promise<{ id: stri
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Country</label>
-                <input
-                  type="text"
-                  name="billingCountry"
-                  value={formData.billingCountry || ""}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              <div className="md:col-span-2">
+                <CountryStateSelector
+                  countryValue={formData.billingCountry || ""}
+                  stateValue={formData.billingState || ""}
+                  onCountryChange={(val) => setFormData((prev) => ({ ...prev, billingCountry: val }))}
+                  onStateChange={(val) => setFormData((prev) => ({ ...prev, billingState: val }))}
                 />
               </div>
             </div>
@@ -404,19 +390,6 @@ export default function EditAccountPage({ params }: { params: Promise<{ id: stri
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  State/Province
-                </label>
-                <input
-                  type="text"
-                  name="shippingState"
-                  value={formData.shippingState || ""}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-
-              <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Postal Code</label>
                 <input
                   type="text"
@@ -427,14 +400,12 @@ export default function EditAccountPage({ params }: { params: Promise<{ id: stri
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Country</label>
-                <input
-                  type="text"
-                  name="shippingCountry"
-                  value={formData.shippingCountry || ""}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              <div className="md:col-span-2">
+                <CountryStateSelector
+                  countryValue={formData.shippingCountry || ""}
+                  stateValue={formData.shippingState || ""}
+                  onCountryChange={(val) => setFormData((prev) => ({ ...prev, shippingCountry: val }))}
+                  onStateChange={(val) => setFormData((prev) => ({ ...prev, shippingState: val }))}
                 />
               </div>
             </div>

@@ -21,6 +21,7 @@ import {
 import { ProductResponse } from "@/types/product";
 import { Lead } from "@/types/lead";
 import { Opportunity } from "@/types/opportunity";
+import { CountryStateSelector } from "../common/CountryStateSelector";
 import CatalogProductSearch from "./CatalogProductSearch";
 
 interface ProposalFormProps {
@@ -547,18 +548,6 @@ export default function ProposalForm({
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-xs font-medium text-gray-500 mb-1">State</label>
-                                    <input
-                                        type="text"
-                                        value={billingAddress.state || ""}
-                                        onChange={(e) => setBillingAddress({ ...billingAddress, state: e.target.value })}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm disabled:bg-gray-100"
-                                        disabled={isReadOnly}
-                                    />
-                                </div>
-                            </div>
-                            <div className="grid grid-cols-2 gap-3">
-                                <div>
                                     <label className="block text-xs font-medium text-gray-500 mb-1">PIN Code</label>
                                     <input
                                         type="text"
@@ -568,17 +557,15 @@ export default function ProposalForm({
                                         disabled={isReadOnly}
                                     />
                                 </div>
-                                <div>
-                                    <label className="block text-xs font-medium text-gray-500 mb-1">Country</label>
-                                    <input
-                                        type="text"
-                                        value={billingAddress.country || ""}
-                                        onChange={(e) => setBillingAddress({ ...billingAddress, country: e.target.value })}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm disabled:bg-gray-100"
-                                        disabled={isReadOnly}
-                                    />
-                                </div>
                             </div>
+                            <CountryStateSelector
+                                countryValue={billingAddress.country || ""}
+                                stateValue={billingAddress.state || ""}
+                                onCountryChange={(val) => setBillingAddress({ ...billingAddress, country: val })}
+                                onStateChange={(val) => setBillingAddress({ ...billingAddress, state: val })}
+                                disabled={isReadOnly}
+                                labelClassName="block text-xs font-medium text-gray-500 mb-1"
+                            />
                         </div>
                     </div>
 
@@ -619,18 +606,6 @@ export default function ProposalForm({
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-xs font-medium text-gray-500 mb-1">State</label>
-                                    <input
-                                        type="text"
-                                        value={shippingAddress.state || ""}
-                                        onChange={(e) => setShippingAddress({ ...shippingAddress, state: e.target.value })}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm disabled:bg-gray-100"
-                                        disabled={isReadOnly}
-                                    />
-                                </div>
-                            </div>
-                            <div className="grid grid-cols-2 gap-3">
-                                <div>
                                     <label className="block text-xs font-medium text-gray-500 mb-1">PIN Code</label>
                                     <input
                                         type="text"
@@ -640,17 +615,15 @@ export default function ProposalForm({
                                         disabled={isReadOnly}
                                     />
                                 </div>
-                                <div>
-                                    <label className="block text-xs font-medium text-gray-500 mb-1">Country</label>
-                                    <input
-                                        type="text"
-                                        value={shippingAddress.country || ""}
-                                        onChange={(e) => setShippingAddress({ ...shippingAddress, country: e.target.value })}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm disabled:bg-gray-100"
-                                        disabled={isReadOnly}
-                                    />
-                                </div>
                             </div>
+                            <CountryStateSelector
+                                countryValue={shippingAddress.country || ""}
+                                stateValue={shippingAddress.state || ""}
+                                onCountryChange={(val) => setShippingAddress({ ...shippingAddress, country: val })}
+                                onStateChange={(val) => setShippingAddress({ ...shippingAddress, state: val })}
+                                disabled={isReadOnly}
+                                labelClassName="block text-xs font-medium text-gray-500 mb-1"
+                            />
                         </div>
                     </div>
                 </div>
