@@ -3,14 +3,18 @@ package com.ultron.backend.service;
 import com.ultron.backend.domain.entity.Account;
 import com.ultron.backend.domain.entity.Contact;
 import com.ultron.backend.domain.entity.Lead;
+import com.ultron.backend.domain.entity.Opportunity;
 import com.ultron.backend.domain.enums.LeadStatus;
+import com.ultron.backend.domain.enums.OpportunityStage;
 import com.ultron.backend.dto.request.CreateAccountRequest;
 import com.ultron.backend.dto.request.CreateContactRequest;
 import com.ultron.backend.dto.request.CreateLeadRequest;
+import com.ultron.backend.dto.request.CreateOpportunityRequest;
 import com.ultron.backend.dto.request.UpdateLeadRequest;
 import com.ultron.backend.dto.response.AccountResponse;
 import com.ultron.backend.dto.response.ContactResponse;
 import com.ultron.backend.dto.response.LeadResponse;
+import com.ultron.backend.dto.response.OpportunityResponse;
 import com.ultron.backend.exception.UserAlreadyExistsException;
 import com.ultron.backend.repository.AccountRepository;
 import com.ultron.backend.repository.ContactRepository;
@@ -21,6 +25,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -37,8 +43,10 @@ public class LeadService extends BaseTenantService {
     private final UserService userService;
     private final ContactService contactService;
     private final AccountService accountService;
+    private final OpportunityService opportunityService;
     private final ContactRepository contactRepository;
     private final AccountRepository accountRepository;
+    private final OpportunityRepository opportunityRepository;
     private final ApplicationEventPublisher eventPublisher;
 
     /**
@@ -396,8 +404,8 @@ public class LeadService extends BaseTenantService {
         validateResourceTenantOwnership(lead.getTenantId());
 
         // Validate lead can be converted
-        if (lead.getLeadStatus() != LeadStatus.QUALIFIED) {
-            throw new RuntimeException("Only qualified leads can be converted");
+        if (lead.getLeadStatus() != LeadStatus.QUALIFIED && lead.getLeadStatus() != LeadStatus.NEGOTIATION) {
+            throw new RuntimeException("Only qualified or negotiating leads can be converted");
         }
 
 //        if (lead.getQualificationScore() == null || lead.getQualificationScore() < 60) {
@@ -467,17 +475,43 @@ public class LeadService extends BaseTenantService {
 
         log.info("Updated Contact and Account with lead reference: {}", lead.getLeadId());
 
+        // Create Opportunity from lead
+        log.info("Creating Opportunity from Lead {}", lead.getLeadId());
+        CreateOpportunityRequest opportunityRequest = CreateOpportunityRequest.builder()
+                .opportunityName(lead.getCompanyName() + " - " + lead.getFirstName() + " " + lead.getLastName())
+                .stage(OpportunityStage.QUALIFICATION) // Start at QUALIFICATION stage
+                .accountId(account.getId())
+                .primaryContactId(contact.getId())
+                .amount(lead.getExpectedRevenue() != null ? lead.getExpectedRevenue() : BigDecimal.ZERO)
+                .probability(70) // Default probability for converted leads
+                .expectedCloseDate(lead.getExpectedCloseDate() != null ? lead.getExpectedCloseDate() : LocalDate.now().plusMonths(3))
+                .leadSource(lead.getLeadSource() != null ? lead.getLeadSource().toString() : null)
+                .description(lead.getDescription())
+                .tags(lead.getTags())
+                .build();
+
+        OpportunityResponse opportunity = opportunityService.createOpportunity(opportunityRequest, convertedByUserId);
+        log.info("Opportunity {} created from lead conversion", opportunity.getOpportunityId());
+
+        // Update Opportunity to reference the original lead
+        Opportunity opportunityEntity = opportunityRepository.findById(opportunity.getId())
+                .orElseThrow(() -> new RuntimeException("Opportunity not found after creation"));
+        opportunityEntity.setConvertedFromLeadId(lead.getId());
+        opportunityEntity.setConvertedDate(LocalDateTime.now());
+        opportunityRepository.save(opportunityEntity);
+
         // Update lead status and conversion references
         lead.setLeadStatus(LeadStatus.CONVERTED);
         lead.setConvertedDate(LocalDateTime.now());
         lead.setConvertedToContactId(contact.getId());
         lead.setConvertedToAccountId(account.getId());
+        lead.setConvertedToOpportunityId(opportunity.getId());
         lead.setLastModifiedAt(LocalDateTime.now());
         lead.setLastModifiedBy(convertedByUserId);
 
         Lead converted = leadRepository.save(lead);
-        log.info("Lead {} converted successfully - Contact: {}, Account: {}",
-                lead.getLeadId(), contact.getContactId(), account.getAccountId());
+        log.info("Lead {} converted successfully - Contact: {}, Account: {}, Opportunity: {}",
+                lead.getLeadId(), contact.getContactId(), account.getAccountId(), opportunity.getOpportunityId());
 
         return mapToResponse(converted);
     }
