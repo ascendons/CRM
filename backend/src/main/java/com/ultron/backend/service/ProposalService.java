@@ -47,6 +47,7 @@ public class ProposalService extends BaseTenantService {
     private final UserRepository userRepository;
     private final AuditLogService auditLogService;
     private final PdfService pdfService;
+    private final ProposalVersioningService proposalVersioningService;
 
     @Transactional
     public ProposalResponse createProposal(CreateProposalRequest request, String createdBy) {
@@ -111,11 +112,8 @@ public class ProposalService extends BaseTenantService {
         log.info("[Tenant: {}] Proposal created: proposalId={}, source={}, sourceId={}, total={}",
                  tenantId, saved.getProposalId(), saved.getSource(), saved.getSourceId(), saved.getTotalAmount());
 
-        // Log audit event
-        auditLogService.logAsync("PROPOSAL", saved.getId(), saved.getTitle(),
-                "CREATED", "Proposal created with status DRAFT",
-                null, ProposalStatus.DRAFT.toString(),
-                createdBy, null);
+        // Create version snapshot
+        proposalVersioningService.createSnapshot(saved, "CREATED", "Initial version created", createdBy);
 
         return mapToResponse(saved);
     }
@@ -235,11 +233,8 @@ public class ProposalService extends BaseTenantService {
 
         log.info("Proposal updated: proposalId={}, updatedBy={}", saved.getProposalId(), userId);
 
-        // Log audit event
-        auditLogService.logAsync("PROPOSAL", saved.getId(), saved.getTitle(),
-                "UPDATED", "Proposal details updated",
-                null, null,
-                userId, null);
+        // Create version snapshot
+        proposalVersioningService.createSnapshot(saved, "UPDATED", "Proposal details updated", userId);
 
         return mapToResponse(saved);
     }
@@ -267,11 +262,8 @@ public class ProposalService extends BaseTenantService {
 
         log.info("Proposal sent: proposalId={}, sentBy={}", saved.getProposalId(), userId);
 
-        // Log audit event
-        auditLogService.logAsync("PROPOSAL", saved.getId(), saved.getTitle(),
-                "SENT", "Proposal sent to customer",
-                oldStatus.toString(), ProposalStatus.SENT.toString(),
-                userId, null);
+        // Create version snapshot
+        proposalVersioningService.createSnapshot(saved, "SENT", "Proposal sent to customer", userId);
 
         // TODO: Send email notification to customer
 
@@ -301,11 +293,8 @@ public class ProposalService extends BaseTenantService {
 
         log.info("Proposal accepted: proposalId={}, acceptedBy={}", saved.getProposalId(), userId);
 
-        // Log audit event
-        auditLogService.logAsync("PROPOSAL", saved.getId(), saved.getTitle(),
-                "ACCEPTED", "Proposal accepted by customer",
-                oldStatus.toString(), ProposalStatus.ACCEPTED.toString(),
-                userId, null);
+        // Create version snapshot
+        proposalVersioningService.createSnapshot(saved, "ACCEPTED", "Proposal accepted by customer", userId);
 
         // TODO: Auto-create Opportunity if source is LEAD
         // TODO: Update Opportunity stage if source is OPPORTUNITY
@@ -338,11 +327,8 @@ public class ProposalService extends BaseTenantService {
         log.info("Proposal rejected: proposalId={}, rejectedBy={}, reason={}",
                  saved.getProposalId(), userId, reason);
 
-        // Log audit event with rejection reason
-        auditLogService.logAsync("PROPOSAL", saved.getId(), saved.getTitle(),
-                "REJECTED", "Proposal rejected by customer. Reason: " + reason,
-                oldStatus.toString(), ProposalStatus.REJECTED.toString(),
-                userId, java.util.Map.of("reason", reason));
+        // Create version snapshot
+        proposalVersioningService.createSnapshot(saved, "REJECTED", "Proposal rejected by customer. Reason: " + reason, userId);
 
         return mapToResponse(saved);
     }

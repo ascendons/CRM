@@ -303,6 +303,28 @@ public class LeadController {
     }
 
     /**
+     * Mark lead as lost and create CLOSED_LOST opportunity
+     * POST /api/v1/leads/{id}/lost
+     */
+    @PostMapping("/{id}/lost")
+    @PreAuthorize("hasPermission('LEAD', 'EDIT')")
+    public ResponseEntity<ApiResponse<LeadResponse>> loseLead(
+            @PathVariable String id,
+            @RequestParam(required = false, defaultValue = "") String lossReason) {
+        String currentUserId = getCurrentUserId();
+        log.info("User {} marking lead {} as lost", currentUserId, id);
+
+        LeadResponse lead = leadService.loseLead(id, lossReason, currentUserId);
+
+        return ResponseEntity.ok(
+                ApiResponse.<LeadResponse>builder()
+                        .success(true)
+                        .message("Lead marked as lost successfully")
+                        .data(lead)
+                        .build());
+    }
+
+    /**
      * Get lead statistics
      * GET /api/v1/leads/stats
      */

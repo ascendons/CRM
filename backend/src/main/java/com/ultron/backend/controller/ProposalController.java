@@ -27,6 +27,7 @@ import java.util.List;
 public class ProposalController {
 
     private final ProposalService proposalService;
+    private final com.ultron.backend.service.ProposalVersioningService proposalVersioningService;
 
     /**
      * Create a new proposal
@@ -335,6 +336,47 @@ public class ProposalController {
                 ApiResponse.<Void>builder()
                         .success(true)
                         .message("Proposal deleted successfully")
+                        .build());
+    }
+
+    /**
+     * Get version history for a proposal
+     * GET /api/v1/proposals/{id}/versions
+     */
+    @GetMapping("/{id}/versions")
+    @PreAuthorize("hasPermission('PROPOSAL', 'READ')")
+    public ResponseEntity<ApiResponse<List<com.ultron.backend.dto.response.ProposalVersionResponse>>> getVersionHistory(
+            @PathVariable String id) {
+        log.info("Fetching version history for proposal: {}", id);
+
+        List<com.ultron.backend.dto.response.ProposalVersionResponse> history = proposalVersioningService.getVersionHistory(id);
+
+        return ResponseEntity.ok(
+                ApiResponse.<List<com.ultron.backend.dto.response.ProposalVersionResponse>>builder()
+                        .success(true)
+                        .message("Version history retrieved successfully")
+                        .data(history)
+                        .build());
+    }
+
+    /**
+     * Get a specific version snapshot of a proposal
+     * GET /api/v1/proposals/{id}/versions/{version}
+     */
+    @GetMapping("/{id}/versions/{version}")
+    @PreAuthorize("hasPermission('PROPOSAL', 'READ')")
+    public ResponseEntity<ApiResponse<com.ultron.backend.dto.response.ProposalVersionResponse>> getVersion(
+            @PathVariable String id,
+            @PathVariable Integer version) {
+        log.info("Fetching version {} for proposal: {}", version, id);
+
+        com.ultron.backend.dto.response.ProposalVersionResponse proposalVersion = proposalVersioningService.getVersion(id, version);
+
+        return ResponseEntity.ok(
+                ApiResponse.<com.ultron.backend.dto.response.ProposalVersionResponse>builder()
+                        .success(true)
+                        .message("Proposal version retrieved successfully")
+                        .data(proposalVersion)
                         .build());
     }
 }

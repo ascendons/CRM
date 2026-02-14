@@ -91,6 +91,14 @@ export const leadsService = {
   },
 
   /**
+   * Mark lead as lost and create CLOSED_LOST opportunity
+   */
+  async loseLead(id: string, lossReason?: string): Promise<Lead> {
+    const params = lossReason ? `?lossReason=${encodeURIComponent(lossReason)}` : '';
+    return await api.post<Lead>(`/leads/${id}/lost${params}`, {});
+  },
+
+  /**
    * Delete lead
    */
   async deleteLead(id: string): Promise<void> {

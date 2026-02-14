@@ -519,6 +519,103 @@ public class LeadService extends BaseTenantService {
     }
 
     /**
+     * Mark a lead as lost and create a CLOSED_LOST opportunity for tracking
+     */
+    public LeadResponse loseLead(String id, String lossReason, String userId) {
+        Lead lead = leadRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Lead not found"));
+
+        // Validate tenant ownership
+        validateResourceTenantOwnership(lead.getTenantId());
+
+        // Create Account from lead company information
+        log.info("Creating Account from lost Lead {}", lead.getLeadId());
+        CreateAccountRequest accountRequest = CreateAccountRequest.builder()
+                .accountName(lead.getCompanyName())
+                .industry(lead.getIndustry())
+                .companySize(lead.getCompanySize())
+                .annualRevenue(lead.getAnnualRevenue())
+                .numberOfEmployees(lead.getNumberOfEmployees())
+                .website(lead.getWebsite())
+                .billingStreet(lead.getStreetAddress())
+                .billingCity(lead.getCity())
+                .billingState(lead.getState())
+                .billingPostalCode(lead.getPostalCode())
+                .billingCountry(lead.getCountry())
+                .description(lead.getDescription())
+                .tags(lead.getTags())
+                .build();
+
+        AccountResponse account = accountService.createAccount(accountRequest, userId);
+
+        // Create Contact from lead personal information
+        log.info("Creating Contact from lost Lead {}", lead.getLeadId());
+        CreateContactRequest contactRequest = CreateContactRequest.builder()
+                .firstName(lead.getFirstName())
+                .lastName(lead.getLastName())
+                .email(lead.getEmail())
+                .phone(lead.getPhone())
+                .mobilePhone(lead.getMobilePhone())
+                .workPhone(lead.getWorkPhone())
+                .jobTitle(lead.getJobTitle())
+                .department(lead.getDepartment())
+                .linkedInProfile(lead.getLinkedInProfile())
+                .website(lead.getWebsite())
+                .accountId(account.getId())
+                .isPrimaryContact(true)
+                .mailingStreet(lead.getStreetAddress())
+                .mailingCity(lead.getCity())
+                .mailingState(lead.getState())
+                .mailingPostalCode(lead.getPostalCode())
+                .mailingCountry(lead.getCountry())
+                .description(lead.getDescription())
+                .tags(lead.getTags())
+                .build();
+
+        ContactResponse contact = contactService.createContact(contactRequest, userId);
+
+        // Create CLOSED_LOST Opportunity
+        log.info("Creating CLOSED_LOST Opportunity from lost Lead {}", lead.getLeadId());
+        CreateOpportunityRequest opportunityRequest = CreateOpportunityRequest.builder()
+                .opportunityName(lead.getCompanyName() + " - " + lead.getFirstName() + " " + lead.getLastName())
+                .stage(OpportunityStage.CLOSED_LOST)
+                .accountId(account.getId())
+                .primaryContactId(contact.getId())
+                .amount(lead.getExpectedRevenue() != null ? lead.getExpectedRevenue() : BigDecimal.ZERO)
+                .probability(0)
+                .expectedCloseDate(lead.getExpectedCloseDate() != null ? lead.getExpectedCloseDate() : LocalDate.now())
+                .actualCloseDate(LocalDate.now())
+                .leadSource(lead.getLeadSource() != null ? lead.getLeadSource().toString() : null)
+                .description(lead.getDescription())
+                .notes(lossReason)
+                .tags(lead.getTags())
+                .build();
+
+        OpportunityResponse opportunity = opportunityService.createOpportunity(opportunityRequest, userId);
+
+        // Update Opportunity with loss reason and lead reference
+        Opportunity opportunityEntity = opportunityRepository.findById(opportunity.getId())
+                .orElseThrow(() -> new RuntimeException("Opportunity not found after creation"));
+        opportunityEntity.setConvertedFromLeadId(lead.getId());
+        opportunityEntity.setConvertedDate(LocalDateTime.now());
+        opportunityEntity.setLossReason(lossReason);
+        opportunityRepository.save(opportunityEntity);
+
+        // Update lead status
+        lead.setLeadStatus(LeadStatus.LOST);
+        lead.setConvertedToContactId(contact.getId());
+        lead.setConvertedToAccountId(account.getId());
+        lead.setConvertedToOpportunityId(opportunity.getId());
+        lead.setLastModifiedAt(LocalDateTime.now());
+        lead.setLastModifiedBy(userId);
+
+        Lead lost = leadRepository.save(lead);
+        log.info("Lead {} marked as lost - Opportunity: {}", lead.getLeadId(), opportunity.getOpportunityId());
+
+        return mapToResponse(lost);
+    }
+
+    /**
      * Get statistics for current tenant
      */
     public LeadStatistics getStatistics() {

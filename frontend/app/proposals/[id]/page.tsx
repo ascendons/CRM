@@ -21,7 +21,11 @@ import { AuditLogTimeline } from "@/components/common/AuditLogTimeline";
 import { PermissionGuard } from "@/components/common/PermissionGuard";
 import ProposalComments from "@/components/proposals/ProposalComments";
 import CommercialNegotiation from "@/components/proposals/CommercialNegotiation";
-import { MessageSquare, Gavel } from "lucide-react";
+import { MessageSquare, Gavel, History } from "lucide-react";
+import ProposalVersionHistory from "@/components/proposals/ProposalVersionHistory";
+import ProposalVersionDiff from "@/components/proposals/ProposalVersionDiff";
+import ProposalSnapshotModal from "@/components/proposals/ProposalSnapshotModal";
+import { ProposalVersionResponse } from "@/types/proposal-version";
 
 export default function ProposalDetailPage({
   params,
@@ -44,7 +48,11 @@ export default function ProposalDetailPage({
   // Negotiation state
   const [showNegotiationModal, setShowNegotiationModal] = useState(false);
   const [negotiationReason, setNegotiationReason] = useState("");
-  const [activeTab, setActiveTab] = useState<'details' | 'technical' | 'commercial'>('details');
+  const [activeTab, setActiveTab] = useState<'details' | 'technical' | 'commercial' | 'history'>('details');
+
+  // Versioning state
+  const [selectedVersion, setSelectedVersion] = useState<ProposalVersionResponse | null>(null);
+  const [comparison, setComparison] = useState<{ v1: ProposalVersionResponse, v2: ProposalVersionResponse } | null>(null);
 
   // Switch to correct tab if in negotiation
   useEffect(() => {
@@ -413,13 +421,67 @@ export default function ProposalDetailPage({
                 <Gavel className="h-4 w-4" />
                 Place Bid (Commercial)
               </button>
+              <button
+                onClick={() => { setActiveTab('history'); setComparison(null); }}
+                className={`${activeTab === 'history'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2`}
+              >
+                <History className="h-4 w-4" />
+                Version History
+              </button>
+            </nav>
+          </div>
+        )}
+
+        {/* Normal Tabs (when not in negotiation or manually added) */}
+        {proposal.status !== ProposalStatus.NEGOTIATION && (
+          <div className="border-b border-gray-200 mb-6 bg-white rounded-lg shadow px-6">
+            <nav className="-mb-px flex space-x-8" aria-label="Tabs">
+              <button
+                onClick={() => setActiveTab('details')}
+                className={`${activeTab === 'details'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2`}
+              >
+                <CheckCircle className="h-4 w-4" />
+                Details
+              </button>
+              <button
+                onClick={() => { setActiveTab('history'); setComparison(null); }}
+                className={`${activeTab === 'history'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2`}
+              >
+                <History className="h-4 w-4" />
+                Version History
+              </button>
             </nav>
           </div>
         )}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Main Content - 2 columns */}
-          <div className="lg:col-span-2 space-y-6">
+          {/* Main Content - 2 columns or full width if history/diff */}
+          <div className={`${activeTab === 'history' ? 'lg:col-span-3' : 'lg:col-span-2'} space-y-6`}>
+
+            {activeTab === 'history' && !comparison && (
+              <ProposalVersionHistory
+                proposalId={proposal.id}
+                onVersionSelect={(v) => setSelectedVersion(v)}
+                onCompareSelect={(v1, v2) => setComparison({ v1, v2 })}
+              />
+            )}
+
+            {activeTab === 'history' && comparison && (
+              <ProposalVersionDiff
+                version1={comparison.v1}
+                version2={comparison.v2}
+                onBack={() => setComparison(null)}
+              />
+            )}
 
             {activeTab === 'technical' && (
               <ProposalComments proposal={proposal} />
@@ -572,113 +634,115 @@ export default function ProposalDetailPage({
             )}
           </div>
 
-          {/* Sidebar - 1 column */}
-          <div className="space-y-6">
-            {/* Totals */}
-            <DetailSection title="Summary">
-              <dl className="space-y-3">
-                <div className="flex justify-between text-sm">
-                  <dt className="text-gray-500">Subtotal</dt>
-                  <dd className="text-gray-900 font-medium">
-                    {formatCurrency(proposal.subtotal)}
-                  </dd>
-                </div>
-                {proposal.discountAmount > 0 && (
-                  <>
-                    <div className="flex justify-between text-sm">
-                      <dt className="text-gray-500">
-                        Discount
-                        {proposal.discount && (
-                          <span className="ml-1 text-xs">
-                            (
-                            {proposal.discount.overallDiscountType ===
-                              DiscountType.PERCENTAGE
-                              ? `${proposal.discount.overallDiscountValue}%`
-                              : formatCurrency(
-                                proposal.discount.overallDiscountValue
-                              )}
-                            )
-                          </span>
-                        )}
-                      </dt>
-                      <dd className="text-red-600 font-medium">
-                        -{formatCurrency(proposal.discountAmount)}
-                      </dd>
-                    </div>
-                    {proposal.discount?.discountReason && (
-                      <div className="text-xs text-gray-500 italic">
-                        Reason: {proposal.discount.discountReason}
+          {/* Sidebar - 1 column - hide if history tab is full width */}
+          {activeTab !== 'history' && (
+            <div className="space-y-6">
+              {/* Totals */}
+              <DetailSection title="Summary">
+                <dl className="space-y-3">
+                  <div className="flex justify-between text-sm">
+                    <dt className="text-gray-500">Subtotal</dt>
+                    <dd className="text-gray-900 font-medium">
+                      {formatCurrency(proposal.subtotal)}
+                    </dd>
+                  </div>
+                  {proposal.discountAmount > 0 && (
+                    <>
+                      <div className="flex justify-between text-sm">
+                        <dt className="text-gray-500">
+                          Discount
+                          {proposal.discount && (
+                            <span className="ml-1 text-xs">
+                              (
+                              {proposal.discount.overallDiscountType ===
+                                DiscountType.PERCENTAGE
+                                ? `${proposal.discount.overallDiscountValue}%`
+                                : formatCurrency(
+                                  proposal.discount.overallDiscountValue
+                                )}
+                              )
+                            </span>
+                          )}
+                        </dt>
+                        <dd className="text-red-600 font-medium">
+                          -{formatCurrency(proposal.discountAmount)}
+                        </dd>
                       </div>
-                    )}
-                  </>
-                )}
-                <div className="flex justify-between text-sm">
-                  <dt className="text-gray-500">Tax</dt>
-                  <dd className="text-gray-900 font-medium">
-                    {formatCurrency(proposal.taxAmount)}
-                  </dd>
-                </div>
-                <div className="flex justify-between text-lg font-bold border-t pt-3">
-                  <dt className="text-gray-900">Total</dt>
-                  <dd className="text-blue-600">
-                    {formatCurrency(proposal.totalAmount)}
-                  </dd>
-                </div>
-              </dl>
-            </DetailSection>
-
-            {/* Customer Information */}
-            {proposal.customerName && (
-              <DetailSection title="Customer Information">
-                <dl>
-                  <DetailRow label="Name" value={proposal.customerName} />
-                  <DetailRow label="Email" value={proposal.customerEmail} />
-                  <DetailRow label="Phone" value={proposal.customerPhone} />
+                      {proposal.discount?.discountReason && (
+                        <div className="text-xs text-gray-500 italic">
+                          Reason: {proposal.discount.discountReason}
+                        </div>
+                      )}
+                    </>
+                  )}
+                  <div className="flex justify-between text-sm">
+                    <dt className="text-gray-500">Tax</dt>
+                    <dd className="text-gray-900 font-medium">
+                      {formatCurrency(proposal.taxAmount)}
+                    </dd>
+                  </div>
+                  <div className="flex justify-between text-lg font-bold border-t pt-3">
+                    <dt className="text-gray-900">Total</dt>
+                    <dd className="text-blue-600">
+                      {formatCurrency(proposal.totalAmount)}
+                    </dd>
+                  </div>
                 </dl>
               </DetailSection>
-            )}
 
-            {/* System Information */}
-            <DetailSection title="System Information">
-              <dl>
-                <DetailRow
-                  label="Created"
-                  value={`${formatDateTime(proposal.createdAt)} by ${proposal.createdByName
-                    }`}
-                />
-                {proposal.lastModifiedAt && (
+              {/* Customer Information */}
+              {proposal.customerName && (
+                <DetailSection title="Customer Information">
+                  <dl>
+                    <DetailRow label="Name" value={proposal.customerName} />
+                    <DetailRow label="Email" value={proposal.customerEmail} />
+                    <DetailRow label="Phone" value={proposal.customerPhone} />
+                  </dl>
+                </DetailSection>
+              )}
+
+              {/* System Information */}
+              <DetailSection title="System Information">
+                <dl>
                   <DetailRow
-                    label="Last Modified"
-                    value={`${formatDateTime(proposal.lastModifiedAt)} by ${proposal.lastModifiedByName
+                    label="Created"
+                    value={`${formatDateTime(proposal.createdAt)} by ${proposal.createdByName
                       }`}
                   />
-                )}
-                {proposal.sentAt && (
-                  <DetailRow label="Sent" value={formatDateTime(proposal.sentAt)} />
-                )}
-                {proposal.acceptedAt && (
-                  <DetailRow
-                    label="Accepted"
-                    value={formatDateTime(proposal.acceptedAt)}
-                  />
-                )}
-                {proposal.rejectedAt && (
-                  <>
+                  {proposal.lastModifiedAt && (
                     <DetailRow
-                      label="Rejected"
-                      value={formatDateTime(proposal.rejectedAt)}
+                      label="Last Modified"
+                      value={`${formatDateTime(proposal.lastModifiedAt)} by ${proposal.lastModifiedByName
+                        }`}
                     />
-                    {proposal.rejectionReason && (
+                  )}
+                  {proposal.sentAt && (
+                    <DetailRow label="Sent" value={formatDateTime(proposal.sentAt)} />
+                  )}
+                  {proposal.acceptedAt && (
+                    <DetailRow
+                      label="Accepted"
+                      value={formatDateTime(proposal.acceptedAt)}
+                    />
+                  )}
+                  {proposal.rejectedAt && (
+                    <>
                       <DetailRow
-                        label="Rejection Reason"
-                        value={proposal.rejectionReason}
+                        label="Rejected"
+                        value={formatDateTime(proposal.rejectedAt)}
                       />
-                    )}
-                  </>
-                )}
-              </dl>
-            </DetailSection>
-          </div>
+                      {proposal.rejectionReason && (
+                        <DetailRow
+                          label="Rejection Reason"
+                          value={proposal.rejectionReason}
+                        />
+                      )}
+                    </>
+                  )}
+                </dl>
+              </DetailSection>
+            </div>
+          )}
         </div>
       </div>
 
@@ -778,6 +842,14 @@ export default function ProposalDetailPage({
           </div>
         )
       }
+
+      {selectedVersion && (
+        <ProposalSnapshotModal
+          version={selectedVersion}
+          isOpen={!!selectedVersion}
+          onClose={() => setSelectedVersion(null)}
+        />
+      )}
 
     </div >
   );

@@ -137,4 +137,18 @@ export const proposalsService = {
   async downloadInvoice(id: string): Promise<Blob> {
     return api.download(`/proposals/${id}/pdf`);
   },
+
+  /**
+   * Get version history for a proposal
+   */
+  async getVersionHistory(id: string): Promise<import("@/types/proposal-version").ProposalVersionResponse[]> {
+    return api.get(`/proposals/${id}/versions`);
+  },
+
+  /**
+   * Get a specific version of a proposal
+   */
+  async getVersion(id: string, version: number): Promise<import("@/types/proposal-version").ProposalVersionResponse> {
+    return api.get(`/proposals/${id}/versions/${version}`);
+  },
 };

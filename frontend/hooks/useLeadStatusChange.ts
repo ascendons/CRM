@@ -90,8 +90,23 @@ export function useLeadStatusChange({ onStatusChange }: UseLeadStatusChangeProps
       await activitiesService.createActivity(activityData);
       toast.success("Activity logged successfully");
 
-      // 2. Update the status
-      await updateStatus(pendingStatusChange.leadId, pendingStatusChange.newStatus, pendingStatusChange.originalStatus);
+      // 2. SPECIAL CASE: LOST -> Create CLOSED_LOST opportunity
+      if (pendingStatusChange.newStatus === LeadStatus.LOST) {
+        try {
+          const lossReason = activityData.description || activityData.subject || 'No reason provided';
+          await leadsService.loseLead(pendingStatusChange.leadId, lossReason);
+          toast.success("Lost deal recorded in opportunities");
+          if (onStatusChange) {
+            onStatusChange(pendingStatusChange.leadId, pendingStatusChange.newStatus);
+          }
+        } catch (error) {
+          console.error("Failed to record lost deal", error);
+          toast.error("Failed to record lost deal in opportunities");
+        }
+      } else {
+        // 3. Update the status for other cases
+        await updateStatus(pendingStatusChange.leadId, pendingStatusChange.newStatus, pendingStatusChange.originalStatus);
+      }
 
     } catch (error) {
       console.error("Failed to save activity or update status", error);
