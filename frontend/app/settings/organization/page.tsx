@@ -6,6 +6,7 @@ import type { Organization } from "@/types/organization";
 import OrganizationProfile from "@/components/organization/OrganizationProfile";
 import UsageLimitsComponent from "@/components/organization/UsageLimits";
 import SubscriptionInfo from "@/components/organization/SubscriptionInfo";
+import InvoiceSettingsForm from "@/components/organization/InvoiceSettingsForm";
 import {
     Building2,
     Settings,
@@ -13,6 +14,7 @@ import {
     BarChart3,
     Loader2,
     AlertCircle,
+    FileText,
 } from "lucide-react";
 
 export default function OrganizationSettingsPage() {
@@ -39,9 +41,10 @@ export default function OrganizationSettingsPage() {
 
     const tabs = [
         { id: "profile", label: "Profile", icon: Building2 },
+        { id: "settings", label: "Settings", icon: Settings },
+        { id: "invoice", label: "Invoice", icon: FileText },
         { id: "usage", label: "Usage & Limits", icon: BarChart3 },
         { id: "subscription", label: "Subscription", icon: CreditCard },
-        { id: "settings", label: "Settings", icon: Settings },
     ];
 
     if (isLoading) {
@@ -110,17 +113,23 @@ export default function OrganizationSettingsPage() {
                         onUpdate={loadOrganization}
                     />
                 )}
-                {activeTab === "usage" && organization && (
-                    <UsageLimitsComponent />
-                )}
-                {activeTab === "subscription" && organization && (
-                    <SubscriptionInfo organization={organization} />
-                )}
                 {activeTab === "settings" && organization && (
                     <OrganizationSettingsForm
                         organization={organization}
                         onUpdate={loadOrganization}
                     />
+                )}
+                {activeTab === "invoice" && organization && (
+                    <InvoiceSettingsForm
+                        organization={organization}
+                        onUpdate={loadOrganization}
+                    />
+                )}
+                {activeTab === "usage" && organization && (
+                    <UsageLimitsComponent />
+                )}
+                {activeTab === "subscription" && organization && (
+                    <SubscriptionInfo organization={organization} />
                 )}
             </div>
         </div>

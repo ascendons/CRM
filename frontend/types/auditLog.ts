@@ -12,9 +12,11 @@ export interface AuditLogEntry {
     entityName: string; // e.g., "PROPOSAL", "PRODUCT"
     entityId: string;
     action: AuditLogAction;
-    performedBy: string; // Username or User ID
+    userName: string; // Backend calls it userName
     timestamp: string; // ISO Date
-    details?: string;
+    description?: string; // Backend calls it description
+    oldValue?: string;
+    newValue?: string;
     changes?: Record<string, { oldValue: any; newValue: any }>;
 }
 

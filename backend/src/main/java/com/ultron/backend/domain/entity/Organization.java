@@ -145,6 +145,34 @@ public class Organization {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
+    public static class InvoiceConfig {
+        private String logoUrl;
+        private String companyName;
+        private String companyAddress;
+        private String gstNumber;
+        private String cinNumber;
+        
+        // Bank Details
+        private String bankName;
+        private String accountName;
+        private String accountNumber;
+        private String ifscCode;
+        private String branchName;
+        private String micrCode;
+        
+        // PDF Options
+        private String authorizedSignatoryLabel;
+        private String authorizedSignatorySealUrl;
+        private String termsAndConditions;
+        private String footerText;
+    }
+
+    private InvoiceConfig invoiceConfig;
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class SecuritySettings {
         @Builder.Default
         private Boolean twoFactorRequired = false;

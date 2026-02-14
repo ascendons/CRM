@@ -13,7 +13,30 @@ export interface Organization {
     usage?: UsageMetrics;
     settings?: OrganizationSettings;
     security?: SecuritySettings;
+    invoiceConfig?: InvoiceConfig;
     createdAt: string;
+}
+
+export interface InvoiceConfig {
+    logoUrl?: string;
+    companyName?: string;
+    companyAddress?: string;
+    gstNumber?: string;
+    cinNumber?: string;
+
+    // Bank Details
+    bankName?: string;
+    accountName?: string;
+    accountNumber?: string;
+    ifscCode?: string;
+    branchName?: string;
+    micrCode?: string;
+
+    // PDF Options
+    authorizedSignatoryLabel?: string;
+    authorizedSignatorySealUrl?: string;
+    termsAndConditions?: string;
+    footerText?: string;
 }
 
 export type OrganizationStatus =

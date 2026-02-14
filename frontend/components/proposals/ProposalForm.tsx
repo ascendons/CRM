@@ -16,6 +16,7 @@ import {
     ProposalSource,
     ProposalStatus,
     DiscountType,
+    CustomerAddress,
 } from "@/types/proposal";
 import { ProductResponse } from "@/types/product";
 import { Lead } from "@/types/lead";
@@ -63,6 +64,30 @@ export default function ProposalForm({
         initialData?.deliveryTerms || ""
     );
     const [notes, setNotes] = useState(initialData?.notes || "");
+
+    // Address state
+    const [billingAddress, setBillingAddress] = useState<CustomerAddress>(
+        initialData?.billingAddress || {
+            street: "",
+            city: "",
+            state: "",
+            postalCode: "",
+            country: "",
+        }
+    );
+    const [shippingAddress, setShippingAddress] = useState<CustomerAddress>(
+        initialData?.shippingAddress || {
+            street: "",
+            city: "",
+            state: "",
+            postalCode: "",
+            country: "",
+        }
+    );
+
+    const copyBillingToShipping = () => {
+        setShippingAddress({ ...billingAddress });
+    };
 
     interface FormLineItem extends LineItemDTO {
         productName?: string;
@@ -280,6 +305,8 @@ export default function ProposalForm({
                     title: title.trim(),
                     description: description.trim() || undefined,
                     validUntil,
+                    billingAddress,
+                    shippingAddress,
                     lineItems: processedLineItems,
                     discount,
                     paymentTerms: paymentTerms.trim() || undefined,
@@ -313,6 +340,8 @@ export default function ProposalForm({
                     description: description.trim() || undefined,
                     status: status, // Include status update
                     validUntil,
+                    billingAddress,
+                    shippingAddress,
                     lineItems: processedLineItems,
                     discount,
                     paymentTerms: paymentTerms.trim() || undefined,
@@ -484,6 +513,147 @@ export default function ProposalForm({
                     required
                     disabled={isReadOnly}
                 />
+            </div>
+
+            {/* Address Information */}
+            <div className="border-t pt-6">
+                <h2 className="text-xl font-semibold text-gray-900 mb-6">Address Information</h2>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    {/* Billing Address */}
+                    <div className="space-y-4">
+                        <h3 className="text-sm font-semibold text-gray-800 uppercase tracking-wider">Billing Address</h3>
+                        <div className="space-y-3">
+                            <div>
+                                <label className="block text-xs font-medium text-gray-500 mb-1">Street Address</label>
+                                <input
+                                    type="text"
+                                    value={billingAddress.street || ""}
+                                    onChange={(e) => setBillingAddress({ ...billingAddress, street: e.target.value })}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm disabled:bg-gray-100"
+                                    disabled={isReadOnly}
+                                    placeholder="House No, Street Name"
+                                />
+                            </div>
+                            <div className="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label className="block text-xs font-medium text-gray-500 mb-1">City</label>
+                                    <input
+                                        type="text"
+                                        value={billingAddress.city || ""}
+                                        onChange={(e) => setBillingAddress({ ...billingAddress, city: e.target.value })}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm disabled:bg-gray-100"
+                                        disabled={isReadOnly}
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-medium text-gray-500 mb-1">State</label>
+                                    <input
+                                        type="text"
+                                        value={billingAddress.state || ""}
+                                        onChange={(e) => setBillingAddress({ ...billingAddress, state: e.target.value })}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm disabled:bg-gray-100"
+                                        disabled={isReadOnly}
+                                    />
+                                </div>
+                            </div>
+                            <div className="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label className="block text-xs font-medium text-gray-500 mb-1">PIN Code</label>
+                                    <input
+                                        type="text"
+                                        value={billingAddress.postalCode || ""}
+                                        onChange={(e) => setBillingAddress({ ...billingAddress, postalCode: e.target.value })}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm disabled:bg-gray-100"
+                                        disabled={isReadOnly}
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-medium text-gray-500 mb-1">Country</label>
+                                    <input
+                                        type="text"
+                                        value={billingAddress.country || ""}
+                                        onChange={(e) => setBillingAddress({ ...billingAddress, country: e.target.value })}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm disabled:bg-gray-100"
+                                        disabled={isReadOnly}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Shipping Address */}
+                    <div className="space-y-4">
+                        <div className="flex justify-between items-center">
+                            <h3 className="text-sm font-semibold text-gray-800 uppercase tracking-wider">Shipping Address</h3>
+                            <button
+                                type="button"
+                                onClick={copyBillingToShipping}
+                                disabled={isReadOnly}
+                                className="text-xs text-blue-600 hover:text-blue-800 font-medium disabled:text-gray-400"
+                            >
+                                Same as Billing
+                            </button>
+                        </div>
+                        <div className="space-y-3">
+                            <div>
+                                <label className="block text-xs font-medium text-gray-500 mb-1">Street Address</label>
+                                <input
+                                    type="text"
+                                    value={shippingAddress.street || ""}
+                                    onChange={(e) => setShippingAddress({ ...shippingAddress, street: e.target.value })}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm disabled:bg-gray-100"
+                                    disabled={isReadOnly}
+                                    placeholder="House No, Street Name"
+                                />
+                            </div>
+                            <div className="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label className="block text-xs font-medium text-gray-500 mb-1">City</label>
+                                    <input
+                                        type="text"
+                                        value={shippingAddress.city || ""}
+                                        onChange={(e) => setShippingAddress({ ...shippingAddress, city: e.target.value })}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm disabled:bg-gray-100"
+                                        disabled={isReadOnly}
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-medium text-gray-500 mb-1">State</label>
+                                    <input
+                                        type="text"
+                                        value={shippingAddress.state || ""}
+                                        onChange={(e) => setShippingAddress({ ...shippingAddress, state: e.target.value })}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm disabled:bg-gray-100"
+                                        disabled={isReadOnly}
+                                    />
+                                </div>
+                            </div>
+                            <div className="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label className="block text-xs font-medium text-gray-500 mb-1">PIN Code</label>
+                                    <input
+                                        type="text"
+                                        value={shippingAddress.postalCode || ""}
+                                        onChange={(e) => setShippingAddress({ ...shippingAddress, postalCode: e.target.value })}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm disabled:bg-gray-100"
+                                        disabled={isReadOnly}
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-medium text-gray-500 mb-1">Country</label>
+                                    <input
+                                        type="text"
+                                        value={shippingAddress.country || ""}
+                                        onChange={(e) => setShippingAddress({ ...shippingAddress, country: e.target.value })}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm disabled:bg-gray-100"
+                                        disabled={isReadOnly}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             {/* Line Items */}

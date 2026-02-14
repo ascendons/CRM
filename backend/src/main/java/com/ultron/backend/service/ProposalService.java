@@ -6,6 +6,7 @@ import com.ultron.backend.domain.entity.Product;
 import com.ultron.backend.domain.entity.Proposal;
 import com.ultron.backend.domain.enums.ProposalSource;
 import com.ultron.backend.domain.enums.ProposalStatus;
+import com.ultron.backend.dto.AddressDTO;
 import com.ultron.backend.dto.request.CreateProposalRequest;
 import com.ultron.backend.dto.request.UpdateProposalRequest;
 import com.ultron.backend.dto.response.ProposalResponse;
@@ -13,7 +14,6 @@ import com.ultron.backend.exception.ResourceNotFoundException;
 import com.ultron.backend.repository.LeadRepository;
 import com.ultron.backend.repository.OpportunityRepository;
 import com.ultron.backend.repository.ProductRepository;
-import com.ultron.backend.repository.ProposalRepository;
 import com.ultron.backend.repository.ProposalRepository;
 import com.ultron.backend.repository.UserRepository;
 import com.ultron.backend.repository.DynamicProductRepository;
@@ -29,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -89,6 +90,8 @@ public class ProposalService extends BaseTenantService {
                 .title(request.getTitle())
                 .description(request.getDescription())
                 .validUntil(request.getValidUntil())
+                .billingAddress(mapToAddress(request.getBillingAddress()))
+                .shippingAddress(mapToAddress(request.getShippingAddress()))
                 .lineItems(lineItems)
                 .discount(discount)
                 .status(ProposalStatus.DRAFT)
@@ -111,6 +114,12 @@ public class ProposalService extends BaseTenantService {
 
         log.info("[Tenant: {}] Proposal created: proposalId={}, source={}, sourceId={}, total={}",
                  tenantId, saved.getProposalId(), saved.getSource(), saved.getSourceId(), saved.getTotalAmount());
+
+        // Log creation audit
+        auditLogService.logAsync("PROPOSAL", saved.getId(), saved.getTitle(),
+                "CREATE", "Proposal created",
+                null, saved.getStatus().toString(),
+                createdBy, null);
 
         // Create version snapshot
         proposalVersioningService.createSnapshot(saved, "CREATED", "Initial version created", createdBy);
@@ -157,6 +166,14 @@ public class ProposalService extends BaseTenantService {
 
         if (request.getValidUntil() != null) {
             proposal.setValidUntil(request.getValidUntil());
+        }
+
+        if (request.getBillingAddress() != null) {
+            proposal.setBillingAddress(mapToAddress(request.getBillingAddress()));
+        }
+
+        if (request.getShippingAddress() != null) {
+            proposal.setShippingAddress(mapToAddress(request.getShippingAddress()));
         }
 
         if (request.getLineItems() != null) {
@@ -233,6 +250,12 @@ public class ProposalService extends BaseTenantService {
 
         log.info("Proposal updated: proposalId={}, updatedBy={}", saved.getProposalId(), userId);
 
+        // Log update audit
+        auditLogService.logAsync("PROPOSAL", saved.getId(), saved.getTitle(),
+                "UPDATE", "Proposal details updated",
+                null, null,
+                userId, null);
+
         // Create version snapshot
         proposalVersioningService.createSnapshot(saved, "UPDATED", "Proposal details updated", userId);
 
@@ -261,6 +284,12 @@ public class ProposalService extends BaseTenantService {
         Proposal saved = proposalRepository.save(proposal);
 
         log.info("Proposal sent: proposalId={}, sentBy={}", saved.getProposalId(), userId);
+
+        // Log status change audit
+        auditLogService.logAsync("PROPOSAL", saved.getId(), saved.getTitle(),
+                "STATUS_CHANGE", "Proposal sent to customer",
+                oldStatus.toString(), saved.getStatus().toString(),
+                userId, null);
 
         // Create version snapshot
         proposalVersioningService.createSnapshot(saved, "SENT", "Proposal sent to customer", userId);
@@ -292,6 +321,12 @@ public class ProposalService extends BaseTenantService {
         Proposal saved = proposalRepository.save(proposal);
 
         log.info("Proposal accepted: proposalId={}, acceptedBy={}", saved.getProposalId(), userId);
+
+        // Log status change audit
+        auditLogService.logAsync("PROPOSAL", saved.getId(), saved.getTitle(),
+                "STATUS_CHANGE", "Proposal accepted by customer",
+                oldStatus.toString(), saved.getStatus().toString(),
+                userId, null);
 
         // Create version snapshot
         proposalVersioningService.createSnapshot(saved, "ACCEPTED", "Proposal accepted by customer", userId);
@@ -326,6 +361,12 @@ public class ProposalService extends BaseTenantService {
 
         log.info("Proposal rejected: proposalId={}, rejectedBy={}, reason={}",
                  saved.getProposalId(), userId, reason);
+
+        // Log status change audit
+        auditLogService.logAsync("PROPOSAL", saved.getId(), saved.getTitle(),
+                "STATUS_CHANGE", "Proposal rejected by customer. Reason: " + reason,
+                oldStatus.toString(), saved.getStatus().toString(),
+                userId, Map.of("reason", reason));
 
         // Create version snapshot
         proposalVersioningService.createSnapshot(saved, "REJECTED", "Proposal rejected by customer. Reason: " + reason, userId);
@@ -616,6 +657,17 @@ public class ProposalService extends BaseTenantService {
                 .lastModifiedAt(proposal.getLastModifiedAt())
                 .lastModifiedBy(proposal.getLastModifiedBy())
                 .lastModifiedByName(proposal.getLastModifiedByName())
+                .build();
+    }
+
+    private Proposal.CustomerAddress mapToAddress(AddressDTO dto) {
+        if (dto == null) return null;
+        return Proposal.CustomerAddress.builder()
+                .street(dto.getStreet())
+                .city(dto.getCity())
+                .state(dto.getState())
+                .postalCode(dto.getPostalCode())
+                .country(dto.getCountry())
                 .build();
     }
 }

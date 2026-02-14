@@ -272,6 +272,33 @@ public class OrganizationController {
     }
 
     /**
+     * Update organization invoice configuration
+     * Admin only
+     */
+    @PutMapping("/invoice-config")
+    @SecurityRequirement(name = "bearer-jwt")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(
+            summary = "Update organization invoice configuration",
+            description = "Update specific fields for invoice generation (admin only)"
+    )
+    public ResponseEntity<ApiResponse<OrganizationDetailsResponse>> updateInvoiceConfig(
+            @Valid @RequestBody com.ultron.backend.dto.request.InvoiceConfigRequest request) {
+
+        String tenantId = TenantContext.getTenantId();
+        log.info("Updating invoice config for tenant: {}", tenantId);
+
+        Organization updated = organizationService.updateInvoiceConfig(tenantId, request);
+        OrganizationDetailsResponse response = mapToDetailsResponse(updated);
+
+        return ResponseEntity.ok(ApiResponse.<OrganizationDetailsResponse>builder()
+                .success(true)
+                .message("Invoice configuration updated successfully")
+                .data(response)
+                .build());
+    }
+
+    /**
      * Check subdomain availability
      * Public endpoint for registration form validation
      */
@@ -337,6 +364,7 @@ public class OrganizationController {
                 .subscription(org.getSubscription())
                 .settings(org.getSettings())
                 .security(org.getSecurity())
+                .invoiceConfig(org.getInvoiceConfig())
                 .createdAt(org.getCreatedAt())
                 .build();
     }
@@ -359,6 +387,7 @@ public class OrganizationController {
         private Organization.SubscriptionInfo subscription;
         private Organization.OrganizationSettings settings;
         private Organization.SecuritySettings security;
+        private Organization.InvoiceConfig invoiceConfig;
         private java.time.LocalDateTime createdAt;
     }
 

@@ -69,4 +69,11 @@ export const organizationApi = {
     }): Promise<Organization> => {
         return api.put<Organization>('/organizations/profile', data);
     },
+
+    /**
+     * Update invoice configuration (Admin only)
+     */
+    updateInvoiceConfig: async (config: import('@/types/organization').InvoiceConfig): Promise<Organization> => {
+        return api.put<Organization>('/organizations/invoice-config', config);
+    },
 };

@@ -124,6 +124,19 @@ export default function UserActivityPage() {
                                         </div>
                                         <p className="text-slate-600 text-sm">{activity.description}</p>
 
+                                        {/* State Transition Display */}
+                                        {(activity.oldValue || activity.newValue) && (
+                                            <div className="mt-2 text-xs flex items-center gap-2 text-slate-600 bg-slate-50 p-2 rounded w-fit">
+                                                <span className="font-medium text-slate-400 line-through">
+                                                    {activity.oldValue || "None"}
+                                                </span>
+                                                <span className="text-slate-400">→</span>
+                                                <span className="font-medium text-blue-600">
+                                                    {activity.newValue || "None"}
+                                                </span>
+                                            </div>
+                                        )}
+
                                         {/* Metadata / Details */}
                                         <div className="flex flex-wrap gap-4 mt-2 text-xs text-slate-400">
                                             <div className="flex items-center gap-1">

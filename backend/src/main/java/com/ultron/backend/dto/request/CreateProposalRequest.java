@@ -1,5 +1,6 @@
 package com.ultron.backend.dto.request;
 
+import com.ultron.backend.dto.AddressDTO;
 import com.ultron.backend.domain.enums.DiscountType;
 import com.ultron.backend.domain.enums.ProposalSource;
 import com.ultron.backend.validation.ValidUntilConstraint;
@@ -36,6 +37,12 @@ public class CreateProposalRequest {
     @NotNull(message = "Valid until date is required")
     @ValidUntilConstraint(maxMonths = 12)
     private LocalDate validUntil;
+
+    // Customer Information
+    @Valid
+    private AddressDTO billingAddress;
+    @Valid
+    private AddressDTO shippingAddress;
 
     @NotNull(message = "At least one line item is required")
     @Size(min = 1, message = "At least one line item is required")

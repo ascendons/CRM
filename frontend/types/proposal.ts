@@ -136,6 +136,8 @@ export interface CreateProposalRequest {
   title: string;
   description?: string;
   validUntil: string;
+  billingAddress?: CustomerAddress;
+  shippingAddress?: CustomerAddress;
   lineItems: LineItemDTO[];
   discount?: DiscountDTO;
   paymentTerms?: string;
@@ -148,6 +150,8 @@ export interface UpdateProposalRequest {
   description?: string;
   status?: ProposalStatus;
   validUntil?: string;
+  billingAddress?: CustomerAddress;
+  shippingAddress?: CustomerAddress;
   lineItems?: LineItemDTO[];
   discount?: DiscountDTO;
   paymentTerms?: string;

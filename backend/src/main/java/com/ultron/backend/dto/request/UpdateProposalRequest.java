@@ -1,5 +1,6 @@
 package com.ultron.backend.dto.request;
 
+import com.ultron.backend.dto.AddressDTO;
 import com.ultron.backend.domain.enums.DiscountType;
 import com.ultron.backend.domain.enums.ProposalStatus;
 import com.ultron.backend.validation.ValidUntilConstraint;
@@ -30,6 +31,12 @@ public class UpdateProposalRequest {
 
     @ValidUntilConstraint(maxMonths = 12)
     private LocalDate validUntil;
+
+    // Customer Information
+    @Valid
+    private AddressDTO billingAddress;
+    @Valid
+    private AddressDTO shippingAddress;
 
     @Valid
     private List<LineItemDTO> lineItems;

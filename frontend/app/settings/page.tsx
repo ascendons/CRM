@@ -10,10 +10,19 @@ import {
     Bell,
     Shield,
     Save,
-    CheckCircle2
+    CheckCircle2,
+    Building2,
+    ArrowRight,
+    Activity,
+    Clock
 } from "lucide-react";
+import { usePermissionContext } from "@/providers/PermissionProvider";
 
-type SettingsTab = "general" | "security" | "notifications";
+import { ActionType, type UserActivity } from "@/types/user-activity";
+import { userActivityService } from "@/lib/user-activity";
+import { format } from "date-fns";
+
+type SettingsTab = "general" | "security" | "notifications" | "activity-log";
 
 export default function SettingsPage() {
     const router = useRouter();
@@ -22,6 +31,8 @@ export default function SettingsPage() {
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
+
+    const { canAccessModule } = usePermissionContext();
 
     // General Form States
     const [fullName, setFullName] = useState(""); // Kept for initial load, but not used for update
@@ -41,6 +52,12 @@ export default function SettingsPage() {
     const [emailNotifications, setEmailNotifications] = useState(true);
     const [desktopNotifications, setDesktopNotifications] = useState(true);
 
+    // Activity Log States
+    const [activities, setActivities] = useState<UserActivity[]>([]);
+    const [activitiesLoading, setActivitiesLoading] = useState(false);
+    const [activitiesPage, setActivitiesPage] = useState(0);
+    const [activitiesTotalPages, setActivitiesTotalPages] = useState(0);
+
     useEffect(() => {
         if (!authService.isAuthenticated()) {
             router.push("/login");
@@ -48,6 +65,28 @@ export default function SettingsPage() {
         }
         loadUser();
     }, [router]);
+
+    useEffect(() => {
+        if (activeTab === "activity-log") {
+            fetchActivities();
+        }
+    }, [activeTab, activitiesPage]);
+
+    const fetchActivities = async () => {
+        setActivitiesLoading(true);
+        try {
+            const data = await userActivityService.getMyActivities({
+                page: activitiesPage,
+                size: 10,
+            });
+            setActivities(data.content);
+            setActivitiesTotalPages(data.totalPages);
+        } catch (error) {
+            console.error("Failed to load activities:", error);
+        } finally {
+            setActivitiesLoading(false);
+        }
+    };
 
     const loadUser = async () => {
         try {
@@ -203,7 +242,36 @@ export default function SettingsPage() {
                             <Bell className="w-5 h-5" />
                             Notifications
                         </button>
+                        <button
+                            onClick={() => { setActiveTab("activity-log"); setMessage(null); }}
+                            className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-colors ${activeTab === "activity-log"
+                                ? "bg-blue-50 text-blue-700"
+                                : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                                }`}
+                        >
+                            <Activity className="w-5 h-5" />
+                            Activity Log
+                        </button>
                     </nav>
+
+                    {/* Organization Settings Link (Admin Only) */}
+                    {canAccessModule("ADMINISTRATION") && (
+                        <div className="mt-8 pt-8 border-t border-slate-200">
+                            <h3 className="px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider mb-4">
+                                Organization
+                            </h3>
+                            <button
+                                onClick={() => router.push("/settings/organization")}
+                                className="w-full flex items-center justify-between group px-4 py-3 text-sm font-medium rounded-xl text-slate-600 hover:bg-blue-50 hover:text-blue-700 transition-all border border-transparent hover:border-blue-100"
+                            >
+                                <div className="flex items-center gap-3">
+                                    <Building2 className="w-5 h-5" />
+                                    Organization Settings
+                                </div>
+                                <ArrowRight className="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
+                            </button>
+                        </div>
+                    )}
                 </div>
 
                 {/* Content Area */}
@@ -408,26 +476,125 @@ export default function SettingsPage() {
                             </div>
                         )}
 
+                        {/* ACTIVITY LOG TAB */}
+                        {activeTab === "activity-log" && (
+                            <div className="space-y-6">
+                                <div>
+                                    <h2 className="text-lg font-semibold text-slate-900">Your Activity Log</h2>
+                                    <p className="text-sm text-slate-500">Track your recent actions and system events.</p>
+                                </div>
+
+                                <div className="space-y-4">
+                                    {activitiesLoading ? (
+                                        <div className="text-center py-10 text-slate-500 flex flex-col items-center gap-2">
+                                            <div className="w-6 h-6 border-2 border-primary/20 border-t-primary rounded-full animate-spin"></div>
+                                            <span>Loading activities...</span>
+                                        </div>
+                                    ) : activities.length === 0 ? (
+                                        <div className="text-center py-10 bg-slate-50 rounded-xl border border-dashed border-slate-300 text-slate-500">
+                                            No recent activities found.
+                                        </div>
+                                    ) : (
+                                        <div className="divide-y divide-slate-100 overflow-hidden border border-slate-200 rounded-xl">
+                                            {activities.map((activity) => (
+                                                <div key={activity.id} className="p-4 hover:bg-slate-50 transition-colors">
+                                                    <div className="flex items-start justify-between gap-4">
+                                                        <div className="flex-1 min-w-0">
+                                                            <div className="flex items-center gap-2 mb-1">
+                                                                <span className="font-semibold text-slate-900 text-sm">
+                                                                    {activity.actionType.replace(/_/g, " ")}
+                                                                </span>
+                                                                {activity.entityType && (
+                                                                    <span className="text-[10px] bg-slate-100 px-1.5 py-0.5 rounded text-slate-600 border border-slate-200 uppercase font-bold tracking-wider">
+                                                                        {activity.entityType}
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                            <p className="text-slate-600 text-sm leading-relaxed">{activity.description}</p>
+
+                                                            {/* Transitions */}
+                                                            {(activity.oldValue || activity.newValue) && (
+                                                                <div className="mt-2 text-[11px] flex items-center gap-2 text-slate-600 bg-blue-50/50 p-1.5 rounded border border-blue-100/50 w-fit">
+                                                                    <span className="font-medium text-slate-400 line-through">
+                                                                        {activity.oldValue || "None"}
+                                                                    </span>
+                                                                    <span className="text-slate-300">→</span>
+                                                                    <span className="font-medium text-blue-700">
+                                                                        {activity.newValue || "None"}
+                                                                    </span>
+                                                                </div>
+                                                            )}
+
+                                                            <div className="flex items-center gap-3 mt-2 text-[11px] text-slate-400">
+                                                                <div className="flex items-center gap-1">
+                                                                    <Clock className="w-3 h-3" />
+                                                                    {format(new Date(activity.timestamp), "MMM d, h:mm a")}
+                                                                </div>
+                                                                {activity.ipAddress && <span>{activity.ipAddress}</span>}
+                                                            </div>
+                                                        </div>
+                                                        <div className="flex-shrink-0">
+                                                            <div className={`w-8 h-8 rounded-full flex items-center justify-center border ${activity.actionType === ActionType.CREATE ? "bg-green-50 text-green-600 border-green-100" :
+                                                                activity.actionType === ActionType.UPDATE ? "bg-blue-50 text-blue-600 border-blue-100" :
+                                                                    activity.actionType === ActionType.DELETE ? "bg-red-50 text-red-600 border-red-100" :
+                                                                        "bg-slate-50 text-slate-500 border-slate-100"
+                                                                }`}>
+                                                                <Activity className="w-4 h-4" />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+
+                                    {activitiesTotalPages > 1 && (
+                                        <div className="flex items-center justify-between pt-4 border-t border-slate-100">
+                                            <button
+                                                disabled={activitiesPage === 0}
+                                                onClick={() => setActivitiesPage(p => p - 1)}
+                                                className="px-3 py-1.5 border border-slate-300 rounded-lg text-xs font-medium disabled:opacity-50 hover:bg-slate-50 transition-all"
+                                            >
+                                                Previous
+                                            </button>
+                                            <span className="text-xs text-slate-500">
+                                                Page {activitiesPage + 1} of {activitiesTotalPages}
+                                            </span>
+                                            <button
+                                                disabled={activitiesPage >= activitiesTotalPages - 1}
+                                                onClick={() => setActivitiesPage(p => p + 1)}
+                                                className="px-3 py-1.5 border border-slate-300 rounded-lg text-xs font-medium disabled:opacity-50 hover:bg-slate-50 transition-all"
+                                            >
+                                                Next
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        )}
+
                         {/* Save Button */}
-                        <div className="mt-8 pt-6 border-t border-slate-100 flex justify-end">
-                            <button
-                                onClick={handleSave}
-                                disabled={saving}
-                                className="flex items-center gap-2 px-6 py-2.5 bg-primary hover:bg-primary-hover text-white font-medium rounded-xl transition-all shadow-lg shadow-primary/25 disabled:opacity-70 disabled:cursor-not-allowed"
-                            >
-                                {saving ? (
-                                    <>
-                                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                                        Saving...
-                                    </>
-                                ) : (
-                                    <>
-                                        <Save className="w-4 h-4" />
-                                        Save Changes
-                                    </>
-                                )}
-                            </button>
-                        </div>
+                        {activeTab !== "activity-log" && (
+                            <div className="mt-8 pt-6 border-t border-slate-100 flex justify-end">
+                                <button
+                                    onClick={handleSave}
+                                    disabled={saving}
+                                    className="flex items-center gap-2 px-6 py-2.5 bg-primary hover:bg-primary-hover text-white font-medium rounded-xl transition-all shadow-lg shadow-primary/25 disabled:opacity-70 disabled:cursor-not-allowed"
+                                >
+                                    {saving ? (
+                                        <>
+                                            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                                            Saving...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Save className="w-4 h-4" />
+                                            Save Changes
+                                        </>
+                                    )}
+                                </button>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

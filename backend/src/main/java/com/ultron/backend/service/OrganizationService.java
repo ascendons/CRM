@@ -426,4 +426,36 @@ public class OrganizationService {
                 .encryptionEnabled(true)
                 .build();
     }
+
+    @Transactional
+    public Organization updateInvoiceConfig(String tenantId, com.ultron.backend.dto.request.InvoiceConfigRequest request) {
+        Organization org = organizationRepository.findById(tenantId)
+                .orElseThrow(() -> new ResourceNotFoundException("Organization not found"));
+
+        Organization.InvoiceConfig config = org.getInvoiceConfig();
+        if (config == null) {
+            config = new Organization.InvoiceConfig();
+        }
+
+        if (request.getLogoUrl() != null) config.setLogoUrl(request.getLogoUrl());
+        if (request.getCompanyName() != null) config.setCompanyName(request.getCompanyName());
+        if (request.getCompanyAddress() != null) config.setCompanyAddress(request.getCompanyAddress());
+        if (request.getGstNumber() != null) config.setGstNumber(request.getGstNumber());
+        if (request.getCinNumber() != null) config.setCinNumber(request.getCinNumber());
+        
+        if (request.getBankName() != null) config.setBankName(request.getBankName());
+        if (request.getAccountName() != null) config.setAccountName(request.getAccountName());
+        if (request.getAccountNumber() != null) config.setAccountNumber(request.getAccountNumber());
+        if (request.getIfscCode() != null) config.setIfscCode(request.getIfscCode());
+        if (request.getBranchName() != null) config.setBranchName(request.getBranchName());
+        if (request.getMicrCode() != null) config.setMicrCode(request.getMicrCode());
+        
+        if (request.getAuthorizedSignatoryLabel() != null) config.setAuthorizedSignatoryLabel(request.getAuthorizedSignatoryLabel());
+        if (request.getAuthorizedSignatorySealUrl() != null) config.setAuthorizedSignatorySealUrl(request.getAuthorizedSignatorySealUrl());
+        if (request.getTermsAndConditions() != null) config.setTermsAndConditions(request.getTermsAndConditions());
+        if (request.getFooterText() != null) config.setFooterText(request.getFooterText());
+
+        org.setInvoiceConfig(config);
+        return organizationRepository.save(org);
+    }
 }

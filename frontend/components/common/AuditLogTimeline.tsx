@@ -135,10 +135,18 @@ export function AuditLogTimeline({ entityName, entityId }: AuditLogTimelineProps
                                     <div>
                                         <p className="text-sm text-gray-900">
                                             <span className="font-medium">{getActionLabel(log.action)}</span>{" "}
-                                            by <span className="font-semibold text-gray-900">{log.performedBy}</span>
+                                            by <span className="font-semibold text-gray-900">{log.userName || "Unknown"}</span>
                                         </p>
-                                        {log.details && (
-                                            <p className="mt-1 text-sm text-gray-500">{log.details}</p>
+                                        {log.description && (
+                                            <p className="mt-1 text-sm text-gray-500">{log.description}</p>
+                                        )}
+                                        {/* State Transition Display */}
+                                        {(log.oldValue || log.newValue) && (
+                                            <div className="mt-2 text-xs flex items-center gap-2 text-gray-600 bg-gray-50 p-2 rounded">
+                                                <span className="font-medium text-gray-400 line-through">{log.oldValue || "None"}</span>
+                                                <span className="text-gray-400">→</span>
+                                                <span className="font-medium text-blue-600">{log.newValue || "None"}</span>
+                                            </div>
                                         )}
                                         {log.action === AuditLogAction.UPDATE && log.changes && (
                                             <div className="mt-2 text-xs bg-gray-50 p-2 rounded border border-gray-100">

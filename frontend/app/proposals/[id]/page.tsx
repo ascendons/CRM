@@ -12,7 +12,7 @@ import {
   getProposalStatusLabel,
 
 } from "@/types/proposal";
-import { ArrowLeft, Edit, Trash2, Send, CheckCircle, XCircle, Download } from "lucide-react";
+import { ArrowLeft, Edit, Trash2, Send, CheckCircle, XCircle, Download, Eye, X } from "lucide-react";
 import { proposalsService } from "@/lib/proposals";
 import { authService } from "@/lib/auth";
 import { showToast } from "@/lib/toast";
@@ -53,6 +53,10 @@ export default function ProposalDetailPage({
   // Versioning state
   const [selectedVersion, setSelectedVersion] = useState<ProposalVersionResponse | null>(null);
   const [comparison, setComparison] = useState<{ v1: ProposalVersionResponse, v2: ProposalVersionResponse } | null>(null);
+
+  // Preview state
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   // Switch to correct tab if in negotiation
   useEffect(() => {
@@ -181,18 +185,31 @@ export default function ProposalDetailPage({
       setActionLoading(true);
       const blob = await proposalsService.downloadInvoice(proposal.id);
       const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `proposal-${proposal.proposalNumber}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
+      setPreviewUrl(url);
+      setShowPreviewModal(true);
     } catch (error) {
-      console.error("Error downloading PDF:", error);
-      showToast.error("Failed to download PDF");
+      console.error("Error generating preview:", error);
+      showToast.error("Failed to generate preview");
     } finally {
       setActionLoading(false);
+    }
+  };
+
+  const handleActualDownload = () => {
+    if (!previewUrl || !proposal) return;
+    const a = document.createElement("a");
+    a.href = previewUrl;
+    a.download = `proposal-${proposal.proposalNumber}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  };
+
+  const closePreviewModal = () => {
+    setShowPreviewModal(false);
+    if (previewUrl) {
+      window.URL.revokeObjectURL(previewUrl);
+      setPreviewUrl(null);
     }
   };
 
@@ -520,6 +537,34 @@ export default function ProposalDetailPage({
                   </dl>
                 </DetailSection>
 
+                {/* Address Information */}
+                {(proposal.billingAddress || proposal.shippingAddress) && (
+                  <DetailSection title="Address Information">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                      {proposal.billingAddress && (
+                        <div>
+                          <h3 className="text-sm font-semibold text-gray-800 uppercase tracking-wider mb-2">Billing Address</h3>
+                          <p className="text-sm text-gray-900 leading-relaxed whitespace-pre-line">
+                            {proposal.billingAddress.street && `${proposal.billingAddress.street}\n`}
+                            {proposal.billingAddress.city}{proposal.billingAddress.state && `, ${proposal.billingAddress.state}`}{proposal.billingAddress.postalCode && ` - ${proposal.billingAddress.postalCode}`}
+                            {proposal.billingAddress.country && `\n${proposal.billingAddress.country}`}
+                          </p>
+                        </div>
+                      )}
+                      {proposal.shippingAddress && (
+                        <div>
+                          <h3 className="text-sm font-semibold text-gray-800 uppercase tracking-wider mb-2">Shipping Address</h3>
+                          <p className="text-sm text-gray-900 leading-relaxed whitespace-pre-line">
+                            {proposal.shippingAddress.street && `${proposal.shippingAddress.street}\n`}
+                            {proposal.shippingAddress.city}{proposal.shippingAddress.state && `, ${proposal.shippingAddress.state}`}{proposal.shippingAddress.postalCode && ` - ${proposal.shippingAddress.postalCode}`}
+                            {proposal.shippingAddress.country && `\n${proposal.shippingAddress.country}`}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </DetailSection>
+                )}
+
                 {/* Line Items */}
                 <DetailSection title="Line Items">
                   <div className="overflow-x-auto">
@@ -758,6 +803,67 @@ export default function ProposalDetailPage({
         isLoading={actionLoading}
         variant="danger"
       />
+
+      {/* Invoice Preview Modal */}
+      {showPreviewModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-[60] p-4">
+          <div className="bg-white rounded-2xl w-full max-w-5xl h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+            {/* Modal Header */}
+            <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center bg-gray-50">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-blue-100 rounded-lg text-blue-600">
+                  <Eye className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-gray-900">Invoice Preview</h3>
+                  <p className="text-xs text-gray-500">{proposal?.proposalNumber}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={handleActualDownload}
+                  className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all font-medium text-sm shadow-sm"
+                >
+                  <Download className="w-4 h-4" />
+                  Download PDF
+                </button>
+                <button
+                  onClick={closePreviewModal}
+                  className="p-2 hover:bg-gray-200 rounded-full transition-colors text-gray-500"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+            </div>
+
+            {/* Modal Body */}
+            <div className="flex-1 bg-gray-100 p-4">
+              {previewUrl ? (
+                <iframe
+                  src={previewUrl}
+                  className="w-full h-full rounded-lg shadow-sm bg-white"
+                  title="Invoice Preview"
+                />
+              ) : (
+                <div className="flex items-center justify-center h-full text-gray-500">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mr-3"></div>
+                  Generating preview...
+                </div>
+              )}
+            </div>
+
+            {/* Modal Footer */}
+            <div className="px-6 py-4 border-t border-gray-200 flex justify-end bg-gray-50">
+              <button
+                onClick={closePreviewModal}
+                className="px-6 py-2 text-gray-600 font-medium hover:text-gray-900 transition-colors"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Reject Modal */}
       {

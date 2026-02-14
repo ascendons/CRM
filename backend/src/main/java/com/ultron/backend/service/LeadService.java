@@ -49,6 +49,7 @@ public class LeadService extends BaseTenantService {
     private final AccountRepository accountRepository;
     private final OpportunityRepository opportunityRepository;
     private final ApplicationEventPublisher eventPublisher;
+    private final AuditLogService auditLogService;
 
     /**
      * Create a new lead
@@ -119,6 +120,12 @@ public class LeadService extends BaseTenantService {
         eventPublisher.publishEvent(new LeadCreatedEvent(this, savedLead));
 
         log.info("Lead created successfully with ID: {}", savedLead.getLeadId());
+
+        // Log audit
+        auditLogService.logAsync("LEAD", savedLead.getId(), savedLead.getFirstName() + " " + savedLead.getLastName(),
+                "CREATE", "New lead created for " + savedLead.getCompanyName(),
+                null, LeadStatus.NEW.toString(),
+                createdByUserId, null);
 
         return mapToResponse(savedLead);
     }
@@ -197,6 +204,7 @@ public class LeadService extends BaseTenantService {
         // Validate tenant ownership
         validateResourceTenantOwnership(lead.getTenantId());
 
+        LeadStatus oldStatus = lead.getLeadStatus();
         lead.setLeadStatus(newStatus);
         lead.setLastModifiedAt(LocalDateTime.now());
         lead.setLastModifiedBy(updatedByUserId);
@@ -207,6 +215,13 @@ public class LeadService extends BaseTenantService {
         }
 
         Lead updated = leadRepository.save(lead);
+
+        // Log audit
+        auditLogService.logAsync("LEAD", updated.getId(), updated.getFirstName() + " " + updated.getLastName(),
+                "STATUS_CHANGE", "Lead status updated to " + newStatus,
+                oldStatus.toString(), newStatus.toString(),
+                updatedByUserId, null);
+
         return mapToResponse(updated);
     }
 
@@ -372,6 +387,12 @@ public class LeadService extends BaseTenantService {
         Lead updatedLead = leadRepository.save(lead);
         log.info("Lead {} updated successfully", id);
 
+        // Log audit
+        auditLogService.logAsync("LEAD", updatedLead.getId(), updatedLead.getFirstName() + " " + updatedLead.getLastName(),
+                "UPDATE", "Lead details updated for " + updatedLead.getEmail(),
+                null, null,
+                updatedByUserId, null);
+
         return mapToResponse(updatedLead);
     }
 
@@ -391,6 +412,12 @@ public class LeadService extends BaseTenantService {
 
         leadRepository.save(lead);
         log.info("Lead {} soft deleted by user {}", id, deletedByUserId);
+
+        // Log audit
+        auditLogService.logAsync("LEAD", lead.getId(), lead.getFirstName() + " " + lead.getLastName(),
+                "DELETE", "Lead records deleted",
+                null, null,
+                deletedByUserId, null);
     }
 
     /**
@@ -515,6 +542,12 @@ public class LeadService extends BaseTenantService {
         log.info("Lead {} converted successfully - Contact: {}, Account: {}, Opportunity: {}",
                 lead.getLeadId(), contact.getContactId(), account.getAccountId(), opportunity.getOpportunityId());
 
+        // Log audit
+        auditLogService.logAsync("LEAD", converted.getId(), converted.getFirstName() + " " + converted.getLastName(),
+                "CONVERT", "Lead converted to Opportunity",
+                LeadStatus.QUALIFIED.toString(), LeadStatus.CONVERTED.toString(),
+                convertedByUserId, null);
+
         return mapToResponse(converted);
     }
 
@@ -611,6 +644,12 @@ public class LeadService extends BaseTenantService {
 
         Lead lost = leadRepository.save(lead);
         log.info("Lead {} marked as lost - Opportunity: {}", lead.getLeadId(), opportunity.getOpportunityId());
+
+        // Log audit
+        auditLogService.logAsync("LEAD", lost.getId(), lost.getFirstName() + " " + lost.getLastName(),
+                "LOSE", "Lead marked as lost: " + lossReason,
+                null, LeadStatus.LOST.toString(),
+                userId, null);
 
         return mapToResponse(lost);
     }
