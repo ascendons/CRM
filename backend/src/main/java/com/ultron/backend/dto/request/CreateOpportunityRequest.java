@@ -40,6 +40,7 @@ public class CreateOpportunityRequest {
     @NotNull(message = "Expected close date is required")
     private LocalDate expectedCloseDate;
 
+    private LocalDate actualCloseDate;
     // Optional fields
     private String primaryContactId;
     private String type;

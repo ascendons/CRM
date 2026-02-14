@@ -119,6 +119,14 @@ public class OpportunityService extends BaseTenantService {
         // Set stage date based on current stage
         setStageDate(opportunity, request.getStage());
 
+        // Handle actual close date for closed stages
+        if (request.getActualCloseDate() != null) {
+            opportunity.setActualCloseDate(request.getActualCloseDate());
+        }
+        if (request.getStage() == OpportunityStage.CLOSED_WON || request.getStage() == OpportunityStage.CLOSED_LOST) {
+            opportunity.setClosedDate(LocalDateTime.now());
+        }
+
         Opportunity saved = opportunityRepository.save(opportunity);
         log.info("Opportunity created successfully with ID: {}", saved.getOpportunityId());
 

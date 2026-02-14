@@ -19,6 +19,7 @@ import com.ultron.backend.exception.UserAlreadyExistsException;
 import com.ultron.backend.repository.AccountRepository;
 import com.ultron.backend.repository.ContactRepository;
 import com.ultron.backend.repository.LeadRepository;
+import com.ultron.backend.repository.OpportunityRepository;
 import com.ultron.backend.event.LeadCreatedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -479,12 +480,13 @@ public class LeadService extends BaseTenantService {
         log.info("Creating Opportunity from Lead {}", lead.getLeadId());
         CreateOpportunityRequest opportunityRequest = CreateOpportunityRequest.builder()
                 .opportunityName(lead.getCompanyName() + " - " + lead.getFirstName() + " " + lead.getLastName())
-                .stage(OpportunityStage.QUALIFICATION) // Start at QUALIFICATION stage
+                .stage(OpportunityStage.CLOSED_WON) // Converted leads are already won deals
                 .accountId(account.getId())
                 .primaryContactId(contact.getId())
                 .amount(lead.getExpectedRevenue() != null ? lead.getExpectedRevenue() : BigDecimal.ZERO)
-                .probability(70) // Default probability for converted leads
-                .expectedCloseDate(lead.getExpectedCloseDate() != null ? lead.getExpectedCloseDate() : LocalDate.now().plusMonths(3))
+                .probability(100) // Won deals have 100% probability
+                .expectedCloseDate(lead.getExpectedCloseDate() != null ? lead.getExpectedCloseDate() : LocalDate.now())
+                .actualCloseDate(LocalDate.now()) // Set actual close date to today
                 .leadSource(lead.getLeadSource() != null ? lead.getLeadSource().toString() : null)
                 .description(lead.getDescription())
                 .tags(lead.getTags())
