@@ -13,6 +13,10 @@ import {
   getProposalStatusColor,
 } from "@/types/proposal";
 import { authService } from "@/lib/auth";
+import { MessageSquare, FileText, CheckSquare } from "lucide-react";
+import { EntityActivities } from "@/components/common/EntityActivities";
+import { activitiesService } from "@/lib/activities";
+import { Activity } from "@/types/activity";
 
 export default function OpportunityDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -23,6 +27,13 @@ export default function OpportunityDetailPage({ params }: { params: Promise<{ id
   const [proposals, setProposals] = useState<ProposalResponse[]>([]);
   const [proposalsLoading, setProposalsLoading] = useState(false);
 
+  // Tabs
+  const [activeTab, setActiveTab] = useState<'details' | 'proposals' | 'activities'>('details');
+
+  // Activities
+  const [activities, setActivities] = useState<Activity[]>([]);
+  const [activitiesLoading, setActivitiesLoading] = useState(false);
+
   useEffect(() => {
     if (!authService.isAuthenticated()) {
       router.push("/login");
@@ -30,6 +41,7 @@ export default function OpportunityDetailPage({ params }: { params: Promise<{ id
     }
     loadOpportunity();
     loadProposals();
+    loadActivities();
   }, [id, router]);
 
   const loadOpportunity = async () => {
@@ -57,6 +69,18 @@ export default function OpportunityDetailPage({ params }: { params: Promise<{ id
       console.error("Failed to load proposals:", err);
     } finally {
       setProposalsLoading(false);
+    }
+  };
+
+  const loadActivities = async () => {
+    try {
+      setActivitiesLoading(true);
+      const data = await activitiesService.getActivitiesByOpportunity(id);
+      setActivities(data);
+    } catch (err) {
+      console.error("Failed to load activities:", err);
+    } finally {
+      setActivitiesLoading(false);
     }
   };
 
@@ -244,292 +268,326 @@ export default function OpportunityDetailPage({ params }: { params: Promise<{ id
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Basic Information */}
-          <DetailSection title="Basic Information">
-            <dl className="divide-y divide-gray-200">
-              <DetailRow label="Opportunity Name" value={opportunity.opportunityName} />
-              <DetailRow label="Stage" value={getStageLabel(opportunity.stage)} />
-              <DetailRow label="Amount" value={formatCurrency(opportunity.amount)} />
-              <DetailRow label="Probability" value={`${opportunity.probability}%`} />
-              <DetailRow
-                label="Expected Close Date"
-                value={formatDate(opportunity.expectedCloseDate)}
-              />
-              <DetailRow
-                label="Actual Close Date"
-                value={formatDate(opportunity.actualCloseDate)}
-              />
-              <DetailRow label="Days in Stage" value={opportunity.daysInStage} />
-            </dl>
-          </DetailSection>
-
-          {/* Account & Contact */}
-          <DetailSection title="Account & Contact">
-            <dl className="divide-y divide-gray-200">
-              <DetailRow label="Account" value={opportunity.accountName} />
-              <DetailRow label="Primary Contact" value={opportunity.primaryContactName} />
-              {opportunity.convertedFromLeadId && (
-                <>
-                  <DetailRow label="Converted From Lead" value={opportunity.convertedFromLeadId} />
-                  <DetailRow
-                    label="Conversion Date"
-                    value={formatDate(opportunity.convertedDate)}
-                  />
-                </>
-              )}
-            </dl>
-          </DetailSection>
-
-          {/* Sales Information */}
-          <DetailSection title="Sales Information">
-            <dl className="divide-y divide-gray-200">
-              <DetailRow label="Type" value={opportunity.type} />
-              <DetailRow label="Lead Source" value={opportunity.leadSource} />
-              <DetailRow label="Campaign Source" value={opportunity.campaignSource} />
-              <DetailRow label="Next Step" value={opportunity.nextStep} />
-              <DetailRow label="Description" value={opportunity.description} />
-            </dl>
-          </DetailSection>
-
-          {/* Financial Details */}
-          <DetailSection title="Financial Details">
-            <dl className="divide-y divide-gray-200">
-              <DetailRow label="Amount" value={formatCurrency(opportunity.amount)} />
-              <DetailRow
-                label="Forecast Amount"
-                value={formatCurrency(opportunity.forecastAmount)}
-              />
-              <DetailRow label="Currency" value={opportunity.currency} />
-              <DetailRow
-                label="Discount Amount"
-                value={formatCurrency(opportunity.discountAmount)}
-              />
-              <DetailRow label="Total Amount" value={formatCurrency(opportunity.totalAmount)} />
-            </dl>
-          </DetailSection>
-
-          {/* Products & Services */}
-          <DetailSection title="Products & Services">
-            <dl className="divide-y divide-gray-200">
-              <DetailRow
-                label="Products"
-                value={
-                  opportunity.products && opportunity.products.length > 0
-                    ? opportunity.products.join(", ")
-                    : undefined
-                }
-              />
-              <DetailRow
-                label="Services"
-                value={
-                  opportunity.services && opportunity.services.length > 0
-                    ? opportunity.services.join(", ")
-                    : undefined
-                }
-              />
-              <DetailRow label="Solution Offered" value={opportunity.solutionOffered} />
-            </dl>
-          </DetailSection>
-
-          {/* Competition */}
-          <DetailSection title="Competition">
-            <dl className="divide-y divide-gray-200">
-              <DetailRow
-                label="Competitors"
-                value={
-                  opportunity.competitors && opportunity.competitors.length > 0
-                    ? opportunity.competitors.join(", ")
-                    : undefined
-                }
-              />
-              <DetailRow label="Competitive Advantage" value={opportunity.competitiveAdvantage} />
-              {opportunity.lossReason && (
-                <DetailRow label="Loss Reason" value={opportunity.lossReason} />
-              )}
-            </dl>
-          </DetailSection>
-
-          {/* Decision Process */}
-          <DetailSection title="Decision Process">
-            <dl className="divide-y divide-gray-200">
-              <DetailRow label="Decision Maker" value={opportunity.decisionMaker} />
-              <DetailRow label="Decision Criteria" value={opportunity.decisionCriteria} />
-              <DetailRow label="Budget Confirmed" value={opportunity.budgetConfirmed} />
-              <DetailRow label="Decision Timeframe" value={opportunity.decisionTimeframe} />
-            </dl>
-          </DetailSection>
-
-          {/* Engagement */}
-          <DetailSection title="Engagement">
-            <dl className="divide-y divide-gray-200">
-              <DetailRow
-                label="Last Activity Date"
-                value={formatDate(opportunity.lastActivityDate)}
-              />
-              <DetailRow label="Total Activities" value={opportunity.totalActivities} />
-              <DetailRow label="Emails Sent" value={opportunity.emailsSent} />
-              <DetailRow label="Calls Made" value={opportunity.callsMade} />
-              <DetailRow label="Meetings Held" value={opportunity.meetingsHeld} />
-            </dl>
-          </DetailSection>
-
-          {/* Team */}
-          <DetailSection title="Team">
-            <dl className="divide-y divide-gray-200">
-              <DetailRow label="Owner" value={opportunity.ownerName} />
-              <DetailRow
-                label="Team Members"
-                value={
-                  opportunity.teamMembers && opportunity.teamMembers.length > 0
-                    ? opportunity.teamMembers.join(", ")
-                    : undefined
-                }
-              />
-            </dl>
-          </DetailSection>
-
-          {/* Additional Information */}
-          <DetailSection title="Additional Information">
-            <dl className="divide-y divide-gray-200">
-              <DetailRow label="Delivery Status" value={opportunity.deliveryStatus} />
-              <DetailRow label="Payment Terms" value={opportunity.paymentTerms} />
-              <DetailRow
-                label="Tags"
-                value={
-                  opportunity.tags && opportunity.tags.length > 0
-                    ? opportunity.tags.join(", ")
-                    : undefined
-                }
-              />
-              <DetailRow label="Notes" value={opportunity.notes} />
-            </dl>
-          </DetailSection>
-
-          {/* Stage History */}
-          <DetailSection title="Stage History">
-            <dl className="divide-y divide-gray-200">
-              <DetailRow label="Prospecting Date" value={formatDate(opportunity.prospectingDate)} />
-              <DetailRow
-                label="Qualification Date"
-                value={formatDate(opportunity.qualificationDate)}
-              />
-              <DetailRow
-                label="Needs Analysis Date"
-                value={formatDate(opportunity.needsAnalysisDate)}
-              />
-              <DetailRow label="Proposal Date" value={formatDate(opportunity.proposalDate)} />
-              <DetailRow label="Negotiation Date" value={formatDate(opportunity.negotiationDate)} />
-              <DetailRow label="Closed Date" value={formatDate(opportunity.closedDate)} />
-            </dl>
-          </DetailSection>
-
-          {/* System Information */}
-          <DetailSection title="System Information">
-            <dl className="divide-y divide-gray-200">
-              <DetailRow label="Created By" value={opportunity.createdByName} />
-              <DetailRow
-                label="Created At"
-                value={new Date(opportunity.createdAt).toLocaleString()}
-              />
-              <DetailRow label="Last Modified By" value={opportunity.lastModifiedByName} />
-              <DetailRow
-                label="Last Modified At"
-                value={new Date(opportunity.lastModifiedAt).toLocaleString()}
-              />
-            </dl>
-          </DetailSection>
+        {/* Tabs */}
+        <div className="border-b border-gray-200 mb-6">
+          <nav className="-mb-px flex space-x-8" aria-label="Tabs">
+            <button
+              onClick={() => setActiveTab('details')}
+              className={`${activeTab === 'details'
+                ? 'border-orange-500 text-orange-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2 transition-colors`}
+            >
+              <FileText className="h-4 w-4" />
+              Details
+            </button>
+            <button
+              onClick={() => setActiveTab('proposals')}
+              className={`${activeTab === 'proposals'
+                ? 'border-orange-500 text-orange-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2 transition-colors`}
+            >
+              <CheckSquare className="h-4 w-4" />
+              Proposals
+              <span className="bg-gray-100 text-gray-900 ml-2 py-0.5 px-2.5 rounded-full text-xs font-medium md:inline-block">
+                {proposals.length}
+              </span>
+            </button>
+            <button
+              onClick={() => setActiveTab('activities')}
+              className={`${activeTab === 'activities'
+                ? 'border-orange-500 text-orange-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2 transition-colors`}
+            >
+              <MessageSquare className="h-4 w-4" />
+              Activities
+              <span className="bg-gray-100 text-gray-900 ml-2 py-0.5 px-2.5 rounded-full text-xs font-medium md:inline-block">
+                {activities.length}
+              </span>
+            </button>
+          </nav>
         </div>
 
-        {/* Proposals Section */}
-        <div className="mt-8 bg-white rounded-lg shadow p-6">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-lg font-semibold text-gray-900">Proposals</h2>
-            <Link
-              href={`/proposals/new?source=OPPORTUNITY&sourceId=${id}`}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm"
-            >
-              + Create Proposal
-            </Link>
-          </div>
+        {/* Tab Content */}
+        <div className="mt-6">
+          {activeTab === 'details' && (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Basic Information */}
+              <DetailSection title="Basic Information">
+                <dl className="divide-y divide-gray-200">
+                  <DetailRow label="Opportunity Name" value={opportunity.opportunityName} />
+                  <DetailRow label="Stage" value={getStageLabel(opportunity.stage)} />
+                  <DetailRow label="Amount" value={formatCurrency(opportunity.amount)} />
+                  <DetailRow label="Probability" value={`${opportunity.probability}%`} />
+                  <DetailRow
+                    label="Expected Close Date"
+                    value={formatDate(opportunity.expectedCloseDate)}
+                  />
+                  <DetailRow
+                    label="Actual Close Date"
+                    value={formatDate(opportunity.actualCloseDate)}
+                  />
+                  <DetailRow label="Days in Stage" value={opportunity.daysInStage} />
+                </dl>
+              </DetailSection>
 
-          {proposalsLoading ? (
-            <div className="text-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+              {/* Account & Contact */}
+              <DetailSection title="Account & Contact">
+                <dl className="divide-y divide-gray-200">
+                  <DetailRow label="Account" value={opportunity.accountName} />
+                  <DetailRow label="Primary Contact" value={opportunity.primaryContactName} />
+                  {opportunity.convertedFromLeadId && (
+                    <>
+                      <DetailRow label="Converted From Lead" value={opportunity.convertedFromLeadId} />
+                      <DetailRow
+                        label="Conversion Date"
+                        value={formatDate(opportunity.convertedDate)}
+                      />
+                    </>
+                  )}
+                </dl>
+              </DetailSection>
+
+              {/* Sales Information */}
+              <DetailSection title="Sales Information">
+                <dl className="divide-y divide-gray-200">
+                  <DetailRow label="Type" value={opportunity.type} />
+                  <DetailRow label="Lead Source" value={opportunity.leadSource} />
+                  <DetailRow label="Campaign Source" value={opportunity.campaignSource} />
+                  <DetailRow label="Next Step" value={opportunity.nextStep} />
+                  <DetailRow label="Description" value={opportunity.description} />
+                </dl>
+              </DetailSection>
+
+              {/* Financial Details */}
+              <DetailSection title="Financial Details">
+                <dl className="divide-y divide-gray-200">
+                  <DetailRow label="Amount" value={formatCurrency(opportunity.amount)} />
+                  <DetailRow
+                    label="Forecast Amount"
+                    value={formatCurrency(opportunity.forecastAmount)}
+                  />
+                  <DetailRow label="Currency" value={opportunity.currency} />
+                  <DetailRow
+                    label="Discount Amount"
+                    value={formatCurrency(opportunity.discountAmount)}
+                  />
+                  <DetailRow label="Total Amount" value={formatCurrency(opportunity.totalAmount)} />
+                </dl>
+              </DetailSection>
+
+              {/* Products & Services */}
+              <DetailSection title="Products & Services">
+                <dl className="divide-y divide-gray-200">
+                  <DetailRow
+                    label="Products"
+                    value={
+                      opportunity.products && opportunity.products.length > 0
+                        ? opportunity.products.join(", ")
+                        : undefined
+                    }
+                  />
+                  <DetailRow
+                    label="Services"
+                    value={
+                      opportunity.services && opportunity.services.length > 0
+                        ? opportunity.services.join(", ")
+                        : undefined
+                    }
+                  />
+                  <DetailRow label="Solution Offered" value={opportunity.solutionOffered} />
+                </dl>
+              </DetailSection>
+
+              {/* Competition */}
+              <DetailSection title="Competition">
+                <dl className="divide-y divide-gray-200">
+                  <DetailRow
+                    label="Competitors"
+                    value={
+                      opportunity.competitors && opportunity.competitors.length > 0
+                        ? opportunity.competitors.join(", ")
+                        : undefined
+                    }
+                  />
+                  <DetailRow label="Competitive Advantage" value={opportunity.competitiveAdvantage} />
+                  {opportunity.lossReason && (
+                    <DetailRow label="Loss Reason" value={opportunity.lossReason} />
+                  )}
+                </dl>
+              </DetailSection>
+
+              {/* Decision Process */}
+              <DetailSection title="Decision Process">
+                <dl className="divide-y divide-gray-200">
+                  <DetailRow label="Decision Maker" value={opportunity.decisionMaker} />
+                  <DetailRow label="Decision Criteria" value={opportunity.decisionCriteria} />
+                  <DetailRow label="Budget Confirmed" value={opportunity.budgetConfirmed} />
+                  <DetailRow label="Decision Timeframe" value={opportunity.decisionTimeframe} />
+                </dl>
+              </DetailSection>
+
+              {/* Engagement */}
+              <DetailSection title="Engagement">
+                <dl className="divide-y divide-gray-200">
+                  <DetailRow
+                    label="Last Activity Date"
+                    value={formatDate(opportunity.lastActivityDate)}
+                  />
+                  <DetailRow label="Total Activities" value={opportunity.totalActivities} />
+                  <DetailRow label="Emails Sent" value={opportunity.emailsSent} />
+                  <DetailRow label="Calls Made" value={opportunity.callsMade} />
+                  <DetailRow label="Meetings Held" value={opportunity.meetingsHeld} />
+                </dl>
+              </DetailSection>
+
+              {/* Team */}
+              <DetailSection title="Team">
+                <dl className="divide-y divide-gray-200">
+                  <DetailRow label="Owner" value={opportunity.ownerName} />
+                  <DetailRow
+                    label="Team Members"
+                    value={
+                      opportunity.teamMembers && opportunity.teamMembers.length > 0
+                        ? opportunity.teamMembers.join(", ")
+                        : undefined
+                    }
+                  />
+                </dl>
+              </DetailSection>
+
+              {/* Additional Information */}
+              <DetailSection title="Additional Information">
+                <dl className="divide-y divide-gray-200">
+                  <DetailRow label="Delivery Status" value={opportunity.deliveryStatus} />
+                  <DetailRow label="Payment Terms" value={opportunity.paymentTerms} />
+                  <DetailRow
+                    label="Tags"
+                    value={
+                      opportunity.tags && opportunity.tags.length > 0
+                        ? opportunity.tags.join(", ")
+                        : undefined
+                    }
+                  />
+                  <DetailRow label="Notes" value={opportunity.notes} />
+                </dl>
+              </DetailSection>
+
+              {/* Stage History */}
+              <DetailSection title="Stage History">
+                <dl className="divide-y divide-gray-200">
+                  <DetailRow label="Prospecting Date" value={formatDate(opportunity.prospectingDate)} />
+                  <DetailRow
+                    label="Qualification Date"
+                    value={formatDate(opportunity.qualificationDate)}
+                  />
+                  <DetailRow
+                    label="Needs Analysis Date"
+                    value={formatDate(opportunity.needsAnalysisDate)}
+                  />
+                  <DetailRow label="Proposal Date" value={formatDate(opportunity.proposalDate)} />
+                  <DetailRow label="Negotiation Date" value={formatDate(opportunity.negotiationDate)} />
+                  <DetailRow label="Closed Date" value={formatDate(opportunity.closedDate)} />
+                </dl>
+              </DetailSection>
+
+              {/* System Information */}
+              <DetailSection title="System Information">
+                <dl className="divide-y divide-gray-200">
+                  <DetailRow label="Created By" value={opportunity.createdByName} />
+                  <DetailRow
+                    label="Created At"
+                    value={new Date(opportunity.createdAt).toLocaleString()}
+                  />
+                  <DetailRow label="Last Modified By" value={opportunity.lastModifiedByName} />
+                  <DetailRow
+                    label="Last Modified At"
+                    value={new Date(opportunity.lastModifiedAt).toLocaleString()}
+                  />
+                </dl>
+              </DetailSection>
             </div>
-          ) : proposals.length === 0 ? (
-            <div className="text-center py-8">
-              <p className="text-gray-500">No proposals yet</p>
-              <Link
-                href={`/proposals/new?source=OPPORTUNITY&sourceId=${id}`}
-                className="text-blue-600 hover:text-blue-800 text-sm mt-2 inline-block"
-              >
-                Create your first proposal
-              </Link>
+          )}
+
+          {activeTab === 'proposals' && (
+            <div className="bg-white rounded-lg shadow p-6">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-lg font-semibold text-gray-900">Proposals</h2>
+                <Link
+                  href={`/proposals/new?source=OPPORTUNITY&sourceId=${id}`}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm"
+                >
+                  + Create Proposal
+                </Link>
+              </div>
+
+              {proposalsLoading ? (
+                <div className="text-center py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+                </div>
+              ) : proposals.length === 0 ? (
+                <div className="text-center py-8">
+                  <p className="text-gray-500">No proposals yet</p>
+                  <Link
+                    href={`/proposals/new?source=OPPORTUNITY&sourceId=${id}`}
+                    className="text-blue-600 hover:text-blue-800 text-sm mt-2 inline-block"
+                  >
+                    Create your first proposal
+                  </Link>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Proposal #</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Title</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Total</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Valid Until</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {proposals.map((proposal) => (
+                        <tr key={proposal.id} className="hover:bg-gray-50">
+                          <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-blue-600">
+                            <Link href={`/proposals/${proposal.id}`}>{proposal.proposalNumber}</Link>
+                          </td>
+                          <td className="px-4 py-4 text-sm text-gray-900">{proposal.title}</td>
+                          <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">₹{proposal.totalAmount.toLocaleString()}</td>
+                          <td className="px-4 py-4 whitespace-nowrap">
+                            <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-${getProposalStatusColor(proposal.status)}-100 text-${getProposalStatusColor(proposal.status)}-800`}>
+                              {getProposalStatusLabel(proposal.status)}
+                            </span>
+                          </td>
+                          <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">{new Date(proposal.validUntil).toLocaleDateString()}</td>
+                          <td className="px-4 py-4 whitespace-nowrap text-sm font-medium">
+                            <Link href={`/proposals/${proposal.id}`} className="text-blue-600 hover:text-blue-900">View</Link>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                      Proposal #
-                    </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                      Title
-                    </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                      Total
-                    </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                      Status
-                    </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                      Valid Until
-                    </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {proposals.map((proposal) => (
-                    <tr key={proposal.id} className="hover:bg-gray-50">
-                      <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-blue-600">
-                        <Link href={`/proposals/${proposal.id}`}>
-                          {proposal.proposalNumber}
-                        </Link>
-                      </td>
-                      <td className="px-4 py-4 text-sm text-gray-900">
-                        {proposal.title}
-                      </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
-                        ₹{proposal.totalAmount.toLocaleString()}
-                      </td>
-                      <td className="px-4 py-4 whitespace-nowrap">
-                        <span
-                          className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-${getProposalStatusColor(
-                            proposal.status
-                          )}-100 text-${getProposalStatusColor(proposal.status)}-800`}
-                        >
-                          {getProposalStatusLabel(proposal.status)}
-                        </span>
-                      </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {new Date(proposal.validUntil).toLocaleDateString()}
-                      </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-sm font-medium">
-                        <Link
-                          href={`/proposals/${proposal.id}`}
-                          className="text-blue-600 hover:text-blue-900"
-                        >
-                          View
-                        </Link>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+          )}
+
+          {activeTab === 'activities' && (
+            <div className="bg-white rounded-lg shadow p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-lg font-semibold text-gray-900">Discussion & Activities</h2>
+              </div>
+              <EntityActivities
+                entityId={id}
+                entityType="OPPORTUNITY"
+                activities={activities}
+                loading={activitiesLoading}
+                onActivityChanged={loadActivities}
+              />
             </div>
           )}
         </div>

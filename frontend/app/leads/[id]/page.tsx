@@ -25,7 +25,7 @@ import { AssignLeadModal } from "@/components/leads/AssignLeadModal";
 import { UserPlus, MessageSquare, FileText, CheckSquare } from "lucide-react";
 import { useLeadStatusChange } from "@/hooks/useLeadStatusChange";
 import { LogActivityModal } from "@/components/leads/LogActivityModal";
-import { LeadActivities } from "@/components/leads/LeadActivities";
+import { EntityActivities } from "@/components/common/EntityActivities";
 import { activitiesService } from "@/lib/activities";
 import { Activity, ActivityType, ActivityStatus } from "@/types/activity";
 import { ProposalStatus } from "@/types/proposal";
@@ -575,8 +575,9 @@ export default function LeadDetailPage() {
                 <div className="flex justify-between items-center mb-6">
                   <h2 className="text-lg font-semibold text-gray-900">Discussion & Activities</h2>
                 </div>
-                <LeadActivities
-                  leadId={id}
+                <EntityActivities
+                  entityId={id}
+                  entityType="LEAD"
                   activities={activities}
                   loading={activitiesLoading}
                   onActivityChanged={loadActivities}

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { activitiesService } from '@/lib/activities';
 import { Activity, ActivityType, ActivityStatus, ActivityPriority } from '@/types/activity';
 import { showToast } from '@/lib/toast';
@@ -26,11 +26,14 @@ import {
 
 export default function ActivitiesPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const initialType = searchParams.get('type') || '';
+
   const [activities, setActivities] = useState<Activity[]>([]);
   const [filteredActivities, setFilteredActivities] = useState<Activity[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [typeFilter, setTypeFilter] = useState<string>('');
+  const [typeFilter, setTypeFilter] = useState<string>(initialType);
   const [statusFilter, setStatusFilter] = useState<string>('');
   const [priorityFilter, setPriorityFilter] = useState<string>('');
   const [error, setError] = useState<string>('');

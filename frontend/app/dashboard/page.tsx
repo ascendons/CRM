@@ -322,25 +322,41 @@ export default function DashboardPage() {
                   </div>
                   Action & Insight Center
                 </h3>
-                <div className="flex bg-slate-100 p-1 rounded-lg">
-                  <button
-                    onClick={() => setActiveTab('upcoming')}
-                    className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${activeTab === 'upcoming'
-                      ? 'bg-white text-blue-600 shadow-sm'
-                      : 'text-slate-500 hover:text-slate-700'
-                      }`}
+                <div className="flex items-center gap-4">
+                  <Link
+                    href="/activities?type=TASK"
+                    className="text-xs font-semibold text-primary hover:text-primary-hover flex items-center gap-1 transition-colors group hidden sm:flex"
                   >
-                    My Tasks
-                  </button>
-                  <button
-                    onClick={() => setActiveTab('recent')}
-                    className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${activeTab === 'recent'
-                      ? 'bg-white text-purple-600 shadow-sm'
-                      : 'text-slate-500 hover:text-slate-700'
-                      }`}
+                    View All
+                    <ArrowUpRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                  </Link>
+                  <div className="flex bg-slate-100 p-1 rounded-lg">
+                    <button
+                      onClick={() => setActiveTab('upcoming')}
+                      className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${activeTab === 'upcoming'
+                        ? 'bg-white text-blue-600 shadow-sm'
+                        : 'text-slate-500 hover:text-slate-700'
+                        }`}
+                    >
+                      My Tasks
+                    </button>
+                    <button
+                      onClick={() => setActiveTab('recent')}
+                      className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${activeTab === 'recent'
+                        ? 'bg-white text-purple-600 shadow-sm'
+                        : 'text-slate-500 hover:text-slate-700'
+                        }`}
+                    >
+                      Recent Activity
+                    </button>
+                  </div>
+                  <Link
+                    href="/activities/new"
+                    className="flex items-center gap-1 px-3 py-1.5 bg-primary/10 text-primary hover:bg-primary/20 rounded-lg text-xs font-bold transition-all"
                   >
-                    Recent Activity
-                  </button>
+                    <Plus className="h-4 w-4" />
+                    <span>Create Task</span>
+                  </Link>
                 </div>
               </div>
 
@@ -349,9 +365,13 @@ export default function DashboardPage() {
                   // Upcoming Tasks Tab
                   upcomingActivities.length > 0 ? (
                     upcomingActivities.map((activity) => (
-                      <div key={activity.id} className="group flex items-start gap-4 p-4 rounded-xl bg-slate-50 border border-slate-100 hover:border-blue-200 hover:shadow-sm transition-all">
+                      <Link
+                        key={activity.id}
+                        href={`/activities/${activity.id}/edit`}
+                        className="group flex items-start gap-4 p-4 rounded-xl bg-slate-50 border border-slate-100 hover:border-blue-200 hover:shadow-sm transition-all cursor-pointer"
+                      >
                         <div className="mt-1">
-                          <div className={`h-5 w-5 rounded border-2 flex items-center justify-center cursor-pointer transition-colors ${activity.status === 'COMPLETED'
+                          <div className={`h-5 w-5 rounded border-2 flex items-center justify-center transition-colors ${activity.status === 'COMPLETED'
                             ? 'bg-green-500 border-green-500'
                             : 'border-slate-300 group-hover:border-blue-400'
                             }`}>
@@ -380,10 +400,10 @@ export default function DashboardPage() {
                             )}
                           </div>
                         </div>
-                        <Link href={`/activities/${activity.id}/edit`} className="opacity-0 group-hover:opacity-100 p-2 text-slate-400 hover:text-blue-600 transition-all">
+                        <div className="opacity-0 group-hover:opacity-100 p-2 text-slate-400 group-hover:text-blue-600 transition-all">
                           <ArrowUpRight className="h-4 w-4" />
-                        </Link>
-                      </div>
+                        </div>
+                      </Link>
                     ))
                   ) : (
                     <div className="text-center py-10 text-slate-500">
@@ -398,7 +418,11 @@ export default function DashboardPage() {
                   // Recent Activity Tab
                   recentActivities.length > 0 ? (
                     recentActivities.map((activity) => (
-                      <div key={activity.id} className="flex items-start gap-4 p-4 rounded-xl bg-slate-50 border border-slate-100">
+                      <Link
+                        key={activity.id}
+                        href={`/activities/${activity.id}/edit`}
+                        className="group flex items-start gap-4 p-4 rounded-xl bg-slate-50 border border-slate-100 hover:border-purple-200 hover:shadow-sm transition-all cursor-pointer"
+                      >
                         <div className={`h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0 ${activity.type === 'CALL' ? 'bg-green-100 text-green-600' :
                           activity.type === 'EMAIL' ? 'bg-blue-100 text-blue-600' :
                             activity.type === 'MEETING' ? 'bg-purple-100 text-purple-600' :
@@ -411,7 +435,7 @@ export default function DashboardPage() {
                           {activity.type === 'NOTE' && <div className="material-symbols-outlined text-[20px]">description</div>}
                         </div>
                         <div className="flex-1">
-                          <p className="text-sm font-medium text-slate-900">{activity.subject}</p>
+                          <p className="text-sm font-medium text-slate-900 group-hover:text-purple-600 transition-colors">{activity.subject}</p>
                           <p className="text-xs text-slate-500 mt-1">
                             {activity.type} • {new Date(activity.createdAt).toLocaleString()}
                           </p>
@@ -420,7 +444,7 @@ export default function DashboardPage() {
                           }`}>
                           {activity.status}
                         </span>
-                      </div>
+                      </Link>
                     ))
                   ) : (
                     <div className="text-center py-10 text-slate-500">

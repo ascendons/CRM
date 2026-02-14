@@ -7,14 +7,15 @@ import { Fragment } from "react";
 import toast from "react-hot-toast";
 import { activitiesService } from "@/lib/activities";
 
-interface LeadActivitiesProps {
-    leadId: string;
+interface EntityActivitiesProps {
+    entityId: string;
+    entityType: 'LEAD' | 'ACCOUNT' | 'OPPORTUNITY' | 'CONTACT';
     activities: Activity[];
     loading?: boolean;
     onActivityChanged: () => Promise<void>;
 }
 
-export function LeadActivities({ leadId, activities, loading, onActivityChanged }: LeadActivitiesProps) {
+export function EntityActivities({ entityId, entityType, activities, loading, onActivityChanged }: EntityActivitiesProps) {
     const [newNote, setNewNote] = useState("");
     const [newSubject, setNewSubject] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -29,14 +30,21 @@ export function LeadActivities({ leadId, activities, loading, onActivityChanged 
 
         setIsSubmitting(true);
         try {
-            await activitiesService.createActivity({
-                leadId,
+            const activityRequest: CreateActivityRequest = {
                 type: ActivityType.NOTE,
                 subject: newSubject,
                 description: newNote,
                 status: ActivityStatus.COMPLETED,
                 scheduledDate: new Date().toISOString(),
-            });
+            };
+
+            // Assign ID based on entity type
+            if (entityType === 'LEAD') activityRequest.leadId = entityId;
+            else if (entityType === 'ACCOUNT') activityRequest.accountId = entityId;
+            else if (entityType === 'OPPORTUNITY') activityRequest.opportunityId = entityId;
+            else if (entityType === 'CONTACT') activityRequest.contactId = entityId;
+
+            await activitiesService.createActivity(activityRequest);
             setNewNote("");
             setNewSubject("");
             toast.success("Note added");

@@ -183,6 +183,17 @@ export default function Navigation() {
             </Link>
           )}
 
+          {/* Activities - Always visible if authenticated */}
+          <Link
+            href="/activities"
+            className={`text-sm font-medium transition-colors ${isActive("/activities")
+              ? "text-primary border-b-2 border-primary pb-1 font-semibold"
+              : "text-slate-700 hover:text-primary"
+              }`}
+          >
+            Activities
+          </Link>
+
           {/* Catalog - Module: PRODUCTS */}
           {canAccessModule("PRODUCTS") && (
             <Link
