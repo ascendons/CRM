@@ -561,8 +561,8 @@ export default function ProposalForm({
                             <CountryStateSelector
                                 countryValue={billingAddress.country || ""}
                                 stateValue={billingAddress.state || ""}
-                                onCountryChange={(val) => setBillingAddress({ ...billingAddress, country: val })}
-                                onStateChange={(val) => setBillingAddress({ ...billingAddress, state: val })}
+                                onCountryChange={(val) => setBillingAddress(prev => ({ ...prev, country: val }))}
+                                onStateChange={(val) => setBillingAddress(prev => ({ ...prev, state: val }))}
                                 disabled={isReadOnly}
                                 labelClassName="block text-xs font-medium text-gray-500 mb-1"
                             />
@@ -619,8 +619,8 @@ export default function ProposalForm({
                             <CountryStateSelector
                                 countryValue={shippingAddress.country || ""}
                                 stateValue={shippingAddress.state || ""}
-                                onCountryChange={(val) => setShippingAddress({ ...shippingAddress, country: val })}
-                                onStateChange={(val) => setShippingAddress({ ...shippingAddress, state: val })}
+                                onCountryChange={(val) => setShippingAddress(prev => ({ ...prev, country: val }))}
+                                onStateChange={(val) => setShippingAddress(prev => ({ ...prev, state: val }))}
                                 disabled={isReadOnly}
                                 labelClassName="block text-xs font-medium text-gray-500 mb-1"
                             />
