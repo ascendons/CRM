@@ -66,9 +66,34 @@ export default function LeadDetailPage() {
     handleModalClose,
     getModalProps
   } = useLeadStatusChange({
-    onStatusChange: (leadId, newStatus) => {
+    onStatusChange: async (leadId, newStatus) => {
       if (lead) {
         setLead({ ...lead, leadStatus: newStatus });
+
+        // Handle CONVERTED status - update proposals to ACCEPTED
+        if (newStatus === LeadStatus.CONVERTED) {
+          try {
+            // Find all proposals for this lead and update to ACCEPTED
+            const activeProposal = getActiveProposal();
+            if (activeProposal) {
+              await proposalsService.updateProposal(activeProposal.id, {
+                status: ProposalStatus.ACCEPTED
+              });
+              showToast.success("Proposal marked as accepted");
+            }
+            // Reload proposals to reflect status change
+            await loadProposals();
+
+            // Navigate to opportunities (or to the specific opportunity if ID is available)
+            // Since convertLead API might return opportunity ID in the future,
+            // for now we navigate to the opportunities list
+            setTimeout(() => {
+              router.push('/opportunities');
+            }, 1500);
+          } catch (error) {
+            console.error("Failed to update proposal status", error);
+          }
+        }
       }
     }
   });

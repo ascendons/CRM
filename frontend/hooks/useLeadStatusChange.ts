@@ -21,15 +21,33 @@ export function useLeadStatusChange({ onStatusChange }: UseLeadStatusChangeProps
 
 
   const handleStatusChangeRequest = async (leadId: string, newStatus: LeadStatus, currentStatus: LeadStatus) => {
-    // If status is changing to CONTACTED, QUALIFIED, or UNQUALIFIED, open the modal
+    // If status is changing to CONTACTED, QUALIFIED, UNQUALIFIED, NEGOTIATION, or LOST, open the modal
     if (
       (newStatus === LeadStatus.CONTACTED && currentStatus !== LeadStatus.CONTACTED) ||
       (newStatus === LeadStatus.QUALIFIED && currentStatus !== LeadStatus.QUALIFIED) ||
       (newStatus === LeadStatus.UNQUALIFIED && currentStatus !== LeadStatus.UNQUALIFIED) ||
-      (newStatus === LeadStatus.NEGOTIATION && currentStatus !== LeadStatus.NEGOTIATION)
+      (newStatus === LeadStatus.NEGOTIATION && currentStatus !== LeadStatus.NEGOTIATION) ||
+      (newStatus === LeadStatus.LOST && currentStatus !== LeadStatus.LOST)
     ) {
       setPendingStatusChange({ leadId, newStatus, originalStatus: currentStatus });
       setIsActivityModalOpen(true);
+      return;
+    }
+
+    // SPECIAL CASE: CONVERTED -> Auto-convert lead to opportunity
+    if (newStatus === LeadStatus.CONVERTED) {
+      try {
+        await leadsService.convertLead(leadId);
+        toast.success("Lead converted to opportunity successfully");
+        if (onStatusChange) {
+          onStatusChange(leadId, newStatus);
+        }
+        // Note: Navigation to opportunity should be handled by the component
+        // We'll trigger a callback or return data to signal completion
+      } catch (error) {
+        console.error("Failed to convert lead", error);
+        toast.error("Failed to convert lead to opportunity");
+      }
       return;
     }
 
@@ -99,6 +117,8 @@ export function useLeadStatusChange({ onStatusChange }: UseLeadStatusChangeProps
         return { modalTitle: "Disqualification Reason", defaultSubject: "Lead Unqualified" };
       case LeadStatus.CONTACTED:
         return { modalTitle: "Log Contact Activity", defaultSubject: "Initial Contact" };
+      case LeadStatus.LOST:
+        return { modalTitle: "Reason for Loss", defaultSubject: "Lead Lost" };
       default:
         return { modalTitle: "Log Activity", defaultSubject: "" };
     }
