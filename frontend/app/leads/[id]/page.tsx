@@ -27,7 +27,12 @@ import { useLeadStatusChange } from "@/hooks/useLeadStatusChange";
 import { LogActivityModal } from "@/components/leads/LogActivityModal";
 import { LeadActivities } from "@/components/leads/LeadActivities";
 import { activitiesService } from "@/lib/activities";
-import { Activity } from "@/types/activity";
+import { Activity, ActivityType, ActivityStatus } from "@/types/activity";
+import { ProposalStatus } from "@/types/proposal";
+import { NegotiationStartModal } from "@/components/proposals/NegotiationStartModal";
+import ProposalComments from "@/components/proposals/ProposalComments";
+import CommercialNegotiation from "@/components/proposals/CommercialNegotiation";
+import { Gavel } from "lucide-react";
 
 export default function LeadDetailPage() {
   const router = useRouter();
@@ -46,7 +51,7 @@ export default function LeadDetailPage() {
   const [proposalsLoading, setProposalsLoading] = useState(false);
 
   // Tabs
-  const [activeTab, setActiveTab] = useState<'details' | 'proposals' | 'discussion'>('details');
+  const [activeTab, setActiveTab] = useState<'details' | 'proposals' | 'discussion' | 'negotiation'>('details');
 
   // Activities
   const [activities, setActivities] = useState<Activity[]>([]);
@@ -113,6 +118,19 @@ export default function LeadDetailPage() {
     } finally {
       setActivitiesLoading(false);
     }
+  };
+
+  const getActiveProposal = () => {
+    // Find the proposal that is currently in negotiation or the last sent proposal
+    const negotiationProposal = proposals.find(p => p.status === ProposalStatus.NEGOTIATION);
+    if (negotiationProposal) return negotiationProposal;
+
+    // Sort by created date desc to get latest
+    const sentProposals = proposals
+      .filter(p => p.status === ProposalStatus.SENT)
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+    return sentProposals[0];
   };
 
   const onActivitySaved = async (data: any) => {
@@ -277,6 +295,18 @@ export default function LeadDetailPage() {
                 {activities.length}
               </span>
             </button>
+            {lead && lead.leadStatus === LeadStatus.NEGOTIATION && (
+              <button
+                onClick={() => setActiveTab('negotiation')}
+                className={`${activeTab === 'negotiation'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2`}
+              >
+                <Gavel className="h-4 w-4" />
+                Negotiation
+              </button>
+            )}
           </nav>
         </div>
 
@@ -528,6 +558,46 @@ export default function LeadDetailPage() {
                 />
               </div>
             )}
+
+            {activeTab === 'negotiation' && lead?.leadStatus === LeadStatus.NEGOTIATION && (
+              <div className="space-y-6">
+                {(() => {
+                  const activeProposal = getActiveProposal();
+                  if (!activeProposal) {
+                    return (
+                      <div className="bg-white rounded-lg shadow p-8 text-center">
+                        <p className="text-gray-500 mb-4">No active proposal found for negotiation.</p>
+                        <p className="text-sm text-gray-400">Please ensure there is a SENT proposal to negotiate on.</p>
+                      </div>
+                    );
+                  }
+                  return (
+                    <div className="space-y-6">
+                      <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 mb-4">
+                        <h3 className="text-sm font-semibold text-purple-900">
+                          Active Negotiation: {activeProposal.proposalNumber}
+                        </h3>
+                        <p className="text-sm text-purple-700 mt-1">
+                          You are currently negotiating proposal <strong>{activeProposal.title}</strong> worth <strong>₹{activeProposal.totalAmount.toLocaleString()}</strong>.
+                        </p>
+                      </div>
+
+                      {/* Commercial Negotiation */}
+                      <CommercialNegotiation proposal={activeProposal} onUpdate={() => {
+                        loadProposals();
+                        // Also reload lead to update status if finalized
+                        if (activeProposal.status === ProposalStatus.SENT) {
+                          loadLead();
+                        }
+                      }} />
+
+                      {/* Technical Negotiation (Comments) */}
+                      <ProposalComments proposal={activeProposal} />
+                    </div>
+                  );
+                })()}
+              </div>
+            )}
           </div>
 
           {/* Sidebar */}
@@ -729,14 +799,53 @@ export default function LeadDetailPage() {
 
       {/* Activity Log Modal (triggered by status change hook) */}
       {pendingStatusChange && (
-        <LogActivityModal
-          isOpen={isActivityModalOpen}
-          onClose={handleModalClose}
-          onSave={onActivitySaved}
-          leadId={pendingStatusChange.leadId}
-          newStatus={pendingStatusChange.newStatus}
-          {...getModalProps()}
-        />
+        pendingStatusChange.newStatus === LeadStatus.NEGOTIATION ? (
+          <NegotiationStartModal
+            isOpen={isActivityModalOpen}
+            onClose={handleModalClose}
+            onConfirm={async (reason) => {
+              try {
+                setUpdating(true);
+                // 1. Find active proposal & Update its status
+                const activeProposal = getActiveProposal();
+                if (activeProposal) {
+                  await proposalsService.updateProposal(activeProposal.id, {
+                    status: ProposalStatus.NEGOTIATION,
+                    notes: activeProposal.notes ? `${activeProposal.notes}\n\nNegotiation Started: ${reason}` : `Negotiation Started: ${reason}`
+                  });
+                }
+
+                // 2. Update Lead status via handleActivitySave (which logs activity & updates status)
+                await handleActivitySave({
+                  leadId: pendingStatusChange.leadId,
+                  type: ActivityType.NOTE,
+                  status: ActivityStatus.COMPLETED,
+                  subject: activeProposal ? `Negotiation Started - ${activeProposal.proposalNumber}` : 'Negotiation Started',
+                  description: reason,
+                });
+
+                // Refresh data
+                loadProposals();
+                setActiveTab('negotiation');
+              } catch (error) {
+                console.error("Failed to start negotiation", error);
+                showToast.error("Failed to start negotiation");
+              } finally {
+                setUpdating(false);
+              }
+            }}
+            isLoading={updating}
+          />
+        ) : (
+          <LogActivityModal
+            isOpen={isActivityModalOpen}
+            onClose={handleModalClose}
+            onSave={onActivitySaved}
+            leadId={pendingStatusChange.leadId}
+            newStatus={pendingStatusChange.newStatus}
+            {...getModalProps()}
+          />
+        )
       )}
     </div>
   );

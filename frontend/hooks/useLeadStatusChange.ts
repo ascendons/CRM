@@ -25,7 +25,8 @@ export function useLeadStatusChange({ onStatusChange }: UseLeadStatusChangeProps
     if (
       (newStatus === LeadStatus.CONTACTED && currentStatus !== LeadStatus.CONTACTED) ||
       (newStatus === LeadStatus.QUALIFIED && currentStatus !== LeadStatus.QUALIFIED) ||
-      (newStatus === LeadStatus.UNQUALIFIED && currentStatus !== LeadStatus.UNQUALIFIED)
+      (newStatus === LeadStatus.UNQUALIFIED && currentStatus !== LeadStatus.UNQUALIFIED) ||
+      (newStatus === LeadStatus.NEGOTIATION && currentStatus !== LeadStatus.NEGOTIATION)
     ) {
       setPendingStatusChange({ leadId, newStatus, originalStatus: currentStatus });
       setIsActivityModalOpen(true);

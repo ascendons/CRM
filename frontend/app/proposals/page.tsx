@@ -206,6 +206,7 @@ export default function ProposalsPage() {
       [ProposalStatus.ACCEPTED]: "bg-emerald-50 text-emerald-700 border-emerald-100   ",
       [ProposalStatus.REJECTED]: "bg-rose-50 text-rose-700 border-rose-100   ",
       [ProposalStatus.EXPIRED]: "bg-amber-50 text-amber-700 border-amber-100   ",
+      [ProposalStatus.NEGOTIATION]: "bg-purple-50 text-purple-700 border-purple-100   ",
     };
 
     const style = statusStyles[status] || "bg-gray-100 text-gray-800";

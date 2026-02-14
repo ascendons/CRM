@@ -40,6 +40,7 @@ export default function ProposalForm({
     const [products, setProducts] = useState<ProductResponse[]>([]);
     const [leads, setLeads] = useState<Lead[]>([]);
     const [opportunities, setOpportunities] = useState<Opportunity[]>([]);
+    const [errors, setErrors] = useState<string[]>([]);
 
     // Form state
     const [source, setSource] = useState<ProposalSource>(
@@ -213,15 +214,19 @@ export default function ProposalForm({
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        const errors = validateForm();
-        if (errors.length > 0) {
-            errors.forEach((err) => showToast.error(err));
+        const validationErrors = validateForm();
+        if (validationErrors.length > 0) {
+            setErrors(validationErrors);
+            validationErrors.forEach((err) => showToast.error(err));
+            window.scrollTo({ top: 0, behavior: 'smooth' });
             return;
         }
+        setErrors([]); // Clear previous errors
+
         // Check for custom items and ensure they have a productId
-        const needsCustomProduct = lineItems.some(item => !item.productId);
         let customProductId = "";
 
+        const needsCustomProduct = lineItems.some(item => !item.productId);
         if (needsCustomProduct) {
             try {
                 const customProduct = await productsService.getOrCreateCustomProduct();
@@ -234,15 +239,26 @@ export default function ProposalForm({
         }
 
         // Prepare line items
-        const processedLineItems = lineItems.map((item) => ({
-            productId: item.productId || customProductId,
-            productName: item.productName,
-            quantity: item.quantity,
-            unitPrice: item.unitPrice,
-            description: item.description,
-            discountType: item.discountType,
-            discountValue: item.discountValue,
-        }));
+        const processedLineItems = lineItems.map((item) => {
+            const isCustom = !item.productId || item.productId === customProductId;
+            const finalProductId = item.productId || customProductId;
+
+            let finalDescription = item.description;
+            // If custom, embed the name in the description
+            if (isCustom && item.productName) {
+                finalDescription = `${item.productName}:::${item.description || ''}`;
+            }
+
+            return {
+                productId: finalProductId,
+                productName: item.productName, // Backend might ignore this if ID is present
+                quantity: item.quantity,
+                unitPrice: item.unitPrice,
+                description: finalDescription,
+                discountType: item.discountType,
+                discountValue: item.discountValue,
+            };
+        });
 
         // Prepare discount
         const discount =

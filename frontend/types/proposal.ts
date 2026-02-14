@@ -5,6 +5,7 @@
 export enum ProposalStatus {
   DRAFT = "DRAFT",
   SENT = "SENT",
+  NEGOTIATION = "NEGOTIATION",
   ACCEPTED = "ACCEPTED",
   REJECTED = "REJECTED",
   EXPIRED = "EXPIRED",
@@ -161,6 +162,8 @@ export function getProposalStatusColor(status: ProposalStatus): string {
       return "gray";
     case ProposalStatus.SENT:
       return "blue";
+    case ProposalStatus.NEGOTIATION:
+      return "purple";
     case ProposalStatus.ACCEPTED:
       return "green";
     case ProposalStatus.REJECTED:
@@ -179,6 +182,8 @@ export function getProposalStatusLabel(status: ProposalStatus): string {
       return "Draft";
     case ProposalStatus.SENT:
       return "Sent";
+    case ProposalStatus.NEGOTIATION:
+      return "In Negotiation";
     case ProposalStatus.ACCEPTED:
       return "Accepted";
     case ProposalStatus.REJECTED:

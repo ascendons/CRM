@@ -19,6 +19,9 @@ import { showToast } from "@/lib/toast";
 import ConfirmModal from "@/components/ConfirmModal";
 import { AuditLogTimeline } from "@/components/common/AuditLogTimeline";
 import { PermissionGuard } from "@/components/common/PermissionGuard";
+import ProposalComments from "@/components/proposals/ProposalComments";
+import CommercialNegotiation from "@/components/proposals/CommercialNegotiation";
+import { MessageSquare, Gavel } from "lucide-react";
 
 export default function ProposalDetailPage({
   params,
@@ -35,7 +38,21 @@ export default function ProposalDetailPage({
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [rejectionReason, setRejectionReason] = useState("");
+
   const [actionLoading, setActionLoading] = useState(false);
+
+  // Negotiation state
+  const [showNegotiationModal, setShowNegotiationModal] = useState(false);
+  const [negotiationReason, setNegotiationReason] = useState("");
+  const [activeTab, setActiveTab] = useState<'details' | 'technical' | 'commercial'>('details');
+
+  // Switch to correct tab if in negotiation
+  useEffect(() => {
+    if (proposal?.status === ProposalStatus.NEGOTIATION && activeTab === 'details') {
+      // Optional: Default to technical on load? Or keep details.
+      // Let's keep detail as default, but user can switch.
+    }
+  }, [proposal?.status]);
 
   useEffect(() => {
     if (!authService.isAuthenticated()) {
@@ -121,6 +138,30 @@ export default function ProposalDetailPage({
     } catch (err) {
       console.error("Error deleting proposal:", err);
       showToast.error("Failed to delete proposal");
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleStartNegotiation = async () => {
+    if (!proposal || !negotiationReason.trim()) {
+      showToast.error("Please provide a reason for negotiation");
+      return;
+    }
+    try {
+      setActionLoading(true);
+      // Update status to NEGOTIATION and append reason to notes
+      await proposalsService.updateProposal(proposal.id, {
+        status: ProposalStatus.NEGOTIATION,
+        notes: proposal.notes ? `${proposal.notes}\n\nNegotiation Started: ${negotiationReason}` : `Negotiation Started: ${negotiationReason}`
+      });
+
+      showToast.success("Proposal moved to Negotiation");
+      setShowNegotiationModal(false);
+      setNegotiationReason("");
+      loadProposal();
+    } catch (err) {
+      showToast.error(err instanceof Error ? err.message : "Failed to start negotiation");
     } finally {
       setActionLoading(false);
     }
@@ -303,6 +344,15 @@ export default function ProposalDetailPage({
                       Accept
                     </button>
                   </PermissionGuard>
+                  <PermissionGuard resource="PROPOSAL" action="EDIT">
+                    <button
+                      onClick={() => setShowNegotiationModal(true)}
+                      disabled={actionLoading}
+                      className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50"
+                    >
+                      Negotiate
+                    </button>
+                  </PermissionGuard>
                   <PermissionGuard resource="PROPOSAL" action="REJECT">
                     <button
                       onClick={() => setShowRejectModal(true)}
@@ -327,129 +377,199 @@ export default function ProposalDetailPage({
           </div>
         </div>
 
+
+
+        {/* Navigation Tabs for Negotiation */}
+        {proposal.status === ProposalStatus.NEGOTIATION && (
+          <div className="border-b border-gray-200 mb-6 bg-white rounded-lg shadow px-6">
+            <nav className="-mb-px flex space-x-8" aria-label="Tabs">
+              <button
+                onClick={() => setActiveTab('details')}
+                className={`${activeTab === 'details'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2`}
+              >
+                <CheckCircle className="h-4 w-4" />
+                Details
+              </button>
+              <button
+                onClick={() => setActiveTab('technical')}
+                className={`${activeTab === 'technical'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2`}
+              >
+                <MessageSquare className="h-4 w-4" />
+                Technical Negotiation
+              </button>
+              <button
+                onClick={() => setActiveTab('commercial')}
+                className={`${activeTab === 'commercial'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2`}
+              >
+                <Gavel className="h-4 w-4" />
+                Place Bid (Commercial)
+              </button>
+            </nav>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Main Content - 2 columns */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Basic Information */}
-            <DetailSection title="Proposal Details">
-              <dl>
-                <DetailRow label="Description" value={proposal.description} />
-                <DetailRow
-                  label="Valid Until"
-                  value={formatDate(proposal.validUntil)}
-                />
-                <DetailRow label="Owner" value={proposal.ownerName} />
-              </dl>
-            </DetailSection>
 
-            {/* Source Information */}
-            <DetailSection title="Source">
-              <dl>
-                <DetailRow
-                  label="Type"
-                  value={
-                    proposal.source === ProposalSource.LEAD
-                      ? "Lead"
-                      : "Opportunity"
-                  }
-                />
-                <DetailRow label="Name" value={proposal.sourceName} />
-              </dl>
-            </DetailSection>
+            {activeTab === 'technical' && (
+              <ProposalComments proposal={proposal} />
+            )}
 
-            {/* Line Items */}
-            <DetailSection title="Line Items">
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                        Product
-                      </th>
-                      <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">
-                        Qty
-                      </th>
-                      <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">
-                        Unit Price
-                      </th>
-                      <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">
-                        Discount
-                      </th>
-                      <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">
-                        Tax
-                      </th>
-                      <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">
-                        Total
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {proposal.lineItems.map((item) => (
-                      <tr key={item.lineItemId}>
-                        <td className="px-4 py-4">
-                          <div className="text-sm font-medium text-gray-900">
-                            {item.productName}
-                          </div>
-                          <div className="text-sm text-gray-500">
-                            SKU: {item.sku}
-                          </div>
-                        </td>
-                        <td className="px-4 py-4 text-right text-sm text-gray-900">
-                          {item.quantity} {item.unit}
-                        </td>
-                        <td className="px-4 py-4 text-right text-sm text-gray-900">
-                          {formatCurrency(item.unitPrice)}
-                        </td>
-                        <td className="px-4 py-4 text-right text-sm text-gray-900">
-                          {item.lineDiscountAmount > 0
-                            ? formatCurrency(item.lineDiscountAmount)
-                            : "-"}
-                        </td>
-                        <td className="px-4 py-4 text-right text-sm text-gray-900">
-                          {formatCurrency(item.lineTaxAmount)}
-                          <span className="text-gray-500 ml-1">
-                            ({item.taxRate}%)
-                          </span>
-                        </td>
-                        <td className="px-4 py-4 text-right text-sm font-medium text-gray-900">
-                          {formatCurrency(item.lineTotal)}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </DetailSection>
+            {activeTab === 'commercial' && (
+              <CommercialNegotiation proposal={proposal} onUpdate={loadProposal} />
+            )}
 
-            {/* Terms */}
-            {(proposal.paymentTerms ||
-              proposal.deliveryTerms ||
-              proposal.notes) && (
-                <DetailSection title="Terms & Notes">
+            {activeTab === 'details' && (
+              <>
+                {/* Basic Information */}
+                <DetailSection title="Proposal Details">
                   <dl>
-                    {proposal.paymentTerms && (
-                      <DetailRow
-                        label="Payment Terms"
-                        value={proposal.paymentTerms}
-                      />
-                    )}
-                    {proposal.deliveryTerms && (
-                      <DetailRow
-                        label="Delivery Terms"
-                        value={proposal.deliveryTerms}
-                      />
-                    )}
-                    {proposal.notes && (
-                      <DetailRow label="Notes" value={proposal.notes} />
-                    )}
+                    <DetailRow label="Description" value={proposal.description} />
+                    <DetailRow
+                      label="Valid Until"
+                      value={formatDate(proposal.validUntil)}
+                    />
+                    <DetailRow label="Owner" value={proposal.ownerName} />
                   </dl>
                 </DetailSection>
-              )}
 
-            {/* Activity History */}
-            <DetailSection title="Activity History">
-              <AuditLogTimeline entityName="PROPOSAL" entityId={proposal.id} />
-            </DetailSection>
+                {/* Source Information */}
+                <DetailSection title="Source">
+                  <dl>
+                    <DetailRow
+                      label="Type"
+                      value={
+                        proposal.source === ProposalSource.LEAD
+                          ? "Lead"
+                          : "Opportunity"
+                      }
+                    />
+                    <DetailRow label="Name" value={proposal.sourceName} />
+                  </dl>
+                </DetailSection>
+
+                {/* Line Items */}
+                <DetailSection title="Line Items">
+                  <div className="overflow-x-auto">
+                    <table className="min-w-full divide-y divide-gray-200">
+                      <thead className="bg-gray-50">
+                        <tr>
+                          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                            Product
+                          </th>
+                          <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                            Qty
+                          </th>
+                          <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                            Unit Price
+                          </th>
+                          <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                            Discount
+                          </th>
+                          <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                            Tax
+                          </th>
+                          <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                            Total
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white divide-y divide-gray-200">
+                        {proposal.lineItems.map((item) => {
+                          let displayName = item.productName;
+                          let displayDesc = item.description;
+
+                          // Check for custom product name encoded in description
+                          if (item.description && item.description.includes(':::')) {
+                            const parts = item.description.split(':::');
+                            displayName = parts[0];
+                            displayDesc = parts[1];
+                          }
+
+                          return (
+                            <tr key={item.lineItemId}>
+                              <td className="px-4 py-4">
+                                <div className="text-sm font-medium text-gray-900">
+                                  {displayName}
+                                </div>
+                                <div className="text-sm text-gray-500">
+                                  SKU: {item.sku}
+                                </div>
+                                {displayDesc && (
+                                  <div className="text-xs text-gray-500 mt-1">
+                                    {displayDesc}
+                                  </div>
+                                )}
+                              </td>
+                              <td className="px-4 py-4 text-right text-sm text-gray-900">
+                                {item.quantity} {item.unit}
+                              </td>
+                              <td className="px-4 py-4 text-right text-sm text-gray-900">
+                                {formatCurrency(item.unitPrice)}
+                              </td>
+                              <td className="px-4 py-4 text-right text-sm text-gray-900">
+                                {item.lineDiscountAmount > 0
+                                  ? formatCurrency(item.lineDiscountAmount)
+                                  : "-"}
+                              </td>
+                              <td className="px-4 py-4 text-right text-sm text-gray-900">
+                                {formatCurrency(item.lineTaxAmount)}
+                                <span className="text-gray-500 ml-1">
+                                  ({item.taxRate}%)
+                                </span>
+                              </td>
+                              <td className="px-4 py-4 text-right text-sm font-medium text-gray-900">
+                                {formatCurrency(item.lineTotal)}
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                </DetailSection>
+
+                {/* Terms */}
+                {(proposal.paymentTerms ||
+                  proposal.deliveryTerms ||
+                  proposal.notes) && (
+                    <DetailSection title="Terms & Notes">
+                      <dl>
+                        {proposal.paymentTerms && (
+                          <DetailRow
+                            label="Payment Terms"
+                            value={proposal.paymentTerms}
+                          />
+                        )}
+                        {proposal.deliveryTerms && (
+                          <DetailRow
+                            label="Delivery Terms"
+                            value={proposal.deliveryTerms}
+                          />
+                        )}
+                        {proposal.notes && (
+                          <DetailRow label="Notes" value={proposal.notes} />
+                        )}
+                      </dl>
+                    </DetailSection>
+                  )}
+
+                {/* Activity History */}
+                <DetailSection title="Activity History">
+                  <AuditLogTimeline entityName="PROPOSAL" entityId={proposal.id} />
+                </DetailSection>
+              </>
+            )}
           </div>
 
           {/* Sidebar - 1 column */}
@@ -576,44 +696,89 @@ export default function ProposalDetailPage({
       />
 
       {/* Reject Modal */}
-      {showRejectModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              Reject Proposal
-            </h3>
-            <p className="text-sm text-gray-600 mb-4">
-              Please provide a reason for rejecting this proposal:
-            </p>
-            <textarea
-              value={rejectionReason}
-              onChange={(e) => setRejectionReason(e.target.value)}
-              placeholder="Enter rejection reason..."
-              rows={4}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
-            />
-            <div className="flex justify-end gap-3 mt-4">
-              <button
-                onClick={() => {
-                  setShowRejectModal(false);
-                  setRejectionReason("");
-                }}
-                disabled={actionLoading}
-                className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleReject}
-                disabled={actionLoading || !rejectionReason.trim()}
-                className="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 disabled:opacity-50"
-              >
-                {actionLoading ? "Rejecting..." : "Reject Proposal"}
-              </button>
+      {
+        showRejectModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                Reject Proposal
+              </h3>
+              <p className="text-sm text-gray-600 mb-4">
+                Please provide a reason for rejecting this proposal:
+              </p>
+              <textarea
+                value={rejectionReason}
+                onChange={(e) => setRejectionReason(e.target.value)}
+                placeholder="Enter rejection reason..."
+                rows={4}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+              />
+              <div className="flex justify-end gap-3 mt-4">
+                <button
+                  onClick={() => {
+                    setShowRejectModal(false);
+                    setRejectionReason("");
+                  }}
+                  disabled={actionLoading}
+                  className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleReject}
+                  disabled={actionLoading || !rejectionReason.trim()}
+                  className="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 disabled:opacity-50"
+                >
+                  {actionLoading ? "Rejecting..." : "Reject Proposal"}
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
-    </div>
+        )
+      }
+
+      {/* Negotiation Modal */}
+      {
+        showNegotiationModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                Start Negotiation
+              </h3>
+              <p className="text-sm text-gray-600 mb-4">
+                Please provide the customer's feedback or reason for negotiation:
+              </p>
+              <textarea
+                value={negotiationReason}
+                onChange={(e) => setNegotiationReason(e.target.value)}
+                placeholder="E.g. Customer wants 10% discount..."
+                rows={4}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              />
+              <div className="flex justify-end gap-3 mt-4">
+                <button
+                  onClick={() => {
+                    setShowNegotiationModal(false);
+                    setNegotiationReason("");
+                  }}
+                  disabled={actionLoading}
+                  className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleStartNegotiation}
+                  disabled={actionLoading || !negotiationReason.trim()}
+                  className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50"
+                >
+                  {actionLoading ? "Starting..." : "Start Negotiation"}
+                </button>
+              </div>
+            </div>
+          </div>
+        )
+      }
+
+    </div >
   );
 }
