@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { proposalsService } from "@/lib/proposals";
 import { productsService } from "@/lib/products";
+import { proposalsService } from "@/lib/proposals";
+
 import { leadsService } from "@/lib/leads";
 import { opportunitiesService } from "@/lib/opportunities";
 import { showToast } from "@/lib/toast";
@@ -189,8 +190,13 @@ export default function ProposalForm({
         if (new Date(validUntil) > maxDate)
             errors.push("Valid until date cannot be more than 12 months in the future");
 
-        if (lineItems.some((item) => !item.productId))
-            errors.push("Please select a product for all line items");
+        if (lineItems.some((item) => !item.productId && !item.productName?.trim()))
+            errors.push("Please select a product or enter a product name for all line items");
+
+        // Ensure unit price is set for custom items (where productId is empty)
+        if (lineItems.some((item) => !item.productId && (item.unitPrice === undefined || item.unitPrice === null)))
+            errors.push("Please enter a unit price for custom items");
+
         if (lineItems.some((item) => item.quantity < 1))
             errors.push("Quantity must be at least 1");
 
@@ -212,10 +218,25 @@ export default function ProposalForm({
             errors.forEach((err) => showToast.error(err));
             return;
         }
+        // Check for custom items and ensure they have a productId
+        const needsCustomProduct = lineItems.some(item => !item.productId);
+        let customProductId = "";
+
+        if (needsCustomProduct) {
+            try {
+                const customProduct = await productsService.getOrCreateCustomProduct();
+                customProductId = customProduct.id;
+            } catch (err) {
+                console.error("Failed to get custom product", err);
+                showToast.error("Failed to prepare custom items. Please try again.");
+                return;
+            }
+        }
 
         // Prepare line items
         const processedLineItems = lineItems.map((item) => ({
-            productId: item.productId,
+            productId: item.productId || customProductId,
+            productName: item.productName,
             quantity: item.quantity,
             unitPrice: item.unitPrice,
             description: item.description,
@@ -252,6 +273,21 @@ export default function ProposalForm({
 
                 const created = await proposalsService.createProposal(request);
                 showToast.success("Proposal created successfully");
+
+                // If created from a Lead, update the lead status
+                if (source === ProposalSource.LEAD && sourceId) {
+                    try {
+                        const { leadsService } = await import("@/lib/leads");
+                        const { LeadStatus } = await import("@/types/lead");
+                        await leadsService.updateLeadStatus(sourceId, LeadStatus.PROPOSAL_SENT);
+                        showToast.success("Lead status updated to Proposal Sent");
+                    } catch (error) {
+                        console.error("Failed to update lead status", error);
+                        // Don't block the flow, just log it.
+                        // The proposal is already created.
+                    }
+                }
+
                 router.push(`/proposals/${created.id}`);
             } else {
                 if (!initialData?.id) return;
@@ -472,75 +508,58 @@ export default function ProposalForm({
 
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                                 <div className="lg:col-span-2">
-                                    {item.productId ? (
-                                        <div className="flex justify-between items-center p-2 border border-blue-200 bg-blue-50 rounded-lg">
-                                            <div>
-                                                <div className="font-medium text-blue-900">
-                                                    {/* We might want to store name in lineItem to show it here, 
-                                                        but for now we fallback to looking it up in products (legacy) 
-                                                        or user just sees ID if not in legacy list. 
-                                                        Wait, we can't look it up if we don't have the full product list.
-                                                        Better to add productName to LineItemDTO state for display purposes.
-                                                     */}
-                                                    {/* For this refactor, I'll rely on the parent updating state correctly. 
-                                                        But wait, lineItems state is LineItemDTO which doesn't have name.
-                                                        I should probably extend the local lineItems state to include display info.
-                                                    */}
-                                                    {/* use item.productName if available (dynamic), else fallback to legacy lookup */}
-                                                    {item.productName || products.find(p => p.id === item.productId)?.productName || item.productId}
-                                                </div>
-                                                <div className="text-xs text-blue-700">ID: {item.productId}</div>
-                                            </div>
-                                            <button
-                                                type="button"
-                                                onClick={() => updateLineItem(index, "productId", "")}
-                                                disabled={isReadOnly}
-                                                className="text-blue-500 hover:text-blue-700 p-1 disabled:text-gray-400 disabled:cursor-not-allowed"
-                                            >
-                                                Change
-                                            </button>
-                                        </div>
-                                    ) : (
-                                        <CatalogProductSearch
-                                            onSelect={(product) => {
-                                                // Handle selection atomically
-                                                setLineItems(prev => {
-                                                    const updated = [...prev];
-                                                    const currentItem = updated[index];
+                                    <CatalogProductSearch
+                                        initialValue={item.productName}
+                                        allowCustom={true}
+                                        onSelect={(product) => {
+                                            // Handle catalog selection
+                                            setLineItems(prev => {
+                                                const updated = [...prev];
+                                                const currentItem = updated[index];
 
-                                                    // Base updates
-                                                    const newUpdates: Partial<FormLineItem> = {
-                                                        productId: product.id,
-                                                        productName: product.displayName
-                                                    };
+                                                const newUpdates: Partial<FormLineItem> = {
+                                                    productId: product.id,
+                                                    productName: product.displayName
+                                                };
 
-                                                    // Price
-                                                    const priceAttr = product.attributes.find(a =>
-                                                        a.key === 'base_price' ||
-                                                        a.key === 'list_price' ||
-                                                        a.key === 'price'
-                                                    );
-                                                    if (priceAttr && priceAttr.numericValue) {
-                                                        newUpdates.unitPrice = priceAttr.numericValue;
-                                                    }
+                                                // Price
+                                                const priceAttr = product.attributes.find(a =>
+                                                    a.key === 'base_price' ||
+                                                    a.key === 'list_price' ||
+                                                    a.key === 'price'
+                                                );
+                                                if (priceAttr && priceAttr.numericValue) {
+                                                    newUpdates.unitPrice = priceAttr.numericValue;
+                                                }
 
-                                                    // Description
-                                                    const descAttr = product.attributes.find(a =>
-                                                        a.key === 'description' ||
-                                                        a.key.includes('description')
-                                                    );
-                                                    if (descAttr && descAttr.value) {
-                                                        newUpdates.description = descAttr.value;
-                                                    }
+                                                // Description
+                                                const descAttr = product.attributes.find(a =>
+                                                    a.key === 'description' ||
+                                                    a.key.includes('description')
+                                                );
+                                                if (descAttr && descAttr.value) {
+                                                    newUpdates.description = descAttr.value;
+                                                }
 
-                                                    updated[index] = { ...currentItem, ...newUpdates };
-                                                    return updated;
-                                                });
-                                            }}
-                                            required
-                                            disabled={isReadOnly}
-                                        />
-                                    )}
+                                                updated[index] = { ...currentItem, ...newUpdates };
+                                                return updated;
+                                            });
+                                        }}
+                                        onCustomSelect={(customName) => {
+                                            // Handle custom name entry
+                                            setLineItems(prev => {
+                                                const updated = [...prev];
+                                                updated[index] = {
+                                                    ...updated[index],
+                                                    productId: "", // Clear product ID for custom item
+                                                    productName: customName
+                                                };
+                                                return updated;
+                                            });
+                                        }}
+                                        required
+                                        disabled={isReadOnly}
+                                    />
                                 </div>
 
                                 <div>

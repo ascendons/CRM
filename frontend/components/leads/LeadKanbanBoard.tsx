@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Lead, LeadStatus } from "@/types/lead";
 import { useRouter } from "next/navigation";
+import { useLeadStatusChange } from "@/hooks/useLeadStatusChange";
 import {
     DndContext,
     DragOverlay,
@@ -88,9 +89,26 @@ export function LeadKanbanBoard({ leads: initialLeads, filter = [] }: LeadKanban
     const [activeId, setActiveId] = useState<string | null>(null);
     const [activeLeadOriginalStatus, setActiveLeadOriginalStatus] = useState<LeadStatus | null>(null);
 
-    // Modal State
-    const [isActivityModalOpen, setIsActivityModalOpen] = useState(false);
-    const [pendingDrag, setPendingDrag] = useState<{ activeId: string, newStatus: LeadStatus } | null>(null);
+    // Use the new hook for status changes
+    const {
+        handleStatusChangeRequest,
+        isActivityModalOpen,
+        pendingStatusChange,
+        handleActivitySave,
+        handleModalClose,
+        getModalProps
+    } = useLeadStatusChange({
+        onStatusChange: (leadId, newStatus) => {
+            setLeads((prev) =>
+                prev.map((lead) =>
+                    lead.id === leadId ? { ...lead, leadStatus: newStatus } : lead
+                )
+            );
+        }
+    });
+
+    // We still keep local drag state to handle reversion on drag cancel
+    // But modal state is now managed by the hook
 
     // Update local state when prop changes
     useEffect(() => {
@@ -192,16 +210,7 @@ export function LeadKanbanBoard({ leads: initialLeads, filter = [] }: LeadKanban
 
         // Check if status actually changed
         if (newStatus && originalStatus && newStatus !== originalStatus) {
-
-            // SPECIAL CASE: Moving to CONTACTED
-            if (newStatus === LeadStatus.CONTACTED) {
-                setPendingDrag({ activeId, newStatus });
-                setIsActivityModalOpen(true);
-                return;
-            }
-
-            // Normal persist for other statuses
-            await persistStatusChange(activeId, newStatus, originalStatus);
+            handleStatusChangeRequest(activeId, newStatus, originalStatus);
         } else if (originalStatus) {
             // Consistency check if no status change occurred but optimistic update needs revert or verification
             // Usually dealt with by optimistic update logic being correct, but if we dragged within same column do nothing.
@@ -210,63 +219,17 @@ export function LeadKanbanBoard({ leads: initialLeads, filter = [] }: LeadKanban
         }
     };
 
-    const persistStatusChange = async (activeId: string, newStatus: LeadStatus, originalStatus: LeadStatus | null) => {
-        try {
-            // Ensure local state is updated
-            setLeads((prev) =>
-                prev.map((lead) =>
-                    lead.id === activeId ? { ...lead, leadStatus: newStatus } : lead
-                )
-            );
-
-            await leadsService.updateLeadStatus(activeId, newStatus);
-            toast.success(`Lead moved to ${newStatus.replace(/_/g, " ").toLowerCase()}`);
-        } catch (error) {
-            console.error("Failed to update status", error);
-            toast.error("Failed to update status");
-            // Revert
-            if (originalStatus) {
-                setLeads((prev) =>
-                    prev.map((lead) =>
-                        lead.id === activeId ? { ...lead, leadStatus: originalStatus } : lead
-                    )
-                );
-            }
-        }
-    };
-
-    const handleActivitySave = async (activityData: CreateActivityRequest) => {
-        if (!pendingDrag) return;
-
-        try {
-            // 1. Create the activity
-            await activitiesService.createActivity(activityData);
-            toast.success("Activity logged successfully");
-
-            // 2. Persist the status change
-            await persistStatusChange(pendingDrag.activeId, pendingDrag.newStatus, null);
-
-        } catch (error) {
-            console.error("Failed to save activity or update status", error);
-            toast.error("Failed to complete action");
-            // Revert logic could be complex here, assuming backend failure on activity creation blocks status update.
-            // We reload or revert visually.
-        } finally {
-            setIsActivityModalOpen(false);
-            setPendingDrag(null);
-        }
-    };
-
-    const handleModalClose = () => {
-        // Cancelled: Revert the drag
-        setIsActivityModalOpen(false);
-        if (pendingDrag) {
-            const originalLead = initialLeads.find(l => l.id === pendingDrag.activeId);
+    // Helper to revert if hook cancels
+    const handleHookModalClose = () => {
+        handleModalClose();
+        // Revert the drag visually if it was pending a modal interaction
+        if (pendingStatusChange) {
+            // Find the lead with the pendingStatusChange.leadId to get its original status
+            const originalLead = initialLeads.find(l => l.id === pendingStatusChange.leadId);
             if (originalLead) {
-                setLeads(prev => prev.map(l => l.id === pendingDrag.activeId ? { ...l, leadStatus: originalLead.leadStatus } : l));
+                setLeads(prev => prev.map(l => l.id === pendingStatusChange.leadId ? { ...l, leadStatus: originalLead.leadStatus } : l));
             }
         }
-        setPendingDrag(null);
     };
 
     return (
@@ -304,13 +267,14 @@ export function LeadKanbanBoard({ leads: initialLeads, filter = [] }: LeadKanban
                 </DragOverlay>
             </DndContext>
 
-            {pendingDrag && (
+            {pendingStatusChange && (
                 <LogActivityModal
                     isOpen={isActivityModalOpen}
-                    onClose={handleModalClose}
+                    onClose={handleHookModalClose}
                     onSave={handleActivitySave}
-                    leadId={pendingDrag.activeId}
-                    newStatus={pendingDrag.newStatus}
+                    leadId={pendingStatusChange.leadId}
+                    newStatus={pendingStatusChange.newStatus}
+                    {...getModalProps()}
                 />
             )}
         </>

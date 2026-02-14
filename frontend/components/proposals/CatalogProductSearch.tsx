@@ -5,24 +5,37 @@ import { Search, Loader2, X } from 'lucide-react';
 
 interface CatalogProductSearchProps {
     onSelect: (product: Product) => void;
+    onCustomSelect?: (name: string) => void;
+    allowCustom?: boolean;
     label?: string;
     required?: boolean;
     placeholder?: string;
     disabled?: boolean;
+    initialValue?: string;
 }
 
 export default function CatalogProductSearch({
     onSelect,
+    onCustomSelect,
+    allowCustom = false,
     label = "Search Product",
     required = false,
     placeholder = "Type to search products...",
-    disabled = false
+    disabled = false,
+    initialValue = ""
 }: CatalogProductSearchProps) {
-    const [query, setQuery] = useState('');
+    const [query, setQuery] = useState(initialValue);
     const [results, setResults] = useState<Product[]>([]);
     const [showResults, setShowResults] = useState(false);
     const { searchProducts, loading } = useDynamicCatalog();
     const searchRef = useRef<HTMLDivElement>(null);
+
+    // Sync initial value if provided
+    useEffect(() => {
+        if (initialValue) {
+            setQuery(initialValue);
+        }
+    }, [initialValue]);
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -37,12 +50,12 @@ export default function CatalogProductSearch({
 
     useEffect(() => {
         const timer = setTimeout(() => {
-            if (query.trim().length >= 1) { // Reduced threshold to 1 char
+            if (query.trim().length >= 1) {
                 handleSearch(query);
             } else {
                 setResults([]);
             }
-        }, 300); // Reduced debounce to 300ms for snappier feel
+        }, 300);
 
         return () => clearTimeout(timer);
     }, [query]);
@@ -64,9 +77,27 @@ export default function CatalogProductSearch({
 
     const handleSelect = (product: Product) => {
         onSelect(product);
-        setQuery('');
+        setQuery(product.displayName); // Show selected name
         setResults([]);
         setShowResults(false);
+    };
+
+    const handleCustomSelect = () => {
+        if (allowCustom && onCustomSelect && query.trim()) {
+            onCustomSelect(query.trim());
+            setResults([]);
+            setShowResults(false);
+        }
+    };
+
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            // If explicit results are showing, maybe select first? 
+            // Or prioritize custom if allowCustom is true and no exact match?
+            // Simple logic: if allowCustom is true, Enter selects current text as custom.
+            handleCustomSelect();
+        }
     };
 
     // Helper to get price for display
@@ -94,9 +125,15 @@ export default function CatalogProductSearch({
                     onChange={(e) => {
                         setQuery(e.target.value);
                         if (e.target.value.length === 0) setShowResults(false);
+                        // Optional: trigger custom select on every change? No, wait for selection or blur.
                     }}
+                    onKeyDown={handleKeyDown}
                     onFocus={() => {
-                        if (!disabled && results.length > 0) setShowResults(true);
+                        if (!disabled && (results.length > 0 || (allowCustom && query))) setShowResults(true);
+                    }}
+                    onBlur={() => {
+                        // Optional: select custom on blur if nothing selected?
+                        // Better to keep explicit selection to avoid accidental inputs.
                     }}
                     placeholder={placeholder}
                     className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed"
@@ -116,6 +153,7 @@ export default function CatalogProductSearch({
                             setQuery('');
                             setResults([]);
                             setShowResults(false);
+                            if (allowCustom && onCustomSelect) onCustomSelect(""); // Clear selection
                         }}
                         className="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600"
                     >
@@ -124,8 +162,19 @@ export default function CatalogProductSearch({
                 )}
             </div>
 
-            {showResults && results.length > 0 && (
+            {showResults && (
                 <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                    {/* Custom Option at Top or Bottom? Top is often better for "Create new" feel */}
+                    {allowCustom && query.trim() && (
+                        <button
+                            type="button"
+                            onClick={handleCustomSelect}
+                            className="w-full px-4 py-3 text-left hover:bg-blue-50 border-b border-gray-100 transition-colors flex items-center text-blue-700 font-medium"
+                        >
+                            <span className="mr-2">+</span> Use "{query}" as custom product
+                        </button>
+                    )}
+
                     {results.map((product) => (
                         <button
                             key={product.id}
@@ -147,12 +196,12 @@ export default function CatalogProductSearch({
                             </div>
                         </button>
                     ))}
-                </div>
-            )}
 
-            {showResults && query.length >= 1 && results.length === 0 && !loading && (
-                <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg p-4 text-center text-gray-500 text-sm">
-                    No products found
+                    {results.length === 0 && !loading && !allowCustom && (
+                        <div className="p-4 text-center text-gray-500 text-sm">
+                            No products found
+                        </div>
+                    )}
                 </div>
             )}
         </div>

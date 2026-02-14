@@ -86,4 +86,36 @@ export const productsService = {
     formData.append("file", file);
     return api.upload<ProductResponse[]>("/products/import", formData);
   },
+
+  async getOrCreateCustomProduct(): Promise<ProductResponse> {
+    const customSku = "CUSTOM";
+    try {
+      // Try to find existing custom product
+      const response = await this.searchProducts(customSku);
+      const products = Array.isArray(response) ? response : response.content;
+      const existing = products.find(p => p.sku === customSku || p.productName === "Custom Product");
+
+      if (existing) {
+        return existing;
+      }
+
+      // Create if not exists
+      const newProduct: CreateProductRequest = {
+        sku: customSku,
+        productName: "Custom Product",
+        description: "Placeholder for custom proposal items",
+        basePrice: 1,
+        unit: "Unit",
+        taxRate: 0,
+        taxType: "EXCLUSIVE",
+        category: "Uncategorized", // Assuming this category exists or is allowed
+
+      };
+
+      return await this.createProduct(newProduct);
+    } catch (error) {
+      console.error("Failed to get/create custom product:", error);
+      throw error;
+    }
+  },
 };

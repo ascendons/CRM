@@ -114,7 +114,8 @@ export interface ProposalResponse {
 }
 
 export interface LineItemDTO {
-  productId: string;
+  productId?: string;
+  productName?: string;
   quantity: number;
   unitPrice?: number;
   description?: string;

@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, useState } from 'react';
+import { Fragment, useState, useEffect } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
 import { ActivityType, ActivityStatus, CreateActivityRequest } from '@/types/activity';
 import { X, Calendar, Clock, AlignLeft, Type, CheckCircle } from 'lucide-react';
@@ -13,6 +13,8 @@ interface LogActivityModalProps {
     leadId: string;
     leadName?: string;
     newStatus: string;
+    modalTitle?: string;
+    defaultSubject?: string;
 }
 
 export function LogActivityModal({
@@ -20,17 +22,33 @@ export function LogActivityModal({
     onClose,
     onSave,
     leadId,
-    newStatus
+    newStatus,
+    modalTitle,
+    defaultSubject
 }: LogActivityModalProps) {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [formData, setFormData] = useState<Partial<CreateActivityRequest>>({
         type: ActivityType.CALL,
-        subject: '',
+        subject: defaultSubject || '',
         description: '',
         status: ActivityStatus.COMPLETED,
         scheduledDate: new Date().toISOString().split('T')[0],
         durationMinutes: 15,
     });
+
+    // Reset form when modal opens or defaultSubject changes
+    useEffect(() => {
+        if (isOpen) {
+            setFormData({
+                type: ActivityType.CALL,
+                subject: defaultSubject || '',
+                description: '',
+                status: ActivityStatus.COMPLETED,
+                scheduledDate: new Date().toISOString().split('T')[0], // Reset to current date
+                durationMinutes: 15, // Reset to default duration
+            });
+        }
+    }, [isOpen, defaultSubject]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -98,7 +116,7 @@ export function LogActivityModal({
                                     <div className="flex justify-between items-start mb-4">
                                         <div>
                                             <Dialog.Title as="h3" className="text-base font-semibold leading-6 text-gray-900">
-                                                Log Activity
+                                                {modalTitle || "Log Activity"}
                                             </Dialog.Title>
                                             <p className="text-sm text-gray-500 mt-1">
                                                 Lead is moving to <span className="font-medium text-blue-600">{newStatus.replace(/_/g, " ")}</span>. Please log the interaction.
