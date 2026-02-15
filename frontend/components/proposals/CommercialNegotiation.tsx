@@ -18,7 +18,7 @@ export default function CommercialNegotiation({ proposal, onUpdate }: Commercial
     const [items, setItems] = useState(proposal.lineItems.map(item => ({
         ...item,
         // Ensure discount fields are initialized
-        discountType: item.discountType || undefined,
+        discountType: item.discountType || DiscountType.PERCENTAGE,
         discountValue: item.discountValue || 0,
         // Extract custom name if present in description
         productName: (item.description && item.description.includes(':::'))
