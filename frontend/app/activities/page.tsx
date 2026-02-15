@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { activitiesService } from '@/lib/activities';
 import { Activity, ActivityType, ActivityStatus, ActivityPriority } from '@/types/activity';
@@ -24,7 +24,7 @@ import {
   Users
 } from "lucide-react";
 
-export default function ActivitiesPage() {
+function ActivitiesContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const initialType = searchParams.get('type') || '';
@@ -411,5 +411,23 @@ export default function ActivitiesPage() {
         isLoading={isDeleting}
       />
     </div>
+  );
+}
+
+export default function ActivitiesPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 ">
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-primary/10 rounded-full blur-3xl animate-pulse"></div>
+        </div>
+        <div className="relative text-center space-y-4">
+          <div className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin mx-auto"></div>
+          <p className="text-slate-500 font-medium">Loading activities...</p>
+        </div>
+      </div>
+    }>
+      <ActivitiesContent />
+    </Suspense>
   );
 }
