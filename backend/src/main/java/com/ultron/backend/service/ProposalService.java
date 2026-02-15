@@ -202,7 +202,7 @@ public class ProposalService extends BaseTenantService {
     private int getStatusPriority(ProposalStatus status) {
         return switch (status) {
             case ACCEPTED -> 1;
-            case NEGOTIATION, SENT -> 2;
+            case SENT -> 2;
             case REJECTED -> 3;
             case DRAFT -> 4;
             case EXPIRED -> 5;
