@@ -106,6 +106,37 @@ public class ProposalService extends BaseTenantService {
                 .createdByName(getUserName(createdBy))
                 .build();
 
+        // Populate explicit linkage fields based on source
+        if (proposal.getSource() == ProposalSource.LEAD) {
+            Lead lead = leadRepository.findById(request.getSourceId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Lead not found: " + request.getSourceId()));
+            proposal.setLeadId(lead.getId());
+            proposal.setLeadName(lead.getFirstName() + " " + lead.getLastName());
+            
+            // If lead is already converted, link to those entities too
+            if (lead.getConvertedToAccountId() != null) {
+                proposal.setAccountId(lead.getConvertedToAccountId());
+            }
+            if (lead.getConvertedToOpportunityId() != null) {
+                proposal.setOpportunityId(lead.getConvertedToOpportunityId());
+            }
+            if (lead.getConvertedToContactId() != null) {
+                proposal.setContactId(lead.getConvertedToContactId());
+            }
+        } else if (proposal.getSource() == ProposalSource.OPPORTUNITY) {
+            Opportunity opportunity = opportunityRepository.findById(request.getSourceId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Opportunity not found: " + request.getSourceId()));
+            proposal.setOpportunityId(opportunity.getId());
+            proposal.setOpportunityName(opportunity.getOpportunityName());
+            proposal.setAccountId(opportunity.getAccountId());
+            proposal.setContactId(opportunity.getPrimaryContactId());
+            
+            // Link to original lead if it exists
+            if (opportunity.getConvertedFromLeadId() != null) {
+                proposal.setLeadId(opportunity.getConvertedFromLeadId());
+            }
+        }
+
         // Calculate totals
         proposal = calculationService.calculateTotals(proposal);
 
@@ -397,8 +428,17 @@ public class ProposalService extends BaseTenantService {
 
     public List<ProposalResponse> getProposalsBySource(ProposalSource source, String sourceId) {
         String tenantId = getCurrentTenantId();
-        return proposalRepository.findBySourceAndSourceIdAndTenantIdAndIsDeletedFalse(source, sourceId, tenantId)
-                .stream()
+        List<Proposal> proposals;
+        if (source == ProposalSource.LEAD) {
+            proposals = proposalRepository.findByLeadIdAndTenantIdAndIsDeletedFalse(sourceId, tenantId);
+        } else if (source == ProposalSource.OPPORTUNITY) {
+            proposals = proposalRepository.findByOpportunityIdAndTenantIdAndIsDeletedFalse(sourceId, tenantId);
+        } else {
+            // Fallback for any other sources
+            proposals = proposalRepository.findBySourceAndSourceIdAndTenantIdAndIsDeletedFalse(source, sourceId, tenantId);
+        }
+        
+        return proposals.stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
@@ -657,6 +697,15 @@ public class ProposalService extends BaseTenantService {
                 .lastModifiedAt(proposal.getLastModifiedAt())
                 .lastModifiedBy(proposal.getLastModifiedBy())
                 .lastModifiedByName(proposal.getLastModifiedByName())
+                // New linkage fields
+                .leadId(proposal.getLeadId())
+                .leadName(proposal.getLeadName())
+                .opportunityId(proposal.getOpportunityId())
+                .opportunityName(proposal.getOpportunityName())
+                .accountId(proposal.getAccountId())
+                .accountName(proposal.getAccountName())
+                .contactId(proposal.getContactId())
+                .contactName(proposal.getContactName())
                 .build();
     }
 

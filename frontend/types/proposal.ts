@@ -63,6 +63,16 @@ export interface ProposalResponse {
   sourceId: string;
   sourceName: string;
 
+  // Linkage fields
+  leadId?: string;
+  leadName?: string;
+  opportunityId?: string;
+  opportunityName?: string;
+  accountId?: string;
+  accountName?: string;
+  contactId?: string;
+  contactName?: string;
+
   // Customer
   customerId?: string;
   customerName?: string;

@@ -22,6 +22,9 @@ import java.util.List;
 @CompoundIndexes({
     @CompoundIndex(name = "tenant_deleted_idx", def = "{'tenantId': 1, 'isDeleted': 1}"),
     @CompoundIndex(name = "tenant_source_deleted_idx", def = "{'tenantId': 1, 'source': 1, 'sourceId': 1, 'isDeleted': 1}"),
+    @CompoundIndex(name = "tenant_lead_idx", def = "{'tenantId': 1, 'leadId': 1, 'isDeleted': 1}"),
+    @CompoundIndex(name = "tenant_opportunity_idx", def = "{'tenantId': 1, 'opportunityId': 1, 'isDeleted': 1}"),
+    @CompoundIndex(name = "tenant_account_idx", def = "{'tenantId': 1, 'accountId': 1, 'isDeleted': 1}"),
     @CompoundIndex(name = "tenant_status_deleted_idx", def = "{'tenantId': 1, 'status': 1, 'isDeleted': 1}"),
     @CompoundIndex(name = "tenant_owner_deleted_idx", def = "{'tenantId': 1, 'ownerId': 1, 'isDeleted': 1}"),
     @CompoundIndex(name = "tenant_status_source_idx", def = "{'tenantId': 1, 'status': 1, 'source': 1, 'sourceId': 1}"),
@@ -42,15 +45,32 @@ public class Proposal {
     @Indexed
     private String tenantId;
 
-    // Link to Lead or Opportunity
+    // Link to Lead or Opportunity (Legacy polymorphic link)
     @Indexed
     private ProposalSource source;  // LEAD or OPPORTUNITY
     @Indexed
     private String sourceId;  // MongoDB ObjectId of Lead or Opportunity
     private String sourceName;  // Denormalized: Lead/Opportunity name
 
+    // Explicit links for cross-referencing
+    @Indexed
+    private String leadId;
+    private String leadName;
+
+    @Indexed
+    private String opportunityId;
+    private String opportunityName;
+
+    @Indexed
+    private String accountId;
+    private String accountName;
+
+    @Indexed
+    private String contactId;
+    private String contactName;
+
     // Customer Information (denormalized for proposal history)
-    private String customerId;  // MongoDB ObjectId of Account (if converted)
+    private String customerId;  // MongoDB ObjectId of Account (Legacy - use accountId)
     private String customerName;
     private String customerEmail;
     private String customerPhone;

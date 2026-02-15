@@ -27,6 +27,16 @@ public class ProposalResponse {
     private String sourceId;
     private String sourceName;
 
+    // Explicit links for cross-referencing
+    private String leadId;
+    private String leadName;
+    private String opportunityId;
+    private String opportunityName;
+    private String accountId;
+    private String accountName;
+    private String contactId;
+    private String contactName;
+
     // Customer
     private String customerId;
     private String customerName;

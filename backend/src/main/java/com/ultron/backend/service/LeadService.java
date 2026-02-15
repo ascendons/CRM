@@ -574,12 +574,22 @@ public class LeadService extends BaseTenantService {
         if (!proposals.isEmpty()) {
             log.info("Migrating {} proposals from Lead {} to Opportunity {}", proposals.size(), lead.getLeadId(), opportunity.getOpportunityId());
             for (Proposal proposal : proposals) {
+                // Keep Lead info
+                proposal.setLeadId(lead.getId());
+                proposal.setLeadName(lead.getFirstName() + " " + lead.getLastName());
+                
+                // Add new Linkages
+                proposal.setOpportunityId(opportunity.getId());
+                proposal.setOpportunityName(opportunity.getOpportunityName());
+                proposal.setAccountId(account.getId());
+                proposal.setAccountName(account.getAccountName());
+                proposal.setContactId(contact.getId());
+                proposal.setContactName(contact.getFirstName() + " " + contact.getLastName());
+                
+                // Keep source as Opportunity for primary context
                 proposal.setSource(ProposalSource.OPPORTUNITY);
                 proposal.setSourceId(opportunity.getId());
                 proposal.setSourceName(opportunity.getOpportunityName());
-                proposal.setCustomerId(account.getId());
-                proposal.setCustomerName(account.getAccountName());
-                // Email and Phone are already on proposal, keeping them as snapshot
                 
                 proposal.setLastModifiedAt(LocalDateTime.now());
                 proposal.setLastModifiedBy(userId);

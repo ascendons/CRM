@@ -43,6 +43,14 @@ public interface ProposalRepository extends MongoRepository<Proposal, String> {
     Page<Proposal> findBySourceAndSourceIdAndTenantIdAndIsDeletedFalse(ProposalSource source, String sourceId, String tenantId, Pageable pageable);
 
     /**
+     * Find proposals by specific entity IDs (Multi-reference support)
+     */
+    List<Proposal> findByLeadIdAndTenantIdAndIsDeletedFalse(String leadId, String tenantId);
+    List<Proposal> findByOpportunityIdAndTenantIdAndIsDeletedFalse(String opportunityId, String tenantId);
+    List<Proposal> findByAccountIdAndTenantIdAndIsDeletedFalse(String accountId, String tenantId);
+    List<Proposal> findByContactIdAndTenantIdAndIsDeletedFalse(String contactId, String tenantId);
+
+    /**
      * Find proposals by status and tenant (excluding deleted)
      * MULTI-TENANT SAFE
      */
