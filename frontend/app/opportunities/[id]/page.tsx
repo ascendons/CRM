@@ -247,7 +247,7 @@ export default function OpportunityDetailPage({ params }: { params: Promise<{ id
         {/* Financial Metrics */}
         <div className="mb-8 grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="bg-white rounded-lg shadow p-6">
-            <p className="text-sm text-gray-600 mb-1">Amount</p>
+            <p className="text-sm text-gray-600 mb-1">Proposal Value</p>
             <p className="text-2xl font-bold text-gray-900">{formatCurrency(opportunity.amount)}</p>
           </div>
           <div className="bg-white rounded-lg shadow p-6">
@@ -319,7 +319,7 @@ export default function OpportunityDetailPage({ params }: { params: Promise<{ id
                 <dl className="divide-y divide-gray-200">
                   <DetailRow label="Opportunity Name" value={opportunity.opportunityName} />
                   <DetailRow label="Stage" value={getStageLabel(opportunity.stage)} />
-                  <DetailRow label="Amount" value={formatCurrency(opportunity.amount)} />
+                  <DetailRow label="Proposal Value" value={formatCurrency(opportunity.amount)} />
                   <DetailRow label="Probability" value={`${opportunity.probability}%`} />
                   <DetailRow
                     label="Expected Close Date"
@@ -364,7 +364,7 @@ export default function OpportunityDetailPage({ params }: { params: Promise<{ id
               {/* Financial Details */}
               <DetailSection title="Financial Details">
                 <dl className="divide-y divide-gray-200">
-                  <DetailRow label="Amount" value={formatCurrency(opportunity.amount)} />
+                  <DetailRow label="Proposal Value" value={formatCurrency(opportunity.amount)} />
                   <DetailRow
                     label="Forecast Amount"
                     value={formatCurrency(opportunity.forecastAmount)}

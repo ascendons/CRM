@@ -155,7 +155,58 @@ public class ProposalService extends BaseTenantService {
         // Create version snapshot
         proposalVersioningService.createSnapshot(saved, "CREATED", "Initial version created", createdBy);
 
+        // Sync opportunity amount if applicable
+        if (saved.getOpportunityId() != null) {
+            syncOpportunityAmount(saved.getOpportunityId());
+        }
+
         return mapToResponse(saved);
+    }
+
+    /**
+     * Syncs the opportunity amount with the latest relevant proposal value.
+     * Priority: ACCEPTED > SENT/NEGOTIATION/REJECTED > DRAFT (whichever is latest modified)
+     */
+    private void syncOpportunityAmount(String opportunityId) {
+        String tenantId = getCurrentTenantId();
+        List<Proposal> proposals = proposalRepository.findByOpportunityIdAndTenantIdAndIsDeletedFalse(opportunityId, tenantId);
+        
+        if (proposals.isEmpty()) return;
+
+        // Find the best proposal to use for the amount
+        Proposal bestProposal = proposals.stream()
+                .sorted((p1, p2) -> {
+                    // Status priority
+                    int s1 = getStatusPriority(p1.getStatus());
+                    int s2 = getStatusPriority(p2.getStatus());
+                    if (s1 != s2) return Integer.compare(s1, s2);
+                    
+                    // Latest modified priority
+                    LocalDateTime m1 = p1.getLastModifiedAt() != null ? p1.getLastModifiedAt() : p1.getCreatedAt();
+                    LocalDateTime m2 = p2.getLastModifiedAt() != null ? p2.getLastModifiedAt() : p2.getCreatedAt();
+                    return m2.compareTo(m1);
+                })
+                .findFirst()
+                .orElse(null);
+
+        if (bestProposal != null) {
+            opportunityRepository.findById(opportunityId).ifPresent(opp -> {
+                log.info("[Tenant: {}] Syncing opportunity {} amount to ₹{} from proposal {}", 
+                        tenantId, opportunityId, bestProposal.getTotalAmount(), bestProposal.getProposalId());
+                opp.setAmount(bestProposal.getTotalAmount());
+                opportunityRepository.save(opp);
+            });
+        }
+    }
+
+    private int getStatusPriority(ProposalStatus status) {
+        return switch (status) {
+            case ACCEPTED -> 1;
+            case NEGOTIATION, SENT -> 2;
+            case REJECTED -> 3;
+            case DRAFT -> 4;
+            case EXPIRED -> 5;
+        };
     }
 
     @Transactional(readOnly = true)
@@ -290,6 +341,11 @@ public class ProposalService extends BaseTenantService {
         // Create version snapshot
         proposalVersioningService.createSnapshot(saved, "UPDATED", "Proposal details updated", userId);
 
+        // Sync opportunity amount if applicable
+        if (saved.getOpportunityId() != null) {
+            syncOpportunityAmount(saved.getOpportunityId());
+        }
+
         return mapToResponse(saved);
     }
 
@@ -327,6 +383,11 @@ public class ProposalService extends BaseTenantService {
 
         // TODO: Send email notification to customer
 
+        // Sync opportunity amount if applicable
+        if (saved.getOpportunityId() != null) {
+            syncOpportunityAmount(saved.getOpportunityId());
+        }
+
         return mapToResponse(saved);
     }
 
@@ -361,6 +422,11 @@ public class ProposalService extends BaseTenantService {
 
         // Create version snapshot
         proposalVersioningService.createSnapshot(saved, "ACCEPTED", "Proposal accepted by customer", userId);
+
+        // Sync opportunity amount if applicable
+        if (saved.getOpportunityId() != null) {
+            syncOpportunityAmount(saved.getOpportunityId());
+        }
 
         // TODO: Auto-create Opportunity if source is LEAD
         // TODO: Update Opportunity stage if source is OPPORTUNITY
@@ -401,6 +467,11 @@ public class ProposalService extends BaseTenantService {
 
         // Create version snapshot
         proposalVersioningService.createSnapshot(saved, "REJECTED", "Proposal rejected by customer. Reason: " + reason, userId);
+
+        // Sync opportunity amount if applicable
+        if (saved.getOpportunityId() != null) {
+            syncOpportunityAmount(saved.getOpportunityId());
+        }
 
         return mapToResponse(saved);
     }

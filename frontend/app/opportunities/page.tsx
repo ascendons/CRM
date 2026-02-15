@@ -310,7 +310,7 @@ export default function OpportunitiesPage() {
                 <tr className="bg-slate-50/50  border-b border-slate-200 ">
                   {[
                     { key: 'name', label: 'Opportunity / Account' },
-                    { key: 'amount', label: 'Value' },
+                    { key: 'amount', label: 'Proposal Value' },
                     { key: 'stage', label: 'Stage' },
                     { key: 'probability', label: 'Probability' },
                     { key: 'closeDate', label: 'Expected Close' },
@@ -388,8 +388,8 @@ export default function OpportunitiesPage() {
                           <div className="flex-1 w-24 h-2 bg-slate-100  rounded-full overflow-hidden">
                             <div
                               className={`h-full rounded-full ${opportunity.probability > 75 ? 'bg-emerald-500' :
-                                  opportunity.probability > 40 ? 'bg-blue-500' :
-                                    'bg-amber-500'
+                                opportunity.probability > 40 ? 'bg-blue-500' :
+                                  'bg-amber-500'
                                 }`}
                               style={{ width: `${opportunity.probability}%` }}
                             ></div>
