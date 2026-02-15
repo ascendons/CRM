@@ -30,6 +30,7 @@ import { CreateActivityRequest } from "@/types/activity";
 interface LeadKanbanBoardProps {
     leads: Lead[];
     filter?: LeadStatus[];
+    onStatusChange?: (leadId: string, newStatus: LeadStatus) => void;
 }
 
 const statusColumns: { id: LeadStatus; label: string; color: string }[] = [
@@ -83,7 +84,7 @@ function KanbanColumn({ id, label, color, leads }: { id: LeadStatus; label: stri
     );
 }
 
-export function LeadKanbanBoard({ leads: initialLeads, filter = [] }: LeadKanbanBoardProps) {
+export function LeadKanbanBoard({ leads: initialLeads, filter = [], onStatusChange: parentOnStatusChange }: LeadKanbanBoardProps) {
     const router = useRouter();
     const [leads, setLeads] = useState<Lead[]>(initialLeads);
     const [activeId, setActiveId] = useState<string | null>(null);
@@ -104,6 +105,9 @@ export function LeadKanbanBoard({ leads: initialLeads, filter = [] }: LeadKanban
                     lead.id === leadId ? { ...lead, leadStatus: newStatus } : lead
                 )
             );
+            if (parentOnStatusChange) {
+                parentOnStatusChange(leadId, newStatus);
+            }
         }
     });
 

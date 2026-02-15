@@ -20,7 +20,12 @@ import com.ultron.backend.repository.AccountRepository;
 import com.ultron.backend.repository.ContactRepository;
 import com.ultron.backend.repository.LeadRepository;
 import com.ultron.backend.repository.OpportunityRepository;
+import com.ultron.backend.repository.ProposalRepository;
+import com.ultron.backend.repository.ActivityRepository;
 import com.ultron.backend.event.LeadCreatedEvent;
+import com.ultron.backend.domain.enums.ProposalSource;
+import com.ultron.backend.domain.entity.Proposal;
+import com.ultron.backend.domain.entity.Activity;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -48,6 +53,8 @@ public class LeadService extends BaseTenantService {
     private final ContactRepository contactRepository;
     private final AccountRepository accountRepository;
     private final OpportunityRepository opportunityRepository;
+    private final ProposalRepository proposalRepository;
+    private final ActivityRepository activityRepository;
     private final ApplicationEventPublisher eventPublisher;
     private final AuditLogService auditLogService;
 
@@ -542,6 +549,9 @@ public class LeadService extends BaseTenantService {
         log.info("Lead {} converted successfully - Contact: {}, Account: {}, Opportunity: {}",
                 lead.getLeadId(), contact.getContactId(), account.getAccountId(), opportunity.getOpportunityId());
 
+        // Migrate historical data (Proposals, Activities)
+        migrateLeadDataToOpportunity(lead, accountEntity, contactEntity, opportunityEntity, convertedByUserId);
+
         // Log audit
         auditLogService.logAsync("LEAD", converted.getId(), converted.getFirstName() + " " + converted.getLastName(),
                 "CONVERT", "Lead converted to Opportunity",
@@ -549,6 +559,54 @@ public class LeadService extends BaseTenantService {
                 convertedByUserId, null);
 
         return mapToResponse(converted);
+    }
+
+    /**
+     * Helper to migrate historical data from Lead to the resulting Opportunity/Account/Contact
+     */
+    private void migrateLeadDataToOpportunity(Lead lead, Account account, Contact contact, Opportunity opportunity, String userId) {
+        String tenantId = lead.getTenantId();
+        
+        // 1. Migrate Proposals
+        List<Proposal> proposals = proposalRepository.findBySourceAndSourceIdAndTenantIdAndIsDeletedFalse(
+                ProposalSource.LEAD, lead.getId(), tenantId);
+        
+        if (!proposals.isEmpty()) {
+            log.info("Migrating {} proposals from Lead {} to Opportunity {}", proposals.size(), lead.getLeadId(), opportunity.getOpportunityId());
+            for (Proposal proposal : proposals) {
+                proposal.setSource(ProposalSource.OPPORTUNITY);
+                proposal.setSourceId(opportunity.getId());
+                proposal.setSourceName(opportunity.getOpportunityName());
+                proposal.setCustomerId(account.getId());
+                proposal.setCustomerName(account.getAccountName());
+                // Email and Phone are already on proposal, keeping them as snapshot
+                
+                proposal.setLastModifiedAt(LocalDateTime.now());
+                proposal.setLastModifiedBy(userId);
+                proposal.setLastModifiedByName("System (Lead Conversion)");
+                
+                proposalRepository.save(proposal);
+            }
+        }
+
+        // 2. Migrate Activities
+        List<Activity> activities = activityRepository.findByLeadIdAndTenantIdAndIsDeletedFalse(lead.getId(), tenantId);
+        if (!activities.isEmpty()) {
+            log.info("Migrating {} activities from Lead {} to Opportunity {}", activities.size(), lead.getLeadId(), opportunity.getOpportunityId());
+            for (Activity activity : activities) {
+                activity.setOpportunityId(opportunity.getId());
+                activity.setOpportunityName(opportunity.getOpportunityName());
+                activity.setAccountId(account.getId());
+                activity.setAccountName(account.getAccountName());
+                activity.setContactId(contact.getId());
+                activity.setContactName(contact.getFirstName() + " " + contact.getLastName());
+                
+                activity.setLastModifiedAt(LocalDateTime.now());
+                activity.setLastModifiedBy(userId);
+                
+                activityRepository.save(activity);
+            }
+        }
     }
 
     /**
@@ -580,6 +638,7 @@ public class LeadService extends BaseTenantService {
                 .build();
 
         AccountResponse account = accountService.createAccount(accountRequest, userId);
+        Account accountEntity = accountRepository.findById(account.getId()).orElseThrow();
 
         // Create Contact from lead personal information
         log.info("Creating Contact from lost Lead {}", lead.getLeadId());
@@ -606,6 +665,7 @@ public class LeadService extends BaseTenantService {
                 .build();
 
         ContactResponse contact = contactService.createContact(contactRequest, userId);
+        Contact contactEntity = contactRepository.findById(contact.getId()).orElseThrow();
 
         // Create CLOSED_LOST Opportunity
         log.info("Creating CLOSED_LOST Opportunity from lost Lead {}", lead.getLeadId());
@@ -644,6 +704,9 @@ public class LeadService extends BaseTenantService {
 
         Lead lost = leadRepository.save(lead);
         log.info("Lead {} marked as lost - Opportunity: {}", lead.getLeadId(), opportunity.getOpportunityId());
+
+        // Migrate historical data (Proposals, Activities)
+        migrateLeadDataToOpportunity(lead, accountEntity, contactEntity, opportunityEntity, userId);
 
         // Log audit
         auditLogService.logAsync("LEAD", lost.getId(), lost.getFirstName() + " " + lost.getLastName(),

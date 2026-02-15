@@ -58,6 +58,16 @@ export default function DashboardPage() {
     const currentUser = authService.getUser();
     setUser(currentUser);
     loadStatistics();
+
+    // Revalidate when window gains focus (e.g., coming back from another tab)
+    const handleFocus = () => {
+      loadStatistics();
+    };
+
+    window.addEventListener('focus', handleFocus);
+    return () => {
+      window.removeEventListener('focus', handleFocus);
+    };
   }, [router]);
 
   const loadStatistics = async () => {

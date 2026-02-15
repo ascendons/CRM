@@ -578,7 +578,15 @@ export default function LeadsPage() {
             )}
           </>
         ) : (
-          <LeadKanbanBoard leads={filteredLeads} filter={statusFilter} />
+          <LeadKanbanBoard
+            leads={filteredLeads}
+            filter={statusFilter}
+            onStatusChange={() => {
+              loadLeads();
+              loadStatistics();
+              router.refresh();
+            }}
+          />
         )}
       </main>
 

@@ -94,6 +94,9 @@ export default function LeadDetailPage() {
             console.error("Failed to update proposal status", error);
           }
         }
+
+        // Ensure other pages like dashboard see the change
+        router.refresh();
       }
     }
   });
