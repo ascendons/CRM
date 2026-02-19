@@ -1,13 +1,7 @@
 name: Deploy Backend to AWS
 
 on:
-  push:
-    branches:
-      - master
-    paths:
-      - 'backend/**'
-      - '.github/workflows/deploy-backend.yml'
-  workflow_dispatch:  # Allows manual triggering
+  workflow_dispatch:  # Manual triggering only
 
 jobs:
   deploy:

@@ -1,13 +1,7 @@
 name: Deploy Frontend to AWS
 
 on:
-  push:
-    branches:
-      - master
-    paths:
-      - 'frontend/**'
-      - '.github/workflows/deploy-frontend.yml'
-  workflow_dispatch:  # Allows manual triggering
+  workflow_dispatch:  # Manual triggering only
 
 jobs:
   deploy:
