@@ -4,8 +4,13 @@ import path from "path";
 const nextConfig: NextConfig = {
   /* config options here */
 
-  // Enable standalone output for AWS Amplify SSR deployment
-  output: 'standalone',
+  // Enable static export for AWS Amplify deployment
+  output: 'export',
+
+  // Disable image optimization for static export
+  images: {
+    unoptimized: true,
+  },
 
   // Use Webpack for builds (Turbopack has path resolution issues)
   webpack: (config, { isServer }) => {
@@ -21,15 +26,8 @@ const nextConfig: NextConfig = {
     root: __dirname,
   },
 
-  async rewrites() {
-    const backendUrl = process.env.BACKEND_URL || 'http://localhost:8080';
-    return [
-      {
-        source: '/crm-backend/:path*',
-        destination: `${backendUrl}/api/v1/:path*`,
-      },
-    ];
-  },
+  // Note: rewrites don't work with static export
+  // API calls will go directly to NEXT_PUBLIC_API_URL
 };
 
 export default nextConfig;
