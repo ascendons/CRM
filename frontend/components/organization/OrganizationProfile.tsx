@@ -179,7 +179,7 @@ export default function OrganizationProfile({
                     </label>
                     <div className="flex items-center gap-2 text-gray-600">
                         <Globe className="h-5 w-5 text-gray-400" />
-                        {organization.subdomain}.yourcrm.com
+                        {organization.subdomain}.ascendons.com
                     </div>
                 </div>
 

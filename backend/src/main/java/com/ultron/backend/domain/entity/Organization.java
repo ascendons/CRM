@@ -35,7 +35,7 @@ public class Organization {
     private String domain;  // company.com - for email domain verification
 
     @Indexed(unique = true)
-    private String subdomain;  // company.yourcrm.com (optional for SaaS model)
+    private String subdomain;  // company.ascendons.com (optional for SaaS model)
 
     private String industry;
     private String companySize;

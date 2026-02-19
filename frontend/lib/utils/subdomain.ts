@@ -42,7 +42,7 @@ export function extractSubdomain(hostname: string): string | null {
  * Build URL with subdomain
  */
 export function buildSubdomainUrl(subdomain: string, path: string = ''): string {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'yourcrm.com';
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'ascendons.com';
     const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
 
     return `${protocol}://${subdomain}.${baseUrl}${path}`;

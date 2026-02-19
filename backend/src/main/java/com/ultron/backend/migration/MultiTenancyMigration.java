@@ -100,7 +100,7 @@ public class MultiTenancyMigration implements CommandLineRunner {
                             .organizationName("Default Organization")
                             .displayName("Default Organization")
                             .subdomain("default")
-                            .primaryEmail("admin@yourcrm.com")
+                            .primaryEmail("admin@ascendons.com")
                             .status(Organization.OrganizationStatus.ACTIVE)
                             .subscription(Organization.SubscriptionInfo.builder()
                                     .planType("ENTERPRISE")

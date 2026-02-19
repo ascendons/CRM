@@ -93,7 +93,7 @@ export default function SubdomainChecker({
                     required
                 />
                 <div className="absolute inset-y-0 right-0 flex items-center pr-3">
-                    <span className="text-sm text-gray-500">.yourcrm.com</span>
+                    <span className="text-sm text-gray-500">.ascendons.com</span>
                 </div>
             </div>
 
