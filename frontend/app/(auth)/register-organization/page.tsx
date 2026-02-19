@@ -137,14 +137,10 @@ export default function RegisterOrganizationPage() {
             });
 
             // Redirect to dashboard
-            if (process.env.NODE_ENV === 'production') {
-                const subdomainUrl = buildSubdomainUrl(formData.subdomain, '/dashboard');
-                console.log("[RegisterOrganizationPage] Redirecting to production subdomain URL", subdomainUrl);
-                window.location.href = subdomainUrl;
-            } else {
-                console.log("[RegisterOrganizationPage] Redirecting to local dashboard");
-                window.location.href = '/dashboard';
-            }
+            // Note: All tenants use the same frontend (crm.ascendons.com)
+            // Tenant context is determined by the auth token, not the URL
+            console.log("[RegisterOrganizationPage] Redirecting to dashboard");
+            window.location.href = '/dashboard';
         } catch (err) {
             console.error("[RegisterOrganizationOrganizationPage] Registration failed", err);
             if (err instanceof ApiError) {
