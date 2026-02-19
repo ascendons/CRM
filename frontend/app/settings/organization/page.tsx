@@ -137,52 +137,198 @@ export default function OrganizationSettingsPage() {
 }
 
 function OrganizationSettingsForm({ organization, onUpdate }: { organization: Organization; onUpdate: () => void }) {
-    const settings = organization.settings;
+    const [isSaving, setIsSaving] = useState(false);
+    const [success, setSuccess] = useState("");
+    const [error, setError] = useState("");
+    const [formData, setFormData] = useState({
+        dateFormat: organization.settings?.dateFormat || "MM/DD/YYYY",
+        timeFormat: organization.settings?.timeFormat || "12h",
+        language: organization.settings?.language || "English",
+        emailNotificationsEnabled: organization.settings?.emailNotificationsEnabled ?? true,
+        logoUrl: organization.settings?.logoUrl || "",
+        brandColor: organization.settings?.brandColor || "#2563eb",
+    });
+
+    // Also update local state when organization prop changes
+    useEffect(() => {
+        setFormData({
+            dateFormat: organization.settings?.dateFormat || "MM/DD/YYYY",
+            timeFormat: organization.settings?.timeFormat || "12h",
+            language: organization.settings?.language || "English",
+            emailNotificationsEnabled: organization.settings?.emailNotificationsEnabled ?? true,
+            logoUrl: organization.settings?.logoUrl || "",
+            brandColor: organization.settings?.brandColor || "#2563eb",
+        });
+    }, [organization]);
+
+    const handleChange = (field: string, value: any) => {
+        setFormData(prev => ({ ...prev, [field]: value }));
+    };
+
+    const handleSave = async () => {
+        setError("");
+        setSuccess("");
+        setIsSaving(true);
+
+        try {
+            await organizationApi.updateSettings(formData);
+            setSuccess("Settings updated successfully");
+            onUpdate();
+            setTimeout(() => setSuccess(""), 3000);
+        } catch (err: any) {
+            setError(err.message || "Failed to update settings");
+        } finally {
+            setIsSaving(false);
+        }
+    };
 
     return (
         <div className="space-y-6">
-            <div>
-                <h3 className="text-lg font-semibold text-gray-900">General Settings</h3>
-                <p className="text-sm text-gray-600 mt-1">
-                    Configure your organization preferences
-                </p>
+            <div className="flex items-center justify-between">
+                <div>
+                    <h3 className="text-lg font-semibold text-gray-900">General Settings</h3>
+                    <p className="text-sm text-gray-600 mt-1">
+                        Configure branding and regional preferences
+                    </p>
+                </div>
+                <button
+                    onClick={handleSave}
+                    disabled={isSaving}
+                    className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
+                >
+                    {isSaving ? (
+                        <>
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                            Saving...
+                        </>
+                    ) : (
+                        "Save Changes"
+                    )}
+                </button>
             </div>
+
+            {success && (
+                <div className="bg-green-50 text-green-700 p-3 rounded-lg text-sm border border-green-200">
+                    {success}
+                </div>
+            )}
+
+            {error && (
+                <div className="bg-red-50 text-red-700 p-3 rounded-lg text-sm border border-red-200">
+                    {error}
+                </div>
+            )}
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                        Date Format
+                        Logo URL
                     </label>
-                    <div className="text-gray-900">{settings?.dateFormat || "MM/DD/YYYY"}</div>
+                    <input
+                        type="url"
+                        value={formData.logoUrl}
+                        onChange={(e) => handleChange("logoUrl", e.target.value)}
+                        placeholder="https://example.com/logo.png"
+                        className="block w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                        Publicly accessible URL for your organization logo
+                    </p>
                 </div>
 
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                        Time Format
+                        Brand Color
                     </label>
-                    <div className="text-gray-900">{settings?.timeFormat || "12h"}</div>
+                    <div className="flex gap-2">
+                        <input
+                            type="color"
+                            value={formData.brandColor}
+                            onChange={(e) => handleChange("brandColor", e.target.value)}
+                            className="h-9 w-9 p-1 border border-gray-200 rounded-lg cursor-pointer"
+                        />
+                        <input
+                            type="text"
+                            value={formData.brandColor}
+                            onChange={(e) => handleChange("brandColor", e.target.value)}
+                            placeholder="#000000"
+                            className="block w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 uppercase"
+                            maxLength={7}
+                        />
+                    </div>
                 </div>
 
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                        Language
-                    </label>
-                    <div className="text-gray-900">{settings?.language || "English"}</div>
-                </div>
+                <div className="col-span-full border-t pt-6">
+                    <h4 className="text-sm font-medium text-gray-900 mb-4">Localization</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                                Date Format
+                            </label>
+                            <select
+                                value={formData.dateFormat}
+                                onChange={(e) => handleChange("dateFormat", e.target.value)}
+                                className="block w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900"
+                            >
+                                <option value="MM/DD/YYYY">MM/DD/YYYY</option>
+                                <option value="DD/MM/YYYY">DD/MM/YYYY</option>
+                                <option value="YYYY-MM-DD">YYYY-MM-DD</option>
+                            </select>
+                        </div>
 
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                        Email Notifications
-                    </label>
-                    <div className="text-gray-900">
-                        {settings?.emailNotificationsEnabled ? "Enabled" : "Disabled"}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                                Time Format
+                            </label>
+                            <select
+                                value={formData.timeFormat}
+                                onChange={(e) => handleChange("timeFormat", e.target.value)}
+                                className="block w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900"
+                            >
+                                <option value="12h">12-hour (AM/PM)</option>
+                                <option value="24h">24-hour</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                                Language
+                            </label>
+                            <select
+                                value={formData.language}
+                                onChange={(e) => handleChange("language", e.target.value)}
+                                className="block w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900"
+                            >
+                                <option value="English">English</option>
+                                <option value="Spanish">Spanish</option>
+                                <option value="French">French</option>
+                                <option value="German">German</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                                Email Notifications
+                            </label>
+                            <div className="flex items-center gap-2 mt-2">
+                                <label className="relative inline-flex items-center cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        checked={formData.emailNotificationsEnabled}
+                                        onChange={(e) => handleChange("emailNotificationsEnabled", e.target.checked)}
+                                        className="sr-only peer"
+                                    />
+                                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                    <span className="ml-3 text-sm font-medium text-gray-700">
+                                        {formData.emailNotificationsEnabled ? "Enabled" : "Disabled"}
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div className="pt-4 border-t text-sm text-gray-500">
-                Contact support to change these settings.
-            </div>
         </div>
     );
 }

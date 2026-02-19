@@ -7,6 +7,7 @@ import { UserMenu } from "@/components/UserMenu";
 import { meService, type CurrentUser } from "@/lib/me";
 import { authService } from "@/lib/auth";
 import { usePermissionContext } from "@/providers/PermissionProvider";
+import { useOrganization } from "@/providers/OrganizationProvider";
 
 export default function Navigation() {
   const pathname = usePathname();
@@ -15,6 +16,9 @@ export default function Navigation() {
 
   // Get permission checks from context (LEAN RBAC)
   const { canAccessModule, canAccessPath, loading: permissionsLoading } = usePermissionContext();
+
+  // Get organization context
+  const { organization } = useOrganization();
 
   // Hide navigation on login and register pages
   const hideNavigation = pathname === "/login" || pathname === "/register";
@@ -57,7 +61,7 @@ export default function Navigation() {
       <header className="h-16 border-b border-slate-200 bg-white flex items-center justify-between px-6 lg:px-8 sticky top-0 z-10">
         <div className="flex items-center gap-8">
           <Link href="/dashboard" className="flex items-center gap-3">
-            <div className="size-10 bg-primary rounded-lg flex items-center justify-center text-white">
+            <div className="size-10 bg-primary rounded-lg flex items-center justify-center text-white overflow-hidden">
               <span className="material-symbols-outlined">rocket_launch</span>
             </div>
             <div>
@@ -82,12 +86,22 @@ export default function Navigation() {
     <header className="h-16 border-b border-slate-200 bg-white flex items-center justify-between px-6 lg:px-8 sticky top-0 z-10">
       <div className="flex items-center gap-8">
         <Link href="/dashboard" className="flex items-center gap-3">
-          <div className="size-10 bg-primary rounded-lg flex items-center justify-center text-white">
-            <span className="material-symbols-outlined">rocket_launch</span>
-          </div>
+          {organization?.settings?.logoUrl ? (
+            <div className="size-10 rounded-lg flex items-center justify-center overflow-hidden border border-slate-100">
+              <img
+                src={organization.settings.logoUrl}
+                alt={organization.organizationName}
+                className="w-full h-full object-contain"
+              />
+            </div>
+          ) : (
+            <div className="size-10 bg-primary rounded-lg flex items-center justify-center text-white">
+              <span className="material-symbols-outlined">rocket_launch</span>
+            </div>
+          )}
           <div>
             <h1 className="text-lg font-bold leading-none tracking-tight text-slate-900">
-              Ascendons CRM
+              {organization?.displayName || organization?.organizationName || "Ascendons CRM"}
             </h1>
             <p className="text-xs text-slate-700 font-medium">Enterprise Edition</p>
           </div>

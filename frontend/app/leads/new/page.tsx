@@ -322,15 +322,20 @@ export default function NewLeadPage() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Annual Revenue
+                  Annual Revenue <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="number"
                   name="annualRevenue"
                   value={formData.annualRevenue || ""}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  required
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 ${errors.annualRevenue ? "border-red-500" : "border-gray-300"
+                    }`}
                 />
+                {errors.annualRevenue && (
+                  <p className="mt-1 text-sm text-red-600">{errors.annualRevenue}</p>
+                )}
               </div>
             </div>
           </div>
@@ -358,15 +363,20 @@ export default function NewLeadPage() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Expected Revenue
+                  Expected Revenue <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="number"
                   name="expectedRevenue"
                   value={formData.expectedRevenue || ""}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  required
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 ${errors.expectedRevenue ? "border-red-500" : "border-gray-300"
+                    }`}
                 />
+                {errors.expectedRevenue && (
+                  <p className="mt-1 text-sm text-red-600">{errors.expectedRevenue}</p>
+                )}
               </div>
 
               <div>

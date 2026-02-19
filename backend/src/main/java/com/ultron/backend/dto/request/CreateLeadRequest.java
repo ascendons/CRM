@@ -49,7 +49,10 @@ public class CreateLeadRequest {
     // Company Information
     private Industry industry;
     private CompanySize companySize;
+
+    @NotNull(message = "Annual revenue is required")
     private BigDecimal annualRevenue;
+    
     private Integer numberOfEmployees;
 
     // Address Information
@@ -62,7 +65,10 @@ public class CreateLeadRequest {
     // Lead Classification
     private LeadSource leadSource;
     private String leadOwnerId;  // If null, defaults to current user
+
+    @NotNull(message = "Expected revenue is required")
     private BigDecimal expectedRevenue;
+
     private LocalDate expectedCloseDate;
 
     // Additional Information
