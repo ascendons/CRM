@@ -4,9 +4,6 @@ import path from "path";
 const nextConfig: NextConfig = {
   /* config options here */
 
-  // Enable standalone output for Docker deployment
-  output: 'standalone',
-
   // Use Webpack for builds (Turbopack has path resolution issues)
   webpack: (config, { isServer }) => {
     config.resolve.alias = {
