@@ -1,0 +1,14 @@
+node_modules/
+.next/
+.git/
+.gitignore
+.env*
+!.env.production
+*.log
+.DS_Store
+.idea/
+.vscode/
+amplify/
+README.md
+.npm/
+out/
