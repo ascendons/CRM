@@ -106,6 +106,7 @@ export interface SecuritySettings {
 export interface OrganizationRegistrationRequest {
     organizationName: string;
     subdomain: string;
+    logoUrl?: string;
     industry?: string;
     companySize?: string;
     adminEmail: string;
