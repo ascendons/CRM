@@ -80,7 +80,7 @@ public class OrganizationService {
                 .subscription(createSubscriptionInfo(request.getSubscriptionTier()))
                 .limits(getDefaultLimits(request.getSubscriptionTier()))
                 .usage(createInitialUsage())
-                .settings(createDefaultSettings())
+                .settings(createDefaultSettings(request.getLogoUrl()))
                 .security(createDefaultSecurity())
                 .createdAt(LocalDateTime.now())
                 .isDeleted(false)
@@ -408,12 +408,13 @@ public class OrganizationService {
                 .build();
     }
 
-    private Organization.OrganizationSettings createDefaultSettings() {
+    private Organization.OrganizationSettings createDefaultSettings(String logoUrl) {
         return Organization.OrganizationSettings.builder()
                 .dateFormat("DD/MM/YYYY")
                 .timeFormat("HH:mm")
                 .language("en")
                 .emailNotificationsEnabled(true)
+                .logoUrl(logoUrl)
                 .build();
     }
 

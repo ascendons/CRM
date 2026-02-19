@@ -45,4 +45,6 @@ public class OrganizationRegistrationRequest {
 
     @Builder.Default
     private String subscriptionTier = "FREE";  // FREE, STARTER, PROFESSIONAL, ENTERPRISE
+
+    private String logoUrl;
 }
