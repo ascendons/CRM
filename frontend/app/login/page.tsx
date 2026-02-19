@@ -345,14 +345,8 @@ export default function LoginPage() {
                 <div className="flex-1 h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
               </div>
 
-              {/* Registration links */}
-              <div className="mt-6 space-y-3">
-                <Link
-                  href="/register"
-                  className="w-full flex items-center justify-center py-3 px-4 text-sm font-medium text-slate-600 rounded-xl border border-slate-200 bg-slate-50/50 hover:bg-slate-100 hover:border-slate-300 hover:text-slate-800 transition-all duration-300"
-                >
-                  Create an account
-                </Link>
+              {/* Registration link */}
+              <div className="mt-6">
                 <Link
                   href="/register-organization"
                   className="w-full flex items-center justify-center py-3 px-4 text-sm font-medium text-cyan-600 rounded-xl border border-cyan-200/50 bg-cyan-50/30 hover:bg-cyan-50 hover:border-cyan-300 hover:text-cyan-700 transition-all duration-300"
