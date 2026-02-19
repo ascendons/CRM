@@ -12,12 +12,18 @@ RUN npm ci --prefer-offline
 # Copy application code
 COPY . .
 
-# Set environment variables
+# Accept build arguments for Next.js public env vars
+ARG NEXT_PUBLIC_API_URL=https://api.ascendons.com/api/v1
+ARG NEXT_PUBLIC_APP_URL=https://crm.ascendons.com
+
+# Set environment variables for build time
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV PORT=3000
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_APP_URL=$NEXT_PUBLIC_APP_URL
 
-# Build the application
+# Build the application (env vars are embedded here)
 RUN npm run build:prod
 
 # Expose port
