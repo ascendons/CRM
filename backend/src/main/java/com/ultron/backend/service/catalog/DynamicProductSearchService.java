@@ -67,6 +67,21 @@ public class DynamicProductSearchService extends BaseTenantService {
         // Execute search
         List<DynamicProduct> products = mongoTemplate.find(query, DynamicProduct.class);
 
+        // --- BACKWARD COMPATIBILITY FIX ---
+        // Ensure displayName forces 'ProductName' if it exists. 
+        // Solves issues with previously uploaded catalogs mapping IDs or Descriptions instead.
+        products.forEach(p -> {
+            if (p.getAttributes() != null) {
+                for (ProductAttribute attr : p.getAttributes()) {
+                    String key = attr.getKey().toLowerCase();
+                    if (key.equals("productname") || key.equals("product_name") || key.equals("itemname") || key.equals("item_name") || key.equals("name")) {
+                        p.setDisplayName(attr.getValue());
+                        break;
+                    }
+                }
+            }
+        });
+
         // Rank by relevance if keyword search
         if (searchRequest.getKeyword() != null && !searchRequest.getKeyword().trim().isEmpty()) {
             products = rankByRelevance(products, searchRequest.getKeyword());

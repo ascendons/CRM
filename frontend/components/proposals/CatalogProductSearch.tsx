@@ -75,9 +75,18 @@ export default function CatalogProductSearch({
         }
     };
 
+    const getProductName = (product: Product) => {
+        const nameAttr = product.attributes.find(a =>
+            a.key.toLowerCase() === 'productname' ||
+            a.key.toLowerCase() === 'product_name' ||
+            a.key.toLowerCase() === 'name'
+        );
+        return nameAttr?.value || product.displayName;
+    };
+
     const handleSelect = (product: Product) => {
         onSelect(product);
-        setQuery(product.displayName); // Show selected name
+        setQuery(getProductName(product)); // Show selected name
         setResults([]);
         setShowResults(false);
     };
@@ -103,12 +112,13 @@ export default function CatalogProductSearch({
     // Helper to get price for display
     const getPrice = (product: Product) => {
         const priceAttr = product.attributes.find(a =>
-            a.key === 'base_price' ||
-            a.key === 'list_price' ||
-            a.key === 'price' ||
-            a.key.includes('price')
+            a.key.toLowerCase() === 'unitprice' ||
+            a.key.toLowerCase() === 'unit_price' ||
+            a.key.toLowerCase() === 'base_price' ||
+            a.key.toLowerCase() === 'list_price' ||
+            a.key.toLowerCase() === 'price'
         );
-        return priceAttr?.value || 'N/A';
+        return priceAttr?.numericValue ?? priceAttr?.value ?? 'N/A';
     };
 
     return (
@@ -184,7 +194,7 @@ export default function CatalogProductSearch({
                         >
                             <div>
                                 <div className="font-medium text-gray-900 group-hover:text-blue-600">
-                                    {product.displayName}
+                                    {getProductName(product)}
                                 </div>
                                 <div className="text-xs text-gray-500 flex gap-2">
                                     <span>ID: {product.productId}</span>

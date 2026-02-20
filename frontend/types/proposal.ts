@@ -35,6 +35,7 @@ export interface ProposalLineItem {
   description?: string;
   quantity: number;
   unit: string;
+  hsnCode?: string;
   unitPrice: number;
   taxRate: number;
   discountType?: DiscountType;
@@ -140,6 +141,8 @@ export interface LineItemDTO {
   productId?: string;
   productName?: string;
   quantity: number;
+  unit?: string;
+  hsnCode?: string;
   unitPrice?: number;
   description?: string;
   discountType?: DiscountType;

@@ -154,6 +154,7 @@ public class Proposal {
 
         private Integer quantity;
         private String unit;
+        private String hsnCode;
         private BigDecimal unitPrice;  // Price per unit
         private BigDecimal taxRate;  // Percentage
 

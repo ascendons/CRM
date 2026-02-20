@@ -177,21 +177,21 @@ public class PdfService {
         boolean hasLineItemDiscount = proposal.getLineItems().stream()
                 .anyMatch(item -> item.getLineDiscountAmount() != null && item.getLineDiscountAmount().compareTo(BigDecimal.ZERO) > 0);
 
-        int numCols = hasLineItemDiscount ? 7 : 6;
+        int numCols = hasLineItemDiscount ? 8 : 7;
         PdfPTable table = new PdfPTable(numCols);
         table.setWidthPercentage(100);
         if (hasLineItemDiscount) {
-            table.setWidths(new float[]{0.5f, 2.5f, 1f, 0.8f, 1.2f, 1.2f, 1.2f});
+            table.setWidths(new float[]{0.5f, 2.5f, 1f, 0.6f, 0.6f, 1.2f, 1.2f, 1.2f});
         } else {
-            table.setWidths(new float[]{0.5f, 3f, 1f, 1f, 1.2f, 1.2f});
+            table.setWidths(new float[]{0.5f, 3f, 1f, 0.6f, 0.6f, 1.2f, 1.2f});
         }
         table.setHeaderRows(1);
 
         // Header Styling
         Font headerFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 8);
         String[] headers = hasLineItemDiscount 
-            ? new String[]{"SR NO", "DESCRIPTION", "HSN/SAC", "QTY", "RATE", "DISCOUNT", "AMOUNT"}
-            : new String[]{"SR NO", "DESCRIPTION", "HSN/SAC", "QTY", "RATE", "AMOUNT"};
+            ? new String[]{"SR NO", "DESCRIPTION", "HSN/SAC", "QTY", "UNIT", "RATE", "DISCOUNT", "AMOUNT"}
+            : new String[]{"SR NO", "DESCRIPTION", "HSN/SAC", "QTY", "UNIT", "RATE", "AMOUNT"};
         
         for (String h : headers) {
             PdfPCell cell = new PdfPCell(new Phrase(h, headerFont));
@@ -217,11 +217,13 @@ public class PdfService {
             }
             addCell(table, desc, Element.ALIGN_LEFT, cellFont);
             
-            // HSN/SAC (Placeholder or fetch if available)
-            String hsn = (item.getSku() != null && item.getSku().length() >= 6) ? item.getSku() : "";
+            // HSN/SAC
+            String hsn = (item.getHsnCode() != null && !item.getHsnCode().isEmpty()) ? item.getHsnCode() : "";
             addCell(table, hsn, Element.ALIGN_CENTER, cellFont);
             
-            addCell(table, String.valueOf(item.getQuantity()) + " " + (item.getUnit() != null ? item.getUnit() : ""), Element.ALIGN_CENTER, cellFont);
+            // Quantity & Unit
+            addCell(table, String.valueOf(item.getQuantity()), Element.ALIGN_CENTER, cellFont);
+            addCell(table, (item.getUnit() != null ? item.getUnit() : "-"), Element.ALIGN_CENTER, cellFont);
             addCell(table, currency.format(item.getUnitPrice()), Element.ALIGN_RIGHT, cellFont);
             
             if (hasLineItemDiscount) {

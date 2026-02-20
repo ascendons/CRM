@@ -67,8 +67,17 @@ public class UpdateProposalRequest {
         @NotBlank(message = "Product ID is required")
         private String productId;
 
+        @Size(max = 200, message = "Product name must be less than 200 characters")
+        private String productName;
+
         @Size(max = 500, message = "Description must be less than 500 characters")
         private String description;
+
+        @Size(max = 50, message = "Unit must be less than 50 characters")
+        private String unit;
+
+        @Size(max = 50, message = "HSN Code must be less than 50 characters")
+        private String hsnCode;
 
         @NotNull(message = "Quantity is required")
         @Min(value = 1, message = "Quantity must be at least 1")

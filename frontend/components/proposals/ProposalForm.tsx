@@ -94,6 +94,8 @@ export default function ProposalForm({
 
     interface FormLineItem extends LineItemDTO {
         productName?: string;
+        unit?: string;
+        hsnCode?: string;
     }
 
     // Line items state
@@ -106,6 +108,8 @@ export default function ProposalForm({
             discountValue: item.discountValue,
             description: item.description, // Map existing description
             productName: item.productName, // Map existing name
+            unit: item.unit,
+            hsnCode: item.hsnCode,
         })) || [
             {
                 productId: "",
@@ -115,6 +119,8 @@ export default function ProposalForm({
                 discountValue: undefined,
                 description: "",
                 productName: "",
+                unit: "",
+                hsnCode: "",
             },
         ]
     );
@@ -327,6 +333,8 @@ export default function ProposalForm({
                 productId: finalProductId,
                 productName: item.productName, // Backend might ignore this if ID is present
                 quantity: item.quantity,
+                unit: item.unit,
+                hsnCode: item.hsnCode,
                 unitPrice: item.unitPrice,
                 description: finalDescription,
                 discountType: item.discountType,
@@ -753,28 +761,36 @@ export default function ProposalForm({
                                                 const updated = [...prev];
                                                 const currentItem = updated[index];
 
+                                                const getAttr = (keys: string[]) => product.attributes.find(a => keys.includes(a.key.toLowerCase()));
+
+                                                const nameAttr = getAttr(['productname', 'product_name', 'name']);
+                                                const actualName = nameAttr?.value || product.displayName;
+
                                                 const newUpdates: Partial<FormLineItem> = {
                                                     productId: product.id,
-                                                    productName: product.displayName
+                                                    productName: actualName
                                                 };
 
-                                                // Price
-                                                const priceAttr = product.attributes.find(a =>
-                                                    a.key === 'base_price' ||
-                                                    a.key === 'list_price' ||
-                                                    a.key === 'price'
-                                                );
-                                                if (priceAttr && priceAttr.numericValue) {
-                                                    newUpdates.unitPrice = priceAttr.numericValue;
+                                                const priceAttr = getAttr(['unitprice', 'unit_price', 'price', 'base_price', 'list_price']);
+                                                if (priceAttr) {
+                                                    if (priceAttr.numericValue != null) {
+                                                        newUpdates.unitPrice = priceAttr.numericValue;
+                                                    } else if (priceAttr.value) {
+                                                        newUpdates.unitPrice = parseFloat(priceAttr.value);
+                                                    }
                                                 }
 
-                                                // Description
-                                                const descAttr = product.attributes.find(a =>
-                                                    a.key === 'description' ||
-                                                    a.key.includes('description')
-                                                );
-                                                if (descAttr && descAttr.value) {
-                                                    newUpdates.description = descAttr.value;
+                                                const descAttr = getAttr(['description', 'desc']);
+                                                newUpdates.description = descAttr?.value || "";
+
+                                                const unitAttr = getAttr(['unit']);
+                                                if (unitAttr?.value) {
+                                                    newUpdates.unit = unitAttr.value;
+                                                }
+
+                                                const hsnCodeAttr = getAttr(['hsncode', 'hsn_code', 'hsn']);
+                                                if (hsnCodeAttr?.value) {
+                                                    newUpdates.hsnCode = hsnCodeAttr.value;
                                                 }
 
                                                 updated[index] = { ...currentItem, ...newUpdates };
@@ -815,6 +831,46 @@ export default function ProposalForm({
                                         min="1"
                                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:text-gray-500"
                                         required
+                                        disabled={isReadOnly}
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Unit
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={item.unit || ""}
+                                        onChange={(e) =>
+                                            updateLineItem(
+                                                index,
+                                                "unit",
+                                                e.target.value
+                                            )
+                                        }
+                                        placeholder="e.g., pcs, kg, hrs"
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:text-gray-500"
+                                        disabled={isReadOnly}
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        HSN Code
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={item.hsnCode || ""}
+                                        onChange={(e) =>
+                                            updateLineItem(
+                                                index,
+                                                "hsnCode",
+                                                e.target.value
+                                            )
+                                        }
+                                        placeholder="e.g., 998311"
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:text-gray-500"
                                         disabled={isReadOnly}
                                     />
                                 </div>

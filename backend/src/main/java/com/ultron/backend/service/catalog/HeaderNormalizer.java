@@ -202,9 +202,13 @@ public class HeaderNormalizer {
         String lower = key.toLowerCase();
         return lower.equals("name") ||
                lower.equals("product_name") ||
+               lower.equals("productname") ||
+               lower.equals("item_name") ||
+               lower.equals("itemname") ||
                lower.equals("title") ||
                lower.equals("description") ||
-               lower.equals("product_description");
+               lower.equals("product_description") ||
+               lower.equals("productdescription");
     }
 
     /**

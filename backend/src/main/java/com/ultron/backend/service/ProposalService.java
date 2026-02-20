@@ -625,7 +625,8 @@ public class ProposalService extends BaseTenantService {
                             .sku(product.getSku())
                             .description(dto.getDescription() != null ? dto.getDescription() : product.getDescription())
                             .quantity(dto.getQuantity())
-                            .unit(product.getUnit())
+                            .unit(dto.getUnit() != null ? dto.getUnit() : product.getUnit())
+                            .hsnCode(dto.getHsnCode() != null ? dto.getHsnCode() : null)
                             .unitPrice(dto.getUnitPrice() != null ? dto.getUnitPrice() : product.getBasePrice())
                             .taxRate(product.getTaxRate())
                             .discountType(dto.getDiscountType())
@@ -645,11 +646,12 @@ public class ProposalService extends BaseTenantService {
         return Proposal.ProposalLineItem.builder()
                 .lineItemId(UUID.randomUUID().toString())
                 .productId(product.getId())
-                .productName(product.getDisplayName() != null ? product.getDisplayName() : "Unknown Product")
+                .productName(dto.getProductName() != null && !dto.getProductName().isEmpty() ? dto.getProductName() : getProductNameFallback(product))
                 .sku(product.getProductId()) // Use business ID as SKU
                 .description(dto.getDescription() != null ? dto.getDescription() : findAttributeValue(product, "description", null))
                 .quantity(dto.getQuantity())
-                .unit(findAttributeValue(product, "unit", "pcs"))
+                .unit(dto.getUnit() != null ? dto.getUnit() : findAttributeValue(product, "unit", "pcs"))
+                .hsnCode(dto.getHsnCode() != null ? dto.getHsnCode() : findAttributeValue(product, "hsn", null))
                 .unitPrice(dto.getUnitPrice() != null ? dto.getUnitPrice() : BigDecimal.valueOf(findAttributeNumericValue(product, "price", 0.0)))
                 .taxRate(BigDecimal.valueOf(findAttributeNumericValue(product, "tax", 0.0)))
                 .discountType(dto.getDiscountType())
@@ -661,16 +663,29 @@ public class ProposalService extends BaseTenantService {
         return Proposal.ProposalLineItem.builder()
                 .lineItemId(UUID.randomUUID().toString())
                 .productId(product.getId())
-                .productName(product.getDisplayName() != null ? product.getDisplayName() : "Unknown Product")
+                .productName(dto.getProductName() != null && !dto.getProductName().isEmpty() ? dto.getProductName() : getProductNameFallback(product))
                 .sku(product.getProductId()) // Use business ID as SKU
                 .description(dto.getDescription() != null ? dto.getDescription() : findAttributeValue(product, "description", null))
                 .quantity(dto.getQuantity())
-                .unit(findAttributeValue(product, "unit", "pcs"))
+                .unit(dto.getUnit() != null ? dto.getUnit() : findAttributeValue(product, "unit", "pcs"))
+                .hsnCode(dto.getHsnCode() != null ? dto.getHsnCode() : findAttributeValue(product, "hsn", null))
                 .unitPrice(dto.getUnitPrice() != null ? dto.getUnitPrice() : BigDecimal.valueOf(findAttributeNumericValue(product, "price", 0.0)))
                 .taxRate(BigDecimal.valueOf(findAttributeNumericValue(product, "tax", 0.0)))
                 .discountType(dto.getDiscountType())
                 .discountValue(dto.getDiscountValue())
                 .build();
+    }
+
+    private String getProductNameFallback(DynamicProduct product) {
+        if (product.getAttributes() != null) {
+            for (DynamicProduct.ProductAttribute attr : product.getAttributes()) {
+                String k = attr.getKey().toLowerCase();
+                if (k.equals("productname") || k.equals("product_name") || k.equals("name") || k.equals("itemname") || k.equals("item_name")) {
+                    return attr.getValue();
+                }
+            }
+        }
+        return product.getDisplayName() != null ? product.getDisplayName() : "Unknown Product";
     }
 
     private String findAttributeValue(DynamicProduct product, String keyPartial, String defaultValue) {
@@ -847,6 +862,7 @@ public class ProposalService extends BaseTenantService {
                 .description(item.getDescription())
                 .quantity(item.getQuantity())
                 .unit(item.getUnit())
+                .hsnCode(item.getHsnCode())
                 .unitPrice(item.getUnitPrice())
                 .taxRate(item.getTaxRate())
                 .discountType(item.getDiscountType())
