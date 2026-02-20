@@ -6,6 +6,7 @@ import { activitiesService } from "@/lib/activities";
 import { authService } from "@/lib/auth";
 import { ProposalResponse } from "@/types/proposal";
 import { showToast } from "@/lib/toast";
+import { formatDateTimeLongIST } from "@/lib/utils/date";
 import { Send, User, Clock, MessageSquare } from "lucide-react";
 
 interface ProposalCommentsProps {
@@ -85,12 +86,7 @@ export default function ProposalComments({ proposal }: ProposalCommentsProps) {
     };
 
     const formatDate = (dateString: string) => {
-        return new Date(dateString).toLocaleString("en-IN", {
-            month: "short",
-            day: "numeric",
-            hour: "2-digit",
-            minute: "2-digit"
-        });
+        return formatDateTimeLongIST(dateString);
     };
 
     if (!leadId) {

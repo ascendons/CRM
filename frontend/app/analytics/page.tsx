@@ -3,6 +3,7 @@
 import { useState } from "react";
 import DashboardStats from "@/components/analytics/DashboardStats";
 import GrowthTrends from "@/components/analytics/GrowthTrends";
+import { formatLocaleIST } from "@/lib/utils/date";
 import {
     BarChart3,
     TrendingUp,
@@ -93,7 +94,7 @@ export default function AnalyticsPage() {
 
             {/* Last Updated */}
             <div className="mt-6 text-center text-xs text-gray-500">
-                Last updated: {new Date().toLocaleString()}
+                Last updated: {formatLocaleIST(new Date())}
             </div>
         </div>
     );

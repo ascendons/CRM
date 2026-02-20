@@ -12,6 +12,7 @@ import { opportunitiesService } from "@/lib/opportunities";
 import { activitiesService } from "@/lib/activities";
 import { contactsService } from "@/lib/contacts";
 import { organizationApi } from "@/lib/api/organization";
+import { formatLocaleIST } from "@/lib/utils/date";
 import { OpportunityStatistics } from "@/types/opportunity";
 import {
   Briefcase,
@@ -461,7 +462,7 @@ export default function DashboardPage() {
                         <div className="flex-1">
                           <p className="text-sm font-medium text-slate-900 group-hover:text-purple-600 transition-colors">{activity.subject}</p>
                           <p className="text-xs text-slate-500 mt-1">
-                            {activity.type} • {new Date(activity.createdAt).toLocaleString()}
+                            {activity.type} • {formatLocaleIST(activity.createdAt)}
                           </p>
                         </div>
                         <span className={`px-2 py-1 rounded text-xs font-medium ${activity.status === 'COMPLETED' ? 'bg-green-100 text-green-700' : 'bg-blue-50 text-blue-600'

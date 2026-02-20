@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { ProposalVersionResponse, getActionLabel, getActionColor } from "@/types/proposal-version";
 import { proposalsService } from "@/lib/proposals";
+import { formatDateTimeLongIST } from "@/lib/utils/date";
 import { Clock, User, ArrowRight, Layers, FileSearch } from "lucide-react";
 
 interface ProposalVersionHistoryProps {
@@ -158,13 +159,7 @@ export default function ProposalVersionHistory({
                                             </div>
                                             <div className="flex items-center gap-1.5 bg-slate-100 px-2 py-1 rounded-md">
                                                 <Clock className="h-3.5 w-3.5 text-slate-400" />
-                                                {new Date(version.createdAt).toLocaleString("en-IN", {
-                                                    day: "2-digit",
-                                                    month: "short",
-                                                    year: "numeric",
-                                                    hour: "2-digit",
-                                                    minute: "2-digit"
-                                                })}
+                                                {formatDateTimeLongIST(version.createdAt)}
                                             </div>
                                             <div className="text-primary font-bold">
                                                 {new Intl.NumberFormat("en-IN", {

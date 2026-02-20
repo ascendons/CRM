@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Activity, ActivityType, ActivityStatus, CreateActivityRequest, UpdateActivityRequest } from "@/types/activity";
-import { formatDistanceToNow } from "date-fns";
+import { formatRelativeTimeIST } from "@/lib/utils/date";
 import { Phone, Mail, Calendar, CheckSquare, FileText, User, MoreVertical, Pencil, Trash2, Send, X } from "lucide-react";
 import { Menu, Transition } from "@headlessui/react";
 import { Fragment } from "react";
@@ -191,7 +191,7 @@ export function EntityActivities({ entityId, entityType, activities, loading, on
                                                     </p>
                                                     <div className="whitespace-nowrap text-right text-sm text-gray-500 flex items-center gap-2">
                                                         <time dateTime={activity.createdAt}>
-                                                            {formatDistanceToNow(new Date(activity.createdAt), { addSuffix: true })}
+                                                            {formatRelativeTimeIST(activity.createdAt)}
                                                         </time>
 
                                                         {/* Actions Menu */}

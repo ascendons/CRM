@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { auditLogsService } from "@/lib/auditLogs";
 import { AuditLogEntry, AuditLogAction } from "@/types/auditLog";
 import { showToast } from "@/lib/toast";
+import { formatLocaleIST } from "@/lib/utils/date";
 import {
     Clock,
     User,
@@ -53,10 +54,7 @@ export function AuditLogTimeline({ entityName, entityId }: AuditLogTimelineProps
     };
 
     const formatDate = (dateString: string) => {
-        return new Date(dateString).toLocaleString("en-IN", {
-            dateStyle: "medium",
-            timeStyle: "short",
-        });
+        return formatLocaleIST(dateString);
     };
 
     const getActionIcon = (action: AuditLogAction) => {

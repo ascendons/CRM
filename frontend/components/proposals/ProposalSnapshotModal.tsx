@@ -1,6 +1,7 @@
 "use client";
 
 import { ProposalVersionResponse } from "@/types/proposal-version";
+import { formatLocaleIST, formatDateIST } from "@/lib/utils/date";
 import { X, Download, User, Clock } from "lucide-react";
 
 interface ProposalSnapshotModalProps {
@@ -22,11 +23,7 @@ export default function ProposalSnapshotModal({ version, isOpen, onClose }: Prop
     };
 
     const formatDate = (dateString: string) => {
-        return new Date(dateString).toLocaleDateString("en-IN", {
-            year: "numeric",
-            month: "short",
-            day: "numeric",
-        });
+        return formatDateIST(dateString);
     };
 
     return (
@@ -49,7 +46,7 @@ export default function ProposalSnapshotModal({ version, isOpen, onClose }: Prop
                                 <User className="h-3 w-3" /> {version.createdByName}
                             </div>
                             <div className="flex items-center gap-1.5 text-xs text-slate-400 font-medium">
-                                <Clock className="h-3 w-3" /> {new Date(version.createdAt).toLocaleString()}
+                                <Clock className="h-3 w-3" /> {formatLocaleIST(version.createdAt)}
                             </div>
                         </div>
                         <button

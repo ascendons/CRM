@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import { activitiesService } from '@/lib/activities';
+import { formatLocaleIST } from '@/lib/utils/date';
 import { Activity, ActivityType, ActivityStatus, ActivityPriority } from '@/types/activity';
 
 export default function ActivityDetailPage() {
@@ -173,19 +174,19 @@ export default function ActivityDetailPage() {
               {activity.scheduledDate && (
                 <>
                   <dt className="text-sm font-medium text-gray-500">Scheduled Date</dt>
-                  <dd className="text-sm text-gray-900">{new Date(activity.scheduledDate).toLocaleString()}</dd>
+                  <dd className="text-sm text-gray-900">{formatLocaleIST(activity.scheduledDate)}</dd>
                 </>
               )}
               {activity.dueDate && (
                 <>
                   <dt className="text-sm font-medium text-gray-500">Due Date</dt>
-                  <dd className="text-sm text-gray-900">{new Date(activity.dueDate).toLocaleString()}</dd>
+                  <dd className="text-sm text-gray-900">{formatLocaleIST(activity.dueDate)}</dd>
                 </>
               )}
               {activity.completedDate && (
                 <>
                   <dt className="text-sm font-medium text-gray-500">Completed Date</dt>
-                  <dd className="text-sm text-gray-900">{new Date(activity.completedDate).toLocaleString()}</dd>
+                  <dd className="text-sm text-gray-900">{formatLocaleIST(activity.completedDate)}</dd>
                 </>
               )}
               {activity.durationMinutes && (
@@ -371,13 +372,13 @@ export default function ActivityDetailPage() {
             <h2 className="text-lg font-semibold text-gray-900 mb-4">System Information</h2>
             <dl className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <dt className="text-sm font-medium text-gray-500">Created At</dt>
-              <dd className="text-sm text-gray-900">{new Date(activity.createdAt).toLocaleString()}</dd>
+              <dd className="text-sm text-gray-900">{formatLocaleIST(activity.createdAt)}</dd>
 
               <dt className="text-sm font-medium text-gray-500">Created By</dt>
               <dd className="text-sm text-gray-900">{activity.createdByName}</dd>
 
               <dt className="text-sm font-medium text-gray-500">Last Modified At</dt>
-              <dd className="text-sm text-gray-900">{new Date(activity.lastModifiedAt).toLocaleString()}</dd>
+              <dd className="text-sm text-gray-900">{formatLocaleIST(activity.lastModifiedAt)}</dd>
 
               <dt className="text-sm font-medium text-gray-500">Last Modified By</dt>
               <dd className="text-sm text-gray-900">{activity.lastModifiedByName}</dd>
