@@ -324,7 +324,7 @@ export default function ProposalsPage() {
                     {[
                       { key: 'proposalNumber', label: 'Proposal #' },
                       { key: 'title', label: 'Title / Customer' },
-                      { key: 'totalAmount', label: 'Amount' },
+                      { key: 'totalAmount', label: 'Total / Invoice' },
                       { key: 'status', label: 'Status' },
                       { key: 'validUntil', label: 'Valid Until' },
                     ].map((col) => (
@@ -369,8 +369,18 @@ export default function ProposalsPage() {
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4 text-sm font-bold text-slate-900 ">
-                        {formatCurrency(proposal.totalAmount)}
+                      <td className="px-6 py-4">
+                        <div className="text-sm font-bold text-slate-900">
+                          {formatCurrency(proposal.totalAmount)}
+                        </div>
+                        {proposal.paymentMilestones && proposal.paymentMilestones.length > 0 && proposal.currentMilestoneIndex !== undefined && proposal.paymentMilestones[proposal.currentMilestoneIndex] && (
+                          <div className="text-xs text-slate-500 mt-1 flex items-center gap-1.5 flex-wrap">
+                            <span>Inv: {formatCurrency((proposal.totalAmount * proposal.paymentMilestones[proposal.currentMilestoneIndex].percentage) / 100)}</span>
+                            <span className="text-[10px] font-medium bg-primary/10 text-primary px-1.5 py-0.5 rounded whitespace-nowrap">
+                              {proposal.paymentMilestones[proposal.currentMilestoneIndex].name} ({proposal.paymentMilestones[proposal.currentMilestoneIndex].percentage}%)
+                            </span>
+                          </div>
+                        )}
                       </td>
                       <td className="px-6 py-4">
                         {getStatusBadge(proposal.status)}

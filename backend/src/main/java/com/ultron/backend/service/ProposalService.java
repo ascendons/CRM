@@ -95,6 +95,8 @@ public class ProposalService extends BaseTenantService {
                 .lineItems(lineItems)
                 .discount(discount)
                 .gstType(request.getGstType() != null ? request.getGstType() : com.ultron.backend.domain.enums.GstType.NONE)
+                .paymentMilestones(mapMilestones(request.getPaymentMilestones()))
+                .currentMilestoneIndex(0)
                 .status(ProposalStatus.DRAFT)
                 .ownerId(createdBy)
                 .ownerName(getUserName(createdBy))
@@ -295,6 +297,10 @@ public class ProposalService extends BaseTenantService {
             proposal.setNotes(request.getNotes());
         }
 
+        if (request.getPaymentMilestones() != null) {
+            proposal.setPaymentMilestones(mapMilestones(request.getPaymentMilestones()));
+        }
+
         // Update audit fields
         proposal.setLastModifiedAt(LocalDateTime.now());
         proposal.setLastModifiedBy(userId);
@@ -350,6 +356,16 @@ public class ProposalService extends BaseTenantService {
         // Sync opportunity amount if applicable
         if (saved.getOpportunityId() != null) {
             syncOpportunityAmount(saved.getOpportunityId());
+        }
+
+        // Handle auto-generation if status changed to ACCEPTED in this update
+        if (request.getStatus() != null && request.getStatus() == ProposalStatus.ACCEPTED && proposal.getStatus() == ProposalStatus.ACCEPTED) {
+            if (saved.getPaymentMilestones() != null && !saved.getPaymentMilestones().isEmpty()) {
+                int nextIndex = saved.getCurrentMilestoneIndex() + 1;
+                if (nextIndex < saved.getPaymentMilestones().size()) {
+                    generateNextMilestoneProposal(saved, nextIndex, userId);
+                }
+            }
         }
 
         return mapToResponse(saved);
@@ -432,6 +448,14 @@ public class ProposalService extends BaseTenantService {
         // Sync opportunity amount if applicable
         if (saved.getOpportunityId() != null) {
             syncOpportunityAmount(saved.getOpportunityId());
+        }
+
+        // Auto-generate next milestone proposal if applicable
+        if (saved.getPaymentMilestones() != null && !saved.getPaymentMilestones().isEmpty()) {
+            int nextIndex = saved.getCurrentMilestoneIndex() + 1;
+            if (nextIndex < saved.getPaymentMilestones().size()) {
+                generateNextMilestoneProposal(saved, nextIndex, userId);
+            }
         }
 
         // TODO: Auto-create Opportunity if source is LEAD
@@ -755,6 +779,9 @@ public class ProposalService extends BaseTenantService {
                 .lineItems(proposal.getLineItems())
                 .discount(proposal.getDiscount())
                 .gstType(proposal.getGstType() != null ? proposal.getGstType() : com.ultron.backend.domain.enums.GstType.NONE)
+                .paymentMilestones(proposal.getPaymentMilestones())
+                .currentMilestoneIndex(proposal.getCurrentMilestoneIndex())
+                .parentProposalId(proposal.getParentProposalId())
                 .subtotal(proposal.getSubtotal())
                 .discountAmount(proposal.getDiscountAmount())
                 .taxAmount(proposal.getTaxAmount())
@@ -796,5 +823,87 @@ public class ProposalService extends BaseTenantService {
                 .postalCode(dto.getPostalCode())
                 .country(dto.getCountry())
                 .build();
+    }
+
+    private List<Proposal.PaymentMilestone> mapMilestones(List<CreateProposalRequest.PaymentMilestoneDTO> dtos) {
+        if (dtos == null) return null;
+        return dtos.stream()
+                .map(dto -> Proposal.PaymentMilestone.builder()
+                        .name(dto.getName())
+                        .percentage(dto.getPercentage())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+    private void generateNextMilestoneProposal(Proposal previousProposal, int nextIndex, String userId) {
+        String newProposalId = proposalIdGeneratorService.generateProposalId();
+        
+        List<Proposal.ProposalLineItem> copiedLineItems = previousProposal.getLineItems().stream()
+            .map(item -> Proposal.ProposalLineItem.builder()
+                .lineItemId(UUID.randomUUID().toString())
+                .productId(item.getProductId())
+                .productName(item.getProductName())
+                .sku(item.getSku())
+                .description(item.getDescription())
+                .quantity(item.getQuantity())
+                .unit(item.getUnit())
+                .unitPrice(item.getUnitPrice())
+                .taxRate(item.getTaxRate())
+                .discountType(item.getDiscountType())
+                .discountValue(item.getDiscountValue())
+                .build())
+            .collect(Collectors.toList());
+
+        Proposal nextProposal = Proposal.builder()
+                .proposalId(newProposalId)
+                .tenantId(previousProposal.getTenantId())
+                .source(previousProposal.getSource())
+                .sourceId(previousProposal.getSourceId())
+                .sourceName(previousProposal.getSourceName())
+                .proposalNumber(previousProposal.getProposalNumber() + "-M" + (nextIndex + 1))
+                .title(previousProposal.getTitle() + " - Milestone " + (nextIndex + 1))
+                .description(previousProposal.getDescription())
+                .validUntil(java.time.LocalDate.now().plusDays(30))
+                .billingAddress(previousProposal.getBillingAddress())
+                .shippingAddress(previousProposal.getShippingAddress())
+                .lineItems(copiedLineItems)
+                .discount(previousProposal.getDiscount())
+                .gstType(previousProposal.getGstType())
+                .paymentMilestones(previousProposal.getPaymentMilestones())
+                .currentMilestoneIndex(nextIndex)
+                .parentProposalId(previousProposal.getId())
+                .status(ProposalStatus.DRAFT)
+                .ownerId(previousProposal.getOwnerId())
+                .ownerName(previousProposal.getOwnerName())
+                .paymentTerms(previousProposal.getPaymentTerms())
+                .deliveryTerms(previousProposal.getDeliveryTerms())
+                .notes(previousProposal.getNotes())
+                .isDeleted(false)
+                .createdAt(LocalDateTime.now())
+                .createdBy(userId)
+                .createdByName(getUserName(userId))
+                // Explicit linkages
+                .leadId(previousProposal.getLeadId())
+                .leadName(previousProposal.getLeadName())
+                .opportunityId(previousProposal.getOpportunityId())
+                .opportunityName(previousProposal.getOpportunityName())
+                .accountId(previousProposal.getAccountId())
+                .accountName(previousProposal.getAccountName())
+                .contactId(previousProposal.getContactId())
+                .contactName(previousProposal.getContactName())
+                .build();
+                
+        // Calculate totals
+        nextProposal = calculationService.calculateTotals(nextProposal);
+        
+        Proposal savedNext = proposalRepository.save(nextProposal);
+        log.info("Auto-generated next milestone proposal: {}", savedNext.getId());
+        
+        // Log auditing and versioning
+        auditLogService.logAsync("PROPOSAL", savedNext.getId(), savedNext.getTitle(),
+                "CREATE", "Auto-generated milestone proposal",
+                null, savedNext.getStatus().toString(),
+                userId, null);
+        proposalVersioningService.createSnapshot(savedNext, "CREATED", "Auto-generated next milestone", userId);
     }
 }

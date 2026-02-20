@@ -285,9 +285,33 @@ public class PdfService {
             }
         }
         addTotalRow(totalsTable, "TOTAL AMOUNT:", proposal.getTotalAmount(), FontFactory.getFont(FontFactory.HELVETICA_BOLD, 10));
-        
-        // Add a placeholder for payable value if needed (often same as total)
-        addTotalRow(totalsTable, "PAYABLE VALUE:", proposal.getTotalAmount(), boldFont);
+
+        if (proposal.getPaymentMilestones() != null && !proposal.getPaymentMilestones().isEmpty() && proposal.getCurrentMilestoneIndex() != null) {
+            int currentIndex = proposal.getCurrentMilestoneIndex();
+            
+            if (currentIndex > 0) {
+                BigDecimal previousPercentage = BigDecimal.ZERO;
+                for (int i = 0; i < currentIndex; i++) {
+                    if (i < proposal.getPaymentMilestones().size()) {
+                        previousPercentage = previousPercentage.add(proposal.getPaymentMilestones().get(i).getPercentage());
+                    }
+                }
+                
+                BigDecimal previousAmount = proposal.getTotalAmount().multiply(previousPercentage).divide(new BigDecimal("100"), 2, java.math.RoundingMode.HALF_UP);
+                addTotalRow(totalsTable, "LESS: RECEIVED (" + previousPercentage.stripTrailingZeros().toPlainString() + "%):", previousAmount, boldFont);
+            }
+            
+            if (currentIndex < proposal.getPaymentMilestones().size()) {
+                Proposal.PaymentMilestone currentMilestone = proposal.getPaymentMilestones().get(currentIndex);
+                BigDecimal payableAmount = proposal.getTotalAmount().multiply(currentMilestone.getPercentage()).divide(new BigDecimal("100"), 2, java.math.RoundingMode.HALF_UP);
+                String milestoneLabel = currentMilestone.getName() != null ? currentMilestone.getName() : "Milestone " + (currentIndex + 1);
+                addTotalRow(totalsTable, "PAYABLE (" + milestoneLabel + " " + currentMilestone.getPercentage().stripTrailingZeros().toPlainString() + "%):", payableAmount, FontFactory.getFont(FontFactory.HELVETICA_BOLD, 10));
+            } else {
+                 addTotalRow(totalsTable, "PAYABLE VALUE:", proposal.getTotalAmount(), boldFont);
+            }
+        } else {
+            addTotalRow(totalsTable, "PAYABLE VALUE:", proposal.getTotalAmount(), boldFont);
+        }
 
         PdfPCell emptyCell = new PdfPCell();
         emptyCell.setBorder(Rectangle.NO_BORDER);

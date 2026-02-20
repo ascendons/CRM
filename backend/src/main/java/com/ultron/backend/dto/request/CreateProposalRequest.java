@@ -64,6 +64,23 @@ public class CreateProposalRequest {
     @Size(max = 1000, message = "Notes must be less than 1000 characters")
     private String notes;
 
+    @Valid
+    private List<PaymentMilestoneDTO> paymentMilestones;
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class PaymentMilestoneDTO {
+        @NotBlank(message = "Milestone name is required")
+        private String name;
+
+        @NotNull(message = "Milestone percentage is required")
+        @Min(value = 0, message = "Percentage must be greater than or equal to 0")
+        @Max(value = 100, message = "Percentage cannot exceed 100")
+        private BigDecimal percentage;
+    }
+
     @Data
     @Builder
     @NoArgsConstructor

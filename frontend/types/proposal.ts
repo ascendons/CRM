@@ -100,6 +100,11 @@ export interface ProposalResponse {
   discount?: DiscountConfig;
   gstType?: GstType;
 
+  // Milestones
+  paymentMilestones?: PaymentMilestoneDTO[];
+  currentMilestoneIndex?: number;
+  parentProposalId?: string;
+
   // Totals
   subtotal: number;
   discountAmount: number;
@@ -147,6 +152,11 @@ export interface DiscountDTO {
   discountReason?: string;
 }
 
+export interface PaymentMilestoneDTO {
+  name: string;
+  percentage: number;
+}
+
 export interface CreateProposalRequest {
   source: ProposalSource;
   sourceId: string;
@@ -158,6 +168,7 @@ export interface CreateProposalRequest {
   lineItems: LineItemDTO[];
   discount?: DiscountDTO;
   gstType?: GstType;
+  paymentMilestones?: PaymentMilestoneDTO[];
   paymentTerms?: string;
   deliveryTerms?: string;
   notes?: string;
@@ -173,6 +184,7 @@ export interface UpdateProposalRequest {
   lineItems?: LineItemDTO[];
   discount?: DiscountDTO;
   gstType?: GstType;
+  paymentMilestones?: PaymentMilestoneDTO[];
   paymentTerms?: string;
   deliveryTerms?: string;
   notes?: string;

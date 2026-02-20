@@ -124,7 +124,23 @@ public class Proposal {
     private String lastModifiedBy;
     private String lastModifiedByName;
 
+    // Milestones
+    private List<PaymentMilestone> paymentMilestones;
+    @Builder.Default
+    private Integer currentMilestoneIndex = 0;
+    private String parentProposalId;
+
     // Embedded Classes
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class PaymentMilestone {
+        private String name;
+        private BigDecimal percentage;
+    }
+
     @Data
     @Builder
     @NoArgsConstructor

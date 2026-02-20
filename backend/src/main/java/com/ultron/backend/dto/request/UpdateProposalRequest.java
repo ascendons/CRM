@@ -56,6 +56,9 @@ public class UpdateProposalRequest {
     @Size(max = 1000, message = "Notes must be less than 1000 characters")
     private String notes;
 
+    @Valid
+    private List<CreateProposalRequest.PaymentMilestoneDTO> paymentMilestones;
+
     @Data
     @Builder
     @NoArgsConstructor

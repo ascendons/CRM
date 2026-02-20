@@ -59,6 +59,11 @@ public class ProposalResponse {
     private Proposal.DiscountConfig discount;
     private GstType gstType;
 
+    // Milestones
+    private List<Proposal.PaymentMilestone> paymentMilestones;
+    private Integer currentMilestoneIndex;
+    private String parentProposalId;
+
     // Totals
     private BigDecimal subtotal;
     private BigDecimal discountAmount;

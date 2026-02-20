@@ -12,6 +12,7 @@ import {
     CreateProposalRequest,
     UpdateProposalRequest,
     LineItemDTO,
+    PaymentMilestoneDTO,
     ProposalResponse,
     ProposalSource,
     ProposalStatus,
@@ -137,6 +138,16 @@ export default function ProposalForm({
         initialData?.gstType || GstType.NONE
     );
 
+    // Milestones state
+    interface FormPaymentMilestone {
+        name: string;
+        percentage: number;
+    }
+
+    const [paymentMilestones, setPaymentMilestones] = useState<FormPaymentMilestone[]>(
+        initialData?.paymentMilestones || []
+    );
+
     // Status state (only for edit mode)
     const [status, setStatus] = useState<ProposalStatus>(
         initialData?.status || ProposalStatus.DRAFT
@@ -208,6 +219,23 @@ export default function ProposalForm({
         setLineItems(updated);
     };
 
+    const addMilestone = () => {
+        setPaymentMilestones([
+            ...paymentMilestones,
+            { name: "", percentage: 0 }
+        ]);
+    };
+
+    const removeMilestone = (index: number) => {
+        setPaymentMilestones(paymentMilestones.filter((_, i) => i !== index));
+    };
+
+    const updateMilestone = (index: number, field: keyof FormPaymentMilestone, value: string | number) => {
+        const updated = [...paymentMilestones];
+        updated[index] = { ...updated[index], [field]: value as never };
+        setPaymentMilestones(updated);
+    };
+
     const validateForm = () => {
         const errors: string[] = [];
 
@@ -237,6 +265,20 @@ export default function ProposalForm({
         if (hasOverallDiscount) {
             if (overallDiscountType === DiscountType.PERCENTAGE && overallDiscountValue > 100) {
                 errors.push("Discount percentage cannot exceed 100%");
+            }
+        }
+
+        // Milestone validation
+        if (paymentMilestones.length > 0) {
+            const totalPercentage = paymentMilestones.reduce((sum, m) => sum + (Number(m.percentage) || 0), 0);
+            if (totalPercentage !== 100) {
+                errors.push(`Payment Milestones must sum to exactly 100% (currently ${totalPercentage}%)`);
+            }
+            if (paymentMilestones.some(m => !m.name.trim())) {
+                errors.push("All Payment Milestones must have a name");
+            }
+            if (paymentMilestones.some(m => Number(m.percentage) < 0 || Number(m.percentage) > 100)) {
+                errors.push("Milestone percentage must be between 0 and 100");
             }
         }
 
@@ -317,6 +359,7 @@ export default function ProposalForm({
                     lineItems: processedLineItems,
                     discount,
                     gstType,
+                    paymentMilestones: paymentMilestones.length > 0 ? paymentMilestones : undefined,
                     paymentTerms: paymentTerms.trim() || undefined,
                     deliveryTerms: deliveryTerms.trim() || undefined,
                     notes: notes.trim() || undefined,
@@ -353,6 +396,7 @@ export default function ProposalForm({
                     lineItems: processedLineItems,
                     discount,
                     gstType,
+                    paymentMilestones: paymentMilestones.length > 0 ? paymentMilestones : undefined,
                     paymentTerms: paymentTerms.trim() || undefined,
                     deliveryTerms: deliveryTerms.trim() || undefined,
                     notes: notes.trim() || undefined,
@@ -947,6 +991,83 @@ export default function ProposalForm({
                             />
                         </div>
                     </div>
+                )}
+            </div>
+
+            {/* Payment Milestones */}
+            <div className="border-t pt-6">
+                <div className="flex justify-between items-center mb-4">
+                    <h2 className="text-xl font-semibold text-gray-900">Payment Milestones</h2>
+                    <button
+                        type="button"
+                        onClick={addMilestone}
+                        disabled={isReadOnly}
+                        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        + Add Milestone
+                    </button>
+                </div>
+
+                {paymentMilestones.length > 0 ? (
+                    <div className="space-y-4">
+                        <div className="flex justify-end text-sm text-gray-600">
+                            Total: <span className={`font-semibold ml-1 ${paymentMilestones.reduce((s, m) => s + (Number(m.percentage) || 0), 0) === 100 ? 'text-green-600' : 'text-red-600'}`}>
+                                {paymentMilestones.reduce((s, m) => s + (Number(m.percentage) || 0), 0)}%
+                            </span>
+                        </div>
+                        {paymentMilestones.map((milestone, index) => (
+                            <div
+                                key={index}
+                                className="flex gap-4 items-end border border-gray-200 rounded-lg p-4 bg-gray-50 mb-2"
+                            >
+                                <div className="flex-1">
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Milestone Name / Description <span className="text-red-500">*</span>
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={milestone.name}
+                                        onChange={(e) => updateMilestone(index, "name", e.target.value)}
+                                        placeholder="e.g. Advance, Design, Delivery"
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:text-gray-500"
+                                        required
+                                        disabled={isReadOnly}
+                                    />
+                                </div>
+                                <div className="w-32">
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Percentage <span className="text-red-500">*</span>
+                                    </label>
+                                    <div className="relative">
+                                        <input
+                                            type="number"
+                                            value={milestone.percentage || ""}
+                                            onChange={(e) => updateMilestone(index, "percentage", parseFloat(e.target.value) || 0)}
+                                            step="0.01"
+                                            max="100"
+                                            min="0"
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:text-gray-500"
+                                            required
+                                            disabled={isReadOnly}
+                                        />
+                                        <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-500">
+                                            %
+                                        </div>
+                                    </div>
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => removeMilestone(index)}
+                                    disabled={isReadOnly}
+                                    className="px-3 py-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 disabled:opacity-50 mb-px shrink-0"
+                                >
+                                    Delete
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <div className="text-sm text-gray-500 italic">No milestones configured. Proposal is 100% upfront.</div>
                 )}
             </div>
 
