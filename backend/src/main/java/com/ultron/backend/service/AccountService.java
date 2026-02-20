@@ -40,12 +40,24 @@ public class AccountService extends BaseTenantService {
 
         String createdByName = userService.getUserFullName(createdByUserId);
 
+        String parentId = request.getParentAccountId();
+        String parentName = request.getAccountName(); // Default to its own name
+
+        if (parentId != null && !parentId.trim().isEmpty()) {
+            parentName = accountRepository.findById(parentId)
+                    .map(Account::getAccountName)
+                    .orElse(request.getAccountName());
+        } else {
+            parentId = null; // Treat empty as null
+        }
+
         // Build account entity
         Account account = Account.builder()
                 .accountId(accountIdGenerator.generateAccountId())
                 .tenantId(tenantId)  // CRITICAL: Set tenant ID for data isolation
                 .accountName(request.getAccountName())
-                .parentAccountId(request.getParentAccountId())
+                .parentAccountId(parentId)
+                .parentAccountName(parentName)
                 .accountType(request.getAccountType())
                 .industry(request.getIndustry())
                 .companySize(request.getCompanySize())
@@ -174,8 +186,25 @@ public class AccountService extends BaseTenantService {
         }
 
         // Update fields
-        if (request.getAccountName() != null) account.setAccountName(request.getAccountName());
-        if (request.getParentAccountId() != null) account.setParentAccountId(request.getParentAccountId());
+        if (request.getAccountName() != null) {
+            account.setAccountName(request.getAccountName());
+            // If it is its own parent (parentAccountId is null), update the parentAccountName too
+            if (account.getParentAccountId() == null) {
+                account.setParentAccountName(request.getAccountName());
+            }
+        }
+        
+        if (request.getParentAccountId() != null) {
+            String parentId = request.getParentAccountId();
+            if (parentId.trim().isEmpty()) {
+                account.setParentAccountId(null);
+                account.setParentAccountName(account.getAccountName());
+            } else {
+                account.setParentAccountId(parentId);
+                accountRepository.findById(parentId).ifPresent(p -> account.setParentAccountName(p.getAccountName()));
+            }
+        }
+
         if (request.getAccountType() != null) account.setAccountType(request.getAccountType());
         if (request.getIndustry() != null) account.setIndustry(request.getIndustry());
         if (request.getCompanySize() != null) account.setCompanySize(request.getCompanySize());
