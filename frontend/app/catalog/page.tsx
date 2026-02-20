@@ -7,7 +7,7 @@ import { useDynamicCatalog } from '@/hooks/useDynamicCatalog';
 import DynamicFilterPanel from '@/components/catalog/DynamicFilterPanel';
 import DynamicProductTable from '@/components/catalog/DynamicProductTable';
 import { Pagination } from '@/components/common/Pagination'; // Using existing Pagination component
-import { Search, Upload, Plus } from 'lucide-react';
+import { Search, Upload, Plus, Info } from 'lucide-react';
 
 export default function CatalogPage() {
     const router = useRouter();
@@ -72,6 +72,22 @@ export default function CatalogPage() {
             </div>
 
             <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6 animate-fade-in-up">
+                {/* Upload Instructions Banner */}
+                <div className="bg-blue-50 border border-blue-200 text-blue-800 p-4 rounded-xl flex items-start gap-3">
+                    <Info className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                    <div>
+                        <h3 className="text-sm font-semibold mb-1">Excel Upload Requirements</h3>
+                        <p className="text-sm text-blue-700">
+                            To ensure proper data mapping in proposals, please ensure your uploaded Excel file always contains the following column headers:
+                            <code className="mx-1 px-1.5 py-0.5 bg-white rounded border border-blue-100 text-xs font-mono">ProductName</code>,
+                            <code className="mx-1 px-1.5 py-0.5 bg-white rounded border border-blue-100 text-xs font-mono">Unit</code>,
+                            <code className="mx-1 px-1.5 py-0.5 bg-white rounded border border-blue-100 text-xs font-mono">Description</code>,
+                            <code className="mx-1 px-1.5 py-0.5 bg-white rounded border border-blue-100 text-xs font-mono">UnitPrice</code>, and
+                            <code className="mx-1 px-1.5 py-0.5 bg-white rounded border border-blue-100 text-xs font-mono">HsnCode</code>.
+                        </p>
+                    </div>
+                </div>
+
                 {/* Search Bar */}
                 <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-2">
                     <div className="relative flex-1">
