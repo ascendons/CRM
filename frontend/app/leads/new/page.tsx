@@ -7,6 +7,8 @@ import { leadsService } from "@/lib/leads";
 import { authService } from "@/lib/auth";
 import { CountryStateSelector } from "@/components/common/CountryStateSelector";
 import { CreateLeadRequest, LeadSource, Industry, CompanySize } from "@/types/lead";
+import { accountsService } from "@/lib/accounts";
+import { Account } from "@/types/account";
 import { ApiError } from "@/lib/api-client";
 
 export default function NewLeadPage() {
@@ -14,6 +16,12 @@ export default function NewLeadPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // Account search state
+  const [accountSuggestions, setAccountSuggestions] = useState<Account[]>([]);
+  const [isSearchingAccount, setIsSearchingAccount] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [searchTimeout, setSearchTimeout] = useState<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     // Check authentication
@@ -59,6 +67,31 @@ export default function NewLeadPage() {
       ...prev,
       [name]: value,
     }));
+
+    // Handle Company Name search
+    if (name === "companyName") {
+      setShowSuggestions(true);
+      if (searchTimeout) clearTimeout(searchTimeout);
+
+      if (value.trim().length >= 2) {
+        setIsSearchingAccount(true);
+        const timeout = setTimeout(async () => {
+          try {
+            const results = await accountsService.searchAccounts(value);
+            setAccountSuggestions(results);
+          } catch (err) {
+            console.error("Failed to search accounts", err);
+          } finally {
+            setIsSearchingAccount(false);
+          }
+        }, 300);
+        setSearchTimeout(timeout);
+      } else {
+        setAccountSuggestions([]);
+        setIsSearchingAccount(false);
+      }
+    }
+
     // Clear field error when user types
     if (errors[name]) {
       setErrors((prev) => {
@@ -68,6 +101,34 @@ export default function NewLeadPage() {
       });
     }
   };
+
+  const handleAccountSelect = (account: Account) => {
+    setFormData(prev => ({
+      ...prev,
+      companyName: account.accountName,
+      industry: account.industry as Industry | undefined,
+      companySize: account.companySize as CompanySize | undefined,
+      annualRevenue: account.annualRevenue,
+      numberOfEmployees: account.numberOfEmployees,
+      website: account.website || prev.website,
+      phone: account.phone || prev.phone,
+      email: prev.email || account.email || "", // Don't override lead email if already typed, else try account general email
+      streetAddress: account.billingStreet || prev.streetAddress,
+      city: account.billingCity || prev.city,
+      state: account.billingState || prev.state,
+      postalCode: account.billingPostalCode || prev.postalCode,
+      country: account.billingCountry || prev.country,
+    }));
+    setShowSuggestions(false);
+    setAccountSuggestions([]);
+  };
+
+  // Hide suggestions if clicked outside (simplified by just onBlur with a timeout, or relative wrapper)
+  useEffect(() => {
+    const handleClickOutside = () => setShowSuggestions(false);
+    document.addEventListener("click", handleClickOutside);
+    return () => document.removeEventListener("click", handleClickOutside);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -195,7 +256,7 @@ export default function NewLeadPage() {
                 {errors.phone && <p className="mt-1 text-sm text-red-600">{errors.phone}</p>}
               </div>
 
-              <div className="md:col-span-2">
+              <div className="md:col-span-2 relative" onClick={(e) => e.stopPropagation()}>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Company Name <span className="text-red-500">*</span>
                 </label>
@@ -204,10 +265,44 @@ export default function NewLeadPage() {
                   name="companyName"
                   value={formData.companyName}
                   onChange={handleChange}
+                  onFocus={() => {
+                    if (formData.companyName.trim().length >= 2) setShowSuggestions(true);
+                  }}
+                  autoComplete="off"
                   required
                   className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 ${errors.companyName ? "border-red-500" : "border-gray-300"
                     }`}
                 />
+                {isSearchingAccount && (
+                  <div className="absolute right-3 top-9">
+                    <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                  </div>
+                )}
+
+                {/* Account Suggestions Dropdown */}
+                {showSuggestions && (accountSuggestions.length > 0) && (
+                  <div className="absolute z-10 w-full mt-1 bg-white rounded-md shadow-lg border border-gray-200 max-h-60 overflow-auto">
+                    <ul className="py-1 text-sm text-gray-700">
+                      {accountSuggestions.map((account) => (
+                        <li
+                          key={account.id}
+                          className="px-4 py-2 hover:bg-blue-50 cursor-pointer border-b last:border-0"
+                          onClick={() => handleAccountSelect(account)}
+                        >
+                          <div className="font-medium text-gray-900">{account.accountName}</div>
+                          <div className="flex gap-2 text-xs text-gray-500 mt-0.5">
+                            {account.industry && <span>{account.industry.replace('_', ' ')}</span>}
+                            {account.industry && account.companySize && <span>•</span>}
+                            {account.companySize && <span>{account.companySize.replace('_', ' ')}</span>}
+                            {account.website && <span>•</span>}
+                            {account.website && <span>{account.website}</span>}
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
                 {errors.companyName && (
                   <p className="mt-1 text-sm text-red-600">{errors.companyName}</p>
                 )}
