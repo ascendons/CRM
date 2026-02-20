@@ -39,6 +39,8 @@ const statusColumns: { id: LeadStatus; label: string; color: string }[] = [
     { id: LeadStatus.QUALIFIED, label: "Qualified", color: "bg-emerald-50 border-emerald-100 text-emerald-700" },
     { id: LeadStatus.PROPOSAL_SENT, label: "Proposal Sent", color: "bg-purple-50 border-purple-100 text-purple-700" },
     { id: LeadStatus.NEGOTIATION, label: "Negotiation", color: "bg-indigo-50 border-indigo-100 text-indigo-700" },
+    { id: LeadStatus.UNQUALIFIED, label: "Unqualified", color: "bg-gray-50 border-gray-100 text-gray-700" },
+    { id: LeadStatus.LOST, label: "Lost", color: "bg-red-50 border-red-100 text-red-700" },
     { id: LeadStatus.CONVERTED, label: "Converted", color: "bg-slate-50 border-slate-100 text-slate-700" },
 ];
 
