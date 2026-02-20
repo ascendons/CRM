@@ -138,6 +138,8 @@ public class Organization {
         private Boolean emailNotificationsEnabled = true;
         private String logoUrl;
         private String brandColor;
+        @Builder.Default
+        private BigDecimal monthlyRevenueGoal = new BigDecimal("1000000"); // 10 Lakhs Default
         private Map<String, Object> customSettings;
     }
 

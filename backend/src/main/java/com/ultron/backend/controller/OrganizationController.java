@@ -210,6 +210,9 @@ public class OrganizationController {
         if (request.getBrandColor() != null) {
             organization.getSettings().setBrandColor(request.getBrandColor());
         }
+        if (request.getMonthlyRevenueGoal() != null) {
+            organization.getSettings().setMonthlyRevenueGoal(request.getMonthlyRevenueGoal());
+        }
 
         Organization updated = organizationRepository.save(organization);
         OrganizationDetailsResponse response = mapToDetailsResponse(updated);
@@ -423,6 +426,7 @@ public class OrganizationController {
         private Boolean emailNotificationsEnabled;
         private String logoUrl;
         private String brandColor;
+        private java.math.BigDecimal monthlyRevenueGoal;
     }
 
     @lombok.Data

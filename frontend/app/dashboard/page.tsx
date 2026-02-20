@@ -11,6 +11,7 @@ import { accountsService } from "@/lib/accounts";
 import { opportunitiesService } from "@/lib/opportunities";
 import { activitiesService } from "@/lib/activities";
 import { contactsService } from "@/lib/contacts";
+import { organizationApi } from "@/lib/api/organization";
 import { OpportunityStatistics } from "@/types/opportunity";
 import {
   Briefcase,
@@ -47,6 +48,7 @@ export default function DashboardPage() {
   const [upcomingActivities, setUpcomingActivities] = useState<any[]>([]);
   const [dealOfTheDay, setDealOfTheDay] = useState<Opportunity | null>(null);
   const [activeTab, setActiveTab] = useState<'upcoming' | 'recent'>('upcoming');
+  const [monthlyRevenueGoal, setMonthlyRevenueGoal] = useState<number>(1000000); // 10L Default
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -72,7 +74,7 @@ export default function DashboardPage() {
 
   const loadStatistics = async () => {
     try {
-      const [stats, oppStats, contacts, accounts, opportunities, activities, allActivities, allOpportunities] = await Promise.all([
+      const [stats, oppStats, contacts, accounts, opportunities, activities, allActivities, allOpportunities, currentOrg] = await Promise.all([
         leadsService.getStatistics(),
         opportunitiesService.getStatistics(),
         contactsService.getContactCount(),
@@ -81,6 +83,7 @@ export default function DashboardPage() {
         activitiesService.getActivityCount(),
         activitiesService.getAllActivities(),
         opportunitiesService.getAllOpportunities(),
+        organizationApi.getCurrent().catch(() => null),
       ]);
       setStatistics(stats);
       setOpportunityStats(oppStats);
@@ -88,6 +91,9 @@ export default function DashboardPage() {
       setAccountCount(accounts);
       setOpportunityCount(opportunities);
       setActivityCount(activities);
+      if (currentOrg && currentOrg.settings?.monthlyRevenueGoal) {
+        setMonthlyRevenueGoal(currentOrg.settings.monthlyRevenueGoal);
+      }
 
       // Process activities for widget
       if (allActivities) {
@@ -143,6 +149,14 @@ export default function DashboardPage() {
       </div>
     );
   }
+
+  // Format amount like 10L, 1.5Cr, 50K
+  const formatAmount = (amount: number) => {
+    if (amount >= 10000000) return `₹${(amount / 10000000).toFixed(1).replace(/\.0$/, '')}Cr`;
+    if (amount >= 100000) return `₹${(amount / 100000).toFixed(1).replace(/\.0$/, '')}L`;
+    if (amount >= 1000) return `₹${(amount / 1000).toFixed(1).replace(/\.0$/, '')}K`;
+    return `₹${amount}`;
+  };
 
   return (
     <div className="min-h-screen bg-transparent pb-12">
@@ -513,7 +527,7 @@ export default function DashboardPage() {
 
                 <div className="flex items-end gap-1 mb-1">
                   <span className="text-3xl font-bold">
-                    {opportunityStats ? Math.round((opportunityStats.wonValue / 1000000) * 100) : 0}%
+                    {opportunityStats && monthlyRevenueGoal > 0 ? Math.round((opportunityStats.wonValue / monthlyRevenueGoal) * 100) : 0}%
                   </span>
                   <span className="text-sm text-indigo-200 mb-1.5">of goal achieved</span>
                 </div>
@@ -522,13 +536,13 @@ export default function DashboardPage() {
                 <div className="h-2 w-full bg-black/20 rounded-full overflow-hidden mb-6">
                   <div
                     className="h-full bg-gradient-to-r from-emerald-400 to-teal-300 rounded-full transition-all duration-1000 ease-out"
-                    style={{ width: `${opportunityStats ? Math.min(100, (opportunityStats.wonValue / 1000000) * 100) : 0}%` }}
+                    style={{ width: `${opportunityStats && monthlyRevenueGoal > 0 ? Math.min(100, (opportunityStats.wonValue / monthlyRevenueGoal) * 100) : 0}%` }}
                   ></div>
                 </div>
 
                 <div className="flex justify-between text-xs text-indigo-100 font-medium mb-6">
                   <span>₹{opportunityStats?.wonValue ? (opportunityStats.wonValue / 1000).toFixed(0) : "0"}K Won</span>
-                  <span>Goal: ₹10L</span>
+                  <span>Goal: {formatAmount(monthlyRevenueGoal)}</span>
                 </div>
 
                 {/* Deal of the Day */}

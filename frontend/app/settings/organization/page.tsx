@@ -147,6 +147,7 @@ function OrganizationSettingsForm({ organization, onUpdate }: { organization: Or
         emailNotificationsEnabled: organization.settings?.emailNotificationsEnabled ?? true,
         logoUrl: organization.settings?.logoUrl || "",
         brandColor: organization.settings?.brandColor || "#2563eb",
+        monthlyRevenueGoal: organization.settings?.monthlyRevenueGoal ?? 1000000,
     });
 
     // Also update local state when organization prop changes
@@ -158,6 +159,7 @@ function OrganizationSettingsForm({ organization, onUpdate }: { organization: Or
             emailNotificationsEnabled: organization.settings?.emailNotificationsEnabled ?? true,
             logoUrl: organization.settings?.logoUrl || "",
             brandColor: organization.settings?.brandColor || "#2563eb",
+            monthlyRevenueGoal: organization.settings?.monthlyRevenueGoal ?? 1000000,
         });
     }, [organization]);
 
@@ -256,6 +258,31 @@ function OrganizationSettingsForm({ organization, onUpdate }: { organization: Or
                             maxLength={7}
                         />
                     </div>
+                </div>
+
+                <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                        Monthly Revenue Goal (₹)
+                    </label>
+                    <div className="relative">
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <span className="text-gray-500 sm:text-sm">₹</span>
+                        </div>
+                        <input
+                            type="number"
+                            value={formData.monthlyRevenueGoal}
+                            onChange={(e) => handleChange("monthlyRevenueGoal", parseInt(e.target.value) || 0)}
+                            min="0"
+                            placeholder="1000000"
+                            className="block w-full pl-7 pr-12 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900"
+                        />
+                        <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                            <span className="text-gray-500 sm:text-sm">INR</span>
+                        </div>
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1">
+                        Monthly revenue target shown on the dashboard performance widget
+                    </p>
                 </div>
 
                 <div className="col-span-full border-t pt-6">

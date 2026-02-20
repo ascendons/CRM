@@ -89,6 +89,7 @@ export interface OrganizationSettings {
     emailNotificationsEnabled: boolean;
     logoUrl?: string;
     brandColor?: string;
+    monthlyRevenueGoal?: number;
 }
 
 export interface SecuritySettings {
