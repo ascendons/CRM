@@ -16,6 +16,7 @@ import {
     ProposalSource,
     ProposalStatus,
     DiscountType,
+    GstType,
     CustomerAddress,
 } from "@/types/proposal";
 import { ProductResponse } from "@/types/product";
@@ -129,6 +130,11 @@ export default function ProposalForm({
     );
     const [discountReason, setDiscountReason] = useState(
         initialData?.discount?.discountReason || ""
+    );
+
+    // GST state
+    const [gstType, setGstType] = useState<GstType>(
+        initialData?.gstType || GstType.NONE
     );
 
     // Status state (only for edit mode)
@@ -310,6 +316,7 @@ export default function ProposalForm({
                     shippingAddress,
                     lineItems: processedLineItems,
                     discount,
+                    gstType,
                     paymentTerms: paymentTerms.trim() || undefined,
                     deliveryTerms: deliveryTerms.trim() || undefined,
                     notes: notes.trim() || undefined,
@@ -345,6 +352,7 @@ export default function ProposalForm({
                     shippingAddress,
                     lineItems: processedLineItems,
                     discount,
+                    gstType,
                     paymentTerms: paymentTerms.trim() || undefined,
                     deliveryTerms: deliveryTerms.trim() || undefined,
                     notes: notes.trim() || undefined,
@@ -625,6 +633,31 @@ export default function ProposalForm({
                                 labelClassName="block text-xs font-medium text-gray-500 mb-1"
                             />
                         </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Tax Configuration */}
+            <div className="border-t pt-6">
+                <h2 className="text-xl font-semibold text-gray-900 mb-4">Tax Configuration</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                            GST Type
+                        </label>
+                        <select
+                            value={gstType}
+                            onChange={(e) => setGstType(e.target.value as GstType)}
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:text-gray-500"
+                            disabled={isReadOnly}
+                        >
+                            <option value={GstType.NONE}>No GST</option>
+                            <option value={GstType.IGST}>Inter-State - IGST (18%)</option>
+                            <option value={GstType.CGST_SGST}>Intra-State - CGST (9%) + SGST (9%)</option>
+                        </select>
+                        <p className="mt-1 text-xs text-gray-500">
+                            Selecting IGST or CGST+SGST will automatically apply an 18% tax rate to all line items.
+                        </p>
                     </div>
                 </div>
             </div>

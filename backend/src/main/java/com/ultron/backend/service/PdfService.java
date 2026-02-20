@@ -174,14 +174,24 @@ public class PdfService {
     }
 
     private void addLineItems(Document document, Proposal proposal) throws DocumentException {
-        PdfPTable table = new PdfPTable(6); // Sr No, Description, HSN/SAC, Qty, Rate, Amount
+        boolean hasLineItemDiscount = proposal.getLineItems().stream()
+                .anyMatch(item -> item.getLineDiscountAmount() != null && item.getLineDiscountAmount().compareTo(BigDecimal.ZERO) > 0);
+
+        int numCols = hasLineItemDiscount ? 7 : 6;
+        PdfPTable table = new PdfPTable(numCols);
         table.setWidthPercentage(100);
-        table.setWidths(new float[]{0.5f, 3f, 1f, 1f, 1.2f, 1.2f});
+        if (hasLineItemDiscount) {
+            table.setWidths(new float[]{0.5f, 2.5f, 1f, 0.8f, 1.2f, 1.2f, 1.2f});
+        } else {
+            table.setWidths(new float[]{0.5f, 3f, 1f, 1f, 1.2f, 1.2f});
+        }
         table.setHeaderRows(1);
 
         // Header Styling
         Font headerFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 8);
-        String[] headers = {"SR NO", "DESCRIPTION", "HSN/SAC", "QTY", "RATE", "AMOUNT"};
+        String[] headers = hasLineItemDiscount 
+            ? new String[]{"SR NO", "DESCRIPTION", "HSN/SAC", "QTY", "RATE", "DISCOUNT", "AMOUNT"}
+            : new String[]{"SR NO", "DESCRIPTION", "HSN/SAC", "QTY", "RATE", "AMOUNT"};
         
         for (String h : headers) {
             PdfPCell cell = new PdfPCell(new Phrase(h, headerFont));
@@ -213,7 +223,20 @@ public class PdfService {
             
             addCell(table, String.valueOf(item.getQuantity()) + " " + (item.getUnit() != null ? item.getUnit() : ""), Element.ALIGN_CENTER, cellFont);
             addCell(table, currency.format(item.getUnitPrice()), Element.ALIGN_RIGHT, cellFont);
-            addCell(table, currency.format(item.getLineSubtotal()), Element.ALIGN_RIGHT, cellFont);
+            
+            if (hasLineItemDiscount) {
+                if (item.getLineDiscountAmount() != null && item.getLineDiscountAmount().compareTo(BigDecimal.ZERO) > 0) {
+                    addCell(table, currency.format(item.getLineDiscountAmount()), Element.ALIGN_RIGHT, cellFont);
+                } else {
+                    addCell(table, "-", Element.ALIGN_CENTER, cellFont);
+                }
+            }
+            
+            BigDecimal amount = item.getLineSubtotal();
+            if (hasLineItemDiscount && item.getLineDiscountAmount() != null) {
+                amount = amount.subtract(item.getLineDiscountAmount());
+            }
+            addCell(table, currency.format(amount), Element.ALIGN_RIGHT, cellFont);
         }
 
         document.add(table);
@@ -241,8 +264,26 @@ public class PdfService {
         Font boldFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 8);
         Font normalFont = FontFactory.getFont(FontFactory.HELVETICA, 8);
 
-        addTotalRow(totalsTable, "TAXABLE AMOUNT:", proposal.getSubtotal(), boldFont);
-        if (proposal.getTaxAmount() != null) addTotalRow(totalsTable, "TOTAL GST:", proposal.getTaxAmount(), boldFont);
+        addTotalRow(totalsTable, "SUBTOTAL:", proposal.getSubtotal(), boldFont);
+        if (proposal.getDiscountAmount() != null && proposal.getDiscountAmount().compareTo(BigDecimal.ZERO) > 0) {
+            addTotalRow(totalsTable, "DISCOUNT:", proposal.getDiscountAmount(), boldFont);
+            BigDecimal taxableAmount = proposal.getSubtotal().subtract(proposal.getDiscountAmount());
+            addTotalRow(totalsTable, "TAXABLE AMOUNT:", taxableAmount, boldFont);
+        } else {
+            addTotalRow(totalsTable, "TAXABLE AMOUNT:", proposal.getSubtotal(), boldFont);
+        }
+
+        if (proposal.getTaxAmount() != null && proposal.getTaxAmount().compareTo(BigDecimal.ZERO) > 0) {
+            if (proposal.getGstType() == com.ultron.backend.domain.enums.GstType.IGST) {
+                addTotalRow(totalsTable, "TOTAL IGST (18%):", proposal.getTaxAmount(), boldFont);
+            } else if (proposal.getGstType() == com.ultron.backend.domain.enums.GstType.CGST_SGST) {
+                BigDecimal halfTax = proposal.getTaxAmount().divide(new BigDecimal("2"), 2, java.math.RoundingMode.HALF_UP);
+                addTotalRow(totalsTable, "TOTAL CGST (9%):", halfTax, boldFont);
+                addTotalRow(totalsTable, "TOTAL SGST (9%):", halfTax, boldFont);
+            } else {
+                addTotalRow(totalsTable, "TOTAL GST:", proposal.getTaxAmount(), boldFont);
+            }
+        }
         addTotalRow(totalsTable, "TOTAL AMOUNT:", proposal.getTotalAmount(), FontFactory.getFont(FontFactory.HELVETICA_BOLD, 10));
         
         // Add a placeholder for payable value if needed (often same as total)

@@ -48,7 +48,7 @@ public class ProposalCalculationService {
         BigDecimal totalTax = BigDecimal.ZERO;
 
         for (Proposal.ProposalLineItem item : proposal.getLineItems()) {
-            calculateLineItem(item);
+            calculateLineItem(item, proposal.getGstType());
             subtotal = subtotal.add(item.getLineSubtotal());
             totalLineDiscount = totalLineDiscount.add(item.getLineDiscountAmount());
             totalTax = totalTax.add(item.getLineTaxAmount());
@@ -94,7 +94,7 @@ public class ProposalCalculationService {
      * 3. Tax = (subtotal - line discount) × tax rate
      * 4. Line total = subtotal - line discount + tax
      */
-    private void calculateLineItem(Proposal.ProposalLineItem item) {
+    private void calculateLineItem(Proposal.ProposalLineItem item, com.ultron.backend.domain.enums.GstType gstType) {
         // Line subtotal = quantity * unitPrice
         BigDecimal lineSubtotal = item.getUnitPrice()
             .multiply(BigDecimal.valueOf(item.getQuantity()))
@@ -132,9 +132,16 @@ public class ProposalCalculationService {
         // Amount after discount
         BigDecimal amountAfterDiscount = lineSubtotal.subtract(lineDiscount);
 
+        // Override tax rate if GST is enabled
+        BigDecimal appliedTaxRate = item.getTaxRate() != null ? item.getTaxRate() : BigDecimal.ZERO;
+        if (gstType != null && (gstType == com.ultron.backend.domain.enums.GstType.IGST || gstType == com.ultron.backend.domain.enums.GstType.CGST_SGST)) {
+            appliedTaxRate = BigDecimal.valueOf(18.0);
+            item.setTaxRate(appliedTaxRate);
+        }
+
         // Calculate tax on discounted amount
         BigDecimal lineTax = amountAfterDiscount
-            .multiply(item.getTaxRate())
+            .multiply(appliedTaxRate)
             .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
         item.setLineTaxAmount(lineTax);
 

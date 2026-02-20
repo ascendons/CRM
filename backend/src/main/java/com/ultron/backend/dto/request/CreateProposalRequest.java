@@ -2,6 +2,7 @@ package com.ultron.backend.dto.request;
 
 import com.ultron.backend.dto.AddressDTO;
 import com.ultron.backend.domain.enums.DiscountType;
+import com.ultron.backend.domain.enums.GstType;
 import com.ultron.backend.domain.enums.ProposalSource;
 import com.ultron.backend.validation.ValidUntilConstraint;
 import jakarta.validation.Valid;
@@ -51,6 +52,8 @@ public class CreateProposalRequest {
 
     @Valid
     private DiscountConfigDTO discount;
+
+    private GstType gstType;
 
     @Size(max = 500, message = "Payment terms must be less than 500 characters")
     private String paymentTerms;

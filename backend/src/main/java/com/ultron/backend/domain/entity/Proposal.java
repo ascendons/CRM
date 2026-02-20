@@ -1,6 +1,7 @@
 package com.ultron.backend.domain.entity;
 
 import com.ultron.backend.domain.enums.DiscountType;
+import com.ultron.backend.domain.enums.GstType;
 import com.ultron.backend.domain.enums.ProposalSource;
 import com.ultron.backend.domain.enums.ProposalStatus;
 import lombok.AllArgsConstructor;
@@ -88,6 +89,7 @@ public class Proposal {
 
     // Discount Configuration
     private DiscountConfig discount;
+    private GstType gstType;
 
     // Calculated Totals
     private BigDecimal subtotal;  // Sum of line items before discount

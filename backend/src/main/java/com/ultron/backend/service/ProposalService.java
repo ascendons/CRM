@@ -94,6 +94,7 @@ public class ProposalService extends BaseTenantService {
                 .shippingAddress(mapToAddress(request.getShippingAddress()))
                 .lineItems(lineItems)
                 .discount(discount)
+                .gstType(request.getGstType() != null ? request.getGstType() : com.ultron.backend.domain.enums.GstType.NONE)
                 .status(ProposalStatus.DRAFT)
                 .ownerId(createdBy)
                 .ownerName(getUserName(createdBy))
@@ -275,6 +276,11 @@ public class ProposalService extends BaseTenantService {
             }
             proposal.setDiscount(discount);
             needsRecalculation = true;
+        }
+
+        if (request.getGstType() != null) {
+            proposal.setGstType(request.getGstType());
+            needsRecalculation = true; // Tax type changed, need to recalculate tax
         }
 
         if (request.getPaymentTerms() != null) {
@@ -748,6 +754,7 @@ public class ProposalService extends BaseTenantService {
                 .validUntil(proposal.getValidUntil())
                 .lineItems(proposal.getLineItems())
                 .discount(proposal.getDiscount())
+                .gstType(proposal.getGstType() != null ? proposal.getGstType() : com.ultron.backend.domain.enums.GstType.NONE)
                 .subtotal(proposal.getSubtotal())
                 .discountAmount(proposal.getDiscountAmount())
                 .taxAmount(proposal.getTaxAmount())

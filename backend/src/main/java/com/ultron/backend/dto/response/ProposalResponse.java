@@ -2,6 +2,7 @@ package com.ultron.backend.dto.response;
 
 import com.ultron.backend.domain.entity.Proposal;
 import com.ultron.backend.domain.enums.DiscountType;
+import com.ultron.backend.domain.enums.GstType;
 import com.ultron.backend.domain.enums.ProposalSource;
 import com.ultron.backend.domain.enums.ProposalStatus;
 import lombok.AllArgsConstructor;
@@ -54,8 +55,9 @@ public class ProposalResponse {
     // Line Items
     private List<Proposal.ProposalLineItem> lineItems;
 
-    // Discount
+    // Discount & Tax
     private Proposal.DiscountConfig discount;
+    private GstType gstType;
 
     // Totals
     private BigDecimal subtotal;

@@ -21,6 +21,12 @@ export enum DiscountType {
   FIXED_AMOUNT = "FIXED_AMOUNT",
 }
 
+export enum GstType {
+  NONE = "NONE",
+  IGST = "IGST",
+  CGST_SGST = "CGST_SGST",
+}
+
 export interface ProposalLineItem {
   lineItemId: string;
   productId: string;
@@ -90,8 +96,9 @@ export interface ProposalResponse {
   // Line Items
   lineItems: ProposalLineItem[];
 
-  // Discount
+  // Discount & Tax Config
   discount?: DiscountConfig;
+  gstType?: GstType;
 
   // Totals
   subtotal: number;
@@ -150,6 +157,7 @@ export interface CreateProposalRequest {
   shippingAddress?: CustomerAddress;
   lineItems: LineItemDTO[];
   discount?: DiscountDTO;
+  gstType?: GstType;
   paymentTerms?: string;
   deliveryTerms?: string;
   notes?: string;
@@ -164,6 +172,7 @@ export interface UpdateProposalRequest {
   shippingAddress?: CustomerAddress;
   lineItems?: LineItemDTO[];
   discount?: DiscountDTO;
+  gstType?: GstType;
   paymentTerms?: string;
   deliveryTerms?: string;
   notes?: string;
