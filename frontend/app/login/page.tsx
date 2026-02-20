@@ -1,14 +1,14 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect, useRef, useCallback, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { authService } from "@/lib/auth";
 import { ApiError } from "@/lib/api-client";
 import { Mail, Lock, Eye, EyeOff, Loader2, ArrowRight } from "lucide-react";
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
   const [formData, setFormData] = useState({
     email: "",
@@ -22,6 +22,8 @@ export default function LoginPage() {
   const [focusedField, setFocusedField] = useState<string | null>(null);
   const [mousePos, setMousePos] = useState({ x: 50, y: 50 });
   const leftPanelRef = useRef<HTMLDivElement>(null);
+  const searchParams = useSearchParams();
+  const showRegister = searchParams.get('admin_register') === 'true';
 
   useEffect(() => {
     setMounted(true);
@@ -245,7 +247,7 @@ export default function LoginPage() {
                     <div className={`relative rounded-xl transition-all duration-300 ${focusedField === 'email' ? 'ring-2 ring-cyan-400/30 ring-offset-1' : ''}`}>
                       <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                         <Mail className={`h-4 w-4 transition-colors duration-300 ${fieldErrors.email ? 'text-red-400' :
-                            focusedField === 'email' ? 'text-cyan-500' : 'text-slate-400'
+                          focusedField === 'email' ? 'text-cyan-500' : 'text-slate-400'
                           }`} />
                       </div>
                       <input
@@ -259,8 +261,8 @@ export default function LoginPage() {
                         onFocus={() => setFocusedField('email')}
                         onBlur={() => setFocusedField(null)}
                         className={`block w-full pl-11 pr-4 py-3 border ${fieldErrors.email
-                            ? "border-red-300 text-red-900 placeholder-red-300"
-                            : "border-slate-200 text-slate-900 placeholder-slate-400"
+                          ? "border-red-300 text-red-900 placeholder-red-300"
+                          : "border-slate-200 text-slate-900 placeholder-slate-400"
                           } rounded-xl bg-slate-50/50 hover:bg-white focus:bg-white focus:outline-none focus:border-cyan-400 sm:text-sm transition-all duration-300`}
                         placeholder="you@example.com"
                       />
@@ -278,7 +280,7 @@ export default function LoginPage() {
                     <div className={`relative rounded-xl transition-all duration-300 ${focusedField === 'password' ? 'ring-2 ring-cyan-400/30 ring-offset-1' : ''}`}>
                       <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                         <Lock className={`h-4 w-4 transition-colors duration-300 ${fieldErrors.password ? 'text-red-400' :
-                            focusedField === 'password' ? 'text-cyan-500' : 'text-slate-400'
+                          focusedField === 'password' ? 'text-cyan-500' : 'text-slate-400'
                           }`} />
                       </div>
                       <input
@@ -292,8 +294,8 @@ export default function LoginPage() {
                         onFocus={() => setFocusedField('password')}
                         onBlur={() => setFocusedField(null)}
                         className={`block w-full pl-11 pr-11 py-3 border ${fieldErrors.password
-                            ? "border-red-300 text-red-900 placeholder-red-300"
-                            : "border-slate-200 text-slate-900 placeholder-slate-400"
+                          ? "border-red-300 text-red-900 placeholder-red-300"
+                          : "border-slate-200 text-slate-900 placeholder-slate-400"
                           } rounded-xl bg-slate-50/50 hover:bg-white focus:bg-white focus:outline-none focus:border-cyan-400 sm:text-sm transition-all duration-300`}
                         placeholder="Enter your password"
                       />
@@ -338,22 +340,26 @@ export default function LoginPage() {
                 </button>
               </form>
 
-              {/* Divider */}
-              <div className="mt-8 flex items-center gap-3">
-                <div className="flex-1 h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
-                <span className="text-xs text-slate-400 font-medium uppercase tracking-wide">or</span>
-                <div className="flex-1 h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
-              </div>
+              {/* Divider - Only visible if admin_register=true */}
+              {showRegister && (
+                <div className="mt-8 flex items-center gap-3">
+                  <div className="flex-1 h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
+                  <span className="text-xs text-slate-400 font-medium uppercase tracking-wide">or</span>
+                  <div className="flex-1 h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
+                </div>
+              )}
 
-              {/* Registration link */}
-              <div className="mt-6">
-                <Link
-                  href="/register-organization"
-                  className="w-full flex items-center justify-center py-3 px-4 text-sm font-medium text-cyan-600 rounded-xl border border-cyan-200/50 bg-cyan-50/30 hover:bg-cyan-50 hover:border-cyan-300 hover:text-cyan-700 transition-all duration-300"
-                >
-                  Register your Organization →
-                </Link>
-              </div>
+              {/* Registration link - Only visible if admin_register=true */}
+              {showRegister && (
+                <div className="mt-6">
+                  <Link
+                    href="/register-organization"
+                    className="w-full flex items-center justify-center py-3 px-4 text-sm font-medium text-cyan-600 rounded-xl border border-cyan-200/50 bg-cyan-50/30 hover:bg-cyan-50 hover:border-cyan-300 hover:text-cyan-700 transition-all duration-300"
+                  >
+                    Register your Organization →
+                  </Link>
+                </div>
+              )}
             </div>
           </div>
 
@@ -436,5 +442,17 @@ export default function LoginPage() {
         .animate-fadeIn { animation: fadeIn 0.3s ease-out; }
       `}</style>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-white to-sky-50/30">
+        <Loader2 className="animate-spin h-8 w-8 text-cyan-500" />
+      </div>
+    }>
+      <LoginForm />
+    </Suspense>
   );
 }
