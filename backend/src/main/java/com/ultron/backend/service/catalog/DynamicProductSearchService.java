@@ -44,8 +44,9 @@ public class DynamicProductSearchService extends BaseTenantService {
 
         // Apply keyword search
         if (searchRequest.getKeyword() != null && !searchRequest.getKeyword().trim().isEmpty()) {
-            String normalizedKeyword = headerNormalizer.normalizeSearchQuery(searchRequest.getKeyword());
-            applyKeywordSearch(query, normalizedKeyword);
+            String originalKeyword = searchRequest.getKeyword().trim();
+            String normalizedKeyword = headerNormalizer.normalizeSearchQuery(originalKeyword);
+            applyKeywordSearch(query, originalKeyword, normalizedKeyword);
         }
 
         // Apply category filter
@@ -61,69 +62,98 @@ public class DynamicProductSearchService extends BaseTenantService {
         // Count total
         long total = mongoTemplate.count(query, DynamicProduct.class);
 
-        // Apply pagination
-        query.with(pageable);
+        List<DynamicProduct> products;
+        boolean hasKeywordSearch = searchRequest.getKeyword() != null && !searchRequest.getKeyword().trim().isEmpty();
 
-        // Execute search
-        List<DynamicProduct> products = mongoTemplate.find(query, DynamicProduct.class);
+        if (hasKeywordSearch) {
+            // For keyword searches: fetch more results to rank properly
+            // Fetch up to 200 results or all if less, then rank and paginate in memory
+            int fetchSize = (int) Math.min(total, 200);
+            query.limit(fetchSize);
+            products = mongoTemplate.find(query, DynamicProduct.class);
 
-        // --- BACKWARD COMPATIBILITY FIX ---
-        // Ensure displayName forces 'ProductName' if it exists. 
-        // Solves issues with previously uploaded catalogs mapping IDs or Descriptions instead.
-        products.forEach(p -> {
-            if (p.getAttributes() != null) {
-                for (ProductAttribute attr : p.getAttributes()) {
-                    String key = attr.getKey().toLowerCase();
-                    if (key.equals("productname") || key.equals("product_name") || key.equals("itemname") || key.equals("item_name") || key.equals("name")) {
-                        p.setDisplayName(attr.getValue());
-                        break;
+            // --- BACKWARD COMPATIBILITY FIX ---
+            // Ensure displayName forces 'ProductName' if it exists
+            products.forEach(p -> {
+                if (p.getAttributes() != null) {
+                    for (ProductAttribute attr : p.getAttributes()) {
+                        String key = attr.getKey().toLowerCase();
+                        if (key.equals("productname") || key.equals("product_name") || key.equals("itemname") || key.equals("item_name") || key.equals("name")) {
+                            p.setDisplayName(attr.getValue());
+                            break;
+                        }
                     }
                 }
-            }
-        });
+            });
 
-        // Rank by relevance if keyword search
-        if (searchRequest.getKeyword() != null && !searchRequest.getKeyword().trim().isEmpty()) {
+            // Rank by relevance BEFORE pagination
             products = rankByRelevance(products, searchRequest.getKeyword());
+
+            // Now apply manual pagination to ranked results
+            int start = (int) pageable.getOffset();
+            int end = Math.min(start + pageable.getPageSize(), products.size());
+            if (start < products.size()) {
+                products = products.subList(start, end);
+            } else {
+                products = new ArrayList<>();
+            }
+        } else {
+            // For non-keyword searches: use standard pagination with sorting
+            query.with(pageable);
+            products = mongoTemplate.find(query, DynamicProduct.class);
+
+            // --- BACKWARD COMPATIBILITY FIX ---
+            products.forEach(p -> {
+                if (p.getAttributes() != null) {
+                    for (ProductAttribute attr : p.getAttributes()) {
+                        String key = attr.getKey().toLowerCase();
+                        if (key.equals("productname") || key.equals("product_name") || key.equals("itemname") || key.equals("item_name") || key.equals("name")) {
+                            p.setDisplayName(attr.getValue());
+                            break;
+                        }
+                    }
+                }
+            });
         }
 
         return new PageImpl<>(products, pageable, total);
     }
 
     /**
-     * Apply keyword search using normalized tokens
+     * Apply keyword search using both original and normalized keywords
+     * Original keyword: for exact/partial text matching
+     * Normalized keyword: for semantic token matching
      */
-    private void applyKeywordSearch(Query query, String keyword) {
-        // Tokenize keyword
-        List<String> tokens = headerNormalizer.createSearchTokens(keyword);
-
-        if (tokens.isEmpty()) {
-            return;
-        }
+    private void applyKeywordSearch(Query query, String originalKeyword, String normalizedKeyword) {
+        // Tokenize normalized keyword for semantic matching
+        List<String> tokens = headerNormalizer.createSearchTokens(normalizedKeyword);
 
         // Search in:
-        // 1. Display name (highest priority)
-        // 2. Search tokens
-        // 3. Normalized tokens
-        // 4. Attribute values
+        // 1. Display name (use original keyword for exact matching)
+        // 2. Search tokens (use original keyword)
+        // 3. Normalized tokens (use normalized tokens)
+        // 4. Attribute values (use original keyword for exact matching)
 
-        Criteria criteria = new Criteria().orOperator(
-                // Display name contains keyword
-                Criteria.where("displayName").regex(keyword, "i"),
+        List<Criteria> criteriaList = new ArrayList<>();
 
-                // Search tokens contain keyword
-                Criteria.where("searchTokens").regex(keyword, "i"),
+        // Display name contains original keyword (case insensitive)
+        criteriaList.add(Criteria.where("displayName").regex(originalKeyword, "i"));
 
-                // Normalized tokens match
-                Criteria.where("normalizedTokens").in(tokens),
+        // Search tokens contain original keyword
+        criteriaList.add(Criteria.where("searchTokens").regex(originalKeyword, "i"));
 
-                // Only searchable attribute values
-                Criteria.where("attributes").elemMatch(
-                        Criteria.where("value").regex(keyword, "i")
-                                .and("searchable").is(true)
-                )
-        );
+        // Normalized tokens match (semantic search)
+        if (!tokens.isEmpty()) {
+            criteriaList.add(Criteria.where("normalizedTokens").in(tokens));
+        }
 
+        // Searchable attribute values contain original keyword
+        criteriaList.add(Criteria.where("attributes").elemMatch(
+                Criteria.where("value").regex(originalKeyword, "i")
+                        .and("searchable").is(true)
+        ));
+
+        Criteria criteria = new Criteria().orOperator(criteriaList.toArray(new Criteria[0]));
         query.addCriteria(criteria);
     }
 
@@ -199,47 +229,77 @@ public class DynamicProductSearchService extends BaseTenantService {
 
     /**
      * Calculate relevance score for a product
+     * Uses exclusive scoring - only the best match type contributes to avoid double-counting
      */
     private int calculateRelevanceScore(DynamicProduct product, String keyword) {
         int score = 0;
+        String lowerDisplayName = product.getDisplayName() != null ? product.getDisplayName().toLowerCase() : "";
 
-        // Exact match in display name (highest weight)
-        if (product.getDisplayName() != null &&
-                product.getDisplayName().toLowerCase().equals(keyword)) {
-            score += 100;
+        // Display name matching (mutually exclusive - only best match counts)
+        if (!lowerDisplayName.isEmpty()) {
+            if (lowerDisplayName.equals(keyword)) {
+                // Exact match - HIGHEST priority
+                score += 1000;
+            } else if (lowerDisplayName.startsWith(keyword)) {
+                // Starts with keyword - HIGH priority
+                score += 500;
+            } else if (lowerDisplayName.contains(keyword)) {
+                // Contains keyword - MEDIUM priority
+                // Add bonus for shorter names (more relevant)
+                int lengthBonus = Math.max(0, 100 - lowerDisplayName.length());
+                score += 250 + lengthBonus;
+            } else {
+                // Fuzzy match - check if display name contains all characters of keyword in order
+                if (containsInOrder(lowerDisplayName, keyword)) {
+                    score += 100;
+                }
+            }
         }
 
-        // Display name contains keyword (high weight)
-        if (product.getDisplayName() != null &&
-                product.getDisplayName().toLowerCase().contains(keyword)) {
-            score += 50;
+        // Category exact match
+        if (product.getCategory() != null) {
+            String lowerCategory = product.getCategory().toLowerCase();
+            if (lowerCategory.equals(keyword)) {
+                score += 200;
+            } else if (lowerCategory.contains(keyword)) {
+                score += 50;
+            }
         }
 
-        // Display name starts with keyword
-        if (product.getDisplayName() != null &&
-                product.getDisplayName().toLowerCase().startsWith(keyword)) {
-            score += 30;
-        }
-
-        // Category matches keyword
-        if (product.getCategory() != null &&
-                product.getCategory().toLowerCase().contains(keyword)) {
-            score += 20;
-        }
-
-        // Count attribute matches
+        // Count searchable attribute matches
         if (product.getAttributes() != null) {
             for (ProductAttribute attr : product.getAttributes()) {
-                if (attr.getValue().toLowerCase().contains(keyword)) {
-                    score += 10;
-                }
-                if (attr.getKey().toLowerCase().contains(keyword)) {
-                    score += 5;
+                // Only count searchable attributes
+                if (attr.isSearchable()) {
+                    String lowerValue = attr.getValue().toLowerCase();
+                    if (lowerValue.equals(keyword)) {
+                        score += 150;
+                    } else if (lowerValue.contains(keyword)) {
+                        score += 25;
+                    }
+
+                    // Bonus for key match
+                    if (attr.getKey().toLowerCase().contains(keyword)) {
+                        score += 10;
+                    }
                 }
             }
         }
 
         return score;
+    }
+
+    /**
+     * Check if target contains all characters of source in order (fuzzy match)
+     */
+    private boolean containsInOrder(String target, String source) {
+        int sourceIndex = 0;
+        for (int i = 0; i < target.length() && sourceIndex < source.length(); i++) {
+            if (target.charAt(i) == source.charAt(sourceIndex)) {
+                sourceIndex++;
+            }
+        }
+        return sourceIndex == source.length();
     }
 
     /**

@@ -48,17 +48,6 @@ export default function CatalogProductSearch({
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            if (query.trim().length >= 1) {
-                handleSearch(query);
-            } else {
-                setResults([]);
-            }
-        }, 300);
-
-        return () => clearTimeout(timer);
-    }, [query]);
 
     const handleSearch = async (searchTerm: string) => {
         try {
@@ -102,10 +91,18 @@ export default function CatalogProductSearch({
     const handleKeyDown = (e: React.KeyboardEvent) => {
         if (e.key === 'Enter') {
             e.preventDefault();
-            // If explicit results are showing, maybe select first? 
-            // Or prioritize custom if allowCustom is true and no exact match?
-            // Simple logic: if allowCustom is true, Enter selects current text as custom.
-            handleCustomSelect();
+            // If we have search results, select the first one (most relevant)
+            if (results.length > 0) {
+                handleSelect(results[0]);
+            }
+            // Otherwise, search first if query has content
+            else if (query.trim().length >= 1) {
+                handleSearch(query);
+            }
+            // If custom is allowed, use it as custom
+            else if (allowCustom && query.trim()) {
+                handleCustomSelect();
+            }
         }
     };
 
@@ -153,7 +150,14 @@ export default function CatalogProductSearch({
                     {loading ? (
                         <Loader2 className="w-5 h-5 animate-spin" />
                     ) : (
-                        <Search className="w-5 h-5" />
+                        <button
+                            type="button"
+                            onClick={() => { if (query.trim().length >= 1) handleSearch(query); }}
+                            className="hover:text-gray-600 transition-colors"
+                            title="Search"
+                        >
+                            <Search className="w-5 h-5" />
+                        </button>
                     )}
                 </div>
                 {query && (
