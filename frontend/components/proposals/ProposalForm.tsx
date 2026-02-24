@@ -7,6 +7,7 @@ import { proposalsService } from "@/lib/proposals";
 
 import { leadsService } from "@/lib/leads";
 import { opportunitiesService } from "@/lib/opportunities";
+import { organizationApi } from "@/lib/api/organization";
 import { showToast } from "@/lib/toast";
 import {
     CreateProposalRequest,
@@ -46,7 +47,7 @@ function SectionCard({
     icon?: React.ReactNode;
 }) {
     return (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-visible">
             <div className="px-6 py-4 border-b border-gray-100 flex items-center gap-3">
                 {icon && (
                     <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center text-blue-600 flex-shrink-0">
@@ -202,11 +203,13 @@ export default function ProposalForm({
 
     const loadData = async () => {
         try {
-            const [productsData, leadsData, opportunitiesData] = await Promise.all([
+            const [productsData, leadsData, opportunitiesData, orgData] = await Promise.all([
                 productsService.getAllProducts(),
                 leadsService.getAllLeads(),
                 opportunitiesService.getAllOpportunities(),
+                organizationApi.getCurrent()
             ]);
+
             if (Array.isArray(productsData)) {
                 setProducts(productsData);
             } else if (productsData && 'content' in productsData) {
@@ -214,6 +217,13 @@ export default function ProposalForm({
             }
             setLeads(leadsData);
             setOpportunities(opportunitiesData);
+
+            // Populate defaults from organization settings if in create mode
+            if (mode === "create" && orgData?.settings) {
+                if (!paymentTerms) setPaymentTerms(orgData.settings.defaultPaymentTerms || "");
+                if (!deliveryTerms) setDeliveryTerms(orgData.settings.defaultDeliveryTerms || "");
+                if (!notes) setNotes(orgData.settings.defaultNotes || "");
+            }
         } catch (err) {
             showToast.error("Failed to load form data");
         }

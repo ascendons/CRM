@@ -148,6 +148,9 @@ function OrganizationSettingsForm({ organization, onUpdate }: { organization: Or
         logoUrl: organization.settings?.logoUrl || "",
         brandColor: organization.settings?.brandColor || "#2563eb",
         monthlyRevenueGoal: organization.settings?.monthlyRevenueGoal ?? 1000000,
+        defaultPaymentTerms: organization.settings?.defaultPaymentTerms || "",
+        defaultDeliveryTerms: organization.settings?.defaultDeliveryTerms || "",
+        defaultNotes: organization.settings?.defaultNotes || "",
     });
 
     // Also update local state when organization prop changes
@@ -160,6 +163,9 @@ function OrganizationSettingsForm({ organization, onUpdate }: { organization: Or
             logoUrl: organization.settings?.logoUrl || "",
             brandColor: organization.settings?.brandColor || "#2563eb",
             monthlyRevenueGoal: organization.settings?.monthlyRevenueGoal ?? 1000000,
+            defaultPaymentTerms: organization.settings?.defaultPaymentTerms || "",
+            defaultDeliveryTerms: organization.settings?.defaultDeliveryTerms || "",
+            defaultNotes: organization.settings?.defaultNotes || "",
         });
     }, [organization]);
 
@@ -351,6 +357,44 @@ function OrganizationSettingsForm({ organization, onUpdate }: { organization: Or
                                     </span>
                                 </label>
                             </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Default Terms & Conditions for Proposals */}
+                <div className="col-span-full border-t pt-6">
+                    <h4 className="text-sm font-medium text-gray-900 mb-1">Default Terms & Conditions</h4>
+                    <p className="text-xs text-gray-500 mb-4">These will be auto-filled when creating new proposals. Users can override per proposal.</p>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1.5">Payment Terms</label>
+                            <textarea
+                                value={formData.defaultPaymentTerms}
+                                onChange={(e) => handleChange("defaultPaymentTerms", e.target.value)}
+                                placeholder="e.g., 50% advance, 50% on delivery"
+                                rows={4}
+                                className="block w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 text-sm"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1.5">Delivery Terms</label>
+                            <textarea
+                                value={formData.defaultDeliveryTerms}
+                                onChange={(e) => handleChange("defaultDeliveryTerms", e.target.value)}
+                                placeholder="e.g., Delivery within 30 days"
+                                rows={4}
+                                className="block w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 text-sm"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1.5">Notes</label>
+                            <textarea
+                                value={formData.defaultNotes}
+                                onChange={(e) => handleChange("defaultNotes", e.target.value)}
+                                placeholder="e.g., Prices are subject to change..."
+                                rows={4}
+                                className="block w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 text-sm"
+                            />
                         </div>
                     </div>
                 </div>

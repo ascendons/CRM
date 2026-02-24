@@ -213,6 +213,15 @@ public class OrganizationController {
         if (request.getMonthlyRevenueGoal() != null) {
             organization.getSettings().setMonthlyRevenueGoal(request.getMonthlyRevenueGoal());
         }
+        if (request.getDefaultPaymentTerms() != null) {
+            organization.getSettings().setDefaultPaymentTerms(request.getDefaultPaymentTerms());
+        }
+        if (request.getDefaultDeliveryTerms() != null) {
+            organization.getSettings().setDefaultDeliveryTerms(request.getDefaultDeliveryTerms());
+        }
+        if (request.getDefaultNotes() != null) {
+            organization.getSettings().setDefaultNotes(request.getDefaultNotes());
+        }
 
         Organization updated = organizationRepository.save(organization);
         OrganizationDetailsResponse response = mapToDetailsResponse(updated);
@@ -427,6 +436,9 @@ public class OrganizationController {
         private String logoUrl;
         private String brandColor;
         private java.math.BigDecimal monthlyRevenueGoal;
+        private String defaultPaymentTerms;
+        private String defaultDeliveryTerms;
+        private String defaultNotes;
     }
 
     @lombok.Data

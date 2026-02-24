@@ -140,6 +140,12 @@ public class Organization {
         private String brandColor;
         @Builder.Default
         private BigDecimal monthlyRevenueGoal = new BigDecimal("1000000"); // 10 Lakhs Default
+
+        // Default Terms & Conditions for proposals
+        private String defaultPaymentTerms;
+        private String defaultDeliveryTerms;
+        private String defaultNotes;
+
         private Map<String, Object> customSettings;
     }
 

@@ -90,6 +90,9 @@ export interface OrganizationSettings {
     logoUrl?: string;
     brandColor?: string;
     monthlyRevenueGoal?: number;
+    defaultPaymentTerms?: string;
+    defaultDeliveryTerms?: string;
+    defaultNotes?: string;
 }
 
 export interface SecuritySettings {

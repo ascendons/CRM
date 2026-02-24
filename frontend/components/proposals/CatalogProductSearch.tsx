@@ -177,7 +177,7 @@ export default function CatalogProductSearch({
             </div>
 
             {showResults && (
-                <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                <div className="absolute z-[9999] w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
                     {/* Custom Option at Top or Bottom? Top is often better for "Create new" feel */}
                     {allowCustom && query.trim() && (
                         <button
