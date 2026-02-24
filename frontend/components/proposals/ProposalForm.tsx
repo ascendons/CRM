@@ -218,11 +218,11 @@ export default function ProposalForm({
             setLeads(leadsData);
             setOpportunities(opportunitiesData);
 
-            // Populate defaults from organization settings if in create mode
-            if (mode === "create" && orgData?.settings) {
-                if (!paymentTerms) setPaymentTerms(orgData.settings.defaultPaymentTerms || "");
-                if (!deliveryTerms) setDeliveryTerms(orgData.settings.defaultDeliveryTerms || "");
-                if (!notes) setNotes(orgData.settings.defaultNotes || "");
+            // Populate defaults from organization settings if fields are empty
+            if (orgData?.settings) {
+                if (!paymentTerms || paymentTerms.trim() === "") setPaymentTerms(orgData.settings.defaultPaymentTerms || "");
+                if (!deliveryTerms || deliveryTerms.trim() === "") setDeliveryTerms(orgData.settings.defaultDeliveryTerms || "");
+                if (!notes || notes.trim() === "") setNotes(orgData.settings.defaultNotes || "");
             }
         } catch (err) {
             showToast.error("Failed to load form data");
