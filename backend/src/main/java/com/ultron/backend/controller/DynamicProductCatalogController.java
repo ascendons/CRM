@@ -14,12 +14,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -36,19 +38,47 @@ public class DynamicProductCatalogController {
     private final DynamicProductSearchService searchService;
 
     /**
-     * Upload and ingest products from Excel/CSV
-     * POST /api/v1/catalog/upload
+     * Preview headers from an uploaded file (no ingestion)
+     * POST /api/v1/catalog/preview-headers
      */
-    @PostMapping("/upload")
-    public ResponseEntity<ApiResponse<DynamicProductIngestionService.IngestionResult>> uploadProducts(
+    @PostMapping("/preview-headers")
+    public ResponseEntity<ApiResponse<List<Map<String, String>>>> previewHeaders(
             @RequestParam("file") MultipartFile file,
             Authentication authentication) {
 
         String currentUserId = authentication.getName();
-        log.info("User {} uploading product catalog file: {}", currentUserId, file.getOriginalFilename());
+        log.info("User {} previewing headers for file: {}", currentUserId, file.getOriginalFilename());
+
+        List<Map<String, String>> headers = ingestionService.previewHeaders(file);
+
+        return ResponseEntity.ok(
+                ApiResponse.<List<Map<String, String>>>builder()
+                        .success(true)
+                        .message("Headers preview successful")
+                        .data(headers)
+                        .build());
+    }
+
+    /**
+     * Upload and ingest products from Excel/CSV
+     * POST /api/v1/catalog/upload
+     * @param searchableFields optional comma-separated list of normalized field keys that should be searchable
+     */
+    @PostMapping("/upload")
+    public ResponseEntity<ApiResponse<DynamicProductIngestionService.IngestionResult>> uploadProducts(
+            @RequestParam("file") MultipartFile file,
+            @RequestParam(value = "searchableFields", required = false) List<String> searchableFields,
+            Authentication authentication) {
+
+        String currentUserId = authentication.getName();
+        log.info("User {} uploading product catalog file: {}, searchableFields: {}", currentUserId, file.getOriginalFilename(), searchableFields);
+
+        Set<String> searchableSet = (searchableFields != null && !searchableFields.isEmpty())
+                ? new java.util.HashSet<>(searchableFields)
+                : null; // null means all fields are searchable (backward compatible)
 
         DynamicProductIngestionService.IngestionResult result =
-                ingestionService.ingestProducts(file, currentUserId);
+                ingestionService.ingestProducts(file, currentUserId, searchableSet);
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -143,6 +173,138 @@ public class DynamicProductCatalogController {
                         .success(true)
                         .message("Attribute values retrieved successfully")
                         .data(values)
+                        .build());
+    }
+
+    /**
+     * Get a single catalog product by ID
+     * GET /api/v1/catalog/{id}
+     * ADMIN ONLY
+     */
+    @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse<DynamicProductResponse>> getProductById(
+            @PathVariable String id,
+            Authentication authentication) {
+
+        String currentUserId = authentication.getName();
+        log.info("User {} fetching catalog product: {}", currentUserId, id);
+
+        DynamicProduct product = searchService.getById(id);
+        DynamicProductResponse response = mapToResponse(product);
+
+        return ResponseEntity.ok(
+                ApiResponse.<DynamicProductResponse>builder()
+                        .success(true)
+                        .message("Product retrieved successfully")
+                        .data(response)
+                        .build());
+    }
+
+    /**
+     * Update a catalog product
+     * PUT /api/v1/catalog/{id}
+     * ADMIN ONLY
+     */
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse<DynamicProductResponse>> updateProduct(
+            @PathVariable String id,
+            @RequestBody Map<String, Object> body,
+            Authentication authentication) {
+
+        String currentUserId = authentication.getName();
+        log.info("User {} updating catalog product: {}", currentUserId, id);
+
+        String displayName = (String) body.get("displayName");
+
+        @SuppressWarnings("unchecked")
+        List<Map<String, Object>> rawAttrs = (List<Map<String, Object>>) body.get("attributes");
+        List<DynamicProduct.ProductAttribute> attributes = null;
+        if (rawAttrs != null) {
+            attributes = rawAttrs.stream().map(m -> DynamicProduct.ProductAttribute.builder()
+                    .key((String) m.get("key"))
+                    .originalKey((String) m.getOrDefault("originalKey", m.get("key")))
+                    .value((String) m.get("value"))
+                    .type(m.get("type") != null
+                            ? DynamicProduct.AttributeType.valueOf((String) m.get("type"))
+                            : DynamicProduct.AttributeType.STRING)
+                    .numericValue(m.get("numericValue") != null ? ((Number) m.get("numericValue")).doubleValue() : null)
+                    .unit((String) m.get("unit"))
+                    .searchable(true)
+                    .build()
+            ).collect(Collectors.toList());
+        }
+
+        DynamicProduct updated = searchService.update(id, displayName, attributes);
+        DynamicProductResponse response = mapToResponse(updated);
+
+        return ResponseEntity.ok(
+                ApiResponse.<DynamicProductResponse>builder()
+                        .success(true)
+                        .message("Product updated successfully")
+                        .data(response)
+                        .build());
+    }
+
+    /**
+     * Delete a catalog product (soft or hard)
+     * DELETE /api/v1/catalog/{id}?hard=true|false
+     * ADMIN ONLY
+     */
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse<Void>> deleteProduct(
+            @PathVariable String id,
+            @RequestParam(defaultValue = "false") boolean hard,
+            Authentication authentication) {
+
+        String currentUserId = authentication.getName();
+        log.info("User {} {}-deleting catalog product: {}", currentUserId, hard ? "hard" : "soft", id);
+
+        if (hard) {
+            searchService.hardDelete(id);
+        } else {
+            searchService.softDelete(id);
+        }
+
+        return ResponseEntity.ok(
+                ApiResponse.<Void>builder()
+                        .success(true)
+                        .message(hard ? "Product permanently deleted" : "Product deleted successfully")
+                        .build());
+    }
+
+    /**
+     * Bulk delete catalog products (soft or hard)
+     * POST /api/v1/catalog/bulk-delete
+     * ADMIN ONLY
+     */
+    @PostMapping("/bulk-delete")
+    @PreAuthorize("hasRole('ADMIN')")
+    @SuppressWarnings("unchecked")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> bulkDeleteProducts(
+            @RequestBody Map<String, Object> body,
+            Authentication authentication) {
+
+        String currentUserId = authentication.getName();
+        List<String> ids = (List<String>) body.get("ids");
+        boolean hard = Boolean.TRUE.equals(body.get("hard"));
+
+        log.info("User {} bulk {}-deleting {} catalog products", currentUserId, hard ? "hard" : "soft", ids.size());
+
+        int count;
+        if (hard) {
+            count = searchService.bulkHardDelete(ids);
+        } else {
+            count = searchService.bulkSoftDelete(ids);
+        }
+
+        return ResponseEntity.ok(
+                ApiResponse.<Map<String, Object>>builder()
+                        .success(true)
+                        .message(String.format("%d products %s", count, hard ? "permanently deleted" : "deleted"))
+                        .data(Map.of("deletedCount", count))
                         .build());
     }
 

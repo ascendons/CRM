@@ -208,8 +208,8 @@ export default function Navigation() {
             Activities
           </Link>
 
-          {/* Catalog - Module: PRODUCTS */}
-          {canAccessModule("PRODUCTS") && (
+          {/* Catalog - Admin Only */}
+          {canAccessModule("ADMINISTRATION") && (
             <Link
               href="/catalog"
               className={`text-sm font-medium transition-colors ${isActive("/catalog")

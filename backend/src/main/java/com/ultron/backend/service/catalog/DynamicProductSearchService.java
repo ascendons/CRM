@@ -117,9 +117,10 @@ public class DynamicProductSearchService extends BaseTenantService {
                 // Normalized tokens match
                 Criteria.where("normalizedTokens").in(tokens),
 
-                // Any attribute value contains keyword
+                // Only searchable attribute values
                 Criteria.where("attributes").elemMatch(
                         Criteria.where("value").regex(keyword, "i")
+                                .and("searchable").is(true)
                 )
         );
 
@@ -239,6 +240,118 @@ public class DynamicProductSearchService extends BaseTenantService {
         }
 
         return score;
+    }
+
+    /**
+     * Get a single product by ID
+     * MULTI-TENANT SAFE
+     */
+    public DynamicProduct getById(String id) {
+        String tenantId = getCurrentTenantId();
+        log.info("[Tenant: {}] Getting dynamic product by id: {}", tenantId, id);
+
+        return repository.findByIdAndTenantId(id, tenantId)
+                .filter(p -> !p.isDeleted())
+                .orElseThrow(() -> new RuntimeException("Product not found: " + id));
+    }
+
+    /**
+     * Update a dynamic product's displayName and attributes
+     * MULTI-TENANT SAFE
+     */
+    public DynamicProduct update(String id, String displayName, List<ProductAttribute> attributes) {
+        String tenantId = getCurrentTenantId();
+        log.info("[Tenant: {}] Updating dynamic product: {}", tenantId, id);
+
+        DynamicProduct product = repository.findByIdAndTenantId(id, tenantId)
+                .filter(p -> !p.isDeleted())
+                .orElseThrow(() -> new RuntimeException("Product not found: " + id));
+
+        if (displayName != null && !displayName.isBlank()) {
+            product.setDisplayName(displayName);
+        }
+        if (attributes != null) {
+            product.setAttributes(attributes);
+            // Rebuild search tokens from new attributes
+            StringBuilder sb = new StringBuilder();
+            if (product.getDisplayName() != null) sb.append(product.getDisplayName()).append(" ");
+            for (ProductAttribute attr : attributes) {
+                sb.append(attr.getValue()).append(" ");
+            }
+            product.setSearchTokens(sb.toString().trim());
+        }
+
+        product.setLastModifiedAt(java.time.LocalDateTime.now());
+        return repository.save(product);
+    }
+
+    /**
+     * Soft-delete a dynamic product (set isDeleted = true)
+     * MULTI-TENANT SAFE
+     */
+    public void softDelete(String id) {
+        String tenantId = getCurrentTenantId();
+        log.info("[Tenant: {}] Soft-deleting dynamic product: {}", tenantId, id);
+
+        DynamicProduct product = repository.findByIdAndTenantId(id, tenantId)
+                .orElseThrow(() -> new RuntimeException("Product not found: " + id));
+
+        product.setDeleted(true);
+        product.setDeletedAt(java.time.LocalDateTime.now());
+        repository.save(product);
+    }
+
+    /**
+     * Hard-delete a dynamic product (permanently remove from DB)
+     * MULTI-TENANT SAFE
+     */
+    public void hardDelete(String id) {
+        String tenantId = getCurrentTenantId();
+        log.info("[Tenant: {}] Hard-deleting dynamic product: {}", tenantId, id);
+
+        DynamicProduct product = repository.findByIdAndTenantId(id, tenantId)
+                .orElseThrow(() -> new RuntimeException("Product not found: " + id));
+
+        repository.delete(product);
+    }
+
+    /**
+     * Bulk soft-delete dynamic products
+     * MULTI-TENANT SAFE
+     */
+    public int bulkSoftDelete(List<String> ids) {
+        String tenantId = getCurrentTenantId();
+        log.info("[Tenant: {}] Bulk soft-deleting {} products", tenantId, ids.size());
+
+        int count = 0;
+        java.time.LocalDateTime now = java.time.LocalDateTime.now();
+        for (String id : ids) {
+            repository.findByIdAndTenantId(id, tenantId).ifPresent(product -> {
+                product.setDeleted(true);
+                product.setDeletedAt(now);
+                repository.save(product);
+            });
+            count++;
+        }
+        return count;
+    }
+
+    /**
+     * Bulk hard-delete dynamic products
+     * MULTI-TENANT SAFE
+     */
+    public int bulkHardDelete(List<String> ids) {
+        String tenantId = getCurrentTenantId();
+        log.info("[Tenant: {}] Bulk hard-deleting {} products", tenantId, ids.size());
+
+        int count = 0;
+        for (String id : ids) {
+            repository.findByIdAndTenantId(id, tenantId).ifPresent(product -> {
+                repository.delete(product);
+            });
+            count++;
+        }
+        return count;
     }
 
     /**

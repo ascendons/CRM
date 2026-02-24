@@ -37,24 +37,67 @@ public class DynamicProductIngestionService extends BaseTenantService {
     private final DynamicProductIdGeneratorService idGeneratorService;
 
     /**
+     * Preview headers from an uploaded file (no ingestion)
+     * Returns list of {normalizedKey, originalKey} pairs
+     */
+    public List<Map<String, String>> previewHeaders(MultipartFile file) {
+        String filename = file.getOriginalFilename();
+        if (filename == null) {
+            throw new BadRequestException("Invalid file");
+        }
+
+        try {
+            Map<Integer, HeaderInfo> headerMap;
+            if (filename.endsWith(".csv")) {
+                try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream()));
+                     CSVReader csvReader = new CSVReader(reader)) {
+                    String[] headers = csvReader.readNext();
+                    if (headers == null || headers.length == 0) {
+                        throw new BadRequestException("CSV file has no headers");
+                    }
+                    headerMap = normalizeHeaders(headers);
+                }
+            } else if (filename.endsWith(".xlsx") || filename.endsWith(".xls")) {
+                try (Workbook workbook = WorkbookFactory.create(file.getInputStream())) {
+                    Sheet sheet = workbook.getSheetAt(0);
+                    Row headerRow = sheet.getRow(0);
+                    if (headerRow == null) {
+                        throw new BadRequestException("Excel file has no headers");
+                    }
+                    headerMap = normalizeExcelHeaders(headerRow);
+                }
+            } else {
+                throw new BadRequestException("Unsupported file format. Use CSV or Excel.");
+            }
+
+            return headerMap.values().stream()
+                    .map(h -> Map.of("key", h.normalizedKey, "originalKey", h.originalKey))
+                    .collect(Collectors.toList());
+        } catch (IOException | CsvValidationException e) {
+            throw new RuntimeException("Failed to parse file headers: " + e.getMessage(), e);
+        }
+    }
+
+    /**
      * Ingest products from uploaded Excel/CSV file
      * MULTI-TENANT SAFE: All products are associated with current tenant
+     * @param searchableFields set of normalized keys that should be searchable; if null, all fields are searchable
      */
-    public IngestionResult ingestProducts(MultipartFile file, String userId) {
+    public IngestionResult ingestProducts(MultipartFile file, String userId, Set<String> searchableFields) {
         String tenantId = getCurrentTenantId();
         String filename = file.getOriginalFilename();
         if (filename == null) {
             throw new BadRequestException("Invalid file");
         }
 
-        log.info("[Tenant: {}] Starting ingestion for file: {}", tenantId, filename);
+        log.info("[Tenant: {}] Starting ingestion for file: {}, searchableFields: {}", tenantId, filename, searchableFields);
 
         List<DynamicProduct> products;
         try {
             if (filename.endsWith(".csv")) {
-                products = parseAndIngestCsv(file, userId, tenantId, filename);
+                products = parseAndIngestCsv(file, userId, tenantId, filename, searchableFields);
             } else if (filename.endsWith(".xlsx") || filename.endsWith(".xls")) {
-                products = parseAndIngestExcel(file, userId, tenantId, filename);
+                products = parseAndIngestExcel(file, userId, tenantId, filename, searchableFields);
             } else {
                 throw new BadRequestException("Unsupported file format. Use CSV or Excel.");
             }
@@ -79,7 +122,7 @@ public class DynamicProductIngestionService extends BaseTenantService {
     /**
      * Parse and ingest from CSV
      */
-    private List<DynamicProduct> parseAndIngestCsv(MultipartFile file, String userId, String tenantId, String filename)
+    private List<DynamicProduct> parseAndIngestCsv(MultipartFile file, String userId, String tenantId, String filename, Set<String> searchableFields)
             throws IOException, CsvValidationException {
 
         List<DynamicProduct> products = new ArrayList<>();
@@ -98,10 +141,10 @@ public class DynamicProductIngestionService extends BaseTenantService {
 
             // Read rows
             String[] row;
-            int rowNumber = 1; // Excel row numbers start at 1 (0 is header)
+            int rowNumber = 1;
             while ((row = csvReader.readNext()) != null) {
                 rowNumber++;
-                DynamicProduct product = createProductFromRow(row, headerMap, filename, "CSV", rowNumber, userId, tenantId);
+                DynamicProduct product = createProductFromRow(row, headerMap, filename, "CSV", rowNumber, userId, tenantId, searchableFields);
                 if (product != null) {
                     products.add(product);
                 }
@@ -114,7 +157,7 @@ public class DynamicProductIngestionService extends BaseTenantService {
     /**
      * Parse and ingest from Excel
      */
-    private List<DynamicProduct> parseAndIngestExcel(MultipartFile file, String userId, String tenantId, String filename)
+    private List<DynamicProduct> parseAndIngestExcel(MultipartFile file, String userId, String tenantId, String filename, Set<String> searchableFields)
             throws IOException {
 
         List<DynamicProduct> products = new ArrayList<>();
@@ -135,7 +178,7 @@ public class DynamicProductIngestionService extends BaseTenantService {
                 Row row = sheet.getRow(i);
                 if (row == null) continue;
 
-                DynamicProduct product = createProductFromExcelRow(row, headerMap, filename, "XLSX", i + 1, userId, tenantId);
+                DynamicProduct product = createProductFromExcelRow(row, headerMap, filename, "XLSX", i + 1, userId, tenantId, searchableFields);
                 if (product != null) {
                     products.add(product);
                 }
@@ -179,9 +222,11 @@ public class DynamicProductIngestionService extends BaseTenantService {
 
     /**
      * Create DynamicProduct from CSV row
+     * @param searchableFields set of normalized keys that should be searchable; if null, all fields are searchable
      */
     private DynamicProduct createProductFromRow(String[] row, Map<Integer, HeaderInfo> headerMap,
-                                               String filename, String fileType, int rowNumber, String userId, String tenantId) {
+                                               String filename, String fileType, int rowNumber, String userId, String tenantId,
+                                               Set<String> searchableFields) {
 
         if (row.length == 0) return null;
 
@@ -207,6 +252,9 @@ public class DynamicProductIngestionService extends BaseTenantService {
             // Detect type
             AttributeTypeDetector.TypeDetectionResult typeResult = typeDetector.detectType(value);
 
+            // Determine if this field is searchable
+            boolean isSearchable = (searchableFields == null) || searchableFields.contains(normalizedKey);
+
             // Create attribute
             ProductAttribute attr = ProductAttribute.builder()
                     .key(normalizedKey)
@@ -218,7 +266,7 @@ public class DynamicProductIngestionService extends BaseTenantService {
                     .rangeMax(typeResult.getRangeMax())
                     .booleanValue(typeResult.getBooleanValue())
                     .unit(typeResult.getUnit())
-                    .searchable(true)
+                    .searchable(isSearchable)
                     .build();
 
             attributes.add(attr);
@@ -226,10 +274,12 @@ public class DynamicProductIngestionService extends BaseTenantService {
             // Build raw text
             rawText.append(originalKey).append("=").append(value).append("; ");
 
-            // Build search tokens
-            searchTokensBuilder.append(value).append(" ");
-            searchTokensBuilder.append(normalizedKey).append(" ");
-            normalizedTokens.addAll(headerNormalizer.createSearchTokens(value));
+            // Only add searchable fields to search tokens
+            if (isSearchable) {
+                searchTokensBuilder.append(value).append(" ");
+                searchTokensBuilder.append(normalizedKey).append(" ");
+                normalizedTokens.addAll(headerNormalizer.createSearchTokens(value));
+            }
 
             // Extract display name
             if (displayName == null && headerNormalizer.isDisplayNameField(normalizedKey)) {
@@ -283,7 +333,8 @@ public class DynamicProductIngestionService extends BaseTenantService {
      * Create DynamicProduct from Excel row
      */
     private DynamicProduct createProductFromExcelRow(Row row, Map<Integer, HeaderInfo> headerMap,
-                                                    String filename, String fileType, int rowNumber, String userId, String tenantId) {
+                                                    String filename, String fileType, int rowNumber, String userId, String tenantId,
+                                                    Set<String> searchableFields) {
 
         // Convert Excel row to string array
         String[] rowData = new String[headerMap.size()];
@@ -301,7 +352,7 @@ public class DynamicProductIngestionService extends BaseTenantService {
 
         if (isEmpty) return null;
 
-        return createProductFromRow(rowData, headerMap, filename, fileType, rowNumber, userId, tenantId);
+        return createProductFromRow(rowData, headerMap, filename, fileType, rowNumber, userId, tenantId, searchableFields);
     }
 
     /**

@@ -21,22 +21,22 @@ function CreateProposalContent() {
 
 export default function NewProposalPage() {
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="mb-6">
-            <h1 className="text-3xl font-bold text-gray-900">
-              Create New Proposal
-            </h1>
-            <p className="text-gray-600 mt-1">
-              Create a quotation for a lead or opportunity
-            </p>
-          </div>
-
-          <Suspense fallback={<div>Loading...</div>}>
-            <CreateProposalContent />
-          </Suspense>
+    <div className="min-h-screen bg-gray-50">
+      {/* Page Header */}
+      <div className="bg-white border-b border-gray-200 px-6 py-5">
+        <div className="max-w-[1600px] mx-auto">
+          <h1 className="text-2xl font-bold text-gray-900">Create New Proposal</h1>
+          <p className="text-gray-500 mt-1 text-sm">
+            Create a quotation for a lead or opportunity
+          </p>
         </div>
+      </div>
+
+      {/* Form Content */}
+      <div className="max-w-[1600px] mx-auto px-6 py-6">
+        <Suspense fallback={<div>Loading...</div>}>
+          <CreateProposalContent />
+        </Suspense>
       </div>
     </div>
   );
