@@ -302,10 +302,21 @@ public class PdfService {
         PdfPTable totalsTable = new PdfPTable(2);
         totalsTable.setWidthPercentage(100);
         
-        addTotalRow(totalsTable, "TAXABLE AMOUNT:", proposal.getSubtotal(), boldFont);
+        addTotalRow(totalsTable, "SUBTOTAL:", proposal.getSubtotal(), normalFont);
+        
+        if (proposal.getDiscountAmount() != null && proposal.getDiscountAmount().compareTo(BigDecimal.ZERO) > 0) {
+            addTotalRow(totalsTable, "DISCOUNT:", proposal.getDiscountAmount(), normalFont);
+        }
+        
+        BigDecimal taxableAmount = proposal.getSubtotal().subtract(
+            proposal.getDiscountAmount() != null ? proposal.getDiscountAmount() : BigDecimal.ZERO
+        );
+        addTotalRow(totalsTable, "TAXABLE AMOUNT:", taxableAmount, boldFont);
+        
         if (proposal.getTaxAmount() != null && proposal.getTaxAmount().compareTo(BigDecimal.ZERO) > 0) {
             addTotalRow(totalsTable, "TOTAL GST:", proposal.getTaxAmount(), boldFont);
         }
+        
         addTotalRow(totalsTable, "TOTAL AMOUNT:", proposal.getTotalAmount(), boldFont);
         
         BigDecimal payable = proposal.getTotalAmount();

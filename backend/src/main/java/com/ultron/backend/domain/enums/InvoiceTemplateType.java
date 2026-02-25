@@ -4,7 +4,9 @@ package com.ultron.backend.domain.enums;
  * Types of invoice templates available for PDF generation
  */
 public enum InvoiceTemplateType {
-    PROFORMA("Proforma Invoice", "For quotations and proposals before final sale"),
+    PROFORMA("Proforma Invoice", "Standard proforma invoice layout"),
+    PROFORMA_MODERN("Proforma Modern", "Modern, minimalist proforma layout"),
+    PROFORMA_CLASSIC("Proforma Classic", "Traditional, structured proforma layout"),
     TAX_INVOICE("Tax Invoice", "GST-compliant invoice for completed sales"),
     COMMERCIAL("Commercial Invoice", "For international trade and customs clearance"),
     MINIMAL("Minimal Invoice", "Clean, simple design for quick invoicing");

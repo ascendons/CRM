@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head>
-    <meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Proforma Invoice</title>
     <style>
         * {
@@ -254,16 +255,14 @@
         }
 
         .totals-table .total-row {
-            background: #003399;
-            color: white;
             font-weight: bold;
             font-size: 11pt;
         }
 
         .totals-table .total-row .label,
         .totals-table .total-row .amount {
-            background: #003399;
-            border-color: #002266;
+            /*background: #003399;*/
+            /*border-color: #002266;*/
         }
 
         /* Footer Sections */
@@ -378,36 +377,37 @@
         }
     </style>
 </head>
+
 <body>
     <!-- Header -->
     <div class="header">
         <div class="header-left">
             <img th:if="${organization.invoiceConfig != null and organization.invoiceConfig.logoUrl != null and !organization.invoiceConfig.logoUrl.isEmpty()}"
-                 th:src="${organization.invoiceConfig.logoUrl}"
-                 class="company-logo"
-                 alt="Company Logo"/>
+                th:src="${organization.invoiceConfig.logoUrl}" class="company-logo" alt="Company Logo" />
 
             <div class="company-name"
-                 th:text="${organization.invoiceConfig != null and organization.invoiceConfig.companyName != null and !organization.invoiceConfig.companyName.isEmpty() ? organization.invoiceConfig.companyName : (organization.displayName != null ? organization.displayName : organization.organizationName)}">
+                th:text="${organization.invoiceConfig != null and organization.invoiceConfig.companyName != null and !organization.invoiceConfig.companyName.isEmpty() ? organization.invoiceConfig.companyName : (organization.displayName != null ? organization.displayName : organization.organizationName)}">
                 Company Name
             </div>
 
             <div class="company-details">
                 <div th:if="${organization.invoiceConfig != null and organization.invoiceConfig.companyAddress != null}"
-                     th:utext="${#strings.replace(organization.invoiceConfig.companyAddress, '&#10;', '&lt;br/&gt;')}">
-                    Company Address<br/>
+                    th:utext="${#strings.replace(organization.invoiceConfig.companyAddress, '&#10;', '&lt;br/&gt;')}">
+                    Company Address<br />
                     City, State, Country
                 </div>
-                <div th:if="${organization.invoiceConfig != null and organization.invoiceConfig.gstNumber != null and !organization.invoiceConfig.gstNumber.isEmpty()}" class="mt-1">
+                <div th:if="${organization.invoiceConfig != null and organization.invoiceConfig.gstNumber != null and !organization.invoiceConfig.gstNumber.isEmpty()}"
+                    class="mt-1">
                     <strong>GST:</strong> <span th:text="${organization.invoiceConfig.gstNumber}">GST Number</span>
                 </div>
-                <div th:if="${organization.invoiceConfig != null and organization.invoiceConfig.cinNumber != null and !organization.invoiceConfig.cinNumber.isEmpty()}">
+                <div
+                    th:if="${organization.invoiceConfig != null and organization.invoiceConfig.cinNumber != null and !organization.invoiceConfig.cinNumber.isEmpty()}">
                     <strong>CIN:</strong> <span th:text="${organization.invoiceConfig.cinNumber}">CIN Number</span>
                 </div>
             </div>
         </div>
         <div class="header-right">
-            <div class="invoice-title">PROFORMA<br/>INVOICE</div>
+            <div class="invoice-title">PROFORMA<br />INVOICE</div>
         </div>
     </div>
 
@@ -417,9 +417,11 @@
             <div class="meta-cell meta-label">Reference No:</div>
             <div class="meta-cell meta-value" th:text="${proposal.proposalNumber}">PRO-001</div>
             <div class="meta-cell meta-label">Date:</div>
-            <div class="meta-cell meta-value" th:text="${#temporals.format(proposal.createdAt, 'dd-MMM-yyyy')}">25-Feb-2024</div>
+            <div class="meta-cell meta-value" th:text="${#temporals.format(proposal.createdAt, 'dd-MMM-yyyy')}">
+                25-Feb-2024</div>
             <div class="meta-cell meta-label">Valid Until:</div>
-            <div class="meta-cell meta-value" th:text="${#temporals.format(proposal.validUntil, 'dd-MMM-yyyy')}">25-Mar-2024</div>
+            <div class="meta-cell meta-value" th:text="${#temporals.format(proposal.validUntil, 'dd-MMM-yyyy')}">
+                25-Mar-2024</div>
         </div>
     </div>
 
@@ -431,16 +433,24 @@
                 <div class="customer-name" th:text="${proposal.customerName}">Customer Name</div>
                 <div th:if="${proposal.billingAddress != null}">
                     <div th:if="${proposal.billingAddress.street != null and !proposal.billingAddress.street.isEmpty()}"
-                         th:text="${proposal.billingAddress.street}">Street Address</div>
+                        th:text="${proposal.billingAddress.street}">Street Address</div>
                     <div>
-                        <span th:if="${proposal.billingAddress.city != null and !proposal.billingAddress.city.isEmpty()}"
-                              th:text="${proposal.billingAddress.city}">City</span><span th:if="${proposal.billingAddress.city != null and proposal.billingAddress.state != null}">, </span><span th:if="${proposal.billingAddress.state != null and !proposal.billingAddress.state.isEmpty()}"
-                              th:text="${proposal.billingAddress.state}">State</span>
+                        <span
+                            th:if="${proposal.billingAddress.city != null and !proposal.billingAddress.city.isEmpty()}"
+                            th:text="${proposal.billingAddress.city}">City</span><span
+                            th:if="${proposal.billingAddress.city != null and proposal.billingAddress.state != null}">,
+                        </span><span
+                            th:if="${proposal.billingAddress.state != null and !proposal.billingAddress.state.isEmpty()}"
+                            th:text="${proposal.billingAddress.state}">State</span>
                     </div>
                     <div>
-                        <span th:if="${proposal.billingAddress.country != null and !proposal.billingAddress.country.isEmpty()}"
-                              th:text="${proposal.billingAddress.country}">Country</span><span th:if="${proposal.billingAddress.country != null and proposal.billingAddress.postalCode != null}"> - </span><span th:if="${proposal.billingAddress.postalCode != null and !proposal.billingAddress.postalCode.isEmpty()}"
-                              th:text="${proposal.billingAddress.postalCode}">Postal Code</span>
+                        <span
+                            th:if="${proposal.billingAddress.country != null and !proposal.billingAddress.country.isEmpty()}"
+                            th:text="${proposal.billingAddress.country}">Country</span><span
+                            th:if="${proposal.billingAddress.country != null and proposal.billingAddress.postalCode != null}">
+                            - </span><span
+                            th:if="${proposal.billingAddress.postalCode != null and !proposal.billingAddress.postalCode.isEmpty()}"
+                            th:text="${proposal.billingAddress.postalCode}">Postal Code</span>
                     </div>
                 </div>
                 <div th:if="${proposal.customerEmail != null and !proposal.customerEmail.isEmpty()}" class="mt-1">
@@ -456,18 +466,23 @@
             <div class="address-title">Ship To</div>
             <div class="address-content">
                 <div class="customer-name" th:text="${proposal.customerName}">Customer Name</div>
-                <div th:with="address=${proposal.shippingAddress != null ? proposal.shippingAddress : proposal.billingAddress}">
+                <div
+                    th:with="address=${proposal.shippingAddress != null ? proposal.shippingAddress : proposal.billingAddress}">
                     <div th:if="${address != null and address.street != null and !address.street.isEmpty()}"
-                         th:text="${address.street}">Street Address</div>
+                        th:text="${address.street}">Street Address</div>
                     <div th:if="${address != null}">
                         <span th:if="${address.city != null and !address.city.isEmpty()}"
-                              th:text="${address.city}">City</span><span th:if="${address.city != null and address.state != null}">, </span><span th:if="${address.state != null and !address.state.isEmpty()}"
-                              th:text="${address.state}">State</span>
+                            th:text="${address.city}">City</span><span
+                            th:if="${address.city != null and address.state != null}">, </span><span
+                            th:if="${address.state != null and !address.state.isEmpty()}"
+                            th:text="${address.state}">State</span>
                     </div>
                     <div th:if="${address != null}">
                         <span th:if="${address.country != null and !address.country.isEmpty()}"
-                              th:text="${address.country}">Country</span><span th:if="${address.country != null and address.postalCode != null}"> - </span><span th:if="${address.postalCode != null and !address.postalCode.isEmpty()}"
-                              th:text="${address.postalCode}">Postal Code</span>
+                            th:text="${address.country}">Country</span><span
+                            th:if="${address.country != null and address.postalCode != null}"> - </span><span
+                            th:if="${address.postalCode != null and !address.postalCode.isEmpty()}"
+                            th:text="${address.postalCode}">Postal Code</span>
                     </div>
                 </div>
             </div>
@@ -497,20 +512,22 @@
                 <td class="center" th:text="${iterStat.count}">1</td>
                 <td>
                     <div class="product-name" th:text="${item.productName}">Product Name</div>
-                    <div th:if="${item.description != null and !item.description.isEmpty()}"
-                         class="product-description"
-                         th:text="${item.description}">
+                    <div th:if="${item.description != null and !item.description.isEmpty()}" class="product-description"
+                        th:text="${item.description}">
                         Product description
                     </div>
                 </td>
-                <td class="center" th:text="${item.hsnCode != null and !item.hsnCode.isEmpty() ? item.hsnCode : '-'}">-</td>
+                <td class="center" th:text="${item.hsnCode != null and !item.hsnCode.isEmpty() ? item.hsnCode : '-'}">-
+                </td>
                 <td class="center">
                     <span th:text="${item.quantity}">1</span>
                     <span th:if="${item.unit != null and !item.unit.isEmpty()}"
-                          th:text="' (' + ${item.unit} + ')'">(unit)</span>
+                        th:text="' (' + ${item.unit} + ')'">(unit)</span>
                 </td>
-                <td class="right" th:text="${#numbers.formatDecimal(item.unitPrice, 1, 'COMMA', 2, 'POINT')}">1,000.00</td>
-                <td class="right" th:text="${#numbers.formatDecimal(item.lineSubtotal, 1, 'COMMA', 2, 'POINT')}">1,000.00</td>
+                <td class="right" th:text="${#numbers.formatDecimal(item.unitPrice, 1, 'COMMA', 2, 'POINT')}">1,000.00
+                </td>
+                <td class="right" th:text="${#numbers.formatDecimal(item.lineSubtotal, 1, 'COMMA', 2, 'POINT')}">
+                    1,000.00</td>
             </tr>
         </tbody>
     </table>
@@ -524,26 +541,44 @@
             <table class="totals-table">
                 <tr>
                     <td class="label">SUBTOTAL:</td>
-                    <td class="amount" th:text="'₹ ' + ${#numbers.formatDecimal(proposal.subtotal, 1, 'COMMA', 2, 'POINT')}">₹ 10,000.00</td>
+                    <td class="amount"
+                        th:text="'₹ ' + ${#numbers.formatDecimal(proposal.subtotal, 1, 'COMMA', 2, 'POINT')}">₹
+                        10,000.00</td>
                 </tr>
-                <tr th:if="${proposal.discount != null and proposal.discount.overallDiscountValue != null and proposal.discount.overallDiscountValue > 0}">
-                    <td class="label">
-                        DISCOUNT
-                        <span th:if="${proposal.discount.overallDiscountType != null and proposal.discount.overallDiscountType.name() == 'PERCENTAGE'}"
-                              th:text="'(' + ${proposal.discount.overallDiscountValue} + '%)'"></span>:
-                    </td>
-                    <td class="amount" th:text="'- ₹ ' + ${#numbers.formatDecimal(proposal.discountAmount, 1, 'COMMA', 2, 'POINT')}">- ₹ 500.00</td>
+                <tr th:if="${proposal.discountAmount != null and proposal.discountAmount > 0}">
+                    <td class="label">DISCOUNT:</td>
+                    <td class="amount"
+                        th:text="'- ₹ ' + ${#numbers.formatDecimal(proposal.discountAmount, 1, 'COMMA', 2, 'POINT')}">-
+                        ₹ 500.00</td>
+                </tr>
+                <tr>
+                    <td class="label">TAXABLE AMOUNT:</td>
+                    <td class="amount"
+                        th:text="'₹ ' + ${#numbers.formatDecimal(proposal.subtotal - (proposal.discountAmount != null ? proposal.discountAmount : 0), 1, 'COMMA', 2, 'POINT')}">
+                        ₹ 10,000.00</td>
                 </tr>
                 <tr th:if="${proposal.taxAmount != null and proposal.taxAmount > 0}">
                     <td class="label">
-                        GST (18%)
-                        <span th:if="${proposal.gstType != null}" class="text-muted" th:text="'[' + ${proposal.gstType} + ']'"></span>:
+                        TOTAL GST:
+                        <span th:if="${proposal.gstType != null}" class="text-muted"
+                            th:text="'[' + ${proposal.gstType} + ']'"></span>:
                     </td>
-                    <td class="amount" th:text="'₹ ' + ${#numbers.formatDecimal(proposal.taxAmount, 1, 'COMMA', 2, 'POINT')}">₹ 1,800.00</td>
+                    <td class="amount"
+                        th:text="'₹ ' + ${#numbers.formatDecimal(proposal.taxAmount, 1, 'COMMA', 2, 'POINT')}">₹
+                        1,800.00</td>
                 </tr>
                 <tr class="total-row">
                     <td class="label">TOTAL AMOUNT:</td>
-                    <td class="amount" th:text="'₹ ' + ${#numbers.formatDecimal(proposal.totalAmount, 1, 'COMMA', 2, 'POINT')}">₹ 11,800.00</td>
+                    <td class="amount"
+                        th:text="'₹ ' + ${#numbers.formatDecimal(proposal.totalAmount, 1, 'COMMA', 2, 'POINT')}">₹
+                        11,800.00</td>
+                </tr>
+                <tr class="total-row" style="color: #0047AB;"
+                    th:if="${proposal.paymentMilestones != null and !proposal.paymentMilestones.isEmpty() and proposal.currentMilestoneIndex != null and proposal.currentMilestoneIndex < proposal.paymentMilestones.size()}">
+                    <td class="label">PAYABLE VALUE</td>
+                    <td class="amount"
+                        th:text="'₹ ' + ${#numbers.formatDecimal(proposal.totalAmount * proposal.paymentMilestones[proposal.currentMilestoneIndex].percentage / 100, 1, 'COMMA', 2, 'POINT')}">
+                        ₹ 0.00</td>
                 </tr>
             </table>
         </div>
@@ -554,15 +589,16 @@
         <div class="footer-column">
             <div class="section-title">Terms & Conditions</div>
             <div class="section-content"
-                 th:utext="${organization.invoiceConfig != null and organization.invoiceConfig.termsAndConditions != null ? #strings.replace(organization.invoiceConfig.termsAndConditions, '&#10;', '&lt;br/&gt;') : '1. Payment terms as agreed&lt;br/&gt;2. Validity: 30 days from date of issue'}">
-                1. Payment terms as agreed<br/>
+                th:utext="${organization.invoiceConfig != null and organization.invoiceConfig.termsAndConditions != null ? #strings.replace(organization.invoiceConfig.termsAndConditions, '&#10;', '&lt;br/&gt;') : '1. Payment terms as agreed&lt;br/&gt;2. Validity: 30 days from date of issue'}">
+                1. Payment terms as agreed<br />
                 2. Validity: 30 days from date of issue
             </div>
         </div>
 
         <div class="footer-column">
             <div class="section-title">Bank Details</div>
-            <div class="section-content" th:if="${organization.invoiceConfig != null and organization.invoiceConfig.bankName != null}">
+            <div class="section-content"
+                th:if="${organization.invoiceConfig != null and organization.invoiceConfig.bankName != null}">
                 <div class="bank-detail">
                     <strong>Bank Name:</strong>
                     <span th:text="${organization.invoiceConfig.bankName}">Bank Name</span>
@@ -575,12 +611,14 @@
                     <strong>IFSC Code:</strong>
                     <span th:text="${organization.invoiceConfig.ifscCode}">XXXX0000000</span>
                 </div>
-                <div class="bank-detail" th:if="${organization.invoiceConfig.branchName != null and !organization.invoiceConfig.branchName.isEmpty()}">
+                <div class="bank-detail"
+                    th:if="${organization.invoiceConfig.branchName != null and !organization.invoiceConfig.branchName.isEmpty()}">
                     <strong>Branch:</strong>
                     <span th:text="${organization.invoiceConfig.branchName}">Branch Name</span>
                 </div>
             </div>
-            <div class="section-content" th:unless="${organization.invoiceConfig != null and organization.invoiceConfig.bankName != null}">
+            <div class="section-content"
+                th:unless="${organization.invoiceConfig != null and organization.invoiceConfig.bankName != null}">
                 Bank details not configured
             </div>
         </div>
@@ -588,21 +626,22 @@
 
     <!-- Signature Section -->
     <div class="signature-section">
-        <div th:if="${organization.invoiceConfig != null and organization.invoiceConfig.authorizedSignatorySealUrl != null and !organization.invoiceConfig.authorizedSignatorySealUrl.isEmpty()}">
-            <img th:src="${organization.invoiceConfig.authorizedSignatorySealUrl}"
-                 class="signature-image"
-                 alt="Authorized Signature"/>
+        <div
+            th:if="${organization.invoiceConfig != null and organization.invoiceConfig.authorizedSignatorySealUrl != null and !organization.invoiceConfig.authorizedSignatorySealUrl.isEmpty()}">
+            <img th:src="${organization.invoiceConfig.authorizedSignatorySealUrl}" class="signature-image"
+                alt="Authorized Signature" />
         </div>
         <div class="signature-label"
-             th:text="${organization.invoiceConfig != null and organization.invoiceConfig.authorizedSignatoryLabel != null ? organization.invoiceConfig.authorizedSignatoryLabel : 'Authorized Signatory'}">
+            th:text="${organization.invoiceConfig != null and organization.invoiceConfig.authorizedSignatoryLabel != null ? organization.invoiceConfig.authorizedSignatoryLabel : 'Authorized Signatory'}">
             Authorized Signatory
         </div>
     </div>
 
     <!-- Footer Text -->
     <div class="footer-text"
-         th:text="${organization.invoiceConfig != null and organization.invoiceConfig.footerText != null ? organization.invoiceConfig.footerText : 'Thank you for your business'}">
+        th:text="${organization.invoiceConfig != null and organization.invoiceConfig.footerText != null ? organization.invoiceConfig.footerText : 'Thank you for your business'}">
         Thank you for your business
     </div>
 </body>
+
 </html>

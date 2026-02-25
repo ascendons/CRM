@@ -130,6 +130,8 @@ public class InvoiceTemplateService {
     private String getTemplateName(InvoiceTemplateType templateType) {
         return switch (templateType) {
             case PROFORMA -> "invoices/proforma-invoice";
+            case PROFORMA_MODERN -> "invoices/proforma-modern";
+            case PROFORMA_CLASSIC -> "invoices/proforma-classic";
             case TAX_INVOICE -> "invoices/tax-invoice";
             case COMMERCIAL -> "invoices/commercial-invoice";
             case MINIMAL -> "invoices/minimal-invoice";
@@ -142,8 +144,9 @@ public class InvoiceTemplateService {
      * @return true if template exists, false otherwise
      */
     public boolean isTemplateAvailable(InvoiceTemplateType templateType) {
-        // For now, only PROFORMA is available
-        // Add more as templates are created
-        return templateType == InvoiceTemplateType.PROFORMA;
+        return switch (templateType) {
+            case PROFORMA, PROFORMA_MODERN, PROFORMA_CLASSIC -> true;
+            default -> false;
+        };
     }
 }

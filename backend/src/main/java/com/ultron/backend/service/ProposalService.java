@@ -963,4 +963,7 @@ public class ProposalService extends BaseTenantService {
                 userId, null);
         proposalVersioningService.createSnapshot(savedNext, "CREATED", "Auto-generated next milestone", userId);
     }
+    public InvoiceTemplateService getInvoiceTemplateService() {
+        return invoiceTemplateService;
+    }
 }

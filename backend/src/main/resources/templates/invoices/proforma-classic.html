@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Classic Proforma Invoice</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 11pt;
+            color: #000;
+            line-height: 1.4;
+            padding: 40px;
+            background: white;
+        }
+
+        .border-container {
+            border: 2px solid #000;
+            padding: 20px;
+            position: relative;
+        }
+
+        /* Centered Header */
+        .text-center {
+            text-align: center;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .text-bold {
+            font-weight: bold;
+        }
+
+        .header-title {
+            font-size: 18pt;
+            text-decoration: underline;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+        }
+
+        .company-header {
+            margin-bottom: 30px;
+        }
+
+        .company-name {
+            font-size: 16pt;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .company-info {
+            font-size: 10pt;
+        }
+
+        /* Top Info Table */
+        .info-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        .info-table td {
+            border: 1px solid #000;
+            padding: 8px;
+            vertical-align: top;
+        }
+
+        .label-cell {
+            width: 120px;
+            font-weight: bold;
+            background: #f2f2f2;
+        }
+
+        /* Billing/Shipping Section */
+        .address-section {
+            display: table;
+            width: 101%;
+            /* Minor adjustment for border overlap */
+            margin-left: -0.5%;
+            margin-bottom: 20px;
+        }
+
+        .address-box {
+            display: table-cell;
+            width: 50%;
+            border: 1px solid #000;
+            padding: 10px;
+        }
+
+        .address-title {
+            font-weight: bold;
+            text-decoration: underline;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        /* Standardized Goods Table */
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        .items-table th,
+        .items-table td {
+            border: 1px solid #000;
+            padding: 8px;
+            text-align: left;
+        }
+
+        .items-table th {
+            background: #f2f2f2;
+            text-align: center;
+            font-size: 10pt;
+        }
+
+        .items-table .center {
+            text-align: center;
+        }
+
+        .items-table .right {
+            text-align: right;
+        }
+
+        /* Totals / Grand Total */
+        .totals-section {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .totals-section td {
+            border: 1px solid #000;
+            padding: 8px;
+        }
+
+        .amount-words {
+            font-style: italic;
+            font-weight: bold;
+            padding: 10px;
+            border: 1px solid #000;
+            margin-bottom: 20px;
+        }
+
+        /* Footer Conditions */
+        .footer-info {
+            display: table;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .footer-left {
+            display: table-cell;
+            width: 60%;
+            padding-right: 20px;
+        }
+
+        .footer-right {
+            display: table-cell;
+            width: 40%;
+            text-align: center;
+            vertical-align: bottom;
+        }
+
+        .signature-box {
+            margin-top: 40px;
+        }
+
+        .signature-label {
+            border-top: 1px solid #000;
+            padding-top: 5px;
+            margin-top: 80px;
+            font-weight: bold;
+        }
+
+        .bank-details {
+            border: 1px dashed #000;
+            padding: 10px;
+            margin-top: 10px;
+            font-size: 9pt;
+        }
+
+        @media print {
+            .border-container {
+                border: 2px solid #000 !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="border-container">
+        <div class="text-center">
+            <h1 class="header-title">Proforma Invoice</h1>
+        </div>
+
+        <div class="company-header text-center">
+            <div class="company-name"
+                th:text="${organization.invoiceConfig != null and organization.invoiceConfig.companyName != null and !organization.invoiceConfig.companyName.isEmpty() ? organization.invoiceConfig.companyName : (organization.displayName != null ? organization.displayName : organization.organizationName)}">
+                ULTRON CRM SOLUTIONS
+            </div>
+            <div class="company-info">
+                <span
+                    th:if="${organization.invoiceConfig != null and organization.invoiceConfig.companyAddress != null}"
+                    th:utext="${#strings.replace(organization.invoiceConfig.companyAddress, '&#10;', ', ')}">
+                    Address
+                </span><br />
+                <span
+                    th:if="${organization.invoiceConfig != null and organization.invoiceConfig.gstNumber != null}">GSTIN:
+                    <span th:text="${organization.invoiceConfig.gstNumber}">-</span></span>
+                <span th:if="${organization.invoiceConfig != null and organization.invoiceConfig.cinNumber != null}"> |
+                    CIN: <span th:text="${organization.invoiceConfig.cinNumber}">-</span></span>
+            </div>
+        </div>
+
+        <table class="info-table">
+            <tr>
+                <td class="label-cell">Invoice No.</td>
+                <td th:text="${proposal.proposalNumber}">PI/1001</td>
+                <td class="label-cell">Dated</td>
+                <td th:text="${#temporals.format(proposal.createdAt, 'dd-MMM-yyyy')}">01-Jan-2024</td>
+            </tr>
+            <tr>
+                <td class="label-cell">Ref No.</td>
+                <td>-</td>
+                <td class="label-cell">Expiry Date</td>
+                <td th:text="${#temporals.format(proposal.validUntil, 'dd-MMM-yyyy')}">31-Jan-2024</td>
+            </tr>
+        </table>
+
+        <div class="address-section">
+            <div class="address-box">
+                <span class="address-title">Consignee/Customer:</span>
+                <strong th:text="${proposal.customerName}">Client Name</strong><br />
+                <div th:if="${proposal.billingAddress != null}" style="font-size: 10pt;">
+                    <span th:text="${proposal.billingAddress.street}">Street</span><br />
+                    <span th:text="${proposal.billingAddress.city}">City</span>, <span
+                        th:text="${proposal.billingAddress.state}">State</span><br />
+                    <span th:text="${proposal.billingAddress.country}">Country</span> - <span
+                        th:text="${proposal.billingAddress.postalCode}">PIN</span>
+                </div>
+            </div>
+            <div class="address-box">
+                <span class="address-title">Dispatch Details:</span>
+                <div
+                    th:with="address=${proposal.shippingAddress != null ? proposal.shippingAddress : proposal.billingAddress}">
+                    <!--                    <div th:if="${address != null}" style="font-size: 10pt;">-->
+                    <!--                        Same as billing or:<br />-->
+                    <strong th:text="${proposal.customerName}">Client Name</strong><br />
+                    <span th:text="${address.street}">Street</span>, <span th:text="${address.city}">City</span><br />
+                    <span th:text="${address.country}">Country</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <table class="items-table">
+        <thead>
+            <tr>
+                <th style="width: 5%">Sr.</th>
+                <th style="width: 50%">Description of Goods</th>
+                <th style="width: 10%">HSN</th>
+                <th style="width: 10%">Qty</th>
+                <th style="width: 10%">Rate</th>
+                <th style="width: 15%">Amount</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="item, iter : ${proposal.lineItems}">
+                <td class="center" th:text="${iter.count}">1</td>
+                <td>
+                    <strong th:text="${item.productName}">Product</strong><br />
+                    <span th:if="${item.description != null}" th:text="${item.description}"
+                        style="font-size: 9pt;">Desc</span>
+                </td>
+                <td class="center" th:text="${item.hsnCode != null ? item.hsnCode : '-'}">-</td>
+                <td class="center" th:text="${item.quantity}">1</td>
+                <td class="right" th:text="${#numbers.formatDecimal(item.unitPrice, 1, 'COMMA', 2, 'POINT')}">0</td>
+                <td class="right" th:text="${#numbers.formatDecimal(item.lineSubtotal, 1, 'COMMA', 2, 'POINT')}">0
+                </td>
+            </tr>
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="4" rowspan="6" style="vertical-align: top;">
+                    <div class="text-bold">Remarks:</div>
+                    <div th:text="${proposal.notes}" style="font-size: 9pt;">-</div>
+                </td>
+                <td class="text-bold">SUBTOTAL</td>
+                <td class="right" th:text="${#numbers.formatDecimal(proposal.subtotal, 1, 'COMMA', 2, 'POINT')}">0</td>
+            </tr>
+            <tr th:if="${proposal.discountAmount != null and proposal.discountAmount > 0}">
+                <td class="text-bold">DISCOUNT</td>
+                <td class="right"
+                    th:text="'- ' + ${#numbers.formatDecimal(proposal.discountAmount, 1, 'COMMA', 2, 'POINT')}">0</td>
+            </tr>
+            <tr>
+                <td class="text-bold">TAXABLE AMOUNT</td>
+                <td class="right"
+                    th:text="${#numbers.formatDecimal(proposal.subtotal - (proposal.discountAmount != null ? proposal.discountAmount : 0), 1, 'COMMA', 2, 'POINT')}">
+                    0</td>
+            </tr>
+            <tr th:if="${proposal.taxAmount > 0}">
+                <td class="text-bold">TOTAL GST</td>
+                <td class="right" th:text="${#numbers.formatDecimal(proposal.taxAmount, 1, 'COMMA', 2, 'POINT')}">0</td>
+            </tr>
+            <tr>
+                <td class="text-bold" style="background: #f2f2f2;">TOTAL AMOUNT</td>
+                <td class="right text-bold" style="background: #f2f2f2;"
+                    th:text="'₹ ' + ${#numbers.formatDecimal(proposal.totalAmount, 1, 'COMMA', 2, 'POINT')}">0</td>
+            </tr>
+            <tr
+                th:if="${proposal.paymentMilestones != null and !proposal.paymentMilestones.isEmpty() and proposal.currentMilestoneIndex != null and proposal.currentMilestoneIndex < proposal.paymentMilestones.size()}">
+                <td class="text-bold" style="background: #e6e6e6;">PAYABLE
+                    ([(${proposal.paymentMilestones[proposal.currentMilestoneIndex].name})])</td>
+                <td class="right text-bold" style="background: #e6e6e6;"
+                    th:text="'₹ ' + ${#numbers.formatDecimal(proposal.totalAmount * proposal.paymentMilestones[proposal.currentMilestoneIndex].percentage / 100, 1, 'COMMA', 2, 'POINT')}">
+                    0</td>
+            </tr>
+        </tfoot>
+    </table>
+
+    <div class="footer-info">
+        <div class="footer-left">
+            <div class="text-bold">Declaration:</div>
+            <div style="font-size: 9pt;"
+                th:utext="${#strings.replace(organization.invoiceConfig != null and organization.invoiceConfig.termsAndConditions != null ? organization.invoiceConfig.termsAndConditions : 'We declare that this invoice shows the actual price of the goods described and that all particulars are true and correct.', '&#10;', '&lt;br/&gt;')}">
+                Terms
+            </div>
+
+            <div class="bank-details"
+                th:if="${organization.invoiceConfig != null and organization.invoiceConfig.bankName != null}">
+                <div class="text-bold">Bank Details:</div>
+                Bank Name: <span th:text="${organization.invoiceConfig.bankName}">-</span><br />
+                A/c No: <span th:text="${organization.invoiceConfig.accountNumber}">-</span><br />
+                IFSC: <span th:text="${organization.invoiceConfig.ifscCode}">-</span>
+            </div>
+        </div>
+        <div class="footer-right">
+            <div
+                th:if="${organization.invoiceConfig != null and organization.invoiceConfig.authorizedSignatorySealUrl != null and !organization.invoiceConfig.authorizedSignatorySealUrl.isEmpty()}">
+                <img th:src="${organization.invoiceConfig.authorizedSignatorySealUrl}"
+                    style="max-width: 100px; max-height: 50px;" alt="Seal" />
+            </div>
+            <div class="signature-label">
+                For <span
+                    th:text="${organization.invoiceConfig != null and organization.invoiceConfig.companyName != null ? organization.invoiceConfig.companyName : (organization.displayName != null ? organization.displayName : organization.organizationName)}">ULTRON</span>
+                <br /><br />
+                <span style="font-size: 8pt;">(Authorized Signatory)</span>
+            </div>
+        </div>
+    </div>
+    </div>
+</body>
+
+</html>

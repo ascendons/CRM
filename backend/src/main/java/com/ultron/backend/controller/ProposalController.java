@@ -180,12 +180,15 @@ public class ProposalController {
 
         java.util.List<java.util.Map<String, Object>> templates = new java.util.ArrayList<>();
 
+        // Injecting the service into the loop
+        com.ultron.backend.service.InvoiceTemplateService templateService = proposalService.getInvoiceTemplateService();
+
         for (com.ultron.backend.domain.enums.InvoiceTemplateType type : com.ultron.backend.domain.enums.InvoiceTemplateType.values()) {
             java.util.Map<String, Object> templateInfo = new java.util.HashMap<>();
             templateInfo.put("type", type.name());
             templateInfo.put("displayName", type.getDisplayName());
             templateInfo.put("description", type.getDescription());
-            templateInfo.put("available", type == com.ultron.backend.domain.enums.InvoiceTemplateType.PROFORMA); // Only PROFORMA available for now
+            templateInfo.put("available", templateService.isTemplateAvailable(type));
             templates.add(templateInfo);
         }
 
