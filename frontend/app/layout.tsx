@@ -6,6 +6,7 @@ import ToastProvider from "@/components/ToastProvider";
 import { TenantProvider } from "@/providers/TenantProvider";
 import { PermissionProvider } from "@/providers/PermissionProvider";
 import { OrganizationProvider } from "@/providers/OrganizationProvider";
+import { WebSocketProvider } from "@/providers/WebSocketProvider";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -36,9 +37,11 @@ export default function RootLayout({
         <TenantProvider>
           <PermissionProvider>
             <OrganizationProvider>
-              <ToastProvider />
-              <Navigation />
-              {children}
+              <WebSocketProvider>
+                <ToastProvider />
+                <Navigation />
+                {children}
+              </WebSocketProvider>
             </OrganizationProvider>
           </PermissionProvider>
         </TenantProvider>

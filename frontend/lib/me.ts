@@ -25,6 +25,9 @@ export interface CurrentUser {
   // Unified role enum
   userRole: UserRole;
 
+  // Tenant isolation
+  tenantId?: string;
+
   // Hierarchical RBAC (optional, for advanced permissions)
   roleId?: string;
   roleName?: string;

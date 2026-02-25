@@ -8,17 +8,25 @@ import { meService, type CurrentUser } from "@/lib/me";
 import { authService } from "@/lib/auth";
 import { usePermissionContext } from "@/providers/PermissionProvider";
 import { useOrganization } from "@/providers/OrganizationProvider";
+import ChatPanel from "./ChatPanel";
+import NotificationPanel from "./NotificationPanel";
+import { useWebSocket } from "@/providers/WebSocketProvider";
 
 export default function Navigation() {
   const pathname = usePathname();
   const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
 
   // Get permission checks from context (LEAN RBAC)
   const { canAccessModule, canAccessPath, loading: permissionsLoading } = usePermissionContext();
 
   // Get organization context
   const { organization } = useOrganization();
+
+  // Get WebSocket context
+  const { unreadNotificationCount, unreadMessageCount, clearUnreadMessages } = useWebSocket();
 
   // Hide navigation on login and register pages
   const hideNavigation = pathname === "/login" || pathname === "/register";
@@ -236,14 +244,39 @@ export default function Navigation() {
         </nav>
       </div>
       <div className="flex items-center gap-4">
-        <button className="p-2 text-slate-700 hover:bg-slate-100 rounded-lg relative transition-colors">
+        {/* Chat Button */}
+        <button
+          onClick={() => {
+            setIsChatOpen(true);
+            clearUnreadMessages();
+          }}
+          className="p-2 text-slate-700 hover:bg-slate-100 rounded-lg relative transition-colors"
+        >
+          <span className="material-symbols-outlined">chat</span>
+          {unreadMessageCount > 0 && (
+            <span className="absolute top-0 right-0 inline-flex items-center justify-center px-1.5 py-0.5 text-[10px] font-bold leading-none text-white bg-red-500 rounded-full border-2 border-white transform translate-x-1/4 -translate-y-1/4 min-w-[18px] min-h-[18px]">
+              {unreadMessageCount > 9 ? '9+' : unreadMessageCount}
+            </span>
+          )}
+        </button>
+
+        {/* Notifications Button */}
+        <button
+          onClick={() => setIsNotificationsOpen(true)}
+          className="p-2 text-slate-700 hover:bg-slate-100 rounded-lg relative transition-colors"
+        >
           <span className="material-symbols-outlined">notifications</span>
-          <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 border-2 border-white rounded-full"></span>
+          {unreadNotificationCount > 0 && (
+            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 border-2 border-white rounded-full"></span>
+          )}
         </button>
 
         <div className="h-8 w-px bg-slate-200 mx-2"></div>
         <UserMenu />
       </div>
+
+      <ChatPanel isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
+      <NotificationPanel isOpen={isNotificationsOpen} onClose={() => setIsNotificationsOpen(false)} />
     </header >
   );
 }
