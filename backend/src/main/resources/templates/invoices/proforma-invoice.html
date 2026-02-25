@@ -418,12 +418,8 @@
             <div class="meta-cell meta-value" th:text="${proposal.proposalNumber}">PRO-001</div>
             <div class="meta-cell meta-label">Date:</div>
             <div class="meta-cell meta-value" th:text="${#temporals.format(proposal.createdAt, 'dd-MMM-yyyy')}">25-Feb-2024</div>
-        </div>
-        <div class="meta-row">
             <div class="meta-cell meta-label">Valid Until:</div>
             <div class="meta-cell meta-value" th:text="${#temporals.format(proposal.validUntil, 'dd-MMM-yyyy')}">25-Mar-2024</div>
-            <div class="meta-cell meta-label">Status:</div>
-            <div class="meta-cell meta-value" th:text="${proposal.status}">DRAFT</div>
         </div>
     </div>
 
@@ -474,6 +470,12 @@
                               th:text="${address.postalCode}">Postal Code</span>
                     </div>
                 </div>
+            </div>
+            <div th:if="${proposal.customerEmail != null and !proposal.customerEmail.isEmpty()}" class="mt-1">
+                <strong>Email:</strong> <span th:text="${proposal.customerEmail}">email@example.com</span>
+            </div>
+            <div th:if="${proposal.customerPhone != null and !proposal.customerPhone.isEmpty()}">
+                <strong>Phone:</strong> <span th:text="${proposal.customerPhone}">+1234567890</span>
             </div>
         </div>
     </div>
@@ -544,18 +546,6 @@
                     <td class="amount" th:text="'₹ ' + ${#numbers.formatDecimal(proposal.totalAmount, 1, 'COMMA', 2, 'POINT')}">₹ 11,800.00</td>
                 </tr>
             </table>
-        </div>
-    </div>
-
-    <!-- Payment Milestones (if applicable) -->
-    <div th:if="${proposal.paymentMilestones != null and !proposal.paymentMilestones.isEmpty()}"
-         style="margin-top: 20px; padding: 15px; border: 1px solid #dee2e6; border-radius: 4px; background: #fff3cd;">
-        <div style="font-weight: bold; margin-bottom: 10px; color: #856404;">Payment Milestones:</div>
-        <div th:each="milestone, iterStat : ${proposal.paymentMilestones}"
-             style="font-size: 9pt; margin-bottom: 5px;">
-            <span th:text="${iterStat.count} + '. ' + ${milestone.name}">Milestone</span>:
-            <strong th:text="${milestone.percentage} + '%'">50%</strong>
-            (<span th:text="'₹ ' + ${#numbers.formatDecimal(proposal.totalAmount * milestone.percentage / 100, 1, 'COMMA', 2, 'POINT')}">₹ 5,900.00</span>)
         </div>
     </div>
 
