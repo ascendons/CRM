@@ -56,27 +56,62 @@ public class NotificationService {
         return notificationRepository.countByTenantIdAndTargetUserIdAndIsReadFalse(tenantId, targetUserId);
     }
 
-    public void markAsRead(String targetUserId, String notificationId) {
+    /**
+     * Mark a notification as read.
+     * SECURITY: Only the notification owner can mark it as read.
+     *
+     * @param notificationId The notification to mark as read
+     * @param authenticatedUserId The authenticated user making the request
+     */
+    public void markAsRead(String notificationId, String authenticatedUserId) {
         String tenantId = TenantContext.getTenantId();
+
         Notification notification = notificationRepository.findById(notificationId)
-                .filter(n -> n.getTenantId().equals(tenantId) && n.getTargetUserId().equals(targetUserId))
                 .orElse(null);
 
-        if (notification != null && !notification.isRead()) {
+        if (notification == null) {
+            log.warn("Notification {} not found", notificationId);
+            return;
+        }
+
+        // Security check: Verify tenant match
+        if (!notification.getTenantId().equals(tenantId)) {
+            log.warn("User {} attempted to access notification from different tenant", authenticatedUserId);
+            throw new SecurityException("Access denied");
+        }
+
+        // Security check: Verify user owns this notification
+        if (!notification.getTargetUserId().equals(authenticatedUserId)) {
+            log.warn("User {} attempted to mark notification {} belonging to user {} as read",
+                    authenticatedUserId, notificationId, notification.getTargetUserId());
+            throw new SecurityException("Not authorized to modify this notification");
+        }
+
+        if (!notification.isRead()) {
             notification.setRead(true);
             notificationRepository.save(notification);
+            log.debug("Notification {} marked as read by user {}", notificationId, authenticatedUserId);
         }
     }
 
-    public void markAllAsRead(String targetUserId) {
+    /**
+     * Mark all notifications as read for the authenticated user.
+     * SECURITY: Uses authenticated user ID, not a parameter that could be manipulated.
+     *
+     * @param authenticatedUserId The authenticated user making the request
+     */
+    public void markAllAsRead(String authenticatedUserId) {
         String tenantId = TenantContext.getTenantId();
-        var unreadNotifications = notificationRepository.findByTenantIdAndTargetUserIdAndIsReadFalse(tenantId, targetUserId);
-        
-        for (Notification n : unreadNotifications) {
-            n.setRead(true);
+        var unreadNotifications = notificationRepository.findByTenantIdAndTargetUserIdAndIsReadFalse(
+                tenantId, authenticatedUserId);
+
+        if (!unreadNotifications.isEmpty()) {
+            for (Notification n : unreadNotifications) {
+                n.setRead(true);
+            }
+            notificationRepository.saveAll(unreadNotifications);
+            log.debug("Marked {} notifications as read for user {}", unreadNotifications.size(), authenticatedUserId);
         }
-        
-        notificationRepository.saveAll(unreadNotifications);
     }
 
     private NotificationDTO mapToDTO(Notification notification) {

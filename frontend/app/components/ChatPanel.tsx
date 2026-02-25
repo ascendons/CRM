@@ -22,7 +22,7 @@ interface ChatPanelProps {
 }
 
 export default function ChatPanel({ isOpen, onClose }: ChatPanelProps) {
-    const { chatMessages, sendMessage, subscribeToChat, fetchChatHistory, connected, unreadMessageCounts, clearUnreadMessages } = useWebSocket();
+    const { chatMessages, sendMessage, subscribeToChat, fetchChatHistory, connected, unreadMessageCounts, clearUnreadMessages, typingUsers, sendTypingIndicator } = useWebSocket();
     const [users, setUsers] = useState<UserResponse[]>([]);
     const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null);
     const [groups, setGroups] = useState<ChatGroup[]>([]);
@@ -33,6 +33,7 @@ export default function ChatPanel({ isOpen, onClose }: ChatPanelProps) {
     const [newGroupName, setNewGroupName] = useState('');
     const [selectedMemberIds, setSelectedMemberIds] = useState<string[]>([]);
     const messagesEndRef = useRef<HTMLDivElement>(null);
+    const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
     useEffect(() => {
         if (isOpen) {
@@ -73,8 +74,32 @@ export default function ChatPanel({ isOpen, onClose }: ChatPanelProps) {
         e.preventDefault();
         if (!inputValue.trim() || !selectedRecipientId) return;
 
+        // Stop typing indicator
+        if (selectedRecipientId && selectedRecipientType) {
+            sendTypingIndicator(selectedRecipientId, selectedRecipientType === 'GROUP' ? 'GROUP' : 'USER', false);
+        }
+
         sendMessage(selectedRecipientId, inputValue, selectedRecipientType === 'GROUP' ? 'GROUP' : 'USER');
         setInputValue('');
+    };
+
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setInputValue(e.target.value);
+
+        // Send typing indicator
+        if (selectedRecipientId && selectedRecipientType) {
+            sendTypingIndicator(selectedRecipientId, selectedRecipientType === 'GROUP' ? 'GROUP' : 'USER', true);
+
+            // Clear previous timeout
+            if (typingTimeoutRef.current) {
+                clearTimeout(typingTimeoutRef.current);
+            }
+
+            // Stop typing after 3 seconds of no input
+            typingTimeoutRef.current = setTimeout(() => {
+                sendTypingIndicator(selectedRecipientId, selectedRecipientType === 'GROUP' ? 'GROUP' : 'USER', false);
+            }, 3000);
+        }
     };
 
     const handleSelectRecipient = (id: string, type: 'USER' | 'GROUP' | 'ALL') => {
@@ -132,6 +157,17 @@ export default function ChatPanel({ isOpen, onClose }: ChatPanelProps) {
             // Direct messages
             return (msg.senderId === currentUser.id && msg.recipientId === selectedRecipientId && msg.recipientType !== 'GROUP') ||
                 (msg.senderId === selectedRecipientId && msg.recipientId === currentUser.id && msg.recipientType !== 'GROUP');
+        }
+    });
+
+    // Get typing indicators for current conversation
+    const activeTypingUsers = Object.values(typingUsers).filter(typing => {
+        if (!selectedRecipientId || !currentUser) return false;
+
+        if (selectedRecipientType === 'GROUP') {
+            return typing.recipientId === selectedRecipientId && typing.userId !== currentUser.id;
+        } else {
+            return typing.recipientId === selectedRecipientId && typing.userId !== currentUser.id;
         }
     });
 
@@ -298,13 +334,31 @@ export default function ChatPanel({ isOpen, onClose }: ChatPanelProps) {
                                                             <div ref={messagesEndRef} />
                                                         </div>
 
+                                                        {/* Typing Indicators */}
+                                                        {activeTypingUsers.length > 0 && (
+                                                            <div className="px-4 py-2 bg-slate-50 border-t border-slate-100">
+                                                                <div className="flex items-center gap-2 text-xs text-slate-500">
+                                                                    <div className="flex gap-1">
+                                                                        <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
+                                                                        <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
+                                                                        <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+                                                                    </div>
+                                                                    <span>
+                                                                        {activeTypingUsers.length === 1
+                                                                            ? `${activeTypingUsers[0].userName} is typing...`
+                                                                            : `${activeTypingUsers.length} people are typing...`}
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                        )}
+
                                                         {/* Input Area */}
                                                         <div className="p-3 bg-white border-t border-slate-200">
                                                             <form onSubmit={handleSendMessage} className="flex gap-2 relative">
                                                                 <input
                                                                     type="text"
                                                                     value={inputValue}
-                                                                    onChange={(e) => setInputValue(e.target.value)}
+                                                                    onChange={handleInputChange}
                                                                     placeholder="Type a message..."
                                                                     className="flex-1 border border-slate-300 rounded-full pl-4 pr-10 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                                                                     disabled={!connected}

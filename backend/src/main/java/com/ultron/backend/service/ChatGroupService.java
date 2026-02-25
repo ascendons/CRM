@@ -15,6 +15,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -50,7 +52,20 @@ public class ChatGroupService {
     public List<ChatGroupDTO> getUserGroups(String userId) {
         String tenantId = TenantContext.getTenantId();
         List<ChatGroup> groups = chatGroupRepository.findByTenantIdAndMemberIdsContaining(tenantId, userId);
-        return groups.stream().map(this::mapToDTO).collect(Collectors.toList());
+
+        // Fix N+1 query: Batch load all unique members across all groups
+        Set<String> allMemberIds = groups.stream()
+                .flatMap(group -> group.getMemberIds().stream())
+                .collect(Collectors.toSet());
+
+        // Load all users in one query
+        Map<String, User> usersMap = userRepository.findAllById(allMemberIds).stream()
+                .collect(Collectors.toMap(User::getId, user -> user));
+
+        // Map groups to DTOs using cached users
+        return groups.stream()
+                .map(group -> mapToDTOWithCachedUsers(group, usersMap))
+                .collect(Collectors.toList());
     }
 
     public ChatGroupDTO getGroupById(String groupId) {
@@ -61,7 +76,42 @@ public class ChatGroupService {
 
     private ChatGroupDTO mapToDTO(ChatGroup group) {
         List<User> members = userRepository.findAllById(group.getMemberIds());
-        List<UserResponse> memberDTOs = members.stream()
+        List<UserResponse> memberDTOs = mapUsersToResponses(members);
+
+        return ChatGroupDTO.builder()
+                .id(group.getId())
+                .name(group.getName())
+                .members(memberDTOs)
+                .createdBy(group.getCreatedBy())
+                .createdAt(group.getCreatedAt())
+                .build();
+    }
+
+    /**
+     * Map group to DTO using pre-loaded user map (avoids N+1 query).
+     */
+    private ChatGroupDTO mapToDTOWithCachedUsers(ChatGroup group, Map<String, User> usersMap) {
+        List<User> members = group.getMemberIds().stream()
+                .map(usersMap::get)
+                .filter(user -> user != null)
+                .collect(Collectors.toList());
+
+        List<UserResponse> memberDTOs = mapUsersToResponses(members);
+
+        return ChatGroupDTO.builder()
+                .id(group.getId())
+                .name(group.getName())
+                .members(memberDTOs)
+                .createdBy(group.getCreatedBy())
+                .createdAt(group.getCreatedAt())
+                .build();
+    }
+
+    /**
+     * Convert User entities to UserResponse DTOs.
+     */
+    private List<UserResponse> mapUsersToResponses(List<User> users) {
+        return users.stream()
                 .map(user -> {
                     UserResponse.UserProfileDTO profileDTO = null;
                     if (user.getProfile() != null) {
@@ -81,17 +131,9 @@ public class ChatGroupService {
                             .username(user.getUsername())
                             .email(user.getEmail())
                             .profile(profileDTO)
-                            .role(user.getRole()) // UserRole enum
+                            .role(user.getRole())
                             .build();
                 })
                 .collect(Collectors.toList());
-
-        return ChatGroupDTO.builder()
-                .id(group.getId())
-                .name(group.getName())
-                .members(memberDTOs)
-                .createdBy(group.getCreatedBy())
-                .createdAt(group.getCreatedAt())
-                .build();
     }
 }

@@ -22,4 +22,9 @@ public interface ChatMessageRepository extends MongoRepository<ChatMessage, Stri
             String tenantId1, String senderId1, String recipientId1,
             String tenantId2, String senderId2, String recipientId2,
             Pageable pageable);
+
+    // Check if conversation exists between two users (for authorization)
+    boolean existsByTenantIdAndSenderIdAndRecipientIdOrTenantIdAndSenderIdAndRecipientId(
+            String tenantId1, String senderId1, String recipientId1,
+            String tenantId2, String senderId2, String recipientId2);
 }

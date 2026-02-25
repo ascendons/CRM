@@ -45,10 +45,10 @@ public class NotificationController {
     public ResponseEntity<ApiResponse<Void>> markAsRead(
             @PathVariable String id,
             Authentication authentication) {
-            
+
         String userId = authentication.getName();
-        notificationService.markAsRead(userId, id);
-        
+        notificationService.markAsRead(id, userId); // Fixed parameter order
+
         return ResponseEntity.ok(ApiResponse.<Void>builder()
                 .success(true)
                 .message("Notification marked as read")
