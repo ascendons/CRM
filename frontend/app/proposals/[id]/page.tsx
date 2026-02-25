@@ -23,6 +23,7 @@ import ProposalComments from "@/components/proposals/ProposalComments";
 import CommercialNegotiation from "@/components/proposals/CommercialNegotiation";
 import { MessageSquare, Gavel, History } from "lucide-react";
 import ProposalVersionHistory from "@/components/proposals/ProposalVersionHistory";
+import InvoicePreviewModal from "@/components/proposals/InvoicePreviewModal";
 import ProposalVersionDiff from "@/components/proposals/ProposalVersionDiff";
 import ProposalSnapshotModal from "@/components/proposals/ProposalSnapshotModal";
 import { ProposalVersionResponse } from "@/types/proposal-version";
@@ -55,8 +56,7 @@ export default function ProposalDetailPage({
   const [comparison, setComparison] = useState<{ v1: ProposalVersionResponse, v2: ProposalVersionResponse } | null>(null);
 
   // Preview state
-  const [showPreviewModal, setShowPreviewModal] = useState(false);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [showInvoicePreview, setShowInvoicePreview] = useState(false);
 
   // Switch to correct tab if in negotiation
   useEffect(() => {
@@ -179,38 +179,9 @@ export default function ProposalDetailPage({
     }
   };
 
-  const handleDownloadPdf = async () => {
+  const handleDownloadPdf = () => {
     if (!proposal) return;
-    try {
-      setActionLoading(true);
-      const blob = await proposalsService.downloadInvoice(proposal.id);
-      const url = window.URL.createObjectURL(blob);
-      setPreviewUrl(url);
-      setShowPreviewModal(true);
-    } catch (error) {
-      console.error("Error generating preview:", error);
-      showToast.error("Failed to generate preview");
-    } finally {
-      setActionLoading(false);
-    }
-  };
-
-  const handleActualDownload = () => {
-    if (!previewUrl || !proposal) return;
-    const a = document.createElement("a");
-    a.href = previewUrl;
-    a.download = `proposal-${proposal.proposalNumber}.pdf`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-  };
-
-  const closePreviewModal = () => {
-    setShowPreviewModal(false);
-    if (previewUrl) {
-      window.URL.revokeObjectURL(previewUrl);
-      setPreviewUrl(null);
-    }
+    setShowInvoicePreview(true);
   };
 
   const formatCurrency = (amount: number) => {
@@ -805,64 +776,12 @@ export default function ProposalDetailPage({
       />
 
       {/* Invoice Preview Modal */}
-      {showPreviewModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-[60] p-4">
-          <div className="bg-white rounded-2xl w-full max-w-5xl h-[90vh] flex flex-col shadow-2xl overflow-hidden">
-            {/* Modal Header */}
-            <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center bg-gray-50">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-blue-100 rounded-lg text-blue-600">
-                  <Eye className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-bold text-gray-900">Invoice Preview</h3>
-                  <p className="text-xs text-gray-500">{proposal?.proposalNumber}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={handleActualDownload}
-                  className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all font-medium text-sm shadow-sm"
-                >
-                  <Download className="w-4 h-4" />
-                  Download PDF
-                </button>
-                <button
-                  onClick={closePreviewModal}
-                  className="p-2 hover:bg-gray-200 rounded-full transition-colors text-gray-500"
-                >
-                  <X className="w-6 h-6" />
-                </button>
-              </div>
-            </div>
-
-            {/* Modal Body */}
-            <div className="flex-1 bg-gray-100 p-4">
-              {previewUrl ? (
-                <iframe
-                  src={previewUrl}
-                  className="w-full h-full rounded-lg shadow-sm bg-white"
-                  title="Invoice Preview"
-                />
-              ) : (
-                <div className="flex items-center justify-center h-full text-gray-500">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mr-3"></div>
-                  Generating preview...
-                </div>
-              )}
-            </div>
-
-            {/* Modal Footer */}
-            <div className="px-6 py-4 border-t border-gray-200 flex justify-end bg-gray-50">
-              <button
-                onClick={closePreviewModal}
-                className="px-6 py-2 text-gray-600 font-medium hover:text-gray-900 transition-colors"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
+      {showInvoicePreview && proposal && (
+        <InvoicePreviewModal
+          proposalId={proposal.id}
+          proposalNumber={proposal.proposalNumber}
+          onClose={() => setShowInvoicePreview(false)}
+        />
       )}
 
       {/* Reject Modal */}

@@ -122,6 +122,82 @@ public class ProposalController {
     }
 
     /**
+     * Preview invoice HTML using template
+     * GET /api/v1/proposals/{id}/invoice/preview
+     */
+    @GetMapping("/{id}/invoice/preview")
+    @PreAuthorize("hasPermission('PROPOSAL', 'READ')")
+    public ResponseEntity<String> previewInvoiceHtml(
+            @PathVariable String id,
+            @RequestParam(defaultValue = "PROFORMA") com.ultron.backend.domain.enums.InvoiceTemplateType template
+    ) {
+        log.info("Generating HTML preview for proposal {} with template {}", id, template);
+
+        String html = proposalService.generateInvoiceHtml(id, template);
+
+        return ResponseEntity.ok()
+                .contentType(org.springframework.http.MediaType.TEXT_HTML)
+                .body(html);
+    }
+
+    /**
+     * Download invoice PDF using template
+     * GET /api/v1/proposals/{id}/invoice/download
+     */
+    @GetMapping("/{id}/invoice/download")
+    @PreAuthorize("hasPermission('PROPOSAL', 'READ')")
+    public ResponseEntity<byte[]> downloadInvoicePdf(
+            @PathVariable String id,
+            @RequestParam(defaultValue = "PROFORMA") com.ultron.backend.domain.enums.InvoiceTemplateType template
+    ) {
+        log.info("Generating PDF for proposal {} with template {}", id, template);
+
+        // Get proposal details for filename
+        ProposalResponse proposal = proposalService.getProposalById(id);
+        byte[] pdfBytes = proposalService.generateInvoicePdf(id, template);
+
+        String filename = String.format("invoice-%s-%s.pdf",
+                proposal.getProposalNumber(),
+                template.name().toLowerCase());
+
+        return ResponseEntity.ok()
+                .header(org.springframework.http.HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=\"" + filename + "\"")
+                .contentType(org.springframework.http.MediaType.APPLICATION_PDF)
+                .body(pdfBytes);
+    }
+
+    /**
+     * Get available invoice templates
+     * GET /api/v1/proposals/{id}/invoice/templates
+     */
+    @GetMapping("/{id}/invoice/templates")
+    @PreAuthorize("hasPermission('PROPOSAL', 'READ')")
+    public ResponseEntity<ApiResponse<java.util.List<java.util.Map<String, Object>>>> getAvailableTemplates(
+            @PathVariable String id
+    ) {
+        log.info("Fetching available templates for proposal {}", id);
+
+        java.util.List<java.util.Map<String, Object>> templates = new java.util.ArrayList<>();
+
+        for (com.ultron.backend.domain.enums.InvoiceTemplateType type : com.ultron.backend.domain.enums.InvoiceTemplateType.values()) {
+            java.util.Map<String, Object> templateInfo = new java.util.HashMap<>();
+            templateInfo.put("type", type.name());
+            templateInfo.put("displayName", type.getDisplayName());
+            templateInfo.put("description", type.getDescription());
+            templateInfo.put("available", type == com.ultron.backend.domain.enums.InvoiceTemplateType.PROFORMA); // Only PROFORMA available for now
+            templates.add(templateInfo);
+        }
+
+        return ResponseEntity.ok(
+                ApiResponse.<java.util.List<java.util.Map<String, Object>>>builder()
+                        .success(true)
+                        .message("Available templates retrieved successfully")
+                        .data(templates)
+                        .build());
+    }
+
+    /**
      * Get proposals by source (Lead or Opportunity) (with optional pagination)
      * GET /api/v1/proposals/source/{source}/{sourceId}
      * Supports pagination with query params: page, size, sort

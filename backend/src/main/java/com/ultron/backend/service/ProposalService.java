@@ -48,6 +48,8 @@ public class ProposalService extends BaseTenantService {
     private final UserRepository userRepository;
     private final AuditLogService auditLogService;
     private final PdfService pdfService;
+    private final InvoiceTemplateService invoiceTemplateService;
+    private final com.ultron.backend.repository.OrganizationRepository organizationRepository;
     private final ProposalVersioningService proposalVersioningService;
 
     @Transactional
@@ -220,6 +222,45 @@ public class ProposalService extends BaseTenantService {
             return pdfService.generateProposalPdf(proposal);
         } catch (Exception e) {
             throw new RuntimeException("Failed to generate PDF", e);
+        }
+    }
+
+    /**
+     * Generate invoice HTML preview using template
+     * @param id Proposal ID
+     * @param templateType Template type to use
+     * @return HTML string
+     */
+    @Transactional(readOnly = true)
+    public String generateInvoiceHtml(String id, com.ultron.backend.domain.enums.InvoiceTemplateType templateType) {
+        String tenantId = getCurrentTenantId();
+        Proposal proposal = findProposalById(id, tenantId);
+        com.ultron.backend.domain.entity.Organization organization =
+            organizationRepository.findById(tenantId)
+                .orElseThrow(() -> new RuntimeException("Organization not found"));
+
+        return invoiceTemplateService.generateInvoiceHtml(proposal, organization, templateType);
+    }
+
+    /**
+     * Generate invoice PDF using template
+     * @param id Proposal ID
+     * @param templateType Template type to use
+     * @return PDF as byte array
+     */
+    @Transactional(readOnly = true)
+    public byte[] generateInvoicePdf(String id, com.ultron.backend.domain.enums.InvoiceTemplateType templateType) {
+        String tenantId = getCurrentTenantId();
+        Proposal proposal = findProposalById(id, tenantId);
+        com.ultron.backend.domain.entity.Organization organization =
+            organizationRepository.findById(tenantId)
+                .orElseThrow(() -> new RuntimeException("Organization not found"));
+
+        try {
+            return invoiceTemplateService.generateInvoicePdf(proposal, organization, templateType);
+        } catch (Exception e) {
+            log.error("Failed to generate invoice PDF for proposal {}: {}", id, e.getMessage(), e);
+            throw new RuntimeException("Failed to generate invoice PDF: " + e.getMessage(), e);
         }
     }
 

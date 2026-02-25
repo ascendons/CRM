@@ -132,10 +132,36 @@ export const proposalsService = {
   },
 
   /**
-   * Download proposal invoice PDF
+   * Download proposal invoice PDF (legacy)
    */
   async downloadInvoice(id: string): Promise<Blob> {
     return api.download(`/proposals/${id}/pdf`);
+  },
+
+  /**
+   * Get available invoice templates
+   */
+  async getAvailableTemplates(id: string): Promise<Array<{
+    type: string;
+    displayName: string;
+    description: string;
+    available: boolean;
+  }>> {
+    return api.get(`/proposals/${id}/invoice/templates`);
+  },
+
+  /**
+   * Get invoice HTML preview content
+   */
+  async getInvoicePreviewHtml(id: string, template: string): Promise<string> {
+    return api.fetchHtml(`/proposals/${id}/invoice/preview?template=${template}`);
+  },
+
+  /**
+   * Download invoice PDF with template
+   */
+  async downloadInvoiceWithTemplate(id: string, template: string): Promise<Blob> {
+    return api.download(`/proposals/${id}/invoice/download?template=${template}`);
   },
 
   /**

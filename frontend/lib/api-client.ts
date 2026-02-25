@@ -131,7 +131,22 @@ export const api = {
   download: async (endpoint: string): Promise<Blob> => {
     const token = localStorage.getItem("auth_token");
     const headers: Record<string, string> = {};
-    if (token) headers["Authorization"] = `Bearer ${token}`;
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+
+      // Add Tenant ID from token
+      try {
+        const parts = token.split('.');
+        if (parts.length === 3) {
+          const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
+          if (payload.tenantId) {
+            headers["X-Tenant-ID"] = payload.tenantId;
+          }
+        }
+      } catch (e) {
+        // Ignore token parse errors
+      }
+    }
 
     const response = await fetch(`${API_URL}${endpoint}`, {
       method: "GET",
@@ -143,5 +158,40 @@ export const api = {
     }
 
     return response.blob();
+  },
+
+  fetchHtml: async (endpoint: string): Promise<string> => {
+    const token = localStorage.getItem("auth_token");
+    const headers: Record<string, string> = {
+      "Accept": "text/html",
+    };
+
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+
+      // Add Tenant ID from token
+      try {
+        const parts = token.split('.');
+        if (parts.length === 3) {
+          const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
+          if (payload.tenantId) {
+            headers["X-Tenant-ID"] = payload.tenantId;
+          }
+        }
+      } catch (e) {
+        // Ignore token parse errors
+      }
+    }
+
+    const response = await fetch(`${API_URL}${endpoint}`, {
+      method: "GET",
+      headers,
+    });
+
+    if (!response.ok) {
+      throw new ApiError("Failed to fetch HTML", response.status);
+    }
+
+    return response.text();
   },
 };
