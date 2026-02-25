@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Quotation</title>
+    <style th:inline="css">
+        @page {
+            margin: 0.5in;
+            size: A4;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Helvetica', 'Arial', sans-serif;
+            font-size: 10pt;
+            color: #333;
+            line-height: 1.4;
+            background: #fdfdfd;
+            padding: 0;
+            /* Handled by page-container margin */
+        }
+
+        .page-container {
+            width: 100%;
+            max-width: 800px;
+            margin: 40px auto;
+            /* Margin for outside the page */
+            background: white;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            /* Padding for inside the page - all sides */
+            min-height: 297mm;
+            /* Approximate A4 height */
+        }
+
+        /* Table-based Layout Utilities */
+        .layout-table {
+            display: table;
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+
+        .layout-row {
+            display: table-row;
+        }
+
+        .layout-cell {
+            display: table-cell;
+            vertical-align: top;
+        }
+
+        .header {
+            border-bottom: 2px solid #0047AB;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+        }
+
+        .company-info {
+            width: 65%;
+        }
+
+        .quotation-info {
+            width: 35%;
+            text-align: right;
+        }
+
+        .logo {
+            max-width: 150px;
+            max-height: 70px;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .company-name {
+            font-size: 16pt;
+            font-weight: bold;
+            color: #0047AB;
+            margin-bottom: 5px;
+        }
+
+        .quotation-label {
+            font-size: 22pt;
+            font-weight: bold;
+            color: #0047AB;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .address-section {
+            margin-bottom: 30px;
+        }
+
+        .bill-to {
+            width: 48%;
+            padding-right: 10px;
+        }
+
+        .ship-to {
+            width: 48%;
+            padding-left: 10px;
+        }
+
+        .section-title {
+            font-weight: bold;
+            color: #555;
+            text-transform: uppercase;
+            font-size: 9pt;
+            margin-bottom: 8px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 3px;
+        }
+
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        .items-table th {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 10px 8px;
+            text-align: left;
+            font-size: 9pt;
+            text-transform: uppercase;
+            color: #495057;
+        }
+
+        .items-table td {
+            border: 1px solid #dee2e6;
+            padding: 10px 8px;
+            vertical-align: top;
+        }
+
+        .amount {
+            text-align: right;
+        }
+
+        .center-text {
+            text-align: center;
+        }
+
+        .totals-section {
+            margin-top: 20px;
+        }
+
+        .totals-table-container {
+            width: 40%;
+        }
+
+        .totals-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .totals-table td {
+            padding: 6px 4px;
+        }
+
+        .totals-table .label {
+            text-align: right;
+            font-weight: bold;
+            width: 60%;
+        }
+
+        .totals-table .value {
+            text-align: right;
+            width: 40%;
+        }
+
+        .totals-table .total-row {
+            border-top: 2px solid #0047AB;
+            font-size: 11pt;
+            color: #0047AB;
+            font-weight: bold;
+        }
+
+        .footer {
+            margin-top: 50px;
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+        }
+
+        .terms-section {
+            width: 60%;
+            padding-right: 20px;
+        }
+
+        .bank-details {
+            width: 40%;
+            font-size: 9pt;
+        }
+
+        .signature-section {
+            margin-top: 40px;
+            text-align: right;
+        }
+
+        .signature-label {
+            margin-top: 10px;
+            font-weight: bold;
+            color: #0047AB;
+        }
+
+        .seal-img {
+            max-width: 120px;
+            max-height: 80px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page-container">
+        <!-- Header -->
+        <div class="header layout-table">
+            <div class="layout-row">
+                <div class="layout-cell company-info">
+                    <img th:if="${organization.invoiceConfig != null and organization.invoiceConfig.logoUrl != null and !organization.invoiceConfig.logoUrl.isEmpty()}"
+                        th:src="${organization.invoiceConfig.logoUrl}" class="logo" alt="Logo" />
+
+                    <div class="company-name"
+                        th:text="${organization.invoiceConfig != null and organization.invoiceConfig.companyName != null and !organization.invoiceConfig.companyName.isEmpty() ? organization.invoiceConfig.companyName : (organization.displayName != null ? organization.displayName : organization.organizationName)}">
+                        Acme Corporation
+                    </div>
+
+                    <div style="font-size: 9pt; color: #666;">
+                        <div th:if="${organization.invoiceConfig != null and organization.invoiceConfig.companyAddress != null}"
+                            th:utext="${#strings.replace(organization.invoiceConfig.companyAddress, '&#10;', '&lt;br/&gt;')}">
+                            123 Business Avenue, Suite 100<br />New York, NY 10001
+                        </div>
+                        <div
+                            th:if="${organization.invoiceConfig != null and organization.invoiceConfig.gstNumber != null and !organization.invoiceConfig.gstNumber.isEmpty()}">
+                            GSTIN: <span th:text="${organization.invoiceConfig.gstNumber}">27XXXXX0000X1Z1</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="layout-cell quotation-info">
+                    <div class="quotation-label">Quotation</div>
+                    <div style="font-size: 10pt;">
+                        <strong>No:</strong> <span th:text="${proposal.proposalNumber}">Q-2024-001</span><br />
+                        <strong>Date:</strong> <span
+                            th:text="${#temporals.format(proposal.createdAt, 'dd.MM.yyyy')}">25.02.2024</span><br />
+                        <strong>Validity:</strong> <span
+                            th:text="${#temporals.format(proposal.validUntil, 'dd.MM.yyyy')}">25.03.2024</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Addresses -->
+        <div class="address-section layout-table">
+            <div class="layout-row">
+                <div class="layout-cell bill-to">
+                    <div class="section-title">Recipient</div>
+                    <div style="font-weight: bold; font-size: 11pt;" th:text="${proposal.customerName}">Client Name
+                    </div>
+                    <div th:if="${proposal.billingAddress != null}" style="color: #444;">
+                        <div th:text="${proposal.billingAddress.street}">Street Address</div>
+                        <div>
+                            <span th:text="${proposal.billingAddress.city}">City</span>,
+                            <span th:text="${proposal.billingAddress.state}">State</span>
+                            <span th:text="${proposal.billingAddress.postalCode}">Postal Code</span>
+                        </div>
+                        <div th:text="${proposal.billingAddress.country}">Country</div>
+                    </div>
+                </div>
+
+                <div class="layout-cell ship-to"
+                    th:if="${proposal.shippingAddress != null and proposal.shippingAddress != proposal.billingAddress}">
+                    <div class="section-title">Delivery Location</div>
+                    <div style="font-weight: bold; font-size: 11pt;" th:text="${proposal.customerName}">Client Name
+                    </div>
+                    <div style="color: #444;">
+                        <div th:text="${proposal.shippingAddress.street}">Street Address</div>
+                        <div>
+                            <span th:text="${proposal.shippingAddress.city}">City</span>,
+                            <span th:text="${proposal.shippingAddress.state}">State</span>
+                            <span th:text="${proposal.shippingAddress.postalCode}">Postal Code</span>
+                        </div>
+                        <div th:text="${proposal.shippingAddress.country}">Country</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Items -->
+        <table class="items-table">
+            <thead>
+                <tr>
+                    <th style="width: 5%;">#</th>
+                    <th style="width: 50%;">Description / Specification</th>
+                    <th style="width: 10%;" class="center-text">Qty</th>
+                    <th style="width: 15%; text-align: right;">Unit Price</th>
+                    <th style="width: 20%; text-align: right;">Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="item, iter : ${proposal.lineItems}">
+                    <td class="center-text" th:text="${iter.count}">1</td>
+                    <td>
+                        <div style="font-weight: bold;" th:text="${item.productName}">Product Name</div>
+                        <div style="font-size: 8pt; color: #666; margin-top: 4px;" th:if="${item.description != null}"
+                            th:text="${item.description}">Product Description</div>
+                    </td>
+                    <td class="center-text" th:text="${item.quantity}">2</td>
+                    <td class="amount"
+                        th:text="'₹ ' + ${#numbers.formatDecimal(item.unitPrice, 1, 'COMMA', 2, 'POINT')}">₹
+                        5,000.00</td>
+                    <td class="amount"
+                        th:text="'₹ ' + ${#numbers.formatDecimal(item.lineSubtotal, 1, 'COMMA', 2, 'POINT')}">₹
+                        10,000.00
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Totals -->
+        <div class="totals-section layout-table">
+            <div class="layout-row">
+                <div class="layout-cell" style="width: 60%;">
+                    <!-- Left side empty or remarks can go here -->
+                </div>
+                <div class="layout-cell totals-table-container">
+                    <table class="totals-table">
+                        <tr>
+                            <td class="label">SUBTOTAL:</td>
+                            <td class="value"
+                                th:text="'₹ ' + ${#numbers.formatDecimal(proposal.subtotal, 1, 'COMMA', 2, 'POINT')}">₹
+                                10,000.00
+                            </td>
+                        </tr>
+                        <tr th:if="${proposal.discountAmount != null and proposal.discountAmount > 0}">
+                            <td class="label">DISCOUNT:</td>
+                            <td class="value"
+                                th:text="'- ₹ ' + ${#numbers.formatDecimal(proposal.discountAmount, 1, 'COMMA', 2, 'POINT')}">
+                                - ₹
+                                500.00</td>
+                        </tr>
+                        <tr>
+                            <td class="label">TAXABLE AMOUNT:</td>
+                            <td class="value"
+                                th:text="'₹ ' + ${#numbers.formatDecimal(proposal.subtotal - (proposal.discountAmount != null ? proposal.discountAmount : 0), 1, 'COMMA', 2, 'POINT')}">
+                                ₹ 9,500.00</td>
+                        </tr>
+                        <tr th:if="${proposal.taxAmount != null and proposal.taxAmount > 0}">
+                            <td class="label">
+                                TOTAL GST
+                                <span th:if="${proposal.gstType != null}" style="font-size: 8pt; color: #888;"
+                                    th:text="'[' + ${proposal.gstType} + ']'"></span>:
+                            </td>
+                            <td class="value"
+                                th:text="'₹ ' + ${#numbers.formatDecimal(proposal.taxAmount, 1, 'COMMA', 2, 'POINT')}">₹
+                                1,710.00
+                            </td>
+                        </tr>
+                        <tr class="total-row">
+                            <td class="label">TOTAL AMOUNT:</td>
+                            <td class="value"
+                                th:text="'₹ ' + ${#numbers.formatDecimal(proposal.totalAmount, 1, 'COMMA', 2, 'POINT')}">
+                                ₹ 11,210.00
+                            </td>
+                        </tr>
+                        <tr class="total-row" style="color: #444; font-size: 10pt; border-top: 1px dashed #ccc;"
+                            th:if="${proposal.paymentMilestones != null and !proposal.paymentMilestones.isEmpty() and proposal.currentMilestoneIndex != null and proposal.currentMilestoneIndex < proposal.paymentMilestones.size()}">
+                            <td class="label">PAYABLE VALUE:</td>
+                            <td class="value"
+                                th:text="'₹ ' + ${#numbers.formatDecimal(proposal.totalAmount * proposal.paymentMilestones[proposal.currentMilestoneIndex].percentage / 100, 1, 'COMMA', 2, 'POINT')}">
+                                ₹ 0.00</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer layout-table">
+            <div class="layout-row">
+                <div class="layout-cell terms-section">
+                    <div class="section-title">Terms &amp; Conditions</div>
+                    <div style="font-size: 9pt; color: #555; white-space: pre-wrap;"
+                        th:utext="${organization.invoiceConfig != null and organization.invoiceConfig.termsAndConditions != null ? #strings.replace(organization.invoiceConfig.termsAndConditions, '&#10;', '&lt;br/&gt;') : '1. This is a computer generated quotation.&lt;br/&gt;2. Validity: 30 days from date of issue.'}">
+                        1. This is a computer generated quotation.
+                        2. Validity: 30 days from date of issue.
+                    </div>
+                </div>
+
+                <div class="layout-cell bank-details"
+                    th:if="${organization.invoiceConfig != null and organization.invoiceConfig.bankName != null}">
+                    <div class="section-title">Payment Details</div>
+                    <div><strong>Bank:</strong> <span th:text="${organization.invoiceConfig.bankName}">Bank Name</span>
+                    </div>
+                    <div><strong>Account:</strong> <span
+                            th:text="${organization.invoiceConfig.accountNumber}">1234567890</span>
+                    </div>
+                    <div><strong>IFSC:</strong> <span
+                            th:text="${organization.invoiceConfig.ifscCode}">XXXX0000000</span></div>
+                    <div
+                        th:if="${organization.invoiceConfig.branchName != null and !organization.invoiceConfig.branchName.isEmpty()}">
+                        <strong>Branch:</strong> <span th:text="${organization.invoiceConfig.branchName}">Branch
+                            Name</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="signature-section">
+            <img th:if="${organization.invoiceConfig != null and organization.invoiceConfig.authorizedSignatorySealUrl != null and !organization.invoiceConfig.authorizedSignatorySealUrl.isEmpty()}"
+                th:src="${organization.invoiceConfig.authorizedSignatorySealUrl}" class="seal-img" alt="Seal" />
+            <div class="signature-label"
+                th:text="${organization.invoiceConfig != null and organization.invoiceConfig.authorizedSignatoryLabel != null ? organization.invoiceConfig.authorizedSignatoryLabel : 'Authorized Signatory'}">
+                Authorized Signatory
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

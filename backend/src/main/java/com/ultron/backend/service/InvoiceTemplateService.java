@@ -132,6 +132,7 @@ public class InvoiceTemplateService {
             case PROFORMA -> "invoices/proforma-invoice";
             case PROFORMA_MODERN -> "invoices/proforma-modern";
             case PROFORMA_CLASSIC -> "invoices/proforma-classic";
+            case QUOTATION -> "invoices/quotation";
             case TAX_INVOICE -> "invoices/tax-invoice";
             case COMMERCIAL -> "invoices/commercial-invoice";
             case MINIMAL -> "invoices/minimal-invoice";
@@ -145,7 +146,7 @@ public class InvoiceTemplateService {
      */
     public boolean isTemplateAvailable(InvoiceTemplateType templateType) {
         return switch (templateType) {
-            case PROFORMA, PROFORMA_MODERN, PROFORMA_CLASSIC -> true;
+            case PROFORMA, PROFORMA_MODERN, PROFORMA_CLASSIC, QUOTATION -> true;
             default -> false;
         };
     }
