@@ -407,7 +407,7 @@
             </div>
         </div>
         <div class="header-right">
-            <div class="invoice-title">PROFORMA<br />INVOICE</div>
+            <div class="invoice-title" th:text="${isProforma ? 'PROFORMA INVOICE' : 'QUOTATION'}">PROFORMA INVOICE</div>
         </div>
     </div>
 
@@ -598,7 +598,7 @@
         <div class="footer-column">
             <div class="section-title">Bank Details</div>
             <div class="section-content"
-                th:if="${organization.invoiceConfig != null and organization.invoiceConfig.bankName != null}">
+                th:if="${isProforma and organization.invoiceConfig != null and organization.invoiceConfig.bankName != null}">
                 <div class="bank-detail">
                     <strong>Bank Name:</strong>
                     <span th:text="${organization.invoiceConfig.bankName}">Bank Name</span>
@@ -617,9 +617,12 @@
                     <span th:text="${organization.invoiceConfig.branchName}">Branch Name</span>
                 </div>
             </div>
+            <div class="section-content" th:if="${!isProforma}">
+                Bank details are hidden for Quotation.
+            </div>
             <div class="section-content"
-                th:unless="${organization.invoiceConfig != null and organization.invoiceConfig.bankName != null}">
-                Bank details not configured
+                th:if="${isProforma and (organization.invoiceConfig == null or organization.invoiceConfig.bankName == null)}">
+                Bank details not configured.
             </div>
         </div>
     </div>

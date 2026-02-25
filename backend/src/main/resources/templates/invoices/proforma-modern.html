@@ -311,7 +311,7 @@
         </div>
 
         <div class="header-right">
-            <h1 class="invoice-label">PROFORMA</h1>
+            <h1 class="invoice-label" th:text="${isProforma ? 'PROFORMA' : 'QUOTATION'}">PROFORMA</h1>
             <div class="meta-info">
                 <div class="meta-item"><span class="meta-label">NO:</span> <span
                         th:text="${proposal.proposalNumber}">#123</span></div>
@@ -428,12 +428,18 @@
             </div>
         </div>
         <div class="footer-box"
-            th:if="${organization.invoiceConfig != null and organization.invoiceConfig.bankName != null}">
+            th:if="${isProforma and organization.invoiceConfig != null and organization.invoiceConfig.bankName != null}">
             <div class="footer-title">Payment Info</div>
             <div class="footer-content">
                 <strong>Bank:</strong> <span th:text="${organization.invoiceConfig.bankName}">-</span><br />
                 <strong>A/C:</strong> <span th:text="${organization.invoiceConfig.accountNumber}">-</span><br />
                 <strong>IFSC:</strong> <span th:text="${organization.invoiceConfig.ifscCode}">-</span>
+            </div>
+        </div>
+        <div class="footer-box" th:if="${!isProforma}">
+            <div class="footer-title">Payment Info</div>
+            <div class="footer-content">
+                Bank details are hidden for Quotation.
             </div>
         </div>
     </div>

@@ -337,11 +337,15 @@
             </div>
 
             <div class="bank-details"
-                th:if="${organization.invoiceConfig != null and organization.invoiceConfig.bankName != null}">
+                th:if="${isProforma and organization.invoiceConfig != null and organization.invoiceConfig.bankName != null}">
                 <div class="text-bold">Bank Details:</div>
                 Bank Name: <span th:text="${organization.invoiceConfig.bankName}">-</span><br />
                 A/c No: <span th:text="${organization.invoiceConfig.accountNumber}">-</span><br />
                 IFSC: <span th:text="${organization.invoiceConfig.ifscCode}">-</span>
+            </div>
+            <div class="bank-details" th:if="${!isProforma}">
+                <div class="text-bold">Payment Details:</div>
+                Bank details are hidden for Quotation.
             </div>
         </div>
         <div class="footer-right">

@@ -506,6 +506,43 @@ public class ProposalService extends BaseTenantService {
     }
 
     @Transactional
+    public ProposalResponse convertToProforma(String id, String userId) {
+        String tenantId = getCurrentTenantId();
+        Proposal proposal = findProposalById(id, tenantId);
+
+        // Validate tenant ownership
+        validateResourceTenantOwnership(proposal.getTenantId());
+
+        if (proposal.getStatus() != ProposalStatus.ACCEPTED) {
+            throw new IllegalStateException("Only accepted quotations can be converted to Proforma Invoice");
+        }
+
+        if (Boolean.TRUE.equals(proposal.getIsProforma())) {
+            throw new IllegalStateException("This proposal is already a Proforma Invoice");
+        }
+
+        proposal.setIsProforma(true);
+        proposal.setLastModifiedAt(LocalDateTime.now());
+        proposal.setLastModifiedBy(userId);
+        proposal.setLastModifiedByName(getUserName(userId));
+
+        Proposal saved = proposalRepository.save(proposal);
+
+        log.info("Proposal converted to Proforma: proposalId={}, convertedBy={}", saved.getProposalId(), userId);
+
+        // Log audit
+        auditLogService.logAsync("PROPOSAL", saved.getId(), saved.getTitle(),
+                "CONVERT_TO_PROFORMA", "Proposal converted to Proforma Invoice",
+                null, null,
+                userId, null);
+
+        // Create version snapshot
+        proposalVersioningService.createSnapshot(saved, "CONVERT_TO_PROFORMA", "Converted to Proforma Invoice", userId);
+
+        return mapToResponse(saved);
+    }
+
+    @Transactional
     public ProposalResponse rejectProposal(String id, String reason, String userId) {
         String tenantId = getCurrentTenantId();
         Proposal proposal = findProposalById(id, tenantId);
@@ -837,6 +874,7 @@ public class ProposalService extends BaseTenantService {
                 .gstType(proposal.getGstType() != null ? proposal.getGstType() : com.ultron.backend.domain.enums.GstType.NONE)
                 .paymentMilestones(proposal.getPaymentMilestones())
                 .currentMilestoneIndex(proposal.getCurrentMilestoneIndex())
+                .isProforma(proposal.getIsProforma())
                 .parentProposalId(proposal.getParentProposalId())
                 .subtotal(proposal.getSubtotal())
                 .discountAmount(proposal.getDiscountAmount())

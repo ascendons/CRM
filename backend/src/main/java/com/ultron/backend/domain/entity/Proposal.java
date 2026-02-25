@@ -128,6 +128,8 @@ public class Proposal {
     private List<PaymentMilestone> paymentMilestones;
     @Builder.Default
     private Integer currentMilestoneIndex = 0;
+    @Builder.Default
+    private Boolean isProforma = false;
     private String parentProposalId;
 
     // Embedded Classes

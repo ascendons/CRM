@@ -140,6 +140,21 @@ export default function ProposalDetailPage({
     }
   };
 
+  const handleConvertToProforma = async () => {
+    if (!proposal) return;
+    try {
+      setActionLoading(true);
+      await proposalsService.convertToProforma(proposal.id);
+      showToast.success("Quotation converted to Proforma Invoice successfully");
+      loadProposal();
+    } catch (err) {
+      showToast.error(
+        err instanceof Error ? err.message : "Failed to convert to proforma"
+      );
+    } finally {
+      setActionLoading(false);
+    }
+  };
   const handleDelete = async () => {
     if (!proposal) return;
     try {
@@ -359,6 +374,18 @@ export default function ProposalDetailPage({
                     </button>
                   </PermissionGuard>
                 </>
+              )}
+              {proposal.status === ProposalStatus.ACCEPTED && !proposal.isProforma && (
+                <PermissionGuard resource="PROPOSAL" action="UPDATE">
+                  <button
+                    onClick={handleConvertToProforma}
+                    disabled={actionLoading}
+                    className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 flex items-center gap-2 disabled:opacity-50"
+                  >
+                    <CheckCircle className="h-4 w-4" />
+                    Convert to Proforma
+                  </button>
+                </PermissionGuard>
               )}
               <PermissionGuard resource="PROPOSAL" action="DELETE">
                 <button

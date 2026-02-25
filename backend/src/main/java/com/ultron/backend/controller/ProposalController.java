@@ -458,4 +458,27 @@ public class ProposalController {
                         .data(proposalVersion)
                         .build());
     }
+
+    /**
+     * Convert an accepted quotation to a Proforma Invoice
+     * POST /api/v1/proposals/{id}/convert-to-proforma
+     */
+    @PostMapping("/{id}/convert-to-proforma")
+    @PreAuthorize("hasPermission('PROPOSAL', 'UPDATE')")
+    public ResponseEntity<ApiResponse<ProposalResponse>> convertToProforma(
+            @PathVariable String id,
+            Authentication authentication) {
+
+        String currentUserId = authentication.getName();
+        log.info("User {} converting proposal {} to Proforma Invoice", currentUserId, id);
+
+        ProposalResponse proposal = proposalService.convertToProforma(id, currentUserId);
+
+        return ResponseEntity.ok(
+                ApiResponse.<ProposalResponse>builder()
+                        .success(true)
+                        .message("Quotation converted to Proforma Invoice successfully")
+                        .data(proposal)
+                        .build());
+    }
 }

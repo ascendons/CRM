@@ -45,6 +45,7 @@ public class InvoiceTemplateService {
         Context context = new Context();
         context.setVariable("proposal", proposal);
         context.setVariable("organization", organization);
+        context.setVariable("isProforma", Boolean.TRUE.equals(proposal.getIsProforma()));
         context.setVariable("templateType", templateType);
 
         try {

@@ -126,11 +126,12 @@ public class PdfService {
         PdfPCell titleCell = new PdfPCell();
         titleCell.setBorder(Rectangle.NO_BORDER);
         titleCell.setHorizontalAlignment(Element.ALIGN_RIGHT);
-        Paragraph invoiceTitle = new Paragraph("PROFORMA INVOICE", FontFactory.getFont(FontFactory.HELVETICA_BOLD, 14));
+        String title = Boolean.TRUE.equals(proposal.getIsProforma()) ? "PROFORMA INVOICE" : "QUOTATION";
+        Paragraph invoiceTitle = new Paragraph(title, FontFactory.getFont(FontFactory.HELVETICA_BOLD, 14));
         invoiceTitle.setAlignment(Element.ALIGN_RIGHT);
         titleCell.addElement(invoiceTitle);
         headerTable.addCell(titleCell);
-        
+       
         document.add(headerTable);
 
         // Blue Separator Line
@@ -351,20 +352,24 @@ public class PdfService {
         PdfPCell bankCell = new PdfPCell();
         bankCell.setBorder(Rectangle.NO_BORDER);
         bankCell.addElement(new Paragraph("OUR BANK DETAILS", boldFont));
-        if (config != null && config.getBankName() != null) {
-            Paragraph bankInfo = new Paragraph();
-            bankInfo.setFont(normalFont);
-            bankInfo.add(new Chunk("Bank Name: ", boldFont));
-            bankInfo.add(new Chunk(config.getBankName() + "\n", normalFont));
-            bankInfo.add(new Chunk("Account Details: ", boldFont));
-            bankInfo.add(new Chunk(config.getAccountNumber() + "\n", normalFont));
-            bankInfo.add(new Chunk("Branch & IFSC Code: ", boldFont));
-            bankInfo.add(new Chunk(config.getBranchName() + " (" + config.getIfscCode() + ")\n", normalFont));
-            bankCell.addElement(bankInfo);
+        if (Boolean.TRUE.equals(proposal.getIsProforma())) {
+            if (config != null && config.getBankName() != null) {
+                Paragraph bankInfo = new Paragraph();
+                bankInfo.setFont(normalFont);
+                bankInfo.add(new Chunk("Bank Name: ", boldFont));
+                bankInfo.add(new Chunk(config.getBankName() + "\n", normalFont));
+                bankInfo.add(new Chunk("Account Details: ", boldFont));
+                bankInfo.add(new Chunk(config.getAccountNumber() + "\n", normalFont));
+                bankInfo.add(new Chunk("Branch & IFSC Code: ", boldFont));
+                bankInfo.add(new Chunk(config.getBranchName() + " (" + config.getIfscCode() + ")\n", normalFont));
+                bankCell.addElement(bankInfo);
+            } else {
+                bankCell.addElement(new Paragraph("Bank Details Not Configured", normalFont));
+            }
         } else {
-            bankCell.addElement(new Paragraph("Bank Details Not Configured", normalFont));
+            bankCell.addElement(new Paragraph("Bank Details Hidden for Quotation", normalFont));
         }
-        bottomTable.addCell(bankCell);
+       bottomTable.addCell(bankCell);
 
         document.add(bottomTable);
     }

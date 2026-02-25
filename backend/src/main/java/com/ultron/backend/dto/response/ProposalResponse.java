@@ -62,6 +62,7 @@ public class ProposalResponse {
     // Milestones
     private List<Proposal.PaymentMilestone> paymentMilestones;
     private Integer currentMilestoneIndex;
+    private Boolean isProforma;
     private String parentProposalId;
 
     // Totals

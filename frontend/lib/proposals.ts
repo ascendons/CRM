@@ -177,4 +177,11 @@ export const proposalsService = {
   async getVersion(id: string, version: number): Promise<import("@/types/proposal-version").ProposalVersionResponse> {
     return api.get(`/proposals/${id}/versions/${version}`);
   },
+
+  /**
+   * Convert proposal to Proforma Invoice (ACCEPTED only)
+   */
+  async convertToProforma(id: string): Promise<ProposalResponse> {
+    return api.post(`/proposals/${id}/convert-to-proforma`, {});
+  },
 };

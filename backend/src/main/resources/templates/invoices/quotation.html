@@ -243,9 +243,11 @@
                 </div>
 
                 <div class="layout-cell quotation-info">
-                    <div class="quotation-label">Quotation</div>
+                    <div class="quotation-label" th:text="${isProforma ? 'Proforma Invoice' : 'Quotation'}">Quotation
+                    </div>
                     <div style="font-size: 10pt;">
-                        <strong>No:</strong> <span th:text="${proposal.proposalNumber}">Q-2024-001</span><br />
+                        <strong th:text="${isProforma ? 'Invoice No:' : 'No:'}">No:</strong> <span
+                            th:text="${proposal.proposalNumber}">Q-2024-001</span><br />
                         <strong>Date:</strong> <span
                             th:text="${#temporals.format(proposal.createdAt, 'dd.MM.yyyy')}">25.02.2024</span><br />
                         <strong>Validity:</strong> <span
@@ -386,14 +388,14 @@
                 <div class="layout-cell terms-section">
                     <div class="section-title">Terms &amp; Conditions</div>
                     <div style="font-size: 9pt; color: #555; white-space: pre-wrap;"
-                        th:utext="${organization.invoiceConfig != null and organization.invoiceConfig.termsAndConditions != null ? #strings.replace(organization.invoiceConfig.termsAndConditions, '&#10;', '&lt;br/&gt;') : '1. This is a computer generated quotation.&lt;br/&gt;2. Validity: 30 days from date of issue.'}">
-                        1. This is a computer generated quotation.
+                        th:utext="${organization.invoiceConfig != null and organization.invoiceConfig.termsAndConditions != null ? #strings.replace(organization.invoiceConfig.termsAndConditions, '&#10;', '&lt;br/&gt;') : '1. This is a computer generated document.&lt;br/&gt;2. Validity: 30 days from date of issue.'}">
+                        1. This is a computer generated document.
                         2. Validity: 30 days from date of issue.
                     </div>
                 </div>
 
                 <div class="layout-cell bank-details"
-                    th:if="${organization.invoiceConfig != null and organization.invoiceConfig.bankName != null}">
+                    th:if="${isProforma and organization.invoiceConfig != null and organization.invoiceConfig.bankName != null}">
                     <div class="section-title">Payment Details</div>
                     <div><strong>Bank:</strong> <span th:text="${organization.invoiceConfig.bankName}">Bank Name</span>
                     </div>

@@ -112,6 +112,9 @@ export interface ProposalResponse {
   taxAmount: number;
   totalAmount: number;
 
+  // Proforma status
+  isProforma?: boolean;
+
   // Status
   status: ProposalStatus;
   sentAt?: string;
