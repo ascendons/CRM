@@ -40,7 +40,7 @@ public class PdfService {
 
             document.open();
 
-            addHeader(document, proposal, config);
+            addHeader(document, proposal, organization);
             addBillToShipTo(document, proposal);
             addLineItems(document, proposal);
             addTotalsAndBankDetails(document, proposal, config);
@@ -51,63 +51,105 @@ public class PdfService {
         }
     }
 
-    private void addHeader(Document document, Proposal proposal, com.ultron.backend.domain.entity.Organization.InvoiceConfig config) throws DocumentException {
-        // Logo and Company Details (Top Left)
+    private void addHeader(Document document, Proposal proposal, com.ultron.backend.domain.entity.Organization organization) throws DocumentException {
+        com.ultron.backend.domain.entity.Organization.InvoiceConfig config = organization.getInvoiceConfig();
+        com.ultron.backend.domain.entity.Organization.OrganizationSettings settings = organization.getSettings();
+
+        // Top Section: Logo/Address on Left, Title on Right
         PdfPTable headerTable = new PdfPTable(2);
         headerTable.setWidthPercentage(100);
-        headerTable.setWidths(new float[]{3, 1});
+        headerTable.setWidths(new float[]{3.5f, 1.5f});
 
-        // Left: Company Logo & Address
-        PdfPCell companyCell = new PdfPCell();
-        companyCell.setBorder(Rectangle.NO_BORDER);
+        // Left Column: Logo + Address combined
+        PdfPTable leftHeaderTable = new PdfPTable(2);
+        leftHeaderTable.setWidthPercentage(100);
+        leftHeaderTable.setWidths(new float[]{1, 3});
         
-        // Handle Logo if present
-        if (config != null && config.getLogoUrl() != null && !config.getLogoUrl().isEmpty()) {
+        // Logo
+        PdfPCell logoCell = new PdfPCell();
+        logoCell.setBorder(Rectangle.NO_BORDER);
+        String logoUrl = (config != null && config.getLogoUrl() != null && !config.getLogoUrl().isEmpty()) 
+                ? config.getLogoUrl() 
+                : (settings != null ? settings.getLogoUrl() : null);
+
+        if (logoUrl != null && !logoUrl.isEmpty()) {
             try {
-                Image logo = Image.getInstance(new java.net.URL(config.getLogoUrl()));
-                logo.scaleToFit(100, 50);
-                companyCell.addElement(logo);
+                Image logo;
+                if (logoUrl.startsWith("data:")) {
+                    String base64Data = logoUrl.substring(logoUrl.indexOf(",") + 1);
+                    byte[] imageBytes = java.util.Base64.getDecoder().decode(base64Data);
+                    logo = Image.getInstance(imageBytes);
+                } else {
+                    logo = Image.getInstance(new java.net.URL(logoUrl));
+                }
+                logo.scaleToFit(80, 60);
+                logoCell.addElement(logo);
             } catch (Exception e) {
-                log.warn("Failed to load logo from URL: {}", config.getLogoUrl());
+                log.error("Failed to load logo: {}", e.getMessage());
             }
         }
+        leftHeaderTable.addCell(logoCell);
         
-        Font companyNameFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 11);
-        String compName = (config != null && config.getCompanyName() != null) ? config.getCompanyName() : "Ultron CRM Inc.";
-        companyCell.addElement(new Paragraph(compName, companyNameFont));
+        // Address/Company Details
+        PdfPCell addressCell = new PdfPCell();
+        addressCell.setBorder(Rectangle.NO_BORDER);
+        addressCell.setPaddingLeft(10);
+        
+        Font companyNameFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 10);
+        String compName = "Ultron CRM Inc.";
+        if (config != null && config.getCompanyName() != null && !config.getCompanyName().isEmpty()) {
+            compName = config.getCompanyName();
+        } else if (organization.getDisplayName() != null && !organization.getDisplayName().isEmpty()) {
+            compName = organization.getDisplayName();
+        } else if (organization.getOrganizationName() != null && !organization.getOrganizationName().isEmpty()) {
+            compName = organization.getOrganizationName();
+        }
+        addressCell.addElement(new Paragraph(compName, companyNameFont));
         
         Font addressFont = FontFactory.getFont(FontFactory.HELVETICA, 8);
         String address = (config != null && config.getCompanyAddress() != null) ? config.getCompanyAddress() : "123 Tech Park, Innovation Way\nSilicon Valley, CA 94025";
-        companyCell.addElement(new Paragraph(address, addressFont));
+        addressCell.addElement(new Paragraph(address, addressFont));
         
-        if (config != null && config.getGstNumber() != null) {
-            companyCell.addElement(new Paragraph("GST: " + config.getGstNumber(), addressFont));
+        if (config != null && config.getGstNumber() != null && !config.getGstNumber().isEmpty()) {
+            addressCell.addElement(new Paragraph("GST: " + config.getGstNumber(), addressFont));
         }
-        if (config != null && config.getCinNumber() != null) {
-            companyCell.addElement(new Paragraph("CIN: " + config.getCinNumber(), addressFont));
+        if (config != null && config.getCinNumber() != null && !config.getCinNumber().isEmpty()) {
+            addressCell.addElement(new Paragraph("CIN: " + config.getCinNumber(), addressFont));
         }
+        leftHeaderTable.addCell(addressCell);
         
-        headerTable.addCell(companyCell);
+        PdfPCell combinedLeftCell = new PdfPCell(leftHeaderTable);
+        combinedLeftCell.setBorder(Rectangle.NO_BORDER);
+        headerTable.addCell(combinedLeftCell);
 
-        // Right: Invoice Title
+        // Right Column: Title
         PdfPCell titleCell = new PdfPCell();
         titleCell.setBorder(Rectangle.NO_BORDER);
         titleCell.setHorizontalAlignment(Element.ALIGN_RIGHT);
-        titleCell.setVerticalAlignment(Element.ALIGN_TOP);
-        
         Paragraph invoiceTitle = new Paragraph("PROFORMA INVOICE", FontFactory.getFont(FontFactory.HELVETICA_BOLD, 14));
         invoiceTitle.setAlignment(Element.ALIGN_RIGHT);
         titleCell.addElement(invoiceTitle);
-        
         headerTable.addCell(titleCell);
+        
         document.add(headerTable);
 
-        // Separator Line
+        // Blue Separator Line
+        PdfPTable separatorTable = new PdfPTable(1);
+        separatorTable.setWidthPercentage(100);
+        PdfPCell separatorCell = new PdfPCell();
+        separatorCell.setBorder(Rectangle.TOP);
+        separatorCell.setBorderWidthTop(2f);
+        separatorCell.setBorderColorTop(new Color(0, 51, 153));
+        separatorCell.setPadding(0);
+        separatorTable.addCell(separatorCell);
+        document.add(separatorTable);
+
+        // Reference / Date Section
         document.add(new Paragraph(" "));
         PdfPTable refTable = new PdfPTable(2);
         refTable.setWidthPercentage(100);
-        
         Font refFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 9);
+        
         PdfPCell refCell = new PdfPCell(new Phrase("Ref No.: " + proposal.getProposalNumber(), refFont));
         refCell.setBorder(Rectangle.TOP | Rectangle.BOTTOM);
         refCell.setPadding(5);
@@ -122,16 +164,16 @@ public class PdfService {
         refTable.addCell(dateCell);
 
         document.add(refTable);
-        document.add(new Paragraph(" "));
     }
 
     private void addBillToShipTo(Document document, Proposal proposal) throws DocumentException {
         PdfPTable table = new PdfPTable(2);
         table.setWidthPercentage(100);
         table.setWidths(new float[]{1, 1});
+        table.setSpacingBefore(10);
 
         Font headFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 9);
-        Font bodyFont = FontFactory.getFont(FontFactory.HELVETICA, 9);
+        Font bodyFont = FontFactory.getFont(FontFactory.HELVETICA, 8);
 
         // BILL TO
         PdfPCell billTo = new PdfPCell();
@@ -140,58 +182,58 @@ public class PdfService {
         billTo.addElement(new Paragraph(proposal.getCustomerName(), headFont));
         
         if (proposal.getBillingAddress() != null) {
-             String addr = proposal.getBillingAddress().getStreet() + "\n" +
-                           proposal.getBillingAddress().getCity() + ", " + proposal.getBillingAddress().getState() + "\n" +
-                           proposal.getBillingAddress().getCountry() + " - " + proposal.getBillingAddress().getPostalCode();
+             String addr = (proposal.getBillingAddress().getStreet() != null ? proposal.getBillingAddress().getStreet() : "") + "\n" +
+                           (proposal.getBillingAddress().getCity() != null ? proposal.getBillingAddress().getCity() : "") + ", " + 
+                           (proposal.getBillingAddress().getState() != null ? proposal.getBillingAddress().getState() : "") + "\n" +
+                           (proposal.getBillingAddress().getCountry() != null ? proposal.getBillingAddress().getCountry() : "") + " - " + 
+                           (proposal.getBillingAddress().getPostalCode() != null ? proposal.getBillingAddress().getPostalCode() : "");
              billTo.addElement(new Paragraph(addr, bodyFont));
         }
+        
+        // Add GSTIN/MOB NO/EMAIL if available in extras (placeholder for now as Proposal entity doesn't have these explicitly)
+        // If they are in customer metadata, they should be here
         if (proposal.getCustomerEmail() != null) billTo.addElement(new Paragraph("EMAIL: " + proposal.getCustomerEmail(), bodyFont));
         if (proposal.getCustomerPhone() != null) billTo.addElement(new Paragraph("MOB NO.: " + proposal.getCustomerPhone(), bodyFont));
+        
         table.addCell(billTo);
 
         // SHIP TO
         PdfPCell shipTo = new PdfPCell();
         shipTo.setBorder(Rectangle.NO_BORDER);
         shipTo.addElement(new Paragraph("SHIP TO:", headFont));
-        shipTo.addElement(new Paragraph(proposal.getCustomerName(), headFont)); // Default to same customer
+        shipTo.addElement(new Paragraph(proposal.getCustomerName(), headFont));
         
         if (proposal.getShippingAddress() != null) {
-             String addr = proposal.getShippingAddress().getStreet() + "\n" +
-                           proposal.getShippingAddress().getCity() + ", " + proposal.getShippingAddress().getState() + "\n" +
-                           proposal.getShippingAddress().getCountry() + " - " + proposal.getShippingAddress().getPostalCode();
+             String addr = (proposal.getShippingAddress().getStreet() != null ? proposal.getShippingAddress().getStreet() : "") + "\n" +
+                           (proposal.getShippingAddress().getCity() != null ? proposal.getShippingAddress().getCity() : "") + ", " + 
+                           (proposal.getShippingAddress().getState() != null ? proposal.getShippingAddress().getState() : "") + "\n" +
+                           (proposal.getShippingAddress().getCountry() != null ? proposal.getShippingAddress().getCountry() : "") + " - " + 
+                           (proposal.getShippingAddress().getPostalCode() != null ? proposal.getShippingAddress().getPostalCode() : "");
              shipTo.addElement(new Paragraph(addr, bodyFont));
         } else if (proposal.getBillingAddress() != null) {
              // Fallback to billing
-             String addr = proposal.getBillingAddress().getStreet() + "\n" +
-                           proposal.getBillingAddress().getCity() + ", " + proposal.getBillingAddress().getState() + "\n" +
-                           proposal.getBillingAddress().getCountry() + " - " + proposal.getBillingAddress().getPostalCode();
+             String addr = (proposal.getBillingAddress().getStreet() != null ? proposal.getBillingAddress().getStreet() : "") + "\n" +
+                           (proposal.getBillingAddress().getCity() != null ? proposal.getBillingAddress().getCity() : "") + ", " + 
+                           (proposal.getBillingAddress().getState() != null ? proposal.getBillingAddress().getState() : "") + "\n" +
+                           (proposal.getBillingAddress().getCountry() != null ? proposal.getBillingAddress().getCountry() : "") + " - " + 
+                           (proposal.getBillingAddress().getPostalCode() != null ? proposal.getBillingAddress().getPostalCode() : "");
              shipTo.addElement(new Paragraph(addr, bodyFont));
         }
         table.addCell(shipTo);
 
         document.add(table);
-        document.add(Chunk.NEWLINE);
     }
 
     private void addLineItems(Document document, Proposal proposal) throws DocumentException {
-        boolean hasLineItemDiscount = proposal.getLineItems().stream()
-                .anyMatch(item -> item.getLineDiscountAmount() != null && item.getLineDiscountAmount().compareTo(BigDecimal.ZERO) > 0);
-
-        int numCols = hasLineItemDiscount ? 8 : 7;
-        PdfPTable table = new PdfPTable(numCols);
+        PdfPTable table = new PdfPTable(6);
         table.setWidthPercentage(100);
-        if (hasLineItemDiscount) {
-            table.setWidths(new float[]{0.5f, 2.5f, 1f, 0.6f, 0.6f, 1.2f, 1.2f, 1.2f});
-        } else {
-            table.setWidths(new float[]{0.5f, 3f, 1f, 0.6f, 0.6f, 1.2f, 1.2f});
-        }
+        table.setWidths(new float[]{0.5f, 3.5f, 1f, 1f, 1.2f, 1.5f});
         table.setHeaderRows(1);
+        table.setSpacingBefore(10);
 
         // Header Styling
         Font headerFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 8);
-        String[] headers = hasLineItemDiscount 
-            ? new String[]{"SR NO", "DESCRIPTION", "HSN/SAC", "QTY", "UNIT", "RATE", "DISCOUNT", "AMOUNT"}
-            : new String[]{"SR NO", "DESCRIPTION", "HSN/SAC", "QTY", "UNIT", "RATE", "AMOUNT"};
+        String[] headers = {"SR NO", "DESCRIPTION", "HSN/SAC", "QTY", "RATE", "AMOUNT"};
         
         for (String h : headers) {
             PdfPCell cell = new PdfPCell(new Phrase(h, headerFont));
@@ -221,24 +263,15 @@ public class PdfService {
             String hsn = (item.getHsnCode() != null && !item.getHsnCode().isEmpty()) ? item.getHsnCode() : "";
             addCell(table, hsn, Element.ALIGN_CENTER, cellFont);
             
-            // Quantity & Unit
-            addCell(table, String.valueOf(item.getQuantity()), Element.ALIGN_CENTER, cellFont);
-            addCell(table, (item.getUnit() != null ? item.getUnit() : "-"), Element.ALIGN_CENTER, cellFont);
+            // Quantity (including unit if present)
+            String qty = String.valueOf(item.getQuantity()) + (item.getUnit() != null ? " (" + item.getUnit() + ")" : "");
+            addCell(table, qty, Element.ALIGN_CENTER, cellFont);
+            
+            // Rate
             addCell(table, currency.format(item.getUnitPrice()), Element.ALIGN_RIGHT, cellFont);
             
-            if (hasLineItemDiscount) {
-                if (item.getLineDiscountAmount() != null && item.getLineDiscountAmount().compareTo(BigDecimal.ZERO) > 0) {
-                    addCell(table, currency.format(item.getLineDiscountAmount()), Element.ALIGN_RIGHT, cellFont);
-                } else {
-                    addCell(table, "-", Element.ALIGN_CENTER, cellFont);
-                }
-            }
-            
-            BigDecimal amount = item.getLineSubtotal();
-            if (hasLineItemDiscount && item.getLineDiscountAmount() != null) {
-                amount = amount.subtract(item.getLineDiscountAmount());
-            }
-            addCell(table, currency.format(amount), Element.ALIGN_RIGHT, cellFont);
+            // Amount (Line Subtotal)
+            addCell(table, currency.format(item.getLineSubtotal()), Element.ALIGN_RIGHT, cellFont);
         }
 
         document.add(table);
@@ -253,100 +286,70 @@ public class PdfService {
     }
 
     private void addTotalsAndBankDetails(Document document, Proposal proposal, com.ultron.backend.domain.entity.Organization.InvoiceConfig config) throws DocumentException {
-        // First, Totals Table (Full Width)
         PdfPTable mainTable = new PdfPTable(2);
         mainTable.setWidthPercentage(100);
-        mainTable.setWidths(new float[]{1.5f, 1f});
-        mainTable.setSpacingBefore(10);
-
-        // Right Side: Totals
-        PdfPTable totalsTable = new PdfPTable(2);
-        totalsTable.setWidthPercentage(100);
+        mainTable.setWidths(new float[]{1.3f, 1f});
         
         Font boldFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 8);
         Font normalFont = FontFactory.getFont(FontFactory.HELVETICA, 8);
 
-        addTotalRow(totalsTable, "SUBTOTAL:", proposal.getSubtotal(), boldFont);
-        if (proposal.getDiscountAmount() != null && proposal.getDiscountAmount().compareTo(BigDecimal.ZERO) > 0) {
-            addTotalRow(totalsTable, "DISCOUNT:", proposal.getDiscountAmount(), boldFont);
-            BigDecimal taxableAmount = proposal.getSubtotal().subtract(proposal.getDiscountAmount());
-            addTotalRow(totalsTable, "TAXABLE AMOUNT:", taxableAmount, boldFont);
-        } else {
-            addTotalRow(totalsTable, "TAXABLE AMOUNT:", proposal.getSubtotal(), boldFont);
-        }
+        // Left Side: Terms or Empty space
+        PdfPCell leftSpace = new PdfPCell();
+        leftSpace.setBorder(Rectangle.NO_BORDER);
+        mainTable.addCell(leftSpace);
 
+        // Right Side: Totals Table
+        PdfPTable totalsTable = new PdfPTable(2);
+        totalsTable.setWidthPercentage(100);
+        
+        addTotalRow(totalsTable, "TAXABLE AMOUNT:", proposal.getSubtotal(), boldFont);
         if (proposal.getTaxAmount() != null && proposal.getTaxAmount().compareTo(BigDecimal.ZERO) > 0) {
-            if (proposal.getGstType() == com.ultron.backend.domain.enums.GstType.IGST) {
-                addTotalRow(totalsTable, "TOTAL IGST (18%):", proposal.getTaxAmount(), boldFont);
-            } else if (proposal.getGstType() == com.ultron.backend.domain.enums.GstType.CGST_SGST) {
-                BigDecimal halfTax = proposal.getTaxAmount().divide(new BigDecimal("2"), 2, java.math.RoundingMode.HALF_UP);
-                addTotalRow(totalsTable, "TOTAL CGST (9%):", halfTax, boldFont);
-                addTotalRow(totalsTable, "TOTAL SGST (9%):", halfTax, boldFont);
-            } else {
-                addTotalRow(totalsTable, "TOTAL GST:", proposal.getTaxAmount(), boldFont);
-            }
+            addTotalRow(totalsTable, "TOTAL GST:", proposal.getTaxAmount(), boldFont);
         }
-        addTotalRow(totalsTable, "TOTAL AMOUNT:", proposal.getTotalAmount(), FontFactory.getFont(FontFactory.HELVETICA_BOLD, 10));
-
+        addTotalRow(totalsTable, "TOTAL AMOUNT:", proposal.getTotalAmount(), boldFont);
+        
+        BigDecimal payable = proposal.getTotalAmount();
         if (proposal.getPaymentMilestones() != null && !proposal.getPaymentMilestones().isEmpty() && proposal.getCurrentMilestoneIndex() != null) {
             int currentIndex = proposal.getCurrentMilestoneIndex();
-            
-            if (currentIndex > 0) {
-                BigDecimal previousPercentage = BigDecimal.ZERO;
-                for (int i = 0; i < currentIndex; i++) {
-                    if (i < proposal.getPaymentMilestones().size()) {
-                        previousPercentage = previousPercentage.add(proposal.getPaymentMilestones().get(i).getPercentage());
-                    }
-                }
-                
-                BigDecimal previousAmount = proposal.getTotalAmount().multiply(previousPercentage).divide(new BigDecimal("100"), 2, java.math.RoundingMode.HALF_UP);
-                addTotalRow(totalsTable, "LESS: RECEIVED (" + previousPercentage.stripTrailingZeros().toPlainString() + "%):", previousAmount, boldFont);
-            }
-            
             if (currentIndex < proposal.getPaymentMilestones().size()) {
-                Proposal.PaymentMilestone currentMilestone = proposal.getPaymentMilestones().get(currentIndex);
-                BigDecimal payableAmount = proposal.getTotalAmount().multiply(currentMilestone.getPercentage()).divide(new BigDecimal("100"), 2, java.math.RoundingMode.HALF_UP);
-                String milestoneLabel = currentMilestone.getName() != null ? currentMilestone.getName() : "Milestone " + (currentIndex + 1);
-                addTotalRow(totalsTable, "PAYABLE (" + milestoneLabel + " " + currentMilestone.getPercentage().stripTrailingZeros().toPlainString() + "%):", payableAmount, FontFactory.getFont(FontFactory.HELVETICA_BOLD, 10));
-            } else {
-                 addTotalRow(totalsTable, "PAYABLE VALUE:", proposal.getTotalAmount(), boldFont);
+                payable = proposal.getTotalAmount().multiply(proposal.getPaymentMilestones().get(currentIndex).getPercentage()).divide(new BigDecimal("100"), 2, java.math.RoundingMode.HALF_UP);
             }
-        } else {
-            addTotalRow(totalsTable, "PAYABLE VALUE:", proposal.getTotalAmount(), boldFont);
         }
-
-        PdfPCell emptyCell = new PdfPCell();
-        emptyCell.setBorder(Rectangle.NO_BORDER);
-        mainTable.addCell(emptyCell);
+        addTotalRow(totalsTable, "PAYABLE VALUE:", payable, FontFactory.getFont(FontFactory.HELVETICA_BOLD, 9));
         
         PdfPCell totalsCell = new PdfPCell(totalsTable);
         totalsCell.setBorder(Rectangle.NO_BORDER);
         mainTable.addCell(totalsCell);
         document.add(mainTable);
 
-        // Second: Bank Details & Terms (Side by Side)
+        // Terms and Bank Section
         document.add(new Paragraph(" "));
         PdfPTable bottomTable = new PdfPTable(2);
         bottomTable.setWidthPercentage(100);
         bottomTable.setWidths(new float[]{1.2f, 1f});
 
-        // Left Side: Terms
-        PdfPCell leftCell = new PdfPCell();
-        leftCell.setBorder(Rectangle.NO_BORDER);
-        leftCell.addElement(new Paragraph("TERMS & CONDITIONS", boldFont));
-        String terms = (config != null && config.getTermsAndConditions() != null) ? config.getTermsAndConditions() : "1. Validity: Offer Valid Only for 1 Days\n2. Delivery: 1-2 Weeks";
-        leftCell.addElement(new Paragraph(terms, normalFont));
-        bottomTable.addCell(leftCell);
+        // Left: Terms
+        PdfPCell termsCell = new PdfPCell();
+        termsCell.setBorder(Rectangle.NO_BORDER);
+        termsCell.addElement(new Paragraph("TERMS & CONDITIONS", boldFont));
+        String terms = (config != null && config.getTermsAndConditions() != null) ? config.getTermsAndConditions() : "1. Validity: Offer Valid Only for 30 Days";
+        termsCell.addElement(new Paragraph(terms, normalFont));
+        bottomTable.addCell(termsCell);
 
-        // Right Side: Bank Details
+        // Right: Bank Details
         PdfPCell bankCell = new PdfPCell();
         bankCell.setBorder(Rectangle.NO_BORDER);
         bankCell.addElement(new Paragraph("OUR BANK DETAILS", boldFont));
         if (config != null && config.getBankName() != null) {
-            bankCell.addElement(new Paragraph("Bank Name: " + config.getBankName(), normalFont));
-            bankCell.addElement(new Paragraph("Account Name: " + config.getAccountName(), normalFont));
-            bankCell.addElement(new Paragraph("A/C No: " + config.getAccountNumber(), normalFont));
-            bankCell.addElement(new Paragraph("IFSC: " + config.getIfscCode(), normalFont));
+            Paragraph bankInfo = new Paragraph();
+            bankInfo.setFont(normalFont);
+            bankInfo.add(new Chunk("Bank Name: ", boldFont));
+            bankInfo.add(new Chunk(config.getBankName() + "\n", normalFont));
+            bankInfo.add(new Chunk("Account Details: ", boldFont));
+            bankInfo.add(new Chunk(config.getAccountNumber() + "\n", normalFont));
+            bankInfo.add(new Chunk("Branch & IFSC Code: ", boldFont));
+            bankInfo.add(new Chunk(config.getBranchName() + " (" + config.getIfscCode() + ")\n", normalFont));
+            bankCell.addElement(bankInfo);
         } else {
             bankCell.addElement(new Paragraph("Bank Details Not Configured", normalFont));
         }
@@ -373,7 +376,6 @@ public class PdfService {
 
     private void addFooter(Document document, com.ultron.backend.domain.entity.Organization.InvoiceConfig config) throws DocumentException {
         document.add(new Paragraph(" "));
-        document.add(new Paragraph(" "));
         
         PdfPTable footerTable = new PdfPTable(2);
         footerTable.setWidthPercentage(100);
@@ -382,12 +384,21 @@ public class PdfService {
         leftFooter.setBorder(Rectangle.NO_BORDER);
         
         if (config != null && config.getAuthorizedSignatorySealUrl() != null && !config.getAuthorizedSignatorySealUrl().isEmpty()) {
+            String sealUrl = config.getAuthorizedSignatorySealUrl();
             try {
-                Image seal = Image.getInstance(new java.net.URL(config.getAuthorizedSignatorySealUrl()));
+                Image seal;
+                if (sealUrl.startsWith("data:")) {
+                    String base64Data = sealUrl.substring(sealUrl.indexOf(",") + 1);
+                    byte[] imageBytes = java.util.Base64.getDecoder().decode(base64Data);
+                    seal = Image.getInstance(imageBytes);
+                } else {
+                    seal = Image.getInstance(new java.net.URL(sealUrl));
+                }
+                
                 seal.scaleToFit(80, 80);
                 leftFooter.addElement(seal);
             } catch (Exception e) {
-                log.warn("Failed to load seal from URL: {}", config.getAuthorizedSignatorySealUrl());
+                log.error("Failed to load signatory seal: {}", e.getMessage());
             }
         }
         
@@ -397,16 +408,21 @@ public class PdfService {
         
         PdfPCell rightFooter = new PdfPCell();
         rightFooter.setBorder(Rectangle.NO_BORDER);
-        // Empty right footer
         footerTable.addCell(rightFooter);
         
         document.add(footerTable);
+
+        // Bottom Info (Website and Email)
+        PdfPTable bottomInfo = new PdfPTable(1);
+        bottomInfo.setWidthPercentage(100);
+        bottomInfo.setSpacingBefore(30);
         
-        // Web/Email at bottom center
-        String footerText = (config != null && config.getFooterText() != null) ? config.getFooterText() : "www.ultroncrm.com | info@ultroncrm.com";
-        Paragraph footer = new Paragraph(footerText, FontFactory.getFont(FontFactory.HELVETICA, 7, Color.GRAY));
-        footer.setAlignment(Element.ALIGN_CENTER);
-        footer.setSpacingBefore(15);
-        document.add(footer);
+        String footerText = (config != null && config.getFooterText() != null) ? config.getFooterText() : "www.ultron.com | info@ultron.com";
+        PdfPCell infoCell = new PdfPCell(new Phrase(footerText, FontFactory.getFont(FontFactory.HELVETICA, 7)));
+        infoCell.setBorder(Rectangle.NO_BORDER);
+        infoCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+        bottomInfo.addCell(infoCell);
+        
+        document.add(bottomInfo);
     }
 }

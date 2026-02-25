@@ -192,6 +192,10 @@ public class OrganizationController {
                 .orElseThrow(() -> new RuntimeException("Organization not found"));
 
         // Update settings
+        if (organization.getSettings() == null) {
+            organization.setSettings(new Organization.OrganizationSettings());
+        }
+
         if (request.getDateFormat() != null) {
             organization.getSettings().setDateFormat(request.getDateFormat());
         }
