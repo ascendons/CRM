@@ -33,20 +33,14 @@ public class NotificationService {
         log.info("   Type: {}", type);
         log.info("   Tenant ID: {}", tenantId);
 
-        // Resolve targetUserId to MongoDB _id format for WebSocket compatibility
-        String resolvedUserId = resolveToMongoId(targetUserId, tenantId);
-
-        if (resolvedUserId == null) {
-            log.error("❌ Could not resolve user ID: {} in tenant: {} - notification will NOT be sent", targetUserId, tenantId);
-            log.error("   This means the user does not exist or the ID format is unrecognized");
+        if (targetUserId == null) {
+            log.error("❌ Target User ID is NULL. Cannot send notification.");
             return null;
         }
 
-        log.info("✓ User ID resolved: {} → {}", targetUserId, resolvedUserId);
-
         Notification notification = Notification.builder()
                 .tenantId(tenantId)
-                .targetUserId(resolvedUserId)  // Use resolved MongoDB _id
+                .targetUserId(targetUserId)  // Keep original business userId for consistency
                 .title(title)
                 .message(message)
                 .type(type)
@@ -60,60 +54,17 @@ public class NotificationService {
 
         NotificationDTO dto = mapToDTO(notification);
 
-        // Send to WebSocket using resolved MongoDB _id
+        // Send to WebSocket using the business userId (matches WebSocket Principal name)
         log.info("📤 Sending notification via WebSocket:");
-        log.info("   To user (MongoDB _id): {}", resolvedUserId);
-        log.info("   Channel: /user/{}/queue/notifications", resolvedUserId);
-        messagingTemplate.convertAndSendToUser(resolvedUserId, "/queue/notifications", dto);
+        log.info("   To user: {}", targetUserId);
+        log.info("   Channel: /user/{}/queue/notifications", targetUserId);
+        messagingTemplate.convertAndSendToUser(targetUserId, "/queue/notifications", dto);
         log.info("✓ WebSocket message sent successfully");
 
         return dto;
     }
 
-    /**
-     * Resolve any user ID format to MongoDB _id for WebSocket compatibility.
-     * Handles both MongoDB _id (24-char hex) and business userId (USR-YYYY-MM-XXXXX).
-     *
-     * @param userId User ID in any format
-     * @param tenantId Tenant ID for lookup
-     * @return MongoDB _id or null if user not found
-     */
-    private String resolveToMongoId(String userId, String tenantId) {
-        log.info("🔍 Resolving user ID: {}", userId);
 
-        if (userId == null) {
-            log.error("❌ User ID is NULL");
-            return null;
-        }
-
-        // If it's already MongoDB _id format (24-char hex), return as-is
-        if (userId.matches("^[0-9a-fA-F]{24}$")) {
-            log.info("✓ User ID {} is already MongoDB _id format", userId);
-            return userId;
-        }
-
-        // If it's business userId format (USR-...), lookup MongoDB _id
-        if (userId.startsWith("USR-")) {
-            log.info("🔍 User ID {} is business userId, looking up MongoDB _id in tenant {}", userId, tenantId);
-            return userRepository.findByUserIdAndTenantId(userId, tenantId)
-                    .map(user -> {
-                        log.info("✓ Found user: {} → MongoDB _id: {}", userId, user.getId());
-                        return user.getId();
-                    })
-                    .orElseGet(() -> {
-                        log.error("❌ Business userId {} NOT FOUND in tenant {}", userId, tenantId);
-                        log.error("   Available users in tenant: {}",
-                            userRepository.findByTenantIdAndIsDeletedFalse(tenantId).stream()
-                                .map(u -> u.getUserId() + " (" + u.getEmail() + ")")
-                                .collect(java.util.stream.Collectors.joining(", ")));
-                        return null;
-                    });
-        }
-
-        // Unknown format, try to use as-is but log warning
-        log.warn("⚠️  Unknown user ID format: {} - attempting to use as-is", userId);
-        return userId;
-    }
 
     public Page<NotificationDTO> getUserNotifications(String targetUserId, Pageable pageable) {
         String tenantId = TenantContext.getTenantId();
