@@ -231,7 +231,7 @@ export default function AccountsPage() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6 animate-fade-in-up">
         {/* Toolbar */}
         <div className="bg-white  rounded-2xl shadow-sm border border-slate-200  p-2">
-          <div className="flex items-center justify-between gap-4">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="relative flex-1 max-w-md">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
               <input
@@ -398,7 +398,7 @@ export default function AccountsPage() {
 
         {/* Pagination */}
         {sortedAccounts.length > 0 && (
-          <div className="flex items-center justify-between bg-white  px-6 py-4 rounded-2xl border border-slate-200  shadow-sm">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white px-4 sm:px-6 py-4 rounded-2xl border border-slate-200 shadow-sm">
             <p className="text-sm text-slate-600 ">
               Showing <span className="font-semibold text-slate-900 ">{(currentPage - 1) * itemsPerPage + 1}</span> to <span className="font-semibold text-slate-900 ">{Math.min(currentPage * itemsPerPage, sortedAccounts.length)}</span> of <span className="font-semibold text-slate-900 ">{sortedAccounts.length}</span> results
             </p>

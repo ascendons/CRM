@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Fragment } from "react";
+import { Dialog, Transition } from "@headlessui/react";
 import { UserMenu } from "@/components/UserMenu";
 import { meService, type CurrentUser } from "@/lib/me";
 import { authService } from "@/lib/auth";
@@ -18,6 +19,7 @@ export default function Navigation() {
   const [loading, setLoading] = useState(true);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Get permission checks from context (LEAN RBAC)
   const { canAccessModule, canAccessPath, loading: permissionsLoading } = usePermissionContext();
@@ -66,8 +68,8 @@ export default function Navigation() {
   // Don't render navigation until permissions are loaded
   if (permissionsLoading) {
     return (
-      <header className="h-16 border-b border-slate-200 bg-white flex items-center justify-between px-6 lg:px-8 sticky top-0 z-10">
-        <div className="flex items-center gap-8">
+      <header className="h-16 border-b border-slate-200 bg-white flex items-center justify-between px-4 sm:px-6 lg:px-8 sticky top-0 z-10">
+        <div className="flex items-center gap-4 lg:gap-8">
           <Link href="/dashboard" className="flex items-center gap-3">
             <div className="size-10 bg-primary rounded-lg flex items-center justify-center text-white overflow-hidden">
               <span className="material-symbols-outlined">rocket_launch</span>
@@ -91,8 +93,15 @@ export default function Navigation() {
   }
 
   return (
-    <header className="h-16 border-b border-slate-200 bg-white flex items-center justify-between px-6 lg:px-8 sticky top-0 z-10">
-      <div className="flex items-center gap-8">
+    <header className="h-16 border-b border-slate-200 bg-white flex items-center justify-between px-4 sm:px-6 lg:px-8 sticky top-0 z-10">
+      <div className="flex items-center gap-4 lg:gap-8">
+        <button
+          type="button"
+          className="lg:hidden -ml-2 p-2 text-slate-500 hover:bg-slate-100 rounded-lg transition-colors"
+          onClick={() => setIsMobileMenuOpen(true)}
+        >
+          <span className="material-symbols-outlined">menu</span>
+        </button>
         <Link href="/dashboard" className="flex items-center gap-3">
           {organization?.settings?.logoUrl ? (
             <div className="size-10 rounded-lg flex items-center justify-center overflow-hidden border border-slate-100">
@@ -243,7 +252,7 @@ export default function Navigation() {
           )}
         </nav>
       </div>
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-2 sm:gap-4">
         {/* Chat Button */}
         <button
           onClick={() => {
@@ -277,6 +286,96 @@ export default function Navigation() {
 
       <ChatPanel isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
       <NotificationPanel isOpen={isNotificationsOpen} onClose={() => setIsNotificationsOpen(false)} />
+
+      {/* Mobile menu */}
+      <Transition.Root show={isMobileMenuOpen} as={Fragment}>
+        <Dialog as="div" className="relative z-50 lg:hidden" onClose={setIsMobileMenuOpen}>
+          <Transition.Child
+            as={Fragment}
+            enter="transition-opacity ease-linear duration-300"
+            enterFrom="opacity-0"
+            enterTo="opacity-100"
+            leave="transition-opacity ease-linear duration-300"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-0"
+          >
+            <div className="fixed inset-0 bg-slate-900/80 backdrop-blur-sm" />
+          </Transition.Child>
+
+          <div className="fixed inset-0 flex">
+            <Transition.Child
+              as={Fragment}
+              enter="transition ease-in-out duration-300 transform"
+              enterFrom="-translate-x-full"
+              enterTo="translate-x-0"
+              leave="transition ease-in-out duration-300 transform"
+              leaveFrom="translate-x-0"
+              leaveTo="-translate-x-full"
+            >
+              <Dialog.Panel className="relative mr-16 flex w-full max-w-xs flex-1">
+                <div className="flex h-full flex-col overflow-y-auto bg-white shadow-xl">
+                  <div className="flex h-16 shrink-0 items-center justify-between px-6 border-b border-slate-100">
+                    <Link href="/dashboard" className="flex items-center gap-3" onClick={() => setIsMobileMenuOpen(false)}>
+                      {organization?.settings?.logoUrl ? (
+                        <div className="size-8 rounded-lg flex items-center justify-center overflow-hidden border border-slate-100">
+                          <img
+                            src={organization.settings.logoUrl}
+                            alt={organization.organizationName}
+                            className="w-full h-full object-contain"
+                          />
+                        </div>
+                      ) : (
+                        <div className="size-8 bg-primary rounded-lg flex items-center justify-center text-white">
+                          <span className="material-symbols-outlined text-sm">rocket_launch</span>
+                        </div>
+                      )}
+                      <div>
+                        <h1 className="text-base font-bold leading-none tracking-tight text-slate-900">
+                          {organization?.displayName || organization?.organizationName || "Ascendons CRM"}
+                        </h1>
+                      </div>
+                    </Link>
+                    <button
+                      type="button"
+                      className="p-2 -mr-2 text-slate-500 hover:bg-slate-100 rounded-lg transition-colors"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <span className="material-symbols-outlined">close</span>
+                    </button>
+                  </div>
+                  <nav className="flex flex-1 flex-col gap-1 px-4 py-6">
+                    <MobileNavLink href="/dashboard" label="Dashboard" isActive={isActive("/dashboard")} onClick={() => setIsMobileMenuOpen(false)} />
+                    {canAccessModule("ANALYTICS") && <MobileNavLink href="/analytics" label="Analytics" isActive={isActive("/analytics")} onClick={() => setIsMobileMenuOpen(false)} />}
+                    {canAccessModule("CRM") && <MobileNavLink href="/leads" label="Leads" isActive={isActive("/leads")} onClick={() => setIsMobileMenuOpen(false)} />}
+                    {canAccessModule("CRM") && <MobileNavLink href="/opportunities" label="Deals" isActive={isActive("/opportunities")} onClick={() => setIsMobileMenuOpen(false)} />}
+                    {canAccessModule("CRM") && <MobileNavLink href="/contacts" label="Contacts" isActive={isActive("/contacts")} onClick={() => setIsMobileMenuOpen(false)} />}
+                    {canAccessModule("CRM") && <MobileNavLink href="/accounts" label="Accounts" isActive={isActive("/accounts")} onClick={() => setIsMobileMenuOpen(false)} />}
+                    {canAccessModule("PRODUCTS") && <MobileNavLink href="/proposals" label="Proposals" isActive={isActive("/proposals")} onClick={() => setIsMobileMenuOpen(false)} />}
+                    <MobileNavLink href="/activities" label="Activities" isActive={isActive("/activities")} onClick={() => setIsMobileMenuOpen(false)} />
+                    {canAccessModule("ADMINISTRATION") && <MobileNavLink href="/catalog" label="Catalog" isActive={isActive("/catalog")} onClick={() => setIsMobileMenuOpen(false)} />}
+                    {canAccessModule("ADMINISTRATION") && <MobileNavLink href="/admin" label="Admin" isActive={isActive("/admin")} onClick={() => setIsMobileMenuOpen(false)} />}
+                  </nav>
+                </div>
+              </Dialog.Panel>
+            </Transition.Child>
+          </div>
+        </Dialog>
+      </Transition.Root>
     </header >
+  );
+}
+
+function MobileNavLink({ href, label, isActive, onClick }: { href: string, label: string, isActive: boolean, onClick: () => void }) {
+  return (
+    <Link
+      href={href}
+      onClick={onClick}
+      className={`block px-4 py-3 rounded-xl text-base font-medium transition-colors ${isActive
+          ? "bg-primary/10 text-primary"
+          : "text-slate-700 hover:bg-slate-50 hover:text-slate-900"
+        }`}
+    >
+      {label}
+    </Link>
   );
 }

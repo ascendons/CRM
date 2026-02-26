@@ -374,7 +374,7 @@ function ActivitiesContent() {
 
         {/* Pagination */}
         {filteredActivities.length > 0 && (
-          <div className="flex items-center justify-between bg-white  px-6 py-4 rounded-2xl border border-slate-200  shadow-sm">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white px-4 sm:px-6 py-4 rounded-2xl border border-slate-200 shadow-sm">
             <p className="text-sm text-slate-600 ">
               Showing <span className="font-semibold text-slate-900 ">{(currentPage - 1) * itemsPerPage + 1}</span> to <span className="font-semibold text-slate-900 ">{Math.min(currentPage * itemsPerPage, filteredActivities.length)}</span> of <span className="font-semibold text-slate-900 ">{filteredActivities.length}</span> results
             </p>

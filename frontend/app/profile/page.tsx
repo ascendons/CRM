@@ -85,7 +85,7 @@ export default function ProfilePage() {
                 </div>
 
                 <div className="pt-20 px-8 pb-8">
-                    <div className="flex justify-between items-start mb-6">
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
                         <div>
                             <h2 className="text-2xl font-bold text-slate-900">{user.fullName}</h2>
                             <p className="text-slate-500 flex items-center gap-2 mt-1">
@@ -96,8 +96,8 @@ export default function ProfilePage() {
                             </p>
                         </div>
                         <span className={`px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1 ${user.status === 'ACTIVE'
-                                ? 'bg-green-100 text-green-700 border border-green-200'
-                                : 'bg-slate-100 text-slate-700 border border-slate-200'
+                            ? 'bg-green-100 text-green-700 border border-green-200'
+                            : 'bg-slate-100 text-slate-700 border border-slate-200'
                             }`}>
                             <CheckCircle2 className="w-3 h-3" />
                             {user.status || "ACTIVE"}

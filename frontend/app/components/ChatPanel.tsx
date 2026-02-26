@@ -223,24 +223,24 @@ export default function ChatPanel({ isOpen, onClose }: ChatPanelProps) {
 
                                         <div className="flex flex-1 overflow-hidden">
                                             {/* Sidebar: Users List */}
-                                            <div className="w-1/3 border-r border-slate-200 bg-white overflow-y-auto">
+                                            <div className="w-[70px] sm:w-1/3 border-r border-slate-200 bg-white overflow-y-auto shrink-0 transition-all duration-200">
                                                 <div className="p-2">
                                                     <button
                                                         onClick={() => {
                                                             handleSelectRecipient('ALL', 'ALL');
                                                             subscribeToChat('ALL');
                                                         }}
-                                                        className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center gap-2 ${selectedRecipientId === 'ALL' ? 'bg-primary/10 text-primary' : 'hover:bg-slate-50 text-slate-700'}`}
+                                                        className={`w-full text-left px-2 sm:px-3 py-2 rounded-lg transition-colors flex items-center justify-center sm:justify-start gap-2 ${selectedRecipientId === 'ALL' ? 'bg-primary/10 text-primary' : 'hover:bg-slate-50 text-slate-700'}`}
                                                     >
                                                         <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
                                                             <span className="material-symbols-outlined text-primary text-sm">public</span>
                                                         </div>
-                                                        <span className="text-sm font-medium truncate">Everyone</span>
+                                                        <span className="text-sm font-medium truncate hidden sm:block">Everyone</span>
                                                     </button>
                                                 </div>
                                                 <div className="px-3 py-2 border-t border-slate-200">
-                                                    <div className="flex items-center justify-between mb-2">
-                                                        <h3 className="text-xs font-semibold text-slate-400 tracking-wider uppercase">Custom Groups</h3>
+                                                    <div className="flex items-center justify-center sm:justify-between mb-2">
+                                                        <h3 className="text-[10px] sm:text-xs font-semibold text-slate-400 tracking-wider uppercase hidden sm:block">Custom Groups</h3>
                                                         <button
                                                             onClick={() => setIsCreateGroupModalOpen(true)}
                                                             className="text-primary hover:bg-primary/10 p-1 rounded-md"
@@ -272,7 +272,7 @@ export default function ChatPanel({ isOpen, onClose }: ChatPanelProps) {
                                                     </ul>
                                                 </div>
                                                 <div className="px-3 py-2 border-t border-slate-200">
-                                                    <h3 className="text-xs font-semibold text-slate-400 tracking-wider uppercase mb-2">Direct Messages</h3>
+                                                    <h3 className="text-[10px] sm:text-xs font-semibold text-slate-400 tracking-wider uppercase mb-2 hidden sm:block">Direct Messages</h3>
                                                     <ul className="space-y-1">
                                                         {users.map(user => (
                                                             <li key={user.id}>
@@ -299,7 +299,7 @@ export default function ChatPanel({ isOpen, onClose }: ChatPanelProps) {
                                             </div>
 
                                             {/* Chat Area */}
-                                            <div className="w-2/3 flex flex-col bg-slate-50">
+                                            <div className="flex-1 w-full flex flex-col bg-slate-50 min-w-0">
                                                 {!selectedRecipientId ? (
                                                     <div className="flex-1 flex flex-col items-center justify-center text-slate-400 p-6 text-center">
                                                         <span className="material-symbols-outlined text-5xl mb-3 text-slate-300">chat_bubble</span>

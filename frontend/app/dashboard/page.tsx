@@ -319,7 +319,7 @@ export default function DashboardPage() {
                   </Link>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
                   {[
                     { label: "Total", value: statistics.totalLeads, color: "bg-slate-100 text-slate-600" },
                     { label: "New", value: statistics.newLeads, color: "bg-blue-50 text-blue-600 border-blue-100" },
@@ -340,14 +340,14 @@ export default function DashboardPage() {
 
             {/* Action & Insight Center */}
             <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 min-h-[400px]">
-              <div className="flex items-center justify-between mb-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                 <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
                   <div className={`p-1.5 rounded-lg ${activeTab === 'upcoming' ? 'bg-blue-100 text-blue-600' : 'bg-purple-100 text-purple-600'}`}>
                     {activeTab === 'upcoming' ? <CheckCircle2 className="h-5 w-5" /> : <Clock className="h-5 w-5" />}
                   </div>
                   Action & Insight Center
                 </h3>
-                <div className="flex items-center gap-4">
+                <div className="flex flex-wrap items-center gap-3 sm:gap-4">
                   <Link
                     href="/activities?type=TASK"
                     className="text-xs font-semibold text-primary hover:text-primary-hover flex items-center gap-1 transition-colors group hidden sm:flex"

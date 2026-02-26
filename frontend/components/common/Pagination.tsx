@@ -23,7 +23,7 @@ export function Pagination({
     const endItem = Math.min(currentPage * pageSize, totalElements);
 
     return (
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white px-6 py-4 rounded-2xl border border-slate-200 shadow-sm">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white px-4 sm:px-6 py-4 rounded-2xl border border-slate-200 shadow-sm">
             {/* Information and Page Size */}
             <div className="flex flex-col sm:flex-row sm:items-center gap-4 text-sm text-slate-600">
                 <p>
