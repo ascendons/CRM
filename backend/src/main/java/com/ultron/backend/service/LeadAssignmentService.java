@@ -35,6 +35,7 @@ public class LeadAssignmentService {
     private final LeadRepository leadRepository;
     private final RoleRepository roleRepository;
     private final Map<String, LeadAssignmentStrategy> assignmentStrategies;
+    private final NotificationService notificationService;
 
     /**
      * Auto-assign a lead to an eligible user
@@ -113,6 +114,20 @@ public class LeadAssignmentService {
         }
 
         log.info("Lead {} assigned to user {}", lead.getId(), selectedUser.getEmail());
+
+        // Notify assigned user
+        try {
+            notificationService.createAndSendNotification(
+                selectedUser.getUserId(),
+                "Lead Auto-Assigned: " + lead.getFirstName() + " " + lead.getLastName(),
+                "A new lead from " + lead.getCompanyName() + " has been auto-assigned to you.",
+                "LEAD_ASSIGNED",
+                "/leads/" + lead.getId()
+            );
+            log.info("Notification sent for auto lead assignment: {}", lead.getLeadId());
+        } catch (Exception e) {
+            log.error("Failed to send notification for auto lead assignment: {}", lead.getLeadId(), e);
+        }
     }
 
     /**
@@ -189,6 +204,22 @@ public class LeadAssignmentService {
 
         log.info("Lead {} reassigned from user {} to user {}",
                 leadId, previousUserId, userId);
+
+        // Notify assigned user if changed
+        if (!userId.equals(previousUserId)) {
+            try {
+                notificationService.createAndSendNotification(
+                    user.getUserId(),
+                    "Lead Manually Assigned: " + lead.getFirstName() + " " + lead.getLastName(),
+                    "A lead from " + lead.getCompanyName() + " has been manually assigned to you.",
+                    "LEAD_ASSIGNED",
+                    "/leads/" + lead.getId()
+                );
+                log.info("Notification sent for manual lead assignment: {}", lead.getLeadId());
+            } catch (Exception e) {
+                log.error("Failed to send notification for manual lead assignment: {}", lead.getLeadId(), e);
+            }
+        }
 
         return savedLead;
     }
