@@ -36,6 +36,7 @@ public class OrganizationInvitationService extends BaseTenantService {
     private final UserRepository userRepository;
     private final OrganizationService organizationService;
     private final EmailNotificationService emailNotificationService;
+    private final NotificationService notificationService;
 
     /**
      * Send invitation to user to join organization
@@ -111,6 +112,21 @@ public class OrganizationInvitationService extends BaseTenantService {
         } catch (Exception e) {
             log.error("Failed to send invitation email", e);
             // Don't fail the invitation if email fails
+        }
+
+        // P1 #16: Notify inviter that invitation was sent successfully
+        try {
+            String roleInfo = saved.getRoleName() != null ? " as " + saved.getRoleName() : "";
+            notificationService.createAndSendNotification(
+                currentUserId,
+                "Invitation Sent",
+                "Invitation has been sent to " + request.getEmail() + roleInfo,
+                "INVITATION_SENT",
+                "/organization/invitations"
+            );
+            log.info("Notification sent for invitation: {}", invitationId);
+        } catch (Exception e) {
+            log.error("Failed to send notification for invitation: {}", invitationId, e);
         }
 
         log.info("[Tenant: {}] Invitation sent successfully: {}", tenantId, invitationId);
@@ -209,6 +225,22 @@ public class OrganizationInvitationService extends BaseTenantService {
         invitation.setLastModifiedAt(LocalDateTime.now());
         invitationRepository.save(invitation);
 
+        // P1 #17: Notify inviter that invitation was accepted
+        if (invitation.getInvitedByUserId() != null) {
+            try {
+                notificationService.createAndSendNotification(
+                    invitation.getInvitedByUserId(),
+                    "Invitation Accepted",
+                    savedUser.getFullName() + " (" + savedUser.getEmail() + ") has accepted your invitation and joined the organization",
+                    "INVITATION_ACCEPTED",
+                    "/users/" + savedUser.getId()
+                );
+                log.info("Notification sent for invitation acceptance: {}", invitationId);
+            } catch (Exception e) {
+                log.error("Failed to send notification for invitation acceptance: {}", invitationId, e);
+            }
+        }
+
         // 6. Increment organization user count
         // TODO: Implement usage increment
         // organizationService.incrementUsage("USER", invitation.getTenantId());
@@ -243,6 +275,20 @@ public class OrganizationInvitationService extends BaseTenantService {
         invitation.setLastModifiedAt(LocalDateTime.now());
 
         invitationRepository.save(invitation);
+
+        // P1 #26: Notify admin that invitation was revoked
+        try {
+            notificationService.createAndSendNotification(
+                currentUserId,
+                "Invitation Revoked",
+                "Pending invitation to " + invitation.getEmail() + " has been revoked successfully",
+                "INVITATION_REVOKED",
+                "/organization/invitations"
+            );
+            log.info("Notification sent for invitation revocation: {}", invitationId);
+        } catch (Exception e) {
+            log.error("Failed to send notification for invitation revocation: {}", invitationId, e);
+        }
 
         log.info("[Tenant: {}] Invitation revoked: {}", tenantId, invitationId);
     }
@@ -319,24 +365,21 @@ public class OrganizationInvitationService extends BaseTenantService {
         return prefix + String.format("%05d", nextNumber);
     }
 
+    /**
+     * Generate unique user ID using timestamp for guaranteed uniqueness.
+     * Format: USR-YYYYMMDD-{timestamp-millis}
+     * Example: USR-20260226-1708932547123
+     */
     private String generateUserId() {
         LocalDateTime now = LocalDateTime.now();
-        String yearMonth = now.format(DateTimeFormatter.ofPattern("yyyyMM"));
-        String prefix = "USR-" + yearMonth + "-";
+        String datePrefix = now.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
 
-        String lastId = userRepository.findAll().stream()
-                .map(User::getUserId)
-                .filter(id -> id != null && id.startsWith(prefix))
-                .max(String::compareTo)
-                .orElse(null);
+        // Use current timestamp in milliseconds for uniqueness
+        long timestamp = System.currentTimeMillis();
 
-        int nextNumber = 1;
-        if (lastId != null) {
-            String numberPart = lastId.substring(prefix.length());
-            nextNumber = Integer.parseInt(numberPart) + 1;
-        }
-
-        return prefix + String.format("%05d", nextNumber);
+        // Format: USR-YYYYMMDD-{timestamp}
+        // This guarantees uniqueness even with concurrent user creation
+        return "USR-" + datePrefix + "-" + timestamp;
     }
 
     private InvitationResponse mapToResponse(OrganizationInvitation invitation,

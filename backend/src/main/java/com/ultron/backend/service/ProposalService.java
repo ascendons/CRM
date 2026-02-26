@@ -51,6 +51,7 @@ public class ProposalService extends BaseTenantService {
     private final InvoiceTemplateService invoiceTemplateService;
     private final com.ultron.backend.repository.OrganizationRepository organizationRepository;
     private final ProposalVersioningService proposalVersioningService;
+    private final NotificationService notificationService;
 
     @Transactional
     public ProposalResponse createProposal(CreateProposalRequest request, String createdBy) {
@@ -159,6 +160,23 @@ public class ProposalService extends BaseTenantService {
 
         // Create version snapshot
         proposalVersioningService.createSnapshot(saved, "CREATED", "Initial version created", createdBy);
+
+        // P1 #14: Notify proposal owner about creation
+        if (saved.getOwnerId() != null) {
+            try {
+                String amountInfo = saved.getTotalAmount() != null ? " (Amount: ₹" + saved.getTotalAmount() + ")" : "";
+                notificationService.createAndSendNotification(
+                    saved.getOwnerId(),
+                    "New Proposal Created: " + saved.getProposalId(),
+                    "Proposal '" + saved.getTitle() + "' has been created for " + saved.getSourceName() + amountInfo,
+                    "PROPOSAL_CREATED",
+                    "/proposals/" + saved.getId()
+                );
+                log.info("Notification sent for new proposal: {}", saved.getProposalId());
+            } catch (Exception e) {
+                log.error("Failed to send notification for proposal creation: {}", saved.getProposalId(), e);
+            }
+        }
 
         // Sync opportunity amount if applicable
         if (saved.getOpportunityId() != null) {
@@ -444,6 +462,23 @@ public class ProposalService extends BaseTenantService {
         // Create version snapshot
         proposalVersioningService.createSnapshot(saved, "SENT", "Proposal sent to customer", userId);
 
+        // P0 #10: Notify proposal owner that proposal was sent
+        if (saved.getOwnerId() != null) {
+            try {
+                String customerInfo = saved.getSourceName() != null ? " to " + saved.getSourceName() : "";
+                notificationService.createAndSendNotification(
+                    saved.getOwnerId(),
+                    "✉️ Proposal Sent: " + saved.getProposalId(),
+                    "Your proposal '" + saved.getTitle() + "' has been sent" + customerInfo,
+                    "PROPOSAL_SENT",
+                    "/proposals/" + saved.getId()
+                );
+                log.info("Notification sent for proposal send: {}", saved.getProposalId());
+            } catch (Exception e) {
+                log.error("Failed to send notification for proposal send: {}", saved.getProposalId(), e);
+            }
+        }
+
         // TODO: Send email notification to customer
 
         // Sync opportunity amount if applicable
@@ -485,6 +520,24 @@ public class ProposalService extends BaseTenantService {
 
         // Create version snapshot
         proposalVersioningService.createSnapshot(saved, "ACCEPTED", "Proposal accepted by customer", userId);
+
+        // P0 #11: Notify proposal owner about acceptance (MAJOR MILESTONE!)
+        if (saved.getOwnerId() != null) {
+            try {
+                String amountInfo = saved.getTotalAmount() != null ? " (Amount: ₹" + saved.getTotalAmount() + ")" : "";
+                String customerInfo = saved.getSourceName() != null ? " by " + saved.getSourceName() : "";
+                notificationService.createAndSendNotification(
+                    saved.getOwnerId(),
+                    "🎉 Proposal Accepted: " + saved.getProposalId(),
+                    "Congratulations! Proposal '" + saved.getTitle() + "' has been accepted" + customerInfo + amountInfo,
+                    "PROPOSAL_ACCEPTED",
+                    "/proposals/" + saved.getId()
+                );
+                log.info("Notification sent for proposal acceptance: {}", saved.getProposalId());
+            } catch (Exception e) {
+                log.error("Failed to send notification for proposal acceptance: {}", saved.getProposalId(), e);
+            }
+        }
 
         // Sync opportunity amount if applicable
         if (saved.getOpportunityId() != null) {
@@ -539,6 +592,22 @@ public class ProposalService extends BaseTenantService {
         // Create version snapshot
         proposalVersioningService.createSnapshot(saved, "CONVERT_TO_PROFORMA", "Converted to Proforma Invoice", userId);
 
+        // P1 #15: Notify proposal owner about conversion to Proforma
+        if (saved.getOwnerId() != null) {
+            try {
+                notificationService.createAndSendNotification(
+                    saved.getOwnerId(),
+                    "Converted to Proforma: " + saved.getProposalId(),
+                    "Proposal '" + saved.getTitle() + "' has been converted to Proforma Invoice",
+                    "PROPOSAL_PROFORMA_CONVERTED",
+                    "/proposals/" + saved.getId()
+                );
+                log.info("Notification sent for proforma conversion: {}", saved.getProposalId());
+            } catch (Exception e) {
+                log.error("Failed to send notification for proforma conversion: {}", saved.getProposalId(), e);
+            }
+        }
+
         return mapToResponse(saved);
     }
 
@@ -575,6 +644,23 @@ public class ProposalService extends BaseTenantService {
 
         // Create version snapshot
         proposalVersioningService.createSnapshot(saved, "REJECTED", "Proposal rejected by customer. Reason: " + reason, userId);
+
+        // P0 #12: Notify proposal owner about rejection
+        if (saved.getOwnerId() != null) {
+            try {
+                String reasonInfo = reason != null && !reason.isEmpty() ? " Reason: " + reason : "";
+                notificationService.createAndSendNotification(
+                    saved.getOwnerId(),
+                    "Proposal Rejected: " + saved.getProposalId(),
+                    "Proposal '" + saved.getTitle() + "' has been rejected by customer" + reasonInfo,
+                    "PROPOSAL_REJECTED",
+                    "/proposals/" + saved.getId()
+                );
+                log.info("Notification sent for proposal rejection: {}", saved.getProposalId());
+            } catch (Exception e) {
+                log.error("Failed to send notification for proposal rejection: {}", saved.getProposalId(), e);
+            }
+        }
 
         // Sync opportunity amount if applicable
         if (saved.getOpportunityId() != null) {

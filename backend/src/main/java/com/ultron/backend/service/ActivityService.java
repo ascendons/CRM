@@ -39,6 +39,7 @@ public class ActivityService extends BaseTenantService {
     private final AccountRepository accountRepository;
     private final OpportunityRepository opportunityRepository;
     private final UserService userService;
+    private final NotificationService notificationService;
 
     @Transactional
     public ActivityResponse createActivity(CreateActivityRequest request, String currentUserId) {
@@ -134,6 +135,24 @@ public class ActivityService extends BaseTenantService {
 
         Activity savedActivity = activityRepository.save(activity);
         log.info("Activity created successfully with ID: {}", savedActivity.getActivityId());
+
+        // P0 #1: Notify assigned user about new activity
+        if (savedActivity.getAssignedToId() != null && !savedActivity.getAssignedToId().equals(currentUserId)) {
+            try {
+                String dueInfo = savedActivity.getDueDate() != null ? " Due: " + savedActivity.getDueDate() : "";
+                notificationService.createAndSendNotification(
+                    savedActivity.getAssignedToId(),
+                    "New Activity: " + savedActivity.getSubject(),
+                    "You have been assigned a new " + savedActivity.getType() + " activity: " + savedActivity.getSubject() + dueInfo,
+                    "ACTIVITY_CREATED",
+                    "/activities/" + savedActivity.getId()
+                );
+                log.info("Notification sent for new activity: {}", savedActivity.getActivityId());
+            } catch (Exception e) {
+                log.error("Failed to send notification for activity creation: {}", savedActivity.getActivityId(), e);
+            }
+        }
+
         return mapToResponse(savedActivity);
     }
 
@@ -268,11 +287,33 @@ public class ActivityService extends BaseTenantService {
         // Update fields if provided
         if (request.getSubject() != null) activity.setSubject(request.getSubject());
         if (request.getType() != null) activity.setType(request.getType());
-        if (request.getStatus() != null) {
+
+        // P1 #13: Handle activity completion with notification
+        boolean wasCompleted = false;
+        if (request.getStatus() != null && request.getStatus() == ActivityStatus.COMPLETED && activity.getStatus() != ActivityStatus.COMPLETED) {
+            wasCompleted = true;
             activity.setStatus(request.getStatus());
-            if (request.getStatus() == ActivityStatus.COMPLETED && activity.getCompletedDate() == null) {
+            if (activity.getCompletedDate() == null) {
                 activity.setCompletedDate(LocalDateTime.now());
             }
+
+            // Notify creator if they're different from the person who completed it
+            if (activity.getCreatedBy() != null && !activity.getCreatedBy().equals(currentUserId)) {
+                try {
+                    notificationService.createAndSendNotification(
+                        activity.getCreatedBy(),
+                        "Activity Completed: " + activity.getSubject(),
+                        currentUserName + " has completed the activity '" + activity.getSubject() + "'",
+                        "ACTIVITY_COMPLETED",
+                        "/activities/" + activity.getId()
+                    );
+                    log.info("Notification sent for activity completion: {}", activity.getActivityId());
+                } catch (Exception e) {
+                    log.error("Failed to send notification for activity completion: {}", activity.getActivityId(), e);
+                }
+            }
+        } else if (request.getStatus() != null) {
+            activity.setStatus(request.getStatus());
         }
         if (request.getPriority() != null) activity.setPriority(request.getPriority());
         if (request.getDescription() != null) activity.setDescription(request.getDescription());
@@ -337,10 +378,33 @@ public class ActivityService extends BaseTenantService {
             activity.setOpportunityName(opportunity.getOpportunityName());
         }
 
+        // P0 #2: Handle activity reassignment with notification
         if (request.getAssignedToId() != null && !request.getAssignedToId().equals(activity.getAssignedToId())) {
-            String assignedUserName = userService.getUserFullName(request.getAssignedToId());
-            activity.setAssignedToId(request.getAssignedToId());
-            activity.setAssignedToName(assignedUserName);
+            String oldAssigneeId = activity.getAssignedToId();
+            String oldAssigneeName = activity.getAssignedToName();
+            String newAssigneeId = request.getAssignedToId();
+            String newAssigneeName = userService.getUserFullName(newAssigneeId);
+
+            activity.setAssignedToId(newAssigneeId);
+            activity.setAssignedToName(newAssigneeName);
+
+            // Notify new assignee (if different from current user)
+            if (!newAssigneeId.equals(currentUserId)) {
+                try {
+                    String dueInfo = activity.getDueDate() != null ? " Due: " + activity.getDueDate() : "";
+                    String reassignInfo = oldAssigneeName != null ? " from " + oldAssigneeName : "";
+                    notificationService.createAndSendNotification(
+                        newAssigneeId,
+                        "Activity Reassigned: " + activity.getSubject(),
+                        "Activity '" + activity.getSubject() + "' has been reassigned to you" + reassignInfo + dueInfo,
+                        "ACTIVITY_REASSIGNED",
+                        "/activities/" + activity.getId()
+                    );
+                    log.info("Notification sent for activity reassignment: {}", activity.getActivityId());
+                } catch (Exception e) {
+                    log.error("Failed to send notification for activity reassignment: {}", activity.getActivityId(), e);
+                }
+            }
         }
 
         activity.setLastModifiedAt(LocalDateTime.now());

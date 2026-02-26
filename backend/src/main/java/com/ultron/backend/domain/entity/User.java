@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.CompoundIndex;
+import org.springframework.data.mongodb.core.index.CompoundIndexes;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -18,13 +20,22 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Document(collection = "users")
+@CompoundIndexes({
+    // Multi-tenant unique constraints: userId, username, and email must be unique PER tenant
+    @CompoundIndex(name = "userId_tenantId_unique", def = "{'userId': 1, 'tenantId': 1}", unique = true),
+    @CompoundIndex(name = "username_tenantId_unique", def = "{'username': 1, 'tenantId': 1}", unique = true),
+    @CompoundIndex(name = "email_tenantId_unique", def = "{'email': 1, 'tenantId': 1}", unique = true),
+    // Performance indexes
+    @CompoundIndex(name = "tenantId_isDeleted", def = "{'tenantId': 1, 'isDeleted': 1}"),
+    @CompoundIndex(name = "tenantId_status_isDeleted", def = "{'tenantId': 1, 'status': 1, 'isDeleted': 1}")
+})
 public class User {
 
     @Id
     private String id;
 
     // Business ID (USR-YYYY-MM-XXXXX)
-    @Indexed(unique = true)
+    // Note: Unique per tenant via compound index above
     private String userId;
 
     // Multi-tenancy
@@ -36,10 +47,9 @@ public class User {
     private String userType = "TENANT_USER";  // SYSTEM_ADMIN, TENANT_ADMIN, TENANT_USER
 
     // Authentication
-    @Indexed(unique = true)
+    // Note: Unique per tenant via compound indexes above
     private String username;
 
-    @Indexed(unique = true)
     private String email;
 
     private String password;

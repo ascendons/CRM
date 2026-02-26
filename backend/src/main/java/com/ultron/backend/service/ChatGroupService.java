@@ -26,6 +26,8 @@ public class ChatGroupService {
 
     private final ChatGroupRepository chatGroupRepository;
     private final UserRepository userRepository;
+    private final NotificationService notificationService;
+    private final UserService userService;
 
     public ChatGroupDTO createGroup(String creatorId, CreateChatGroupRequest request) {
         String tenantId = TenantContext.getTenantId();
@@ -45,6 +47,25 @@ public class ChatGroupService {
 
         group = chatGroupRepository.save(group);
         log.info("Created chat group {} with {} members", group.getId(), memberIds.size());
+
+        // P1 #19: Notify all group members except creator
+        String creatorName = userService.getUserFullName(creatorId);
+        for (String memberId : group.getMemberIds()) {
+            if (!memberId.equals(creatorId)) {
+                try {
+                    notificationService.createAndSendNotification(
+                        memberId,
+                        "Added to Chat Group: " + group.getName(),
+                        creatorName + " added you to chat group '" + group.getName() + "'",
+                        "CHAT_GROUP_CREATED",
+                        "/chat/groups/" + group.getId()
+                    );
+                } catch (Exception e) {
+                    log.error("Failed to send notification for chat group creation to member {}: {}", memberId, e.getMessage());
+                }
+            }
+        }
+        log.info("Notifications sent for chat group creation: {}", group.getId());
 
         return mapToDTO(group);
     }

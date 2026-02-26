@@ -34,6 +34,7 @@ public class OpportunityService extends BaseTenantService {
     private final ContactRepository contactRepository;
     private final OpportunityIdGeneratorService opportunityIdGenerator;
     private final UserService userService;
+    private final NotificationService notificationService;
 
     /**
      * Create a new opportunity
@@ -129,6 +130,24 @@ public class OpportunityService extends BaseTenantService {
 
         Opportunity saved = opportunityRepository.save(opportunity);
         log.info("Opportunity created successfully with ID: {}", saved.getOpportunityId());
+
+        // P0 #6: Notify opportunity owner about creation
+        if (saved.getOwnerId() != null && !saved.getOwnerId().equals(createdByUserId)) {
+            try {
+                String amountInfo = saved.getAmount() != null ? " Amount: ₹" + saved.getAmount() : "";
+                String closeInfo = saved.getExpectedCloseDate() != null ? " Expected close: " + saved.getExpectedCloseDate() : "";
+                notificationService.createAndSendNotification(
+                    saved.getOwnerId(),
+                    "New Opportunity: " + saved.getOpportunityName(),
+                    "Opportunity created" + amountInfo + closeInfo,
+                    "OPPORTUNITY_CREATED",
+                    "/opportunities/" + saved.getId()
+                );
+                log.info("Notification sent for new opportunity: {}", saved.getOpportunityId());
+            } catch (Exception e) {
+                log.error("Failed to send notification for opportunity creation: {}", saved.getOpportunityId(), e);
+            }
+        }
 
         return mapToResponse(saved);
     }
@@ -237,16 +256,70 @@ public class OpportunityService extends BaseTenantService {
         // Update fields
         if (request.getOpportunityName() != null) opportunity.setOpportunityName(request.getOpportunityName());
 
-        // Handle stage change
-        if (request.getStage() != null && request.getStage() != opportunity.getStage()) {
-            opportunity.setStage(request.getStage());
-            setStageDate(opportunity, request.getStage());
+        // Handle stage change with notifications
+        OpportunityStage oldStage = opportunity.getStage();
+        boolean stageChanged = false;
+        if (request.getStage() != null && request.getStage() != oldStage) {
+            stageChanged = true;
+            OpportunityStage newStage = request.getStage();
+            opportunity.setStage(newStage);
+            setStageDate(opportunity, newStage);
             opportunity.setDaysInStage(0);
 
             // Set actual close date if moving to closed stage
-            if (request.getStage() == OpportunityStage.CLOSED_WON || request.getStage() == OpportunityStage.CLOSED_LOST) {
+            if (newStage == OpportunityStage.CLOSED_WON || newStage == OpportunityStage.CLOSED_LOST) {
                 opportunity.setActualCloseDate(request.getActualCloseDate());
                 opportunity.setClosedDate(LocalDateTime.now());
+            }
+
+            // P0 #8: Notify for CLOSED_WON (Celebration!)
+            if (newStage == OpportunityStage.CLOSED_WON && opportunity.getOwnerId() != null) {
+                try {
+                    String amountInfo = opportunity.getAmount() != null ? " worth ₹" + opportunity.getAmount() : "";
+                    String accountInfo = opportunity.getAccountName() != null ? " with " + opportunity.getAccountName() : "";
+                    notificationService.createAndSendNotification(
+                        opportunity.getOwnerId(),
+                        "🎉 Opportunity Won! " + opportunity.getOpportunityName(),
+                        "Congratulations! You closed the deal" + amountInfo + accountInfo,
+                        "OPPORTUNITY_WON",
+                        "/opportunities/" + opportunity.getId()
+                    );
+                    log.info("Notification sent for opportunity win: {}", opportunity.getOpportunityId());
+                } catch (Exception e) {
+                    log.error("Failed to send notification for opportunity win: {}", opportunity.getOpportunityId(), e);
+                }
+            }
+            // P0 #9: Notify for CLOSED_LOST
+            else if (newStage == OpportunityStage.CLOSED_LOST && opportunity.getOwnerId() != null) {
+                try {
+                    String amountInfo = opportunity.getAmount() != null ? " Amount: ₹" + opportunity.getAmount() : "";
+                    String lossInfo = request.getLossReason() != null ? " Loss reason: " + request.getLossReason() : "";
+                    notificationService.createAndSendNotification(
+                        opportunity.getOwnerId(),
+                        "Opportunity Lost: " + opportunity.getOpportunityName(),
+                        "Opportunity marked as lost" + amountInfo + lossInfo,
+                        "OPPORTUNITY_LOST",
+                        "/opportunities/" + opportunity.getId()
+                    );
+                    log.info("Notification sent for opportunity loss: {}", opportunity.getOpportunityId());
+                } catch (Exception e) {
+                    log.error("Failed to send notification for opportunity loss: {}", opportunity.getOpportunityId(), e);
+                }
+            }
+            // P0 #7: Notify for general stage changes (not closed)
+            else if (opportunity.getOwnerId() != null) {
+                try {
+                    notificationService.createAndSendNotification(
+                        opportunity.getOwnerId(),
+                        "Opportunity Stage Updated: " + opportunity.getOpportunityName(),
+                        "Moved from " + oldStage + " to " + newStage,
+                        "OPPORTUNITY_STAGE_CHANGED",
+                        "/opportunities/" + opportunity.getId()
+                    );
+                    log.info("Notification sent for opportunity stage change: {}", opportunity.getOpportunityId());
+                } catch (Exception e) {
+                    log.error("Failed to send notification for opportunity stage change: {}", opportunity.getOpportunityId(), e);
+                }
             }
         }
 

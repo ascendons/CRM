@@ -57,6 +57,7 @@ public class LeadService extends BaseTenantService {
     private final ActivityRepository activityRepository;
     private final ApplicationEventPublisher eventPublisher;
     private final AuditLogService auditLogService;
+    private final NotificationService notificationService;
 
     /**
      * Create a new lead
@@ -133,6 +134,23 @@ public class LeadService extends BaseTenantService {
                 "CREATE", "New lead created for " + savedLead.getCompanyName(),
                 null, LeadStatus.NEW.toString(),
                 createdByUserId, null);
+
+        // P0 #3: Notify lead owner about new lead assignment
+        if (savedLead.getLeadOwnerId() != null && !savedLead.getLeadOwnerId().equals(createdByUserId)) {
+            try {
+                String sourceInfo = savedLead.getLeadSource() != null ? " Source: " + savedLead.getLeadSource() : "";
+                notificationService.createAndSendNotification(
+                    savedLead.getLeadOwnerId(),
+                    "New Lead: " + savedLead.getFirstName() + " " + savedLead.getLastName(),
+                    "You have a new lead from " + savedLead.getCompanyName() + sourceInfo,
+                    "LEAD_CREATED",
+                    "/leads/" + savedLead.getId()
+                );
+                log.info("Notification sent for new lead: {}", savedLead.getLeadId());
+            } catch (Exception e) {
+                log.error("Failed to send notification for lead creation: {}", savedLead.getLeadId(), e);
+            }
+        }
 
         return mapToResponse(savedLead);
     }
@@ -228,6 +246,23 @@ public class LeadService extends BaseTenantService {
                 "STATUS_CHANGE", "Lead status updated to " + newStatus,
                 oldStatus.toString(), newStatus.toString(),
                 updatedByUserId, null);
+
+        // P0 #4: Notify lead owner when lead is qualified (high priority)
+        if (newStatus == LeadStatus.QUALIFIED && updated.getLeadOwnerId() != null) {
+            try {
+                String scoreInfo = updated.getQualificationScore() != null ? " Score: " + updated.getQualificationScore() : "";
+                notificationService.createAndSendNotification(
+                    updated.getLeadOwnerId(),
+                    "⭐ Lead Qualified: " + updated.getFirstName() + " " + updated.getLastName(),
+                    "Your lead from " + updated.getCompanyName() + " is now qualified" + scoreInfo,
+                    "LEAD_QUALIFIED",
+                    "/leads/" + updated.getId()
+                );
+                log.info("Notification sent for lead qualification: {}", updated.getLeadId());
+            } catch (Exception e) {
+                log.error("Failed to send notification for lead qualification: {}", updated.getLeadId(), e);
+            }
+        }
 
         return mapToResponse(updated);
     }
@@ -334,8 +369,29 @@ public class LeadService extends BaseTenantService {
         if (request.getLeadStatus() != null) {
             lead.setLeadStatus(request.getLeadStatus());
         }
-        if (request.getLeadOwnerId() != null) {
-            lead.setLeadOwnerId(request.getLeadOwnerId());
+
+        // P1 #20: Handle lead owner reassignment with notification
+        if (request.getLeadOwnerId() != null && !request.getLeadOwnerId().equals(lead.getLeadOwnerId())) {
+            String oldOwnerId = lead.getLeadOwnerId();
+            String newOwnerId = request.getLeadOwnerId();
+            lead.setLeadOwnerId(newOwnerId);
+
+            // Notify new owner (if different from updater)
+            if (!newOwnerId.equals(updatedByUserId)) {
+                try {
+                    String scoreInfo = lead.getLeadScore() != null ? " Score: " + lead.getLeadScore() : "";
+                    notificationService.createAndSendNotification(
+                        newOwnerId,
+                        "Lead Assigned to You: " + lead.getFirstName() + " " + lead.getLastName(),
+                        "Lead from " + lead.getCompanyName() + " has been assigned to you" + scoreInfo,
+                        "LEAD_REASSIGNED",
+                        "/leads/" + lead.getId()
+                    );
+                    log.info("Notification sent for lead reassignment: {}", lead.getLeadId());
+                } catch (Exception e) {
+                    log.error("Failed to send notification for lead reassignment: {}", lead.getLeadId(), e);
+                }
+            }
         }
         if (request.getExpectedRevenue() != null) {
             lead.setExpectedRevenue(request.getExpectedRevenue());
@@ -558,6 +614,22 @@ public class LeadService extends BaseTenantService {
                 LeadStatus.QUALIFIED.toString(), LeadStatus.CONVERTED.toString(),
                 convertedByUserId, null);
 
+        // P0 #5: Notify about successful lead conversion (major milestone!)
+        if (converted.getLeadOwnerId() != null) {
+            try {
+                notificationService.createAndSendNotification(
+                    convertedByUserId,
+                    "🎉 Lead Converted: " + converted.getFirstName() + " " + converted.getLastName(),
+                    "Lead has been converted to Opportunity, Account, and Contact. Opportunity: " + opportunity.getOpportunityName(),
+                    "LEAD_CONVERTED",
+                    "/opportunities/" + converted.getConvertedToOpportunityId()
+                );
+                log.info("Notification sent for lead conversion: {}", converted.getLeadId());
+            } catch (Exception e) {
+                log.error("Failed to send notification for lead conversion: {}", converted.getLeadId(), e);
+            }
+        }
+
         return mapToResponse(converted);
     }
 
@@ -723,6 +795,22 @@ public class LeadService extends BaseTenantService {
                 "LOSE", "Lead marked as lost: " + lossReason,
                 null, LeadStatus.LOST.toString(),
                 userId, null);
+
+        // P1 #18: Notify lead owner about lead loss
+        if (lost.getLeadOwnerId() != null) {
+            try {
+                notificationService.createAndSendNotification(
+                    lost.getLeadOwnerId(),
+                    "Lead Lost: " + lost.getFirstName() + " " + lost.getLastName(),
+                    "Lead from " + lost.getCompanyName() + " has been marked as lost. Reason: " + lossReason,
+                    "LEAD_LOST",
+                    "/leads/" + lost.getId()
+                );
+                log.info("Notification sent for lead loss: {}", lost.getLeadId());
+            } catch (Exception e) {
+                log.error("Failed to send notification for lead loss: {}", lost.getLeadId(), e);
+            }
+        }
 
         return mapToResponse(lost);
     }
