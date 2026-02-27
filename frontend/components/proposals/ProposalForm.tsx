@@ -315,8 +315,8 @@ export default function ProposalForm({
         if (lineItems.some((item) => !item.productId && (item.unitPrice === undefined || item.unitPrice === null)))
             errors.push("Please enter a unit price for custom items");
 
-        if (lineItems.some((item) => item.quantity < 1))
-            errors.push("Quantity must be at least 1");
+        if (lineItems.some((item) => (item.quantity === undefined || item.quantity === null || item.quantity === 0)))
+            errors.push("Quantity must be a non-zero number");
 
         if (hasOverallDiscount) {
             if (overallDiscountType === DiscountType.PERCENTAGE && overallDiscountValue > 100) {
@@ -773,7 +773,7 @@ export default function ProposalForm({
                     {/* Column headers — px-3 matches the card's inner padding so labels align with inputs */}
                     <div className="hidden lg:flex gap-2 px-3 mb-1 text-xs font-medium text-gray-400 uppercase tracking-wide">
                         <div className="flex-[2] min-w-0">Product / Service</div>
-                        <div className="w-16 flex-shrink-0">Qty</div>
+                        <div className="w-24 flex-shrink-0">Qty</div>
                         <div className="w-16 flex-shrink-0">Unit</div>
                         <div className="w-24 flex-shrink-0">HSN</div>
                         <div className="w-28 flex-shrink-0">Unit Price (₹)</div>
@@ -853,12 +853,14 @@ export default function ProposalForm({
                                 </div>
 
                                 {/* Qty */}
-                                <div className="w-16 flex-shrink-0">
+                                <div className="w-24 flex-shrink-0">
                                     <input
                                         type="number"
-                                        value={item.quantity}
-                                        onChange={(e) => updateLineItem(index, "quantity", parseInt(e.target.value) || 1)}
-                                        min="1"
+                                        value={item.quantity ?? ""}
+                                        onChange={(e) => {
+                                            const val = e.target.value;
+                                            updateLineItem(index, "quantity", val === "" ? undefined : parseInt(val));
+                                        }}
                                         placeholder="Qty"
                                         className={inputCls}
                                         required
