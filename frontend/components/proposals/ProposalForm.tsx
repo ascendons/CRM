@@ -561,7 +561,24 @@ export default function ProposalForm({
                                 </label>
                                 <select
                                     value={sourceId}
-                                    onChange={(e) => setSourceId(e.target.value)}
+                                    onChange={(e) => {
+                                        const selectedId = e.target.value;
+                                        setSourceId(selectedId);
+
+                                        // Auto-populate address if it's a lead
+                                        if (source === ProposalSource.LEAD && selectedId) {
+                                            const lead = leads.find(l => l.id === selectedId);
+                                            if (lead) {
+                                                setBillingAddress({
+                                                    street: lead.streetAddress || "",
+                                                    city: lead.city || "",
+                                                    state: lead.state || "",
+                                                    postalCode: lead.postalCode || "",
+                                                    country: lead.country || "",
+                                                });
+                                            }
+                                        }
+                                    }}
                                     disabled={mode === "edit"}
                                     className={inputCls}
                                     required
