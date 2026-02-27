@@ -316,14 +316,14 @@
             <tr>
                 <td class="text-bold" style="background: #f2f2f2;">TOTAL AMOUNT</td>
                 <td class="right text-bold" style="background: #f2f2f2;"
-                    th:text="'₹ ' + ${#numbers.formatDecimal(proposal.totalAmount, 1, 'COMMA', 2, 'POINT')}">0</td>
+                    th:text="${#numbers.formatDecimal(proposal.totalAmount, 1, 'COMMA', 2, 'POINT')}">0</td>
             </tr>
             <tr
                 th:if="${proposal.paymentMilestones != null and !proposal.paymentMilestones.isEmpty() and proposal.currentMilestoneIndex != null and proposal.currentMilestoneIndex < proposal.paymentMilestones.size()}">
                 <td class="text-bold" style="background: #e6e6e6;">PAYABLE
                     ([(${proposal.paymentMilestones[proposal.currentMilestoneIndex].name})])</td>
                 <td class="right text-bold" style="background: #e6e6e6;"
-                    th:text="'₹ ' + ${#numbers.formatDecimal(proposal.totalAmount * proposal.paymentMilestones[proposal.currentMilestoneIndex].percentage / 100, 1, 'COMMA', 2, 'POINT')}">
+                    th:text="${#numbers.formatDecimal(proposal.totalAmount * proposal.paymentMilestones[proposal.currentMilestoneIndex].percentage / 100, 1, 'COMMA', 2, 'POINT')}">
                     0</td>
             </tr>
         </tfoot>

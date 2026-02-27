@@ -418,27 +418,27 @@
                 <div class="total-row">
                     <span class="total-label">SUBTOTAL</span>
                     <span class="total-value"
-                        th:text="'₹ ' + ${#numbers.formatDecimal(proposal.subtotal, 1, 'COMMA', 2, 'POINT')}">0.00</span>
+                        th:text="${#numbers.formatDecimal(proposal.subtotal, 1, 'COMMA', 2, 'POINT')}">0.00</span>
                 </div>
                 <div class="total-row" th:if="${proposal.discountAmount != null and proposal.discountAmount > 0}">
                     <span class="total-label">DISCOUNT</span>
                     <span class="total-value"
-                        th:text="'- ₹ ' + ${#numbers.formatDecimal(proposal.discountAmount, 1, 'COMMA', 2, 'POINT')}">0.00</span>
+                        th:text="${#numbers.formatDecimal(proposal.discountAmount, 1, 'COMMA', 2, 'POINT')}">0.00</span>
                 </div>
                 <div class="total-row">
                     <span class="total-label">TAXABLE AMOUNT</span>
                     <span class="total-value"
-                        th:text="'₹ ' + ${#numbers.formatDecimal(proposal.subtotal - (proposal.discountAmount != null ? proposal.discountAmount : 0), 1, 'COMMA', 2, 'POINT')}">0.00</span>
+                        th:text="${#numbers.formatDecimal(proposal.subtotal - (proposal.discountAmount != null ? proposal.discountAmount : 0), 1, 'COMMA', 2, 'POINT')}">0.00</span>
                 </div>
                 <div class="total-row" th:if="${proposal.taxAmount != null and proposal.taxAmount > 0}">
                     <span class="total-label">TOTAL GST</span>
                     <span class="total-value"
-                        th:text="'₹ ' + ${#numbers.formatDecimal(proposal.taxAmount, 1, 'COMMA', 2, 'POINT')}">0.00</span>
+                        th:text="${#numbers.formatDecimal(proposal.taxAmount, 1, 'COMMA', 2, 'POINT')}">0.00</span>
                 </div>
                 <div class="total-row grand-total-row">
                     <span class="total-label" style="color: white;">TOTAL AMOUNT</span>
                     <span class="total-value"
-                        th:text="'₹ ' + ${#numbers.formatDecimal(proposal.totalAmount, 1, 'COMMA', 2, 'POINT')}">0.00</span>
+                        th:text="${#numbers.formatDecimal(proposal.totalAmount, 1, 'COMMA', 2, 'POINT')}">0.00</span>
                 </div>
                 <div class="total-row"
                     style="background: rgba(255,255,255,0.1); margin-top: 10px; padding: 10px; border-radius: 8px;"
@@ -446,7 +446,7 @@
                     <span class="total-label" style="color: #63b3ed;">PAYABLE
                         ([(${proposal.paymentMilestones[proposal.currentMilestoneIndex].name})])</span>
                     <span class="total-value"
-                        th:text="'₹ ' + ${#numbers.formatDecimal(proposal.totalAmount * proposal.paymentMilestones[proposal.currentMilestoneIndex].percentage / 100, 1, 'COMMA', 2, 'POINT')}">0.00</span>
+                        th:text="${#numbers.formatDecimal(proposal.totalAmount * proposal.paymentMilestones[proposal.currentMilestoneIndex].percentage / 100, 1, 'COMMA', 2, 'POINT')}">0.00</span>
                 </div>
             </div>
         </div>

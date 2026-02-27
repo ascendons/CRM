@@ -503,8 +503,8 @@
                 <th style="width: 40%;">DESCRIPTION</th>
                 <th class="center" style="width: 12%;">HSN/SAC</th>
                 <th class="center" style="width: 10%;">QTY</th>
-                <th class="right" style="width: 15%;">RATE (₹)</th>
-                <th class="right" style="width: 15%;">AMOUNT (₹)</th>
+                <th class="right" style="width: 15%;">RATE</th>
+                <th class="right" style="width: 15%;">AMOUNT</th>
             </tr>
         </thead>
         <tbody>
@@ -542,20 +542,20 @@
                 <tr>
                     <td class="label">SUBTOTAL:</td>
                     <td class="amount"
-                        th:text="'₹ ' + ${#numbers.formatDecimal(proposal.subtotal, 1, 'COMMA', 2, 'POINT')}">₹
+                        th:text="${#numbers.formatDecimal(proposal.subtotal, 1, 'COMMA', 2, 'POINT')}">₹
                         10,000.00</td>
                 </tr>
                 <tr th:if="${proposal.discountAmount != null and proposal.discountAmount > 0}">
                     <td class="label">DISCOUNT:</td>
                     <td class="amount"
-                        th:text="'- ₹ ' + ${#numbers.formatDecimal(proposal.discountAmount, 1, 'COMMA', 2, 'POINT')}">-
+                        th:text="${#numbers.formatDecimal(proposal.discountAmount, 1, 'COMMA', 2, 'POINT')}">-
                         ₹ 500.00</td>
                 </tr>
                 <tr>
                     <td class="label">TAXABLE AMOUNT:</td>
                     <td class="amount"
-                        th:text="'₹ ' + ${#numbers.formatDecimal(proposal.subtotal - (proposal.discountAmount != null ? proposal.discountAmount : 0), 1, 'COMMA', 2, 'POINT')}">
-                        ₹ 10,000.00</td>
+                        th:text="${#numbers.formatDecimal(proposal.subtotal - (proposal.discountAmount != null ? proposal.discountAmount : 0), 1, 'COMMA', 2, 'POINT')}">
+                        10,000.00</td>
                 </tr>
                 <tr th:if="${proposal.taxAmount != null and proposal.taxAmount > 0}">
                     <td class="label">
@@ -564,20 +564,20 @@
                             th:text="'[' + ${proposal.gstType} + ']'"></span>:
                     </td>
                     <td class="amount"
-                        th:text="'₹ ' + ${#numbers.formatDecimal(proposal.taxAmount, 1, 'COMMA', 2, 'POINT')}">₹
+                        th:text="${#numbers.formatDecimal(proposal.taxAmount, 1, 'COMMA', 2, 'POINT')}">₹
                         1,800.00</td>
                 </tr>
                 <tr class="total-row">
                     <td class="label">TOTAL AMOUNT:</td>
                     <td class="amount"
-                        th:text="'₹ ' + ${#numbers.formatDecimal(proposal.totalAmount, 1, 'COMMA', 2, 'POINT')}">₹
+                        th:text="${#numbers.formatDecimal(proposal.totalAmount, 1, 'COMMA', 2, 'POINT')}">₹
                         11,800.00</td>
                 </tr>
                 <tr class="total-row" style="color: #0047AB;"
                     th:if="${proposal.paymentMilestones != null and !proposal.paymentMilestones.isEmpty() and proposal.currentMilestoneIndex != null and proposal.currentMilestoneIndex < proposal.paymentMilestones.size()}">
                     <td class="label">PAYABLE VALUE</td>
                     <td class="amount"
-                        th:text="'₹ ' + ${#numbers.formatDecimal(proposal.totalAmount * proposal.paymentMilestones[proposal.currentMilestoneIndex].percentage / 100, 1, 'COMMA', 2, 'POINT')}">
+                        th:text="${#numbers.formatDecimal(proposal.totalAmount * proposal.paymentMilestones[proposal.currentMilestoneIndex].percentage / 100, 1, 'COMMA', 2, 'POINT')}">
                         ₹ 0.00</td>
                 </tr>
             </table>
