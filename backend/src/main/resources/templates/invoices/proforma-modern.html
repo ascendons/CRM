@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Modern Proforma Invoice</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&amp;display=swap');
 
         * {
             margin: 0;
@@ -304,11 +304,13 @@
                 background: #2d3748 !important;
                 color: white !important;
                 -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
             }
 
             .items-table td {
                 background: #f7fafc !important;
                 -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
             }
         }
     </style>
@@ -428,7 +430,7 @@
                     <span class="total-value"
                         th:text="'₹ ' + ${#numbers.formatDecimal(proposal.subtotal - (proposal.discountAmount != null ? proposal.discountAmount : 0), 1, 'COMMA', 2, 'POINT')}">0.00</span>
                 </div>
-                <div class="total-row" th:if="${proposal.taxAmount > 0}">
+                <div class="total-row" th:if="${proposal.taxAmount != null and proposal.taxAmount > 0}">
                     <span class="total-label">TOTAL GST</span>
                     <span class="total-value"
                         th:text="'₹ ' + ${#numbers.formatDecimal(proposal.taxAmount, 1, 'COMMA', 2, 'POINT')}">0.00</span>

@@ -252,11 +252,12 @@
                 <span class="address-title">Dispatch Details:</span>
                 <div
                     th:with="address=${proposal.shippingAddress != null ? proposal.shippingAddress : proposal.billingAddress}">
-                    <!--                    <div th:if="${address != null}" style="font-size: 10pt;">-->
-                    <!--                        Same as billing or:<br />-->
-                    <strong th:text="${proposal.customerName}">Client Name</strong><br />
-                    <span th:text="${address.street}">Street</span>, <span th:text="${address.city}">City</span><br />
-                    <span th:text="${address.country}">Country</span>
+                    <div th:if="${address != null}">
+                        <strong th:text="${proposal.customerName}">Client Name</strong><br />
+                        <span th:text="${address.street}">Street</span>, <span
+                            th:text="${address.city}">City</span><br />
+                        <span th:text="${address.country}">Country</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -308,7 +309,7 @@
                     th:text="${#numbers.formatDecimal(proposal.subtotal - (proposal.discountAmount != null ? proposal.discountAmount : 0), 1, 'COMMA', 2, 'POINT')}">
                     0</td>
             </tr>
-            <tr th:if="${proposal.taxAmount > 0}">
+            <tr th:if="${proposal.taxAmount != null and proposal.taxAmount > 0}">
                 <td class="text-bold">TOTAL GST</td>
                 <td class="right" th:text="${#numbers.formatDecimal(proposal.taxAmount, 1, 'COMMA', 2, 'POINT')}">0</td>
             </tr>
