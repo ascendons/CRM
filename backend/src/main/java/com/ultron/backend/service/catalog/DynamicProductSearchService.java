@@ -12,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -383,17 +384,12 @@ public class DynamicProductSearchService extends BaseTenantService {
         String tenantId = getCurrentTenantId();
         log.info("[Tenant: {}] Bulk soft-deleting {} products", tenantId, ids.size());
 
-        int count = 0;
-        java.time.LocalDateTime now = java.time.LocalDateTime.now();
-        for (String id : ids) {
-            repository.findByIdAndTenantId(id, tenantId).ifPresent(product -> {
-                product.setDeleted(true);
-                product.setDeletedAt(now);
-                repository.save(product);
-            });
-            count++;
-        }
-        return count;
+        Query query = new Query(Criteria.where("tenantId").is(tenantId).and("id").in(ids));
+        Update update = new Update()
+                .set("isDeleted", true)
+                .set("deletedAt", java.time.LocalDateTime.now());
+
+        return (int) mongoTemplate.updateMulti(query, update, DynamicProduct.class).getModifiedCount();
     }
 
     /**
@@ -404,14 +400,8 @@ public class DynamicProductSearchService extends BaseTenantService {
         String tenantId = getCurrentTenantId();
         log.info("[Tenant: {}] Bulk hard-deleting {} products", tenantId, ids.size());
 
-        int count = 0;
-        for (String id : ids) {
-            repository.findByIdAndTenantId(id, tenantId).ifPresent(product -> {
-                repository.delete(product);
-            });
-            count++;
-        }
-        return count;
+        Query query = new Query(Criteria.where("tenantId").is(tenantId).and("id").in(ids));
+        return (int) mongoTemplate.remove(query, DynamicProduct.class).getDeletedCount();
     }
 
     /**
