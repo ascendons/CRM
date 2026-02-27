@@ -13,7 +13,7 @@
         }
 
         body {
-            font-family: 'Times New Roman', Times, serif;
+            font-family: 'Arial Unicode MS', 'Times New Roman', Times, serif;
             font-size: 11pt;
             color: #000;
             line-height: 1.4;
@@ -337,15 +337,11 @@
             </div>
 
             <div class="bank-details"
-                th:if="${isProforma and organization.invoiceConfig != null and organization.invoiceConfig.bankName != null}">
+                th:if="${organization.invoiceConfig != null and organization.invoiceConfig.bankName != null}">
                 <div class="text-bold">Bank Details:</div>
                 Bank Name: <span th:text="${organization.invoiceConfig.bankName}">-</span><br />
                 A/c No: <span th:text="${organization.invoiceConfig.accountNumber}">-</span><br />
                 IFSC: <span th:text="${organization.invoiceConfig.ifscCode}">-</span>
-            </div>
-            <div class="bank-details" th:if="${!isProforma}">
-                <div class="text-bold">Payment Details:</div>
-                Bank details are hidden for Quotation.
             </div>
         </div>
         <div class="footer-right">
@@ -361,7 +357,6 @@
                 <span style="font-size: 8pt;">(Authorized Signatory)</span>
             </div>
         </div>
-    </div>
     </div>
 </body>
 

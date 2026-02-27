@@ -1,9 +1,11 @@
+import { Industry } from "./lead";
+
 export interface Organization {
     organizationId: string;
     organizationName: string;
     displayName?: string;
     subdomain: string;
-    industry?: string;
+    industry?: Industry;
     companySize?: string;
     primaryEmail: string;
     primaryPhone?: string;
@@ -111,7 +113,7 @@ export interface OrganizationRegistrationRequest {
     organizationName: string;
     subdomain: string;
     logoUrl?: string;
-    industry?: string;
+    industry?: Industry;
     companySize?: string;
     adminEmail: string;
     password: string;

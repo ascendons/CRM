@@ -6,6 +6,7 @@ import { organizationApi } from "@/lib/api/organization";
 import { authService } from "@/lib/auth";
 import { validateSubdomain, buildSubdomainUrl } from "@/lib/utils/subdomain";
 import { ApiError } from "@/lib/api-client";
+import { Industry } from "@/types/lead";
 import {
     Building2,
     Mail,
@@ -24,7 +25,7 @@ export default function RegisterOrganizationPage() {
         organizationName: "",
         subdomain: "",
         logoUrl: "",
-        industry: "",
+        industry: "" as Industry | "",
         companySize: "",
         adminEmail: "",
         adminPassword: "",
@@ -293,14 +294,11 @@ export default function RegisterOrganizationPage() {
                                         className="block w-full px-3 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 text-gray-900"
                                     >
                                         <option value="">Select industry</option>
-                                        <option value="Technology">Technology</option>
-                                        <option value="Healthcare">Healthcare</option>
-                                        <option value="Finance">Finance</option>
-                                        <option value="Retail">Retail</option>
-                                        <option value="Manufacturing">Manufacturing</option>
-                                        <option value="Education">Education</option>
-                                        <option value="Real Estate">Real Estate</option>
-                                        <option value="Other">Other</option>
+                                        {Object.values(Industry).map((val) => (
+                                            <option key={val} value={val}>
+                                                {val.replace(/_/g, " ")}
+                                            </option>
+                                        ))}
                                     </select>
                                 </div>
 

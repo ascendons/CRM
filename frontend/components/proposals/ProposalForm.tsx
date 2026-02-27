@@ -121,9 +121,24 @@ export default function ProposalForm({
         }
     );
 
+    const [isShippingSameAsBilling, setIsShippingSameAsBilling] = useState(
+        mode === "create" ||
+        !initialData?.shippingAddress ||
+        (initialData?.billingAddress?.street === initialData?.shippingAddress?.street &&
+            initialData?.billingAddress?.city === initialData?.shippingAddress?.city &&
+            initialData?.billingAddress?.postalCode === initialData?.shippingAddress?.postalCode)
+    );
+
     const copyBillingToShipping = () => {
         setShippingAddress({ ...billingAddress });
     };
+
+    // Auto-sync shipping address when billing address changes and toggle is on
+    useEffect(() => {
+        if (isShippingSameAsBilling) {
+            setShippingAddress({ ...billingAddress });
+        }
+    }, [billingAddress, isShippingSameAsBilling]);
 
     interface FormLineItem extends LineItemDTO {
         productName?: string;
@@ -676,13 +691,13 @@ export default function ProposalForm({
                             <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Billing Address</h3>
                             <div>
                                 <label className="block text-xs font-medium text-gray-500 mb-1">Street Address</label>
-                                <input
-                                    type="text"
+                                <textarea
                                     value={billingAddress.street || ""}
                                     onChange={(e) => setBillingAddress({ ...billingAddress, street: e.target.value })}
                                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm disabled:bg-gray-100"
                                     disabled={isReadOnly}
-                                    placeholder="House No, Street Name"
+                                    placeholder="House No, Street Name, Area"
+                                    rows={2}
                                 />
                             </div>
                             <div className="grid grid-cols-2 gap-3">
@@ -704,6 +719,7 @@ export default function ProposalForm({
                                         onChange={(e) => setBillingAddress({ ...billingAddress, postalCode: e.target.value })}
                                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm disabled:bg-gray-100"
                                         disabled={isReadOnly}
+                                        placeholder="8XXXXX"
                                     />
                                 </div>
                             </div>
@@ -721,56 +737,78 @@ export default function ProposalForm({
                         <div className="space-y-3">
                             <div className="flex items-center justify-between">
                                 <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Shipping Address</h3>
-                                <button
-                                    type="button"
-                                    onClick={copyBillingToShipping}
-                                    disabled={isReadOnly}
-                                    className="text-xs text-blue-600 hover:text-blue-800 font-medium disabled:text-gray-400"
-                                >
-                                    Same as Billing
-                                </button>
-                            </div>
-                            <div>
-                                <label className="block text-xs font-medium text-gray-500 mb-1">Street Address</label>
-                                <input
-                                    type="text"
-                                    value={shippingAddress.street || ""}
-                                    onChange={(e) => setShippingAddress({ ...shippingAddress, street: e.target.value })}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm disabled:bg-gray-100"
-                                    disabled={isReadOnly}
-                                    placeholder="House No, Street Name"
-                                />
-                            </div>
-                            <div className="grid grid-cols-2 gap-3">
-                                <div>
-                                    <label className="block text-xs font-medium text-gray-500 mb-1">City</label>
+                                <div className="flex items-center gap-2">
                                     <input
-                                        type="text"
-                                        value={shippingAddress.city || ""}
-                                        onChange={(e) => setShippingAddress({ ...shippingAddress, city: e.target.value })}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm disabled:bg-gray-100"
+                                        type="checkbox"
+                                        id="isShippingSameAsBilling"
+                                        checked={isShippingSameAsBilling}
+                                        onChange={(e) => setIsShippingSameAsBilling(e.target.checked)}
                                         disabled={isReadOnly}
+                                        className="h-3.5 w-3.5 text-blue-600 rounded border-gray-300 focus:ring-blue-500 cursor-pointer"
                                     />
-                                </div>
-                                <div>
-                                    <label className="block text-xs font-medium text-gray-500 mb-1">PIN Code</label>
-                                    <input
-                                        type="text"
-                                        value={shippingAddress.postalCode || ""}
-                                        onChange={(e) => setShippingAddress({ ...shippingAddress, postalCode: e.target.value })}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm disabled:bg-gray-100"
-                                        disabled={isReadOnly}
-                                    />
+                                    <label
+                                        htmlFor="isShippingSameAsBilling"
+                                        className="text-xs text-gray-600 font-medium cursor-pointer select-none"
+                                    >
+                                        Same as Billing
+                                    </label>
                                 </div>
                             </div>
-                            <CountryStateSelector
-                                countryValue={shippingAddress.country || ""}
-                                stateValue={shippingAddress.state || ""}
-                                onCountryChange={(val) => setShippingAddress(prev => ({ ...prev, country: val }))}
-                                onStateChange={(val) => setShippingAddress(prev => ({ ...prev, state: val }))}
-                                disabled={isReadOnly}
-                                labelClassName="block text-xs font-medium text-gray-500 mb-1"
-                            />
+
+                            {!isShippingSameAsBilling && (
+                                <div className="space-y-3 animate-in fade-in slide-in-from-top-2 duration-200">
+                                    <div>
+                                        <label className="block text-xs font-medium text-gray-500 mb-1">Street Address</label>
+                                        <textarea
+                                            value={shippingAddress.street || ""}
+                                            onChange={(e) => setShippingAddress({ ...shippingAddress, street: e.target.value })}
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm disabled:bg-gray-100"
+                                            disabled={isReadOnly}
+                                            placeholder="House No, Street Name, Area"
+                                            rows={2}
+                                        />
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <div>
+                                            <label className="block text-xs font-medium text-gray-500 mb-1">City</label>
+                                            <input
+                                                type="text"
+                                                value={shippingAddress.city || ""}
+                                                onChange={(e) => setShippingAddress({ ...shippingAddress, city: e.target.value })}
+                                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm disabled:bg-gray-100"
+                                                disabled={isReadOnly}
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-medium text-gray-500 mb-1">PIN Code</label>
+                                            <input
+                                                type="text"
+                                                value={shippingAddress.postalCode || ""}
+                                                onChange={(e) => setShippingAddress({ ...shippingAddress, postalCode: e.target.value })}
+                                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm disabled:bg-gray-100"
+                                                disabled={isReadOnly}
+                                                placeholder="8XXXXX"
+                                            />
+                                        </div>
+                                    </div>
+                                    <CountryStateSelector
+                                        countryValue={shippingAddress.country || ""}
+                                        stateValue={shippingAddress.state || ""}
+                                        onCountryChange={(val) => setShippingAddress(prev => ({ ...prev, country: val }))}
+                                        onStateChange={(val) => setShippingAddress(prev => ({ ...prev, state: val }))}
+                                        disabled={isReadOnly}
+                                        labelClassName="block text-xs font-medium text-gray-500 mb-1"
+                                    />
+                                </div>
+                            )}
+
+                            {isShippingSameAsBilling && (
+                                <div className="p-4 bg-gray-50 border border-dashed border-gray-200 rounded-lg">
+                                    <p className="text-center text-xs text-gray-500 italic">
+                                        Shipping details will match your billing address.
+                                    </p>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </SectionCard>

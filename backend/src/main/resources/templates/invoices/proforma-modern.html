@@ -15,7 +15,7 @@
         }
 
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Arial Unicode MS', 'Inter', sans-serif;
             font-size: 10pt;
             color: #1a202c;
             line-height: 1.5;
@@ -25,17 +25,21 @@
 
         /* Top Grid Layout */
         .top-section {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
+            display: table;
+            width: 100%;
             margin-bottom: 50px;
         }
 
         .header-left {
-            flex: 1;
+            display: table-cell;
+            width: 70%;
+            vertical-align: top;
         }
 
         .header-right {
+            display: table-cell;
+            width: 30%;
+            vertical-align: top;
             text-align: right;
         }
 
@@ -98,13 +102,15 @@
 
         /* Billing/Shipping */
         .billing-grid {
-            display: flex;
-            gap: 40px;
+            display: table;
+            width: 100%;
             margin-bottom: 40px;
         }
 
         .address-box {
-            flex: 1;
+            display: table-cell;
+            width: 50%;
+            vertical-align: top;
         }
 
         .address-title {
@@ -190,13 +196,17 @@
 
         /* Totals */
         .summary-section {
-            display: flex;
-            justify-content: flex-end;
+            display: block;
             margin-top: 30px;
         }
 
-        .totals-card {
+        .totals-card-wrapper {
+            float: right;
             width: 300px;
+        }
+
+        .totals-card {
+            width: 100%;
             padding: 20px;
             background: #2d3748;
             border-radius: 12px;
@@ -205,13 +215,24 @@
         }
 
         .total-row {
-            display: flex;
-            justify-content: space-between;
+            display: table;
+            width: 100%;
             margin-bottom: 12px;
             font-size: 9pt;
         }
 
-        .total-row:last-child {
+        .total-label {
+            display: table-cell;
+            text-align: left;
+            color: #a0aec0;
+        }
+
+        .total-value {
+            display: table-cell;
+            text-align: right;
+        }
+
+        .grand-total-row {
             margin-bottom: 0;
             padding-top: 12px;
             border-top: 1px solid #4a5568;
@@ -225,13 +246,19 @@
 
         /* Footer Info */
         .footer-grid {
-            display: flex;
-            gap: 40px;
+            display: table;
+            width: 100%;
             margin-top: 50px;
         }
 
         .footer-box {
-            flex: 1;
+            display: table-cell;
+            width: 50%;
+            vertical-align: top;
+        }
+
+        .footer-box:first-child {
+            padding-right: 20px;
         }
 
         .footer-title {
@@ -384,39 +411,44 @@
     </table>
 
     <div class="summary-section">
-        <div class="totals-card">
-            <div class="total-row">
-                <span class="total-label">SUBTOTAL</span>
-                <span th:text="'₹ ' + ${#numbers.formatDecimal(proposal.subtotal, 1, 'COMMA', 2, 'POINT')}">0.00</span>
-            </div>
-            <div class="total-row" th:if="${proposal.discountAmount != null and proposal.discountAmount > 0}">
-                <span class="total-label">DISCOUNT</span>
-                <span
-                    th:text="'- ₹ ' + ${#numbers.formatDecimal(proposal.discountAmount, 1, 'COMMA', 2, 'POINT')}">0.00</span>
-            </div>
-            <div class="total-row">
-                <span class="total-label">TAXABLE AMOUNT</span>
-                <span
-                    th:text="'₹ ' + ${#numbers.formatDecimal(proposal.subtotal - (proposal.discountAmount != null ? proposal.discountAmount : 0), 1, 'COMMA', 2, 'POINT')}">0.00</span>
-            </div>
-            <div class="total-row" th:if="${proposal.taxAmount > 0}">
-                <span class="total-label">TOTAL GST</span>
-                <span th:text="'₹ ' + ${#numbers.formatDecimal(proposal.taxAmount, 1, 'COMMA', 2, 'POINT')}">0.00</span>
-            </div>
-            <div class="total-row">
-                <span>TOTAL AMOUNT</span>
-                <span
-                    th:text="'₹ ' + ${#numbers.formatDecimal(proposal.totalAmount, 1, 'COMMA', 2, 'POINT')}">0.00</span>
-            </div>
-            <div class="total-row"
-                style="background: rgba(255,255,255,0.1); margin-top: 10px; padding: 10px; border-radius: 8px;"
-                th:if="${proposal.paymentMilestones != null and !proposal.paymentMilestones.isEmpty() and proposal.currentMilestoneIndex != null and proposal.currentMilestoneIndex < proposal.paymentMilestones.size()}">
-                <span style="color: #63b3ed;">PAYABLE
-                    ([(${proposal.paymentMilestones[proposal.currentMilestoneIndex].name})])</span>
-                <span
-                    th:text="'₹ ' + ${#numbers.formatDecimal(proposal.totalAmount * proposal.paymentMilestones[proposal.currentMilestoneIndex].percentage / 100, 1, 'COMMA', 2, 'POINT')}">0.00</span>
+        <div class="totals-card-wrapper">
+            <div class="totals-card">
+                <div class="total-row">
+                    <span class="total-label">SUBTOTAL</span>
+                    <span class="total-value"
+                        th:text="'₹ ' + ${#numbers.formatDecimal(proposal.subtotal, 1, 'COMMA', 2, 'POINT')}">0.00</span>
+                </div>
+                <div class="total-row" th:if="${proposal.discountAmount != null and proposal.discountAmount > 0}">
+                    <span class="total-label">DISCOUNT</span>
+                    <span class="total-value"
+                        th:text="'- ₹ ' + ${#numbers.formatDecimal(proposal.discountAmount, 1, 'COMMA', 2, 'POINT')}">0.00</span>
+                </div>
+                <div class="total-row">
+                    <span class="total-label">TAXABLE AMOUNT</span>
+                    <span class="total-value"
+                        th:text="'₹ ' + ${#numbers.formatDecimal(proposal.subtotal - (proposal.discountAmount != null ? proposal.discountAmount : 0), 1, 'COMMA', 2, 'POINT')}">0.00</span>
+                </div>
+                <div class="total-row" th:if="${proposal.taxAmount > 0}">
+                    <span class="total-label">TOTAL GST</span>
+                    <span class="total-value"
+                        th:text="'₹ ' + ${#numbers.formatDecimal(proposal.taxAmount, 1, 'COMMA', 2, 'POINT')}">0.00</span>
+                </div>
+                <div class="total-row grand-total-row">
+                    <span class="total-label" style="color: white;">TOTAL AMOUNT</span>
+                    <span class="total-value"
+                        th:text="'₹ ' + ${#numbers.formatDecimal(proposal.totalAmount, 1, 'COMMA', 2, 'POINT')}">0.00</span>
+                </div>
+                <div class="total-row"
+                    style="background: rgba(255,255,255,0.1); margin-top: 10px; padding: 10px; border-radius: 8px;"
+                    th:if="${proposal.paymentMilestones != null and !proposal.paymentMilestones.isEmpty() and proposal.currentMilestoneIndex != null and proposal.currentMilestoneIndex < proposal.paymentMilestones.size()}">
+                    <span class="total-label" style="color: #63b3ed;">PAYABLE
+                        ([(${proposal.paymentMilestones[proposal.currentMilestoneIndex].name})])</span>
+                    <span class="total-value"
+                        th:text="'₹ ' + ${#numbers.formatDecimal(proposal.totalAmount * proposal.paymentMilestones[proposal.currentMilestoneIndex].percentage / 100, 1, 'COMMA', 2, 'POINT')}">0.00</span>
+                </div>
             </div>
         </div>
+        <div style="clear: both;"></div>
     </div>
 
     <div class="footer-grid">
@@ -428,18 +460,12 @@
             </div>
         </div>
         <div class="footer-box"
-            th:if="${isProforma and organization.invoiceConfig != null and organization.invoiceConfig.bankName != null}">
+            th:if="${organization.invoiceConfig != null and organization.invoiceConfig.bankName != null}">
             <div class="footer-title">Payment Info</div>
             <div class="footer-content">
                 <strong>Bank:</strong> <span th:text="${organization.invoiceConfig.bankName}">-</span><br />
                 <strong>A/C:</strong> <span th:text="${organization.invoiceConfig.accountNumber}">-</span><br />
                 <strong>IFSC:</strong> <span th:text="${organization.invoiceConfig.ifscCode}">-</span>
-            </div>
-        </div>
-        <div class="footer-box" th:if="${!isProforma}">
-            <div class="footer-title">Payment Info</div>
-            <div class="footer-content">
-                Bank details are hidden for Quotation.
             </div>
         </div>
     </div>

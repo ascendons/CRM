@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { organizationApi } from "@/lib/api/organization";
 import type { Organization } from "@/types/organization";
+import { Industry } from "@/types/lead";
 import { ApiError } from "@/lib/api-client";
 import {
     Building2,
@@ -191,10 +192,10 @@ export default function OrganizationProfile({
                     <div>
                         <span
                             className={`inline-flex px-3 py-1 text-xs font-medium rounded-full ${organization.status === "ACTIVE"
-                                    ? "bg-green-100 text-green-800"
-                                    : organization.status === "TRIAL"
-                                        ? "bg-blue-100 text-blue-800"
-                                        : "bg-gray-100 text-gray-800"
+                                ? "bg-green-100 text-green-800"
+                                : organization.status === "TRIAL"
+                                    ? "bg-blue-100 text-blue-800"
+                                    : "bg-gray-100 text-gray-800"
                                 }`}
                         >
                             {organization.status}
@@ -215,14 +216,11 @@ export default function OrganizationProfile({
                             className="block w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900"
                         >
                             <option value="">Select industry</option>
-                            <option value="Technology">Technology</option>
-                            <option value="Healthcare">Healthcare</option>
-                            <option value="Finance">Finance</option>
-                            <option value="Retail">Retail</option>
-                            <option value="Manufacturing">Manufacturing</option>
-                            <option value="Education">Education</option>
-                            <option value="Real Estate">Real Estate</option>
-                            <option value="Other">Other</option>
+                            {Object.values(Industry).map((val) => (
+                                <option key={val} value={val}>
+                                    {val.replace(/_/g, " ")}
+                                </option>
+                            ))}
                         </select>
                     ) : (
                         <div className="text-gray-900">{organization.industry || "-"}</div>

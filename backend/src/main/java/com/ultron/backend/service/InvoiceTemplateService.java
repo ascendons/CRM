@@ -79,6 +79,14 @@ public class InvoiceTemplateService {
 
             PdfRendererBuilder builder = new PdfRendererBuilder();
             builder.useFastMode();
+            
+            // Register Unicode font to support Rupee symbol (₹) and other characters
+            try {
+                builder.useFont(new java.io.File(getClass().getClassLoader().getResource("fonts/arial-unicode.ttf").getFile()), "Arial Unicode MS");
+            } catch (Exception e) {
+                log.warn("Could not load Arial Unicode font, falling back to system fonts: {}", e.getMessage());
+            }
+
             builder.withHtmlContent(cleanHtml, "");  // Empty string as base URL
             builder.toStream(outputStream);
             builder.run();

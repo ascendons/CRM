@@ -13,7 +13,7 @@
         }
 
         body {
-            font-family: 'Helvetica', 'Arial', sans-serif;
+            font-family: 'Arial Unicode MS', 'Helvetica', 'Arial', sans-serif;
             font-size: 10pt;
             color: #333;
             line-height: 1.4;
@@ -598,7 +598,7 @@
         <div class="footer-column">
             <div class="section-title">Bank Details</div>
             <div class="section-content"
-                th:if="${isProforma and organization.invoiceConfig != null and organization.invoiceConfig.bankName != null}">
+                th:if="${organization.invoiceConfig != null and organization.invoiceConfig.bankName != null}">
                 <div class="bank-detail">
                     <strong>Bank Name:</strong>
                     <span th:text="${organization.invoiceConfig.bankName}">Bank Name</span>
@@ -617,11 +617,8 @@
                     <span th:text="${organization.invoiceConfig.branchName}">Branch Name</span>
                 </div>
             </div>
-            <div class="section-content" th:if="${!isProforma}">
-                Bank details are hidden for Quotation.
-            </div>
             <div class="section-content"
-                th:if="${isProforma and (organization.invoiceConfig == null or organization.invoiceConfig.bankName == null)}">
+                th:if="${organization.invoiceConfig == null or organization.invoiceConfig.bankName == null}">
                 Bank details not configured.
             </div>
         </div>
