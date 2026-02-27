@@ -772,13 +772,14 @@ export default function ProposalForm({
                 <div className="space-y-4">
                     {/* Column headers — px-3 matches the card's inner padding so labels align with inputs */}
                     <div className="hidden lg:flex gap-2 px-3 mb-1 text-xs font-medium text-gray-400 uppercase tracking-wide">
-                        <div className="flex-[2] min-w-0">Product / Service</div>
-                        <div className="w-24 flex-shrink-0">Qty</div>
+                        <div className="flex-1 min-w-0">Product / Service</div>
+                        <div className="w-32 flex-shrink-0">Qty</div>
                         <div className="w-16 flex-shrink-0">Unit</div>
                         <div className="w-24 flex-shrink-0">HSN</div>
-                        <div className="w-28 flex-shrink-0">Unit Price (₹)</div>
+                        <div className="w-36 flex-shrink-0">Unit Price (₹)</div>
                         <div className="w-36 flex-shrink-0">Discount</div>
                         <div className="w-24 flex-shrink-0">Disc. Val</div>
+                        <div className="w-44 flex-shrink-0 text-right">Total (₹)</div>
                         <div className="w-8 flex-shrink-0" />
                         <div className="w-8 flex-shrink-0" />
                     </div>
@@ -789,12 +790,12 @@ export default function ProposalForm({
                             className="border border-gray-200 rounded-lg p-3 bg-gray-50 space-y-2"
                         >
                             {/* Main row */}
-                            <div className="flex flex-col lg:flex-row items-start lg:items-end gap-2">
+                            <div className="flex flex-col lg:flex-row items-start gap-2">
                                 {/* Mobile label */}
                                 <span className="lg:hidden text-xs font-semibold text-gray-500">Item #{index + 1}</span>
 
                                 {/* Product Search */}
-                                <div className="flex-[2] min-w-0 w-full lg:w-auto">
+                                <div className="flex-1 min-w-0 w-full lg:w-auto">
                                     <CatalogProductSearch
                                         label=""
                                         initialValue={item.productName}
@@ -853,16 +854,22 @@ export default function ProposalForm({
                                 </div>
 
                                 {/* Qty */}
-                                <div className="w-24 flex-shrink-0">
-                                    <input
-                                        type="number"
+                                <div className="w-32 flex-shrink-0">
+                                    <textarea
                                         value={item.quantity ?? ""}
                                         onChange={(e) => {
-                                            const val = e.target.value;
+                                            const val = e.target.value.replace(/[^0-9]/g, '');
                                             updateLineItem(index, "quantity", val === "" ? undefined : parseInt(val));
+                                            e.target.style.height = 'auto';
+                                            e.target.style.height = e.target.scrollHeight + 'px';
                                         }}
+                                        onFocus={(e) => {
+                                            e.currentTarget.style.height = 'auto';
+                                            e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px';
+                                        }}
+                                        rows={1}
                                         placeholder="Qty"
-                                        className={inputCls}
+                                        className={`${inputCls} resize-none overflow-hidden min-h-[40px]`}
                                         required
                                         disabled={isReadOnly}
                                     />
@@ -870,38 +877,61 @@ export default function ProposalForm({
 
                                 {/* Unit */}
                                 <div className="w-16 flex-shrink-0">
-                                    <input
-                                        type="text"
+                                    <textarea
                                         value={item.unit || ""}
-                                        onChange={(e) => updateLineItem(index, "unit", e.target.value)}
+                                        onChange={(e) => {
+                                            updateLineItem(index, "unit", e.target.value);
+                                            e.target.style.height = 'auto';
+                                            e.target.style.height = e.target.scrollHeight + 'px';
+                                        }}
+                                        onFocus={(e) => {
+                                            e.currentTarget.style.height = 'auto';
+                                            e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px';
+                                        }}
+                                        rows={1}
                                         placeholder="Unit"
-                                        className={inputCls}
+                                        className={`${inputCls} resize-none overflow-hidden min-h-[40px]`}
                                         disabled={isReadOnly}
                                     />
                                 </div>
 
                                 {/* HSN Code */}
                                 <div className="w-24 flex-shrink-0">
-                                    <input
-                                        type="text"
+                                    <textarea
                                         value={item.hsnCode || ""}
-                                        onChange={(e) => updateLineItem(index, "hsnCode", e.target.value)}
+                                        onChange={(e) => {
+                                            updateLineItem(index, "hsnCode", e.target.value);
+                                            e.target.style.height = 'auto';
+                                            e.target.style.height = e.target.scrollHeight + 'px';
+                                        }}
+                                        onFocus={(e) => {
+                                            e.currentTarget.style.height = 'auto';
+                                            e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px';
+                                        }}
+                                        rows={1}
                                         placeholder="HSN"
-                                        className={inputCls}
+                                        className={`${inputCls} resize-none overflow-hidden min-h-[40px]`}
                                         disabled={isReadOnly}
                                     />
                                 </div>
 
                                 {/* Unit Price */}
-                                <div className="w-28 flex-shrink-0">
-                                    <input
-                                        type="number"
+                                <div className="w-36 flex-shrink-0">
+                                    <textarea
                                         value={item.unitPrice || ""}
-                                        onChange={(e) => updateLineItem(index, "unitPrice", parseFloat(e.target.value) || undefined)}
-                                        step="0.01"
-                                        min="0"
+                                        onChange={(e) => {
+                                            const val = e.target.value.replace(/[^0-9.]/g, '');
+                                            updateLineItem(index, "unitPrice", val === "" ? undefined : parseFloat(val));
+                                            e.target.style.height = 'auto';
+                                            e.target.style.height = e.target.scrollHeight + 'px';
+                                        }}
+                                        onFocus={(e) => {
+                                            e.currentTarget.style.height = 'auto';
+                                            e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px';
+                                        }}
+                                        rows={1}
                                         placeholder="₹ Price"
-                                        className={inputCls}
+                                        className={`${inputCls} resize-none overflow-hidden min-h-[40px]`}
                                         disabled={isReadOnly}
                                     />
                                 </div>
@@ -922,16 +952,43 @@ export default function ProposalForm({
 
                                 {/* Discount Value */}
                                 <div className="w-24 flex-shrink-0">
-                                    <input
-                                        type="number"
+                                    <textarea
                                         value={item.discountValue || ""}
-                                        onChange={(e) => updateLineItem(index, "discountValue", parseFloat(e.target.value) || undefined)}
-                                        step="0.01"
-                                        min="0"
+                                        onChange={(e) => {
+                                            const val = e.target.value.replace(/[^0-9.]/g, '');
+                                            updateLineItem(index, "discountValue", val === "" ? undefined : parseFloat(val));
+                                            e.target.style.height = 'auto';
+                                            e.target.style.height = e.target.scrollHeight + 'px';
+                                        }}
+                                        onFocus={(e) => {
+                                            e.currentTarget.style.height = 'auto';
+                                            e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px';
+                                        }}
+                                        rows={1}
                                         placeholder={item.discountType === DiscountType.PERCENTAGE ? "%" : "₹"}
-                                        className={`${inputCls} ${!item.discountType ? "opacity-30 pointer-events-none" : ""}`}
+                                        className={`${inputCls} ${!item.discountType ? "opacity-30 pointer-events-none" : ""} resize-none overflow-hidden min-h-[40px]`}
                                         disabled={isReadOnly || !item.discountType}
                                     />
+                                </div>
+
+                                {/* Line Item Total */}
+                                <div className="w-44 flex-shrink-0">
+                                    <div className="w-full px-4 py-2 bg-gray-100 border border-gray-200 rounded-lg text-sm font-semibold text-gray-700 text-right whitespace-normal break-all min-h-[40px]">
+                                        {(() => {
+                                            const qty = item.quantity || 0;
+                                            const price = item.unitPrice || 0;
+                                            const subtotal = qty * price;
+                                            let total = subtotal;
+
+                                            if (item.discountType === DiscountType.PERCENTAGE && item.discountValue) {
+                                                total = subtotal * (1 - item.discountValue / 100);
+                                            } else if (item.discountType === DiscountType.FIXED_AMOUNT && item.discountValue) {
+                                                total = subtotal - item.discountValue;
+                                            }
+
+                                            return `₹${total.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                                        })()}
+                                    </div>
                                 </div>
 
                                 {/* Description toggle */}

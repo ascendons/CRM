@@ -126,25 +126,28 @@ export default function CatalogProductSearch({
                 </label>
             )}
             <div className="relative">
-                <input
-                    type="text"
+                <textarea
                     value={query}
                     onChange={(e) => {
                         setQuery(e.target.value);
                         if (e.target.value.length === 0) setShowResults(false);
-                        // Optional: trigger custom select on every change? No, wait for selection or blur.
+
+                        // Auto-resize
+                        e.target.style.height = 'auto';
+                        e.target.style.height = e.target.scrollHeight + 'px';
                     }}
                     onKeyDown={handleKeyDown}
-                    onFocus={() => {
+                    onFocus={(e) => {
                         if (!disabled && (results.length > 0 || (allowCustom && query))) setShowResults(true);
+                        // Trigger resize on focus to ensure correct height
+                        e.currentTarget.style.height = 'auto';
+                        e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px';
                     }}
-                    onBlur={() => {
-                        // Optional: select custom on blur if nothing selected?
-                        // Better to keep explicit selection to avoid accidental inputs.
-                    }}
+                    rows={1}
                     placeholder={placeholder}
-                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed"
+                    className="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed resize-none overflow-hidden min-h-[40px] block"
                     disabled={disabled}
+                    style={{ height: 'auto' }}
                 />
                 <div className="absolute left-3 top-2.5 text-gray-400">
                     {loading ? (
