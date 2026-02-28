@@ -246,8 +246,8 @@
                         th:text="${proposal.billingAddress.postalCode}">PIN</span>
                 </div>
                 <div style="font-size: 10pt; margin-top: 5px;">
-                    <strong>Contact Person:</strong> <strong th:if="${proposal.companyName == null or proposal.companyName.isEmpty()}"
-                            th:text="${proposal.customerName}">Client Name</strong><br />
+                    <strong>Contact Person:</strong> <span th:if="${proposal.customerName != null or !proposal.customerName.isEmpty()}"
+                            th:text="${proposal.customerName}">Client Name</span><br />
                     <div th:if="${proposal.customerEmail != null and !proposal.customerEmail.isEmpty()}">
                         <strong>Email:</strong> <span th:text="${proposal.customerEmail}">-</span>
                     </div>

@@ -287,16 +287,23 @@
                             <span th:text="${proposal.billingAddress.state}">State</span>
                             <span th:text="${proposal.billingAddress.postalCode}">Postal Code</span>
                         </div>
-                        <div th:if="${proposal.billingAddress.country != null and !proposal.billingAddress.country.isEmpty()}"><strong>Country:</strong> <span th:text="${proposal.billingAddress.country}">Country</span></div>                    </div>
+                        <div
+                            th:if="${proposal.billingAddress.country != null and !proposal.billingAddress.country.isEmpty()}">
+                            <strong>Country:</strong> <span th:text="${proposal.billingAddress.country}">Country</span>
+                        </div>
+                    </div>
 
                     <div th:if="${proposal.gstNumber != null and !proposal.gstNumber.isEmpty()}"
-                         style="font-size: 9pt; margin-top: 2px;">
+                        style="font-size: 9pt; margin-top: 2px;">
                         <strong>GSTIN:</strong> <span th:text="${proposal.gstNumber}">-</span>
                     </div>
 
                     <!-- Contact Details -->
                     <div style="font-size: 9pt; margin-top: 6px; border-top: 1px solid #f0f0f0; padding-top: 4px;">
-                        <div style="font-weight: 600; font-size: 10pt; margin-top: 2px;" th:if="${proposal.customerName != null and !proposal.customerName.isEmpty()}"><strong>Contact Person: </strong><span th:text="${proposal.customerName}">Contact Person</span></div>
+                        <div style="font-weight: 600; font-size: 10pt; margin-top: 2px;"
+                            th:if="${proposal.customerName != null and !proposal.customerName.isEmpty()}">
+                            <strong>Contact Person: </strong><span th:text="${proposal.customerName}">Contact
+                                Person</span></div>
 
                         <div th:if="${proposal.customerEmail != null and !proposal.customerEmail.isEmpty()}">
                             <strong>Email:</strong> <span th:text="${proposal.customerEmail}">-</span>
@@ -319,7 +326,10 @@
                             <span th:text="${proposal.shippingAddress.state}">State</span>
                             <span th:text="${proposal.shippingAddress.postalCode}">Postal Code</span>
                         </div>
-                        <div th:if="${proposal.billingAddress.country != null and !proposal.billingAddress.country.isEmpty()}"><strong>Country:</strong> <span th:text="${proposal.billingAddress.country}">Country</span></div>                    </div>
+                        <div
+                            th:if="${proposal.billingAddress.country != null and !proposal.billingAddress.country.isEmpty()}">
+                            <strong>Country:</strong> <span th:text="${proposal.billingAddress.country}">Country</span>
+                        </div>
                     </div>
                 </div>
             </div>
