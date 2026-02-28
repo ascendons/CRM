@@ -40,6 +40,19 @@ public class CreateProposalRequest {
     private LocalDate validUntil;
 
     // Customer Information
+    @Size(max = 200, message = "Company name must be less than 200 characters")
+    private String companyName;
+
+    @Size(max = 200, message = "Customer name must be less than 200 characters")
+    private String customerName;
+
+    @Email(message = "Invalid email format")
+    @Size(max = 200, message = "Customer email must be less than 200 characters")
+    private String customerEmail;
+
+    @Size(max = 50, message = "Customer phone must be less than 50 characters")
+    private String customerPhone;
+
     @Valid
     private AddressDTO billingAddress;
     @Valid
@@ -54,6 +67,9 @@ public class CreateProposalRequest {
     private DiscountConfigDTO discount;
 
     private GstType gstType;
+
+    @Size(max = 50, message = "GST Number must be less than 50 characters")
+    private String gstNumber;
 
     @Size(max = 500, message = "Payment terms must be less than 500 characters")
     private String paymentTerms;

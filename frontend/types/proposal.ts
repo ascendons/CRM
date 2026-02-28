@@ -82,6 +82,7 @@ export interface ProposalResponse {
 
   // Customer
   customerId?: string;
+  companyName?: string;
   customerName?: string;
   customerEmail?: string;
   customerPhone?: string;
@@ -100,6 +101,7 @@ export interface ProposalResponse {
   // Discount & Tax Config
   discount?: DiscountConfig;
   gstType?: GstType;
+  gstNumber?: string;
 
   // Milestones
   paymentMilestones?: PaymentMilestoneDTO[];
@@ -169,11 +171,16 @@ export interface CreateProposalRequest {
   title: string;
   description?: string;
   validUntil: string;
+  companyName?: string;
+  customerName?: string;
+  customerEmail?: string;
+  customerPhone?: string;
   billingAddress?: CustomerAddress;
   shippingAddress?: CustomerAddress;
   lineItems: LineItemDTO[];
   discount?: DiscountDTO;
   gstType?: GstType;
+  gstNumber?: string;
   paymentMilestones?: PaymentMilestoneDTO[];
   paymentTerms?: string;
   deliveryTerms?: string;
@@ -185,11 +192,16 @@ export interface UpdateProposalRequest {
   description?: string;
   status?: ProposalStatus;
   validUntil?: string;
+  companyName?: string;
+  customerName?: string;
+  customerEmail?: string;
+  customerPhone?: string;
   billingAddress?: CustomerAddress;
   shippingAddress?: CustomerAddress;
   lineItems?: LineItemDTO[];
   discount?: DiscountDTO;
   gstType?: GstType;
+  gstNumber?: string;
   paymentMilestones?: PaymentMilestoneDTO[];
   paymentTerms?: string;
   deliveryTerms?: string;

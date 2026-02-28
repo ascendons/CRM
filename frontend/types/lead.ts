@@ -67,6 +67,7 @@ export interface Lead {
   email: string;
   phone: string;
   companyName: string;
+  gstNumber?: string;
 
   // Contact Details
   jobTitle?: string;
@@ -134,6 +135,7 @@ export interface CreateLeadRequest {
   companyName: string;
 
   // Optional fields
+  gstNumber?: string;
   jobTitle?: string;
   department?: string;
   mobilePhone?: string;
@@ -168,6 +170,7 @@ export interface UpdateLeadRequest {
   email?: string;
   phone?: string;
   companyName?: string;
+  gstNumber?: string;
 
   jobTitle?: string;
   department?: string;

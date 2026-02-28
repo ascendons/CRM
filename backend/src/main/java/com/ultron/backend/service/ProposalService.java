@@ -93,11 +93,16 @@ public class ProposalService extends BaseTenantService {
                 .title(request.getTitle())
                 .description(request.getDescription())
                 .validUntil(request.getValidUntil())
+                .companyName(request.getCompanyName())
+                .customerName(request.getCustomerName())
+                .customerEmail(request.getCustomerEmail())
+                .customerPhone(request.getCustomerPhone())
                 .billingAddress(mapToAddress(request.getBillingAddress()))
                 .shippingAddress(mapToAddress(request.getShippingAddress()))
                 .lineItems(lineItems)
                 .discount(discount)
                 .gstType(request.getGstType() != null ? request.getGstType() : com.ultron.backend.domain.enums.GstType.NONE)
+                .gstNumber(request.getGstNumber())
                 .paymentMilestones(mapMilestones(request.getPaymentMilestones()))
                 .currentMilestoneIndex(0)
                 .status(ProposalStatus.DRAFT)
@@ -312,6 +317,22 @@ public class ProposalService extends BaseTenantService {
             proposal.setValidUntil(request.getValidUntil());
         }
 
+        if (request.getCompanyName() != null) {
+            proposal.setCompanyName(request.getCompanyName());
+        }
+
+        if (request.getCustomerName() != null) {
+            proposal.setCustomerName(request.getCustomerName());
+        }
+
+        if (request.getCustomerEmail() != null) {
+            proposal.setCustomerEmail(request.getCustomerEmail());
+        }
+
+        if (request.getCustomerPhone() != null) {
+            proposal.setCustomerPhone(request.getCustomerPhone());
+        }
+
         if (request.getBillingAddress() != null) {
             proposal.setBillingAddress(mapToAddress(request.getBillingAddress()));
         }
@@ -342,6 +363,9 @@ public class ProposalService extends BaseTenantService {
         if (request.getGstType() != null) {
             proposal.setGstType(request.getGstType());
             needsRecalculation = true; // Tax type changed, need to recalculate tax
+        }
+        if (request.getGstNumber() != null) {
+            proposal.setGstNumber(request.getGstNumber());
         }
 
         if (request.getPaymentTerms() != null) {
@@ -946,6 +970,7 @@ public class ProposalService extends BaseTenantService {
                 .sourceId(proposal.getSourceId())
                 .sourceName(proposal.getSourceName())
                 .customerId(proposal.getCustomerId())
+                .companyName(proposal.getCompanyName())
                 .customerName(proposal.getCustomerName())
                 .customerEmail(proposal.getCustomerEmail())
                 .customerPhone(proposal.getCustomerPhone())
@@ -958,6 +983,7 @@ public class ProposalService extends BaseTenantService {
                 .lineItems(proposal.getLineItems())
                 .discount(proposal.getDiscount())
                 .gstType(proposal.getGstType() != null ? proposal.getGstType() : com.ultron.backend.domain.enums.GstType.NONE)
+                .gstNumber(proposal.getGstNumber())
                 .paymentMilestones(proposal.getPaymentMilestones())
                 .currentMilestoneIndex(proposal.getCurrentMilestoneIndex())
                 .isProforma(proposal.getIsProforma())
@@ -1050,6 +1076,7 @@ public class ProposalService extends BaseTenantService {
                 .lineItems(copiedLineItems)
                 .discount(previousProposal.getDiscount())
                 .gstType(previousProposal.getGstType())
+                .gstNumber(previousProposal.getGstNumber())
                 .paymentMilestones(previousProposal.getPaymentMilestones())
                 .currentMilestoneIndex(nextIndex)
                 .parentProposalId(previousProposal.getId())

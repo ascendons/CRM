@@ -40,6 +40,7 @@ public class ProposalResponse {
 
     // Customer
     private String customerId;
+    private String companyName;
     private String customerName;
     private String customerEmail;
     private String customerPhone;
@@ -58,6 +59,7 @@ public class ProposalResponse {
     // Discount & Tax
     private Proposal.DiscountConfig discount;
     private GstType gstType;
+    private String gstNumber;
 
     // Milestones
     private List<Proposal.PaymentMilestone> paymentMilestones;

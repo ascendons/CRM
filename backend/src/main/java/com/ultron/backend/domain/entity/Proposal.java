@@ -72,6 +72,7 @@ public class Proposal {
 
     // Customer Information (denormalized for proposal history)
     private String customerId;  // MongoDB ObjectId of Account (Legacy - use accountId)
+    private String companyName;
     private String customerName;
     private String customerEmail;
     private String customerPhone;
@@ -87,9 +88,10 @@ public class Proposal {
     // Line Items
     private List<ProposalLineItem> lineItems;
 
-    // Discount Configuration
+    // Discount and Tax Details
     private DiscountConfig discount;
     private GstType gstType;
+    private String gstNumber;
 
     // Calculated Totals
     private BigDecimal subtotal;  // Sum of line items before discount

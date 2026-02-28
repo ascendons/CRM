@@ -26,6 +26,7 @@ public class LeadResponse {
     private String email;
     private String phone;
     private String companyName;
+    private String gstNumber;
 
     // Contact Details
     private String jobTitle;
