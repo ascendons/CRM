@@ -14,9 +14,14 @@ import com.ultron.backend.repository.ContactRepository;
 import com.ultron.backend.repository.OpportunityRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+
+import static com.ultron.backend.config.CacheConfig.DASHBOARD_STATS_CACHE;
+import static com.ultron.backend.config.CacheConfig.GROWTH_TRENDS_CACHE;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -38,7 +43,12 @@ public class OpportunityService extends BaseTenantService {
 
     /**
      * Create a new opportunity
+     * Evicts dashboard cache to refresh statistics
      */
+    @Caching(evict = {
+            @CacheEvict(value = DASHBOARD_STATS_CACHE, key = "#root.target.getCurrentTenantId()"),
+            @CacheEvict(value = GROWTH_TRENDS_CACHE, allEntries = true)
+    })
     public OpportunityResponse createOpportunity(CreateOpportunityRequest request, String createdByUserId) {
         // Get current tenant ID for multi-tenancy
         String tenantId = getCurrentTenantId();
@@ -235,7 +245,12 @@ public class OpportunityService extends BaseTenantService {
 
     /**
      * Update opportunity
+     * Evicts dashboard cache to refresh statistics
      */
+    @Caching(evict = {
+            @CacheEvict(value = DASHBOARD_STATS_CACHE, key = "#root.target.getCurrentTenantId()"),
+            @CacheEvict(value = GROWTH_TRENDS_CACHE, allEntries = true)
+    })
     public OpportunityResponse updateOpportunity(String id, UpdateOpportunityRequest request, String updatedByUserId) {
         String tenantId = getCurrentTenantId();
         log.info("[Tenant: {}] Updating opportunity {} by user {}", tenantId, id, updatedByUserId);
@@ -390,7 +405,12 @@ public class OpportunityService extends BaseTenantService {
 
     /**
      * Delete opportunity (soft delete)
+     * Evicts dashboard cache to refresh statistics
      */
+    @Caching(evict = {
+            @CacheEvict(value = DASHBOARD_STATS_CACHE, key = "#root.target.getCurrentTenantId()"),
+            @CacheEvict(value = GROWTH_TRENDS_CACHE, allEntries = true)
+    })
     public void deleteOpportunity(String id, String deletedByUserId) {
         Opportunity opportunity = opportunityRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Opportunity not found"));

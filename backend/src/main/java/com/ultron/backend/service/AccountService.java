@@ -8,9 +8,14 @@ import com.ultron.backend.exception.UserAlreadyExistsException;
 import com.ultron.backend.repository.AccountRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+
+import static com.ultron.backend.config.CacheConfig.DASHBOARD_STATS_CACHE;
+import static com.ultron.backend.config.CacheConfig.GROWTH_TRENDS_CACHE;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -26,7 +31,12 @@ public class AccountService extends BaseTenantService {
 
     /**
      * Create a new account
+     * Evicts dashboard cache to refresh statistics
      */
+    @Caching(evict = {
+            @CacheEvict(value = DASHBOARD_STATS_CACHE, key = "#root.target.getCurrentTenantId()"),
+            @CacheEvict(value = GROWTH_TRENDS_CACHE, allEntries = true)
+    })
     public AccountResponse createAccount(CreateAccountRequest request, String createdByUserId) {
         // Get current tenant ID for multi-tenancy
         String tenantId = getCurrentTenantId();
@@ -167,7 +177,12 @@ public class AccountService extends BaseTenantService {
 
     /**
      * Update account
+     * Evicts dashboard cache to refresh statistics
      */
+    @Caching(evict = {
+            @CacheEvict(value = DASHBOARD_STATS_CACHE, key = "#root.target.getCurrentTenantId()"),
+            @CacheEvict(value = GROWTH_TRENDS_CACHE, allEntries = true)
+    })
     public AccountResponse updateAccount(String id, UpdateAccountRequest request, String updatedByUserId) {
         String tenantId = getCurrentTenantId();
         log.info("[Tenant: {}] Updating account {} by user {}", tenantId, id, updatedByUserId);
@@ -269,7 +284,12 @@ public class AccountService extends BaseTenantService {
 
     /**
      * Delete account (soft delete)
+     * Evicts dashboard cache to refresh statistics
      */
+    @Caching(evict = {
+            @CacheEvict(value = DASHBOARD_STATS_CACHE, key = "#root.target.getCurrentTenantId()"),
+            @CacheEvict(value = GROWTH_TRENDS_CACHE, allEntries = true)
+    })
     public void deleteAccount(String id, String deletedByUserId) {
         Account account = accountRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Account not found"));

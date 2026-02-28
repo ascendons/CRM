@@ -10,9 +10,14 @@ import com.ultron.backend.repository.AccountRepository;
 import com.ultron.backend.repository.ContactRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+
+import static com.ultron.backend.config.CacheConfig.DASHBOARD_STATS_CACHE;
+import static com.ultron.backend.config.CacheConfig.GROWTH_TRENDS_CACHE;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -29,7 +34,12 @@ public class ContactService extends BaseTenantService {
 
     /**
      * Create a new contact
+     * Evicts dashboard cache to refresh statistics
      */
+    @Caching(evict = {
+            @CacheEvict(value = DASHBOARD_STATS_CACHE, key = "#root.target.getCurrentTenantId()"),
+            @CacheEvict(value = GROWTH_TRENDS_CACHE, allEntries = true)
+    })
     public ContactResponse createContact(CreateContactRequest request, String createdByUserId) {
         // Get current tenant ID for multi-tenancy
         String tenantId = getCurrentTenantId();
@@ -173,7 +183,12 @@ public class ContactService extends BaseTenantService {
 
     /**
      * Update contact
+     * Evicts dashboard cache to refresh statistics
      */
+    @Caching(evict = {
+            @CacheEvict(value = DASHBOARD_STATS_CACHE, key = "#root.target.getCurrentTenantId()"),
+            @CacheEvict(value = GROWTH_TRENDS_CACHE, allEntries = true)
+    })
     public ContactResponse updateContact(String id, UpdateContactRequest request, String updatedByUserId) {
         String tenantId = getCurrentTenantId();
         log.info("[Tenant: {}] Updating contact {} by user {}", tenantId, id, updatedByUserId);
@@ -251,7 +266,12 @@ public class ContactService extends BaseTenantService {
 
     /**
      * Delete contact (soft delete)
+     * Evicts dashboard cache to refresh statistics
      */
+    @Caching(evict = {
+            @CacheEvict(value = DASHBOARD_STATS_CACHE, key = "#root.target.getCurrentTenantId()"),
+            @CacheEvict(value = GROWTH_TRENDS_CACHE, allEntries = true)
+    })
     public void deleteContact(String id, String deletedByUserId) {
         Contact contact = contactRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Contact not found"));

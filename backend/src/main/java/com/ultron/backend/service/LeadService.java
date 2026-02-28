@@ -28,10 +28,15 @@ import com.ultron.backend.domain.entity.Proposal;
 import com.ultron.backend.domain.entity.Activity;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+
+import static com.ultron.backend.config.CacheConfig.DASHBOARD_STATS_CACHE;
+import static com.ultron.backend.config.CacheConfig.GROWTH_TRENDS_CACHE;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -61,7 +66,12 @@ public class LeadService extends BaseTenantService {
 
     /**
      * Create a new lead
+     * Evicts dashboard cache to refresh statistics
      */
+    @Caching(evict = {
+            @CacheEvict(value = DASHBOARD_STATS_CACHE, key = "#root.target.getCurrentTenantId()"),
+            @CacheEvict(value = GROWTH_TRENDS_CACHE, allEntries = true)
+    })
     public LeadResponse createLead(CreateLeadRequest request, String createdByUserId) {
         // Get current tenant ID for multi-tenancy
         String tenantId = getCurrentTenantId();
@@ -222,7 +232,12 @@ public class LeadService extends BaseTenantService {
 
     /**
      * Update lead status
+     * Evicts dashboard cache to refresh statistics
      */
+    @Caching(evict = {
+            @CacheEvict(value = DASHBOARD_STATS_CACHE, key = "#root.target.getCurrentTenantId()"),
+            @CacheEvict(value = GROWTH_TRENDS_CACHE, allEntries = true)
+    })
     public LeadResponse updateLeadStatus(String id, LeadStatus newStatus, String updatedByUserId) {
         Lead lead = leadRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Lead not found"));
@@ -271,7 +286,12 @@ public class LeadService extends BaseTenantService {
     /**
      * Update lead information
      * Only updates fields that are provided (not null)
+     * Evicts dashboard cache to refresh statistics
      */
+    @Caching(evict = {
+            @CacheEvict(value = DASHBOARD_STATS_CACHE, key = "#root.target.getCurrentTenantId()"),
+            @CacheEvict(value = GROWTH_TRENDS_CACHE, allEntries = true)
+    })
     public LeadResponse updateLead(String id, UpdateLeadRequest request, String updatedByUserId) {
         String tenantId = getCurrentTenantId();
         log.info("[Tenant: {}] Updating lead {} by user {}", tenantId, id, updatedByUserId);
@@ -465,7 +485,12 @@ public class LeadService extends BaseTenantService {
 
     /**
      * Delete lead (soft delete)
+     * Evicts dashboard cache to refresh statistics
      */
+    @Caching(evict = {
+            @CacheEvict(value = DASHBOARD_STATS_CACHE, key = "#root.target.getCurrentTenantId()"),
+            @CacheEvict(value = GROWTH_TRENDS_CACHE, allEntries = true)
+    })
     public void deleteLead(String id, String deletedByUserId) {
         Lead lead = leadRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Lead not found"));
