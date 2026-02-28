@@ -228,12 +228,6 @@
                 <td class="label-cell">Dated</td>
                 <td th:text="${#temporals.format(proposal.createdAt, 'dd-MMM-yyyy')}">01-Jan-2024</td>
             </tr>
-            <tr>
-                <td class="label-cell">Ref No.</td>
-                <td>-</td>
-                <td class="label-cell">Expiry Date</td>
-                <td th:text="${#temporals.format(proposal.validUntil, 'dd-MMM-yyyy')}">31-Jan-2024</td>
-            </tr>
         </table>
 
         <div class="address-section">
