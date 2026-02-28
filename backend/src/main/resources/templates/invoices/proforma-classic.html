@@ -239,7 +239,11 @@
         <div class="address-section">
             <div class="address-box">
                 <span class="address-title">Consignee/Customer:</span>
-                <strong th:text="${proposal.customerName}">Client Name</strong><br />
+                <strong th:if="${proposal.companyName != null and !proposal.companyName.isEmpty()}"
+                    th:text="${proposal.companyName}">Company Name</strong>
+                <div th:if="${proposal.gstNumber != null and !proposal.gstNumber.isEmpty()}" style="font-size: 10pt;">
+                    <strong>GSTIN:</strong> <span th:text="${proposal.gstNumber}">-</span>
+                </div>
                 <div th:if="${proposal.billingAddress != null}" style="font-size: 10pt;">
                     <span th:text="${proposal.billingAddress.street}">Street</span><br />
                     <span th:text="${proposal.billingAddress.city}">City</span>, <span
@@ -247,16 +251,31 @@
                     <span th:text="${proposal.billingAddress.country}">Country</span> - <span
                         th:text="${proposal.billingAddress.postalCode}">PIN</span>
                 </div>
+                <div style="font-size: 10pt; margin-top: 5px;">
+                    <strong>Contact Person:</strong> <strong th:if="${proposal.companyName == null or proposal.companyName.isEmpty()}"
+                            th:text="${proposal.customerName}">Client Name</strong><br />
+                    <div th:if="${proposal.customerEmail != null and !proposal.customerEmail.isEmpty()}">
+                        <strong>Email:</strong> <span th:text="${proposal.customerEmail}">-</span>
+                    </div>
+                    <div th:if="${proposal.customerPhone != null and !proposal.customerPhone.isEmpty()}">
+                        <strong>Phone:</strong> <span th:text="${proposal.customerPhone}">-</span>
+                    </div>
+                </div>
             </div>
             <div class="address-box">
                 <span class="address-title">Dispatch Details:</span>
                 <div
                     th:with="address=${proposal.shippingAddress != null ? proposal.shippingAddress : proposal.billingAddress}">
                     <div th:if="${address != null}">
-                        <strong th:text="${proposal.customerName}">Client Name</strong><br />
-                        <span th:text="${address.street}">Street</span>, <span
-                            th:text="${address.city}">City</span><br />
-                        <span th:text="${address.country}">Country</span>
+                        <strong th:if="${proposal.companyName != null or !proposal.companyName.isEmpty()}"
+                            th:text="${proposal.companyName}">Company Name</strong><br />
+                        <div th:if="${proposal.billingAddress != null}" style="font-size: 10pt;">
+                            <span th:text="${proposal.billingAddress.street}">Street</span><br />
+                            <span th:text="${proposal.billingAddress.city}">City</span>, <span
+                                th:text="${proposal.billingAddress.state}">State</span><br />
+                            <span th:text="${proposal.billingAddress.country}">Country</span> - <span
+                                th:text="${proposal.billingAddress.postalCode}">PIN</span>
+                        </div>
                     </div>
                 </div>
             </div>

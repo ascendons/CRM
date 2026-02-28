@@ -357,7 +357,8 @@
     <div class="billing-grid">
         <div class="address-box">
             <div class="address-title">Billed To</div>
-            <div class="customer-name" th:text="${proposal.customerName}">Client Name</div>
+            <div class="customer-name" th:if="${proposal.companyName != null and !proposal.companyName.isEmpty()}"
+                th:text="${proposal.companyName}">Company Name</div>
             <div class="address-text" th:if="${proposal.billingAddress != null}">
                 <div th:text="${proposal.billingAddress.street}">Street</div>
                 <div>
@@ -367,11 +368,23 @@
                 </div>
                 <div th:text="${proposal.billingAddress.country}">Country</div>
             </div>
+            <div class="address-text" th:if="${proposal.gstNumber != null and !proposal.gstNumber.isEmpty()}">
+                <strong>GSTIN:</strong> <span th:text="${proposal.gstNumber}">-</span>
+            </div>
+            <div class="address-text" style="margin-top: 8px;">
+                <div th:if="${proposal.customerEmail != null and !proposal.customerEmail.isEmpty()}">
+                    <strong>Email:</strong> <span th:text="${proposal.customerEmail}">-</span>
+                </div>
+                <div th:if="${proposal.customerPhone != null and !proposal.customerPhone.isEmpty()}">
+                    <strong>Phone:</strong> <span th:text="${proposal.customerPhone}">-</span>
+                </div>
+            </div>
         </div>
 
         <div class="address-box">
             <div class="address-title">Shipped To</div>
-            <div class="customer-name" th:text="${proposal.customerName}">Client Name</div>
+            <div class="customer-name" th:if="${proposal.companyName != null and !proposal.companyName.isEmpty()}"
+                th:text="${proposal.companyName}">Company Name</div>
             <div class="address-text"
                 th:with="address=${proposal.shippingAddress != null ? proposal.shippingAddress : proposal.billingAddress}">
                 <div th:if="${address != null}">

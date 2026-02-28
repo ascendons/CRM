@@ -260,10 +260,7 @@
         }
 
         .totals-table .total-row .label,
-        .totals-table .total-row .amount {
-            /*background: #003399;*/
-            /*border-color: #002266;*/
-        }
+        .totals-table .total-row .amount {}
 
         /* Footer Sections */
         .footer-sections {
@@ -419,9 +416,6 @@
             <div class="meta-cell meta-label">Date:</div>
             <div class="meta-cell meta-value" th:text="${#temporals.format(proposal.createdAt, 'dd-MMM-yyyy')}">
                 25-Feb-2024</div>
-            <div class="meta-cell meta-label">Valid Until:</div>
-            <div class="meta-cell meta-value" th:text="${#temporals.format(proposal.validUntil, 'dd-MMM-yyyy')}">
-                25-Mar-2024</div>
         </div>
     </div>
 
@@ -430,7 +424,8 @@
         <div class="address-column">
             <div class="address-title">Bill To</div>
             <div class="address-content">
-                <div class="customer-name" th:text="${proposal.customerName}">Customer Name</div>
+                <div class="customer-name" th:if="${proposal.companyName != null and !proposal.companyName.isEmpty()}"
+                    th:text="${proposal.companyName}">Company Name</div>
                 <div th:if="${proposal.billingAddress != null}">
                     <div th:if="${proposal.billingAddress.street != null and !proposal.billingAddress.street.isEmpty()}"
                         th:text="${proposal.billingAddress.street}">Street Address</div>
@@ -453,6 +448,9 @@
                             th:text="${proposal.billingAddress.postalCode}">Postal Code</span>
                     </div>
                 </div>
+                <div th:if="${proposal.gstNumber != null and !proposal.gstNumber.isEmpty()}">
+                    <strong>GSTIN:</strong> <span th:text="${proposal.gstNumber}">-</span>
+                </div>
                 <div th:if="${proposal.customerEmail != null and !proposal.customerEmail.isEmpty()}" class="mt-1">
                     <strong>Email:</strong> <span th:text="${proposal.customerEmail}">email@example.com</span>
                 </div>
@@ -465,7 +463,8 @@
         <div class="address-column">
             <div class="address-title">Ship To</div>
             <div class="address-content">
-                <div class="customer-name" th:text="${proposal.customerName}">Customer Name</div>
+                <div class="customer-name" th:if="${proposal.companyName != null and !proposal.companyName.isEmpty()}"
+                    th:text="${proposal.companyName}">Company Name</div>
                 <div
                     th:with="address=${proposal.shippingAddress != null ? proposal.shippingAddress : proposal.billingAddress}">
                     <div th:if="${address != null and address.street != null and !address.street.isEmpty()}"
@@ -541,8 +540,7 @@
             <table class="totals-table">
                 <tr>
                     <td class="label">SUBTOTAL:</td>
-                    <td class="amount"
-                        th:text="${#numbers.formatDecimal(proposal.subtotal, 1, 'COMMA', 2, 'POINT')}">₹
+                    <td class="amount" th:text="${#numbers.formatDecimal(proposal.subtotal, 1, 'COMMA', 2, 'POINT')}">₹
                         10,000.00</td>
                 </tr>
                 <tr th:if="${proposal.discountAmount != null and proposal.discountAmount > 0}">
@@ -563,8 +561,7 @@
                         <span th:if="${proposal.gstType != null}" class="text-muted"
                             th:text="'[' + ${proposal.gstType} + ']'"></span>:
                     </td>
-                    <td class="amount"
-                        th:text="${#numbers.formatDecimal(proposal.taxAmount, 1, 'COMMA', 2, 'POINT')}">₹
+                    <td class="amount" th:text="${#numbers.formatDecimal(proposal.taxAmount, 1, 'COMMA', 2, 'POINT')}">₹
                         1,800.00</td>
                 </tr>
                 <tr class="total-row">
