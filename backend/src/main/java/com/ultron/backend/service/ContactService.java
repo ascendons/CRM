@@ -37,7 +37,7 @@ public class ContactService extends BaseTenantService {
      * Evicts dashboard cache to refresh statistics
      */
     @Caching(evict = {
-            @CacheEvict(value = DASHBOARD_STATS_CACHE, key = "#root.target.getCurrentTenantId()"),
+            @CacheEvict(value = DASHBOARD_STATS_CACHE, key = "T(com.ultron.backend.multitenancy.TenantContext).getTenantId()"),
             @CacheEvict(value = GROWTH_TRENDS_CACHE, allEntries = true)
     })
     public ContactResponse createContact(CreateContactRequest request, String createdByUserId) {
@@ -186,7 +186,7 @@ public class ContactService extends BaseTenantService {
      * Evicts dashboard cache to refresh statistics
      */
     @Caching(evict = {
-            @CacheEvict(value = DASHBOARD_STATS_CACHE, key = "#root.target.getCurrentTenantId()"),
+            @CacheEvict(value = DASHBOARD_STATS_CACHE, key = "T(com.ultron.backend.multitenancy.TenantContext).getTenantId()"),
             @CacheEvict(value = GROWTH_TRENDS_CACHE, allEntries = true)
     })
     public ContactResponse updateContact(String id, UpdateContactRequest request, String updatedByUserId) {
@@ -269,7 +269,7 @@ public class ContactService extends BaseTenantService {
      * Evicts dashboard cache to refresh statistics
      */
     @Caching(evict = {
-            @CacheEvict(value = DASHBOARD_STATS_CACHE, key = "#root.target.getCurrentTenantId()"),
+            @CacheEvict(value = DASHBOARD_STATS_CACHE, key = "T(com.ultron.backend.multitenancy.TenantContext).getTenantId()"),
             @CacheEvict(value = GROWTH_TRENDS_CACHE, allEntries = true)
     })
     public void deleteContact(String id, String deletedByUserId) {

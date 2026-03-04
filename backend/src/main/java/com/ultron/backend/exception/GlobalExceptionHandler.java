@@ -9,6 +9,8 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import com.ultron.backend.multitenancy.TenantContextMissingException;
+import org.springframework.expression.spel.SpelEvaluationException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -83,6 +85,27 @@ public class GlobalExceptionHandler {
         log.warn("Invalid argument: {}", ex.getMessage());
         ApiResponse<Object> response = ApiResponse.error(ex.getMessage(), null);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    @ExceptionHandler(BusinessException.class)
+    public ResponseEntity<ApiResponse<Object>> handleBusinessException(BusinessException ex) {
+        log.warn("Business rule violation: {}", ex.getMessage());
+        ApiResponse<Object> response = ApiResponse.error(ex.getMessage(), null);
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(response);
+    }
+
+    @ExceptionHandler(TenantContextMissingException.class)
+    public ResponseEntity<ApiResponse<Object>> handleTenantContextMissing(TenantContextMissingException ex) {
+        log.error("Tenant context missing: {}", ex.getMessage());
+        ApiResponse<Object> response = ApiResponse.error("Organization context is missing. Please log in again.", null);
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+    }
+
+    @ExceptionHandler(SpelEvaluationException.class)
+    public ResponseEntity<ApiResponse<Object>> handleSpelException(SpelEvaluationException ex) {
+        log.error("SpEL Evaluation Error: {}", ex.getMessage());
+        ApiResponse<Object> response = ApiResponse.error("An internal caching error occurred.", null);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
 
     /**

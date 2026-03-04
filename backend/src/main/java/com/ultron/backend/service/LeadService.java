@@ -69,7 +69,7 @@ public class LeadService extends BaseTenantService {
      * Evicts dashboard cache to refresh statistics
      */
     @Caching(evict = {
-            @CacheEvict(value = DASHBOARD_STATS_CACHE, key = "#root.target.getCurrentTenantId()"),
+            @CacheEvict(value = DASHBOARD_STATS_CACHE, key = "T(com.ultron.backend.multitenancy.TenantContext).getTenantId()"),
             @CacheEvict(value = GROWTH_TRENDS_CACHE, allEntries = true)
     })
     public LeadResponse createLead(CreateLeadRequest request, String createdByUserId) {
@@ -235,7 +235,7 @@ public class LeadService extends BaseTenantService {
      * Evicts dashboard cache to refresh statistics
      */
     @Caching(evict = {
-            @CacheEvict(value = DASHBOARD_STATS_CACHE, key = "#root.target.getCurrentTenantId()"),
+            @CacheEvict(value = DASHBOARD_STATS_CACHE, key = "T(com.ultron.backend.multitenancy.TenantContext).getTenantId()"),
             @CacheEvict(value = GROWTH_TRENDS_CACHE, allEntries = true)
     })
     public LeadResponse updateLeadStatus(String id, LeadStatus newStatus, String updatedByUserId) {
@@ -289,7 +289,7 @@ public class LeadService extends BaseTenantService {
      * Evicts dashboard cache to refresh statistics
      */
     @Caching(evict = {
-            @CacheEvict(value = DASHBOARD_STATS_CACHE, key = "#root.target.getCurrentTenantId()"),
+            @CacheEvict(value = DASHBOARD_STATS_CACHE, key = "T(com.ultron.backend.multitenancy.TenantContext).getTenantId()"),
             @CacheEvict(value = GROWTH_TRENDS_CACHE, allEntries = true)
     })
     public LeadResponse updateLead(String id, UpdateLeadRequest request, String updatedByUserId) {
@@ -488,7 +488,7 @@ public class LeadService extends BaseTenantService {
      * Evicts dashboard cache to refresh statistics
      */
     @Caching(evict = {
-            @CacheEvict(value = DASHBOARD_STATS_CACHE, key = "#root.target.getCurrentTenantId()"),
+            @CacheEvict(value = DASHBOARD_STATS_CACHE, key = "T(com.ultron.backend.multitenancy.TenantContext).getTenantId()"),
             @CacheEvict(value = GROWTH_TRENDS_CACHE, allEntries = true)
     })
     public void deleteLead(String id, String deletedByUserId) {

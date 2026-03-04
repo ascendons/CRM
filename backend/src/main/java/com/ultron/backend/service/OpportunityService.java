@@ -46,7 +46,7 @@ public class OpportunityService extends BaseTenantService {
      * Evicts dashboard cache to refresh statistics
      */
     @Caching(evict = {
-            @CacheEvict(value = DASHBOARD_STATS_CACHE, key = "#root.target.getCurrentTenantId()"),
+            @CacheEvict(value = DASHBOARD_STATS_CACHE, key = "T(com.ultron.backend.multitenancy.TenantContext).getTenantId()"),
             @CacheEvict(value = GROWTH_TRENDS_CACHE, allEntries = true)
     })
     public OpportunityResponse createOpportunity(CreateOpportunityRequest request, String createdByUserId) {
@@ -248,7 +248,7 @@ public class OpportunityService extends BaseTenantService {
      * Evicts dashboard cache to refresh statistics
      */
     @Caching(evict = {
-            @CacheEvict(value = DASHBOARD_STATS_CACHE, key = "#root.target.getCurrentTenantId()"),
+            @CacheEvict(value = DASHBOARD_STATS_CACHE, key = "T(com.ultron.backend.multitenancy.TenantContext).getTenantId()"),
             @CacheEvict(value = GROWTH_TRENDS_CACHE, allEntries = true)
     })
     public OpportunityResponse updateOpportunity(String id, UpdateOpportunityRequest request, String updatedByUserId) {
@@ -408,7 +408,7 @@ public class OpportunityService extends BaseTenantService {
      * Evicts dashboard cache to refresh statistics
      */
     @Caching(evict = {
-            @CacheEvict(value = DASHBOARD_STATS_CACHE, key = "#root.target.getCurrentTenantId()"),
+            @CacheEvict(value = DASHBOARD_STATS_CACHE, key = "T(com.ultron.backend.multitenancy.TenantContext).getTenantId()"),
             @CacheEvict(value = GROWTH_TRENDS_CACHE, allEntries = true)
     })
     public void deleteOpportunity(String id, String deletedByUserId) {

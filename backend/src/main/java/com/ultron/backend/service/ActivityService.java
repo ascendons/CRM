@@ -48,7 +48,7 @@ public class ActivityService extends BaseTenantService {
 
     @Transactional
     @Caching(evict = {
-            @CacheEvict(value = DASHBOARD_STATS_CACHE, key = "#root.target.getCurrentTenantId()"),
+            @CacheEvict(value = DASHBOARD_STATS_CACHE, key = "T(com.ultron.backend.multitenancy.TenantContext).getTenantId()"),
             @CacheEvict(value = GROWTH_TRENDS_CACHE, allEntries = true)
     })
     public ActivityResponse createActivity(CreateActivityRequest request, String currentUserId) {
@@ -278,7 +278,7 @@ public class ActivityService extends BaseTenantService {
 
     @Transactional
     @Caching(evict = {
-            @CacheEvict(value = DASHBOARD_STATS_CACHE, key = "#root.target.getCurrentTenantId()"),
+            @CacheEvict(value = DASHBOARD_STATS_CACHE, key = "T(com.ultron.backend.multitenancy.TenantContext).getTenantId()"),
             @CacheEvict(value = GROWTH_TRENDS_CACHE, allEntries = true)
     })
     public ActivityResponse updateActivity(String id, UpdateActivityRequest request, String currentUserId) {
@@ -431,7 +431,7 @@ public class ActivityService extends BaseTenantService {
 
     @Transactional
     @Caching(evict = {
-            @CacheEvict(value = DASHBOARD_STATS_CACHE, key = "#root.target.getCurrentTenantId()"),
+            @CacheEvict(value = DASHBOARD_STATS_CACHE, key = "T(com.ultron.backend.multitenancy.TenantContext).getTenantId()"),
             @CacheEvict(value = GROWTH_TRENDS_CACHE, allEntries = true)
     })
     public void deleteActivity(String id, String currentUserId) {

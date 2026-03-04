@@ -34,7 +34,7 @@ public class TenantAnalyticsService extends BaseTenantService {
      * MULTI-TENANT SAFE
      * CACHED: Results cached for 5 minutes, auto-refreshed on data changes
      */
-    @Cacheable(value = DASHBOARD_STATS_CACHE, key = "#root.target.getCurrentTenantId()")
+    @Cacheable(value = DASHBOARD_STATS_CACHE, key = "T(com.ultron.backend.multitenancy.TenantContext).getTenantId()")
     public DashboardStats getDashboardStats() {
         String tenantId = getCurrentTenantId();
         log.info("[Tenant: {}] Computing dashboard stats (cache miss)", tenantId);
@@ -52,7 +52,7 @@ public class TenantAnalyticsService extends BaseTenantService {
      * MULTI-TENANT SAFE
      * CACHED: Results cached for 5 minutes, auto-refreshed on data changes
      */
-    @Cacheable(value = GROWTH_TRENDS_CACHE, key = "#root.target.getCurrentTenantId() + '_' + #days")
+    @Cacheable(value = GROWTH_TRENDS_CACHE, key = "T(com.ultron.backend.multitenancy.TenantContext).getTenantId() + '_' + #days")
     public GrowthTrends getGrowthTrends(int days) {
         String tenantId = getCurrentTenantId();
         log.info("[Tenant: {}] Computing growth trends for {} days (cache miss)", tenantId, days);
