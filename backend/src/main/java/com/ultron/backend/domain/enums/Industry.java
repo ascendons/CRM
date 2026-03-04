@@ -1,6 +1,12 @@
 package com.ultron.backend.domain.enums;
 
 public enum Industry {
+    RENEWABLE_ENERGY,
+    SOLAR,
+    WIND,
+    HYDRO,
+    GEOTHERMAL,
+    BIOMASS,
     TECHNOLOGY,
     MANUFACTURING,
     HEALTHCARE,

@@ -18,7 +18,7 @@ public abstract class BaseTenantService {
      * @return Tenant ID
      * @throws TenantContextMissingException if not set
      */
-    protected String getCurrentTenantId() {
+    public String getCurrentTenantId() {
         return TenantContext.requireTenantId();
     }
 
@@ -51,10 +51,6 @@ public abstract class BaseTenantService {
         return role != null && (role.equals("ADMIN") || role.equals("TENANT_ADMIN"));
     }
 
-    /**
-     * Check if current user is system admin
-     * @return true if system admin
-     */
     protected boolean isCurrentUserSystemAdmin() {
         String role = TenantContext.getUserRole();
         return role != null && role.equals("SYSTEM_ADMIN");
