@@ -418,9 +418,6 @@ export default function ProposalForm({
             const finalProductId = item.productId || customProductId;
 
             let finalDescription = item.description;
-            if (isCustom && item.productName) {
-                finalDescription = `${item.productName}:::${item.description || ''}`;
-            }
 
             return {
                 productId: finalProductId,
