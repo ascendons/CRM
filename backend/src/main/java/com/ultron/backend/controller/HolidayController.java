@@ -1,6 +1,6 @@
 package com.ultron.backend.controller;
 
-import com.ultron.backend.dto.ApiResponse;
+import com.ultron.backend.dto.response.ApiResponse;
 import com.ultron.backend.dto.holiday.CreateHolidayRequest;
 import com.ultron.backend.dto.holiday.HolidayResponse;
 import com.ultron.backend.service.HolidayManagementService;

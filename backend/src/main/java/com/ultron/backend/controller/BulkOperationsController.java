@@ -1,6 +1,6 @@
 package com.ultron.backend.controller;
 
-import com.ultron.backend.dto.ApiResponse;
+import com.ultron.backend.dto.response.ApiResponse;
 import com.ultron.backend.dto.shift.BulkAssignmentResult;
 import com.ultron.backend.dto.shift.BulkShiftAssignmentRequest;
 import com.ultron.backend.service.BulkShiftAssignmentService;
