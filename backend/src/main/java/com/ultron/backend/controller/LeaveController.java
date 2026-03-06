@@ -1,6 +1,6 @@
 package com.ultron.backend.controller;
 
-import com.ultron.backend.dto.ApiResponse;
+import com.ultron.backend.dto.response.ApiResponse;
 import com.ultron.backend.dto.leave.*;
 import com.ultron.backend.service.LeaveService;
 import jakarta.validation.Valid;

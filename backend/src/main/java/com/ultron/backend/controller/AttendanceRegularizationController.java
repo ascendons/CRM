@@ -1,6 +1,6 @@
 package com.ultron.backend.controller;
 
-import com.ultron.backend.dto.ApiResponse;
+import com.ultron.backend.dto.response.ApiResponse;
 import com.ultron.backend.dto.regularization.ApproveRegularizationRequest;
 import com.ultron.backend.dto.regularization.CreateRegularizationRequest;
 import com.ultron.backend.dto.regularization.RegularizationResponse;
