@@ -10,7 +10,9 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.ultron.backend.multitenancy.TenantContextMissingException;
+import jakarta.validation.ConstraintViolationException;
 import org.springframework.expression.spel.SpelEvaluationException;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -84,6 +86,38 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Object>> handleIllegalArgument(IllegalArgumentException ex) {
         log.warn("Invalid argument: {}", ex.getMessage());
         ApiResponse<Object> response = ApiResponse.error(ex.getMessage(), null);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    /**
+     * Handle malformed JSON / invalid enum values (400 Bad Request).
+     */
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ApiResponse<Object>> handleHttpMessageNotReadable(HttpMessageNotReadableException ex) {
+        log.warn("Malformed request body: {}", ex.getMessage());
+        String message = "Invalid request body. Please check the request format and field values.";
+        // Extract useful info for enum deserialization errors
+        if (ex.getMessage() != null && ex.getMessage().contains("not one of the values accepted")) {
+            message = "Invalid field value. " + ex.getMessage();
+        }
+        ApiResponse<Object> response = ApiResponse.error(message, null);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    /**
+     * Handle ConstraintViolationException for @PathVariable / @RequestParam validation (400).
+     */
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ApiResponse<Object>> handleConstraintViolation(ConstraintViolationException ex) {
+        Map<String, String> errors = new HashMap<>();
+        ex.getConstraintViolations().forEach(cv -> {
+            String field = cv.getPropertyPath().toString();
+            // Remove method prefix (e.g. "methodName.paramName" -> "paramName")
+            if (field.contains(".")) { field = field.substring(field.lastIndexOf('.') + 1); }
+            errors.put(field, cv.getMessage());
+        });
+        log.warn("Constraint violation: {}", errors);
+        ApiResponse<Object> response = ApiResponse.error("Validation failed", errors);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 

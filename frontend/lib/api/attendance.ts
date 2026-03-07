@@ -62,6 +62,9 @@ export const attendanceApi = {
   getMySummary: (year: number, month: number) =>
     api.get(`/attendance/my/summary?year=${year}&month=${month}`),
 
+  getAttendanceById: (attendanceId: string) =>
+    api.get(`/attendance/${attendanceId}`),
+
   // Admin APIs
   getDailyDashboard: (date?: string) =>
     api.get(`/attendance/admin/dashboard/daily${date ? '?date=' + date : ''}`),

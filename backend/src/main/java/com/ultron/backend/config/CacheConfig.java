@@ -36,6 +36,8 @@ public class CacheConfig {
     public static final String FIELD_PERMISSIONS_CACHE = "fieldPermissions";
     public static final String MODULE_PERMISSIONS_CACHE = "modulePermissions";
     public static final String PATH_PERMISSIONS_CACHE = "pathPermissions";
+    public static final String DATA_VISIBILITY_CACHE = "dataVisibility";
+    public static final String USER_DATA_VISIBILITY_CACHE = "userDataVisibility";
 
     // Attendance-related caches
     public static final String DAILY_ATTENDANCE_CACHE = "dailyAttendance";
@@ -67,6 +69,8 @@ public class CacheConfig {
                 FIELD_PERMISSIONS_CACHE,
                 MODULE_PERMISSIONS_CACHE,
                 PATH_PERMISSIONS_CACHE,
+                DATA_VISIBILITY_CACHE,
+                USER_DATA_VISIBILITY_CACHE,
                 DAILY_ATTENDANCE_CACHE,
                 USER_ATTENDANCE_SUMMARY,
                 SHIFTS_CACHE,
@@ -89,8 +93,8 @@ public class CacheConfig {
                         log.debug("Cache eviction: key={}, cause={}", key, cause))
         );
 
-        log.info("Cache manager initialized with {} caches: dashboardStats, growthTrends, unreadNotifications, permissions, recordAccess, subordinates, allSubordinates, systemPermissions, fieldPermissions, modulePermissions, pathPermissions, dailyAttendance, userAttendanceSummary, shifts, officeLocations, leaveBalance, userLeaves, holidays, monthlyReport",
-                19);
+        log.info("Cache manager initialized with {} caches: dashboardStats, growthTrends, unreadNotifications, permissions, recordAccess, subordinates, allSubordinates, systemPermissions, fieldPermissions, modulePermissions, pathPermissions, dataVisibility, userDataVisibility, dailyAttendance, userAttendanceSummary, shifts, officeLocations, leaveBalance, userLeaves, holidays, monthlyReport",
+                21);
 
         return cacheManager;
     }

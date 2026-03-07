@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -27,6 +28,7 @@ public class OpportunityController {
     private final OpportunityService opportunityService;
 
     @PostMapping
+    @PreAuthorize("hasPermission('OPPORTUNITY', 'CREATE')")
     public ResponseEntity<ApiResponse<OpportunityResponse>> createOpportunity(
             @Valid @RequestBody CreateOpportunityRequest request) {
 
@@ -44,10 +46,19 @@ public class OpportunityController {
                         .build());
     }
 
+    /**
+     * Get opportunities based on user's data visibility level
+     * - Admin (ALL): Returns all opportunities in tenant
+     * - Manager (SUBORDINATES): Returns own + subordinates' opportunities
+     * - Employee (OWN): Returns only own opportunities
+     */
     @GetMapping
-    public ResponseEntity<ApiResponse<List<OpportunityResponse>>> getAllOpportunities() {
-        log.info("Fetching all opportunities");
-        List<OpportunityResponse> opportunities = opportunityService.getAllOpportunities();
+    @PreAuthorize("hasPermission('OPPORTUNITY', 'READ')")
+    public ResponseEntity<ApiResponse<List<OpportunityResponse>>> getOpportunities() {
+        String currentUserId = getCurrentUserId();
+        log.info("User {} fetching opportunities with data visibility filtering", currentUserId);
+
+        List<OpportunityResponse> opportunities = opportunityService.getOpportunitiesForCurrentUser(currentUserId);
 
         return ResponseEntity.ok(
                 ApiResponse.<List<OpportunityResponse>>builder()
@@ -58,6 +69,7 @@ public class OpportunityController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasPermission('OPPORTUNITY', 'READ')")
     public ResponseEntity<ApiResponse<OpportunityResponse>> getOpportunityById(@PathVariable String id) {
         log.info("Fetching opportunity with id: {}", id);
         OpportunityResponse opportunity = opportunityService.getOpportunityById(id);
@@ -71,6 +83,7 @@ public class OpportunityController {
     }
 
     @GetMapping("/code/{opportunityId}")
+    @PreAuthorize("hasPermission('OPPORTUNITY', 'READ')")
     public ResponseEntity<ApiResponse<OpportunityResponse>> getOpportunityByOpportunityId(
             @PathVariable String opportunityId) {
         log.info("Fetching opportunity with opportunityId: {}", opportunityId);
@@ -85,6 +98,7 @@ public class OpportunityController {
     }
 
     @GetMapping("/account/{accountId}")
+    @PreAuthorize("hasPermission('OPPORTUNITY', 'READ')")
     public ResponseEntity<ApiResponse<List<OpportunityResponse>>> getOpportunitiesByAccount(
             @PathVariable String accountId) {
         log.info("Fetching opportunities for account: {}", accountId);
@@ -99,6 +113,7 @@ public class OpportunityController {
     }
 
     @GetMapping("/contact/{contactId}")
+    @PreAuthorize("hasPermission('OPPORTUNITY', 'READ')")
     public ResponseEntity<ApiResponse<List<OpportunityResponse>>> getOpportunitiesByContact(
             @PathVariable String contactId) {
         log.info("Fetching opportunities for contact: {}", contactId);
@@ -113,6 +128,7 @@ public class OpportunityController {
     }
 
     @GetMapping("/stage/{stage}")
+    @PreAuthorize("hasPermission('OPPORTUNITY', 'READ')")
     public ResponseEntity<ApiResponse<List<OpportunityResponse>>> getOpportunitiesByStage(
             @PathVariable OpportunityStage stage) {
         log.info("Fetching opportunities for stage: {}", stage);
@@ -127,6 +143,7 @@ public class OpportunityController {
     }
 
     @GetMapping("/search")
+    @PreAuthorize("hasPermission('OPPORTUNITY', 'READ')")
     public ResponseEntity<ApiResponse<List<OpportunityResponse>>> searchOpportunities(
             @RequestParam String q) {
         log.info("Searching opportunities with query: {}", q);
@@ -141,6 +158,7 @@ public class OpportunityController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasPermission('OPPORTUNITY', 'EDIT')")
     public ResponseEntity<ApiResponse<OpportunityResponse>> updateOpportunity(
             @PathVariable String id,
             @Valid @RequestBody UpdateOpportunityRequest request) {

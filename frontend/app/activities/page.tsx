@@ -180,7 +180,7 @@ function ActivitiesContent() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50 ">
+      <div className="flex items-center justify-center bg-slate-50 min-h-[calc(100vh-4rem)] ">
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-primary/10 rounded-full blur-3xl animate-pulse"></div>
         </div>
@@ -193,9 +193,9 @@ function ActivitiesContent() {
   }
 
   return (
-    <div className="min-h-screen bg-transparent">
+    <div className="bg-slate-50">
       {/* Header */}
-      <div className="sticky top-16 z-20 bg-white/80  backdrop-blur-lg border-b border-slate-200 ">
+      <div className="sticky top-0 z-20 bg-white/80  backdrop-blur-lg border-b border-slate-200 ">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between py-4 gap-4">
             <div>
@@ -417,7 +417,7 @@ function ActivitiesContent() {
 export default function ActivitiesPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center bg-slate-50 ">
+      <div className="flex items-center justify-center bg-slate-50 min-h-[calc(100vh-4rem)] ">
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-primary/10 rounded-full blur-3xl animate-pulse"></div>
         </div>

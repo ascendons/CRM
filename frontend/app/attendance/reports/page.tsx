@@ -3,7 +3,10 @@
 import { useEffect, useState } from 'react';
 import { reportsApi, MonthlyReportResponse } from '@/lib/api/reports';
 import { AttendanceStatusBadge } from '@/components/attendance/AttendanceStatusBadge';
+import { BarChart, PieChart, ProgressRing } from '@/components/attendance/AttendanceCharts';
 import { toast } from 'react-hot-toast';
+import { Download, FileSpreadsheet, FileText } from 'lucide-react';
+import { exportToExcel, exportToPDF, formatAttendanceForExport, formatMonthlyReportForExport } from '@/lib/utils/exportUtils';
 
 export default function AttendanceReportsPage() {
   const [report, setReport] = useState<MonthlyReportResponse | null>(null);
@@ -29,6 +32,51 @@ export default function AttendanceReportsPage() {
   useEffect(() => {
     loadReport();
   }, [year, month]);
+
+  const handleExportExcel = () => {
+    if (!report) return;
+
+    if (report.dailyRecords && report.dailyRecords.length > 0) {
+      const { headers, rows } = formatAttendanceForExport(report.dailyRecords);
+      exportToExcel({
+        headers,
+        rows,
+        filename: `Attendance_${year}_${String(month).padStart(2, '0')}`
+      });
+      toast.success('Exported to Excel successfully!');
+    } else {
+      toast.error('No data to export');
+    }
+  };
+
+  const handleExportPDF = () => {
+    if (!report) return;
+
+    if (report.dailyRecords && report.dailyRecords.length > 0) {
+      const { headers, rows } = formatAttendanceForExport(report.dailyRecords);
+      exportToPDF({
+        headers,
+        rows,
+        filename: `Attendance_${year}_${String(month).padStart(2, '0')}`,
+        title: `Attendance Report - ${month}/${year}`
+      });
+      toast.success('Opening print dialog...');
+    } else {
+      toast.error('No data to export');
+    }
+  };
+
+  const handleExportSummary = () => {
+    if (!report) return;
+
+    const { headers, rows } = formatMonthlyReportForExport(report);
+    exportToExcel({
+      headers,
+      rows,
+      filename: `Attendance_Summary_${year}_${String(month).padStart(2, '0')}`
+    });
+    toast.success('Summary exported successfully!');
+  };
 
   const formatTime = (time?: string) => {
     if (!time) return '-';
@@ -59,12 +107,12 @@ export default function AttendanceReportsPage() {
   return (
     <div className="max-w-7xl mx-auto p-6 space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Monthly Attendance Report</h1>
           <p className="text-gray-600 mt-1">Detailed analysis of your attendance and performance</p>
         </div>
-        <div className="flex gap-4">
+        <div className="flex flex-wrap gap-3">
           <select
             value={month}
             onChange={(e) => setMonth(Number(e.target.value))}
@@ -85,6 +133,24 @@ export default function AttendanceReportsPage() {
               <option key={y} value={y}>{y}</option>
             ))}
           </select>
+          <div className="flex gap-2">
+            <button
+              onClick={handleExportExcel}
+              className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-semibold flex items-center gap-2 transition-colors"
+              title="Export to Excel"
+            >
+              <FileSpreadsheet className="h-4 w-4" />
+              Excel
+            </button>
+            <button
+              onClick={handleExportPDF}
+              className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-semibold flex items-center gap-2 transition-colors"
+              title="Export to PDF"
+            >
+              <FileText className="h-4 w-4" />
+              PDF
+            </button>
+          </div>
         </div>
       </div>
 
@@ -126,6 +192,75 @@ export default function AttendanceReportsPage() {
             {report.performanceRating.replace('_', ' ')}
           </p>
           <p className="text-xs text-gray-500 mt-2">Overall rating</p>
+        </div>
+      </div>
+
+      {/* Visual Charts */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Attendance Status Pie Chart */}
+        <PieChart
+          title="Attendance Distribution"
+          data={[
+            { label: 'Present', value: report.presentDays, color: '#10b981' },
+            { label: 'Late', value: report.lateDays, color: '#f59e0b' },
+            { label: 'Absent', value: report.absentDays, color: '#ef4444' },
+            { label: 'On Leave', value: report.leaveDays, color: '#8b5cf6' },
+            { label: 'Half Day', value: report.halfDays, color: '#3b82f6' }
+          ].filter(item => item.value > 0)}
+        />
+
+        {/* Work Hours Bar Chart */}
+        <BarChart
+          title="Time Analysis"
+          data={[
+            {
+              label: 'Work Hours',
+              value: Math.floor(report.totalWorkMinutes / 60),
+              color: '#3b82f6'
+            },
+            {
+              label: 'Overtime',
+              value: Math.floor(report.totalOvertimeMinutes / 60),
+              color: '#10b981'
+            },
+            {
+              label: 'Late (min)',
+              value: report.totalLateMinutes,
+              color: '#f59e0b'
+            }
+          ]}
+          height={250}
+        />
+      </div>
+
+      {/* Performance Metrics */}
+      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+        <h3 className="text-lg font-semibold text-slate-900 mb-6">Performance Metrics</h3>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          <ProgressRing
+            value={report.presentDays}
+            max={report.totalWorkingDays}
+            label="Attendance"
+            color="#10b981"
+          />
+          <ProgressRing
+            value={Math.floor(report.totalWorkMinutes / 60)}
+            max={report.totalWorkingDays * 8}
+            label="Work Hours"
+            color="#3b82f6"
+          />
+          <ProgressRing
+            value={report.totalWorkingDays - report.lateDays}
+            max={report.totalWorkingDays}
+            label="On Time"
+            color="#8b5cf6"
+          />
+          <ProgressRing
+            value={Math.floor(report.totalOvertimeMinutes / 60)}
+            max={Math.floor(report.totalWorkMinutes / 60)}
+            label="Overtime"
+            color="#f59e0b"
+          />
         </div>
       </div>
 

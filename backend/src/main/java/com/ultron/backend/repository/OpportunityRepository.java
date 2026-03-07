@@ -56,6 +56,13 @@ public interface OpportunityRepository extends MongoRepository<Opportunity, Stri
     List<Opportunity> findByOwnerIdAndTenantIdAndIsDeletedFalse(String ownerId, String tenantId);
 
     /**
+     * Find opportunities by multiple owners and tenant (excluding deleted)
+     * Used for manager queries to get own + subordinates' opportunities
+     * MULTI-TENANT SAFE
+     */
+    List<Opportunity> findByOwnerIdInAndTenantIdAndIsDeletedFalse(List<String> ownerIds, String tenantId);
+
+    /**
      * Count total opportunities for tenant
      * MULTI-TENANT SAFE
      */

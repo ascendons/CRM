@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import Navigation from "./components/Navigation";
+import AppLayout from "./components/AppLayout";
 import ToastProvider from "@/components/ToastProvider";
 import { TenantProvider } from "@/providers/TenantProvider";
 import { PermissionProvider } from "@/providers/PermissionProvider";
@@ -39,8 +39,9 @@ export default function RootLayout({
             <OrganizationProvider>
               <WebSocketProvider>
                 <ToastProvider />
-                <Navigation />
-                {children}
+                <AppLayout>
+                  {children}
+                </AppLayout>
               </WebSocketProvider>
             </OrganizationProvider>
           </PermissionProvider>

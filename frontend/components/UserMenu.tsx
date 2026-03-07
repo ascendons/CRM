@@ -109,12 +109,12 @@ export function UserMenu() {
         <>
           {/* Backdrop */}
           <div
-            className="fixed inset-0 z-40"
+            className="fixed inset-0 z-[60]"
             onClick={() => setMenuOpen(false)}
           />
 
           {/* Menu */}
-          <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-xl border border-gray-200 z-50">
+          <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-xl border border-gray-200 z-[70]">
             {/* User Info Header */}
             <div className="px-4 py-3 border-b border-gray-200">
               <div className="font-medium text-gray-900">

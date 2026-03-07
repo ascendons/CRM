@@ -53,15 +53,19 @@ public class LeadController {
     }
 
     /**
-     * Get all leads
+     * Get leads based on user's data visibility level
+     * - Admin (ALL): Returns all leads in tenant
+     * - Manager (SUBORDINATES): Returns own + subordinates' leads
+     * - Employee (OWN): Returns only own leads
      * GET /api/v1/leads
      */
     @GetMapping
     @PreAuthorize("hasPermission('LEAD', 'READ')")
-    public ResponseEntity<ApiResponse<List<LeadResponse>>> getAllLeads() {
-        log.info("Fetching all leads");
+    public ResponseEntity<ApiResponse<List<LeadResponse>>> getLeads() {
+        String currentUserId = getCurrentUserId();
+        log.info("User {} fetching leads with data visibility filtering", currentUserId);
 
-        List<LeadResponse> leads = leadService.getAllLeads();
+        List<LeadResponse> leads = leadService.getLeadsForCurrentUser(currentUserId);
 
         return ResponseEntity.ok(
                 ApiResponse.<List<LeadResponse>>builder()

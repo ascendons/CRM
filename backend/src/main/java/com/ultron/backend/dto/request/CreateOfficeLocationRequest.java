@@ -2,10 +2,8 @@ package com.ultron.backend.dto.request;
 
 import com.ultron.backend.domain.enums.GeofenceShape;
 import com.ultron.backend.domain.enums.LocationType;
+import jakarta.validation.constraints.*;
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -40,11 +38,16 @@ public class CreateOfficeLocationRequest {
     private String postalCode;
 
     @NotNull(message = "Latitude is required")
+    @DecimalMin(value = "-90.0", message = "Latitude must be >= -90")
+    @DecimalMax(value = "90.0",  message = "Latitude must be <= 90")
     private Double latitude;
 
     @NotNull(message = "Longitude is required")
+    @DecimalMin(value = "-180.0", message = "Longitude must be >= -180")
+    @DecimalMax(value = "180.0",  message = "Longitude must be <= 180")
     private Double longitude;
 
+    @Positive(message = "Radius must be a positive number")
     private Integer radiusMeters;
     private GeofenceShape shape;
     private Boolean enforceGeofence;

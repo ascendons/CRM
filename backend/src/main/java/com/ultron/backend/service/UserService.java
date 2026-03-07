@@ -108,6 +108,20 @@ public class UserService extends BaseTenantService {
                 .failedLoginAttempts(0)
                 .build();
 
+        // Auto-assign admin as manager if managerId is not provided
+        String assignedManagerId = request.getManagerId();
+        if (assignedManagerId == null || assignedManagerId.trim().isEmpty()) {
+            log.info("[Tenant: {}] Manager ID not provided, auto-assigning admin as default manager", tenantId);
+            assignedManagerId = findDefaultManager(tenantId);
+            if (assignedManagerId != null) {
+                log.info("[Tenant: {}] Auto-assigned admin {} as manager for user {}",
+                    tenantId, assignedManagerId, request.getUsername());
+            } else {
+                log.warn("[Tenant: {}] No admin found to assign as default manager for user {}",
+                    tenantId, request.getUsername());
+            }
+        }
+
         // Build user entity
         User user = User.builder()
                 .userId(userId)
@@ -121,7 +135,7 @@ public class UserService extends BaseTenantService {
                 .fullName(fullName)  // Legacy field
                 .roleId(request.getRoleId())
                 .profileId(request.getProfileId())
-                .managerId(request.getManagerId())
+                .managerId(assignedManagerId)  // Use auto-assigned manager if needed
                 .teamId(request.getTeamId())
                 .territoryId(request.getTerritoryId())
                 .status(UserStatus.ACTIVE)
@@ -411,6 +425,46 @@ public class UserService extends BaseTenantService {
     }
 
     // ==================== Helper Methods ====================
+
+    /**
+     * Find a default manager (admin) for a user when no manager is specified
+     * Searches for an active System Administrator user in the tenant
+     *
+     * @param tenantId The tenant ID to search within
+     * @return The userId of an admin user, or null if none found
+     */
+    private String findDefaultManager(String tenantId) {
+        try {
+            log.debug("[Tenant: {}] Searching for System Administrator to assign as default manager", tenantId);
+
+            // Query for active System Administrator users in the tenant
+            // roleId "ROLE-00001" is the System Administrator role (see PredefinedRoles)
+            List<User> adminUsers = userRepository.findByRoleIdAndTenantIdAndIsDeletedFalse(
+                "ROLE-00001",
+                tenantId
+            );
+
+            // Filter for active users and get the first one
+            Optional<User> adminUser = adminUsers.stream()
+                .filter(user -> user.getStatus() == UserStatus.ACTIVE)
+                .findFirst();
+
+            if (adminUser.isPresent()) {
+                String adminUserId = adminUser.get().getUserId();
+                log.debug("[Tenant: {}] Found System Administrator: {} ({})",
+                    tenantId,
+                    adminUser.get().getFullName(),
+                    adminUserId);
+                return adminUserId;
+            } else {
+                log.warn("[Tenant: {}] No active System Administrator found for default manager assignment", tenantId);
+                return null;
+            }
+        } catch (Exception e) {
+            log.error("[Tenant: {}] Error finding default manager: {}", tenantId, e.getMessage(), e);
+            return null;
+        }
+    }
 
     private UserResponse mapToResponse(User user) {
         UserResponse.UserProfileDTO profileDTO = null;

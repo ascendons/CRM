@@ -39,6 +39,7 @@ import static com.ultron.backend.config.CacheConfig.DASHBOARD_STATS_CACHE;
 import static com.ultron.backend.config.CacheConfig.GROWTH_TRENDS_CACHE;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -63,6 +64,7 @@ public class LeadService extends BaseTenantService {
     private final ApplicationEventPublisher eventPublisher;
     private final AuditLogService auditLogService;
     private final NotificationService notificationService;
+    private final DataVisibilityService dataVisibilityService;
 
     /**
      * Create a new lead
@@ -188,9 +190,46 @@ public class LeadService extends BaseTenantService {
     /**
      * Get all leads for current tenant
      */
+    /**
+     * Get leads for current user based on their data visibility level
+     * - Admin (ALL): Returns all leads in tenant
+     * - Manager (SUBORDINATES): Returns own + subordinates' leads
+     * - Employee (OWN): Returns only own leads
+     * This method implements proper RBAC based on role dataVisibility
+     */
+    public List<LeadResponse> getLeadsForCurrentUser(String userId) {
+        String tenantId = getCurrentTenantId();
+        log.info("[Tenant: {}] User {} fetching leads with data visibility filtering", tenantId, userId);
+
+        // Get list of user IDs whose data this user can view
+        List<String> visibleUserIds = dataVisibilityService.getVisibleUserIds(userId);
+
+        if (visibleUserIds.isEmpty()) {
+            log.warn("[Tenant: {}] User {} has no visible users, returning empty list", tenantId, userId);
+            return Collections.emptyList();
+        }
+
+        log.debug("[Tenant: {}] User {} can see {} users' leads", tenantId, userId, visibleUserIds.size());
+
+        // Query leads owned by visible users
+        List<Lead> leads = leadRepository.findByLeadOwnerIdInAndTenantIdAndIsDeletedFalse(
+                visibleUserIds, tenantId);
+
+        log.info("[Tenant: {}] Returning {} leads for user {}", tenantId, leads.size(), userId);
+
+        return leads.stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Get all leads (ADMIN ONLY - no filtering)
+     * @deprecated Use getLeadsForCurrentUser() instead for proper RBAC
+     */
+    @Deprecated
     public List<LeadResponse> getAllLeads() {
         String tenantId = getCurrentTenantId();
-        log.debug("[Tenant: {}] Fetching all leads", tenantId);
+        log.warn("[Tenant: {}] DEPRECATED: getAllLeads() called - should use getLeadsForCurrentUser()", tenantId);
         return leadRepository.findByTenantIdAndIsDeletedFalse(tenantId)
                 .stream()
                 .map(this::mapToResponse)

@@ -5,6 +5,7 @@ import { attendanceApi } from '@/lib/api/attendance';
 import { CheckInButton } from '@/components/attendance/CheckInButton';
 import { CheckOutButton } from '@/components/attendance/CheckOutButton';
 import { AttendanceStatusBadge } from '@/components/attendance/AttendanceStatusBadge';
+import { AttendanceCalendar } from '@/components/attendance/AttendanceCalendar';
 import { toast } from 'react-hot-toast';
 
 interface Attendance {
@@ -217,6 +218,18 @@ export default function AttendancePage() {
           <p className="text-2xl font-bold text-gray-900 mt-1">8.5 hrs</p>
           <p className="text-sm text-gray-600 mt-1">Per day</p>
         </div>
+      </div>
+
+      {/* Attendance Calendar */}
+      <div className="mt-8">
+        <h2 className="text-2xl font-bold text-gray-900 mb-4">Monthly Calendar</h2>
+        <AttendanceCalendar
+          onDateClick={(date, record) => {
+            if (record) {
+              toast.success(`${date.toLocaleDateString()}: ${record.status}`);
+            }
+          }}
+        />
       </div>
     </div>
   );
