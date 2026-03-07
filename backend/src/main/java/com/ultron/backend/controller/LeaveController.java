@@ -18,7 +18,7 @@ import java.util.List;
  * REST controller for leave management
  */
 @RestController
-@RequestMapping("/api/leaves")
+@RequestMapping("/leaves")
 @RequiredArgsConstructor
 @Slf4j
 public class LeaveController {

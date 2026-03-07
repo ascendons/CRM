@@ -1,4 +1,4 @@
-import api from '../api-client';
+import { api } from '../api-client';
 
 export interface CreateShiftRequest {
   name: string;
@@ -22,7 +22,7 @@ export interface CreateShiftRequest {
   isActive?: boolean;
 }
 
-export interface UpdateShiftRequest extends Partial<CreateShiftRequest> {}
+export interface UpdateShiftRequest extends Partial<CreateShiftRequest> { }
 
 export const shiftsApi = {
   // CRUD operations

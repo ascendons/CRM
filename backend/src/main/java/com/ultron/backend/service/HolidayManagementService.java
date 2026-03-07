@@ -33,7 +33,7 @@ public class HolidayManagementService extends BaseTenantService {
     @Transactional
     @CacheEvict(value = "holidays", allEntries = true)
     public HolidayResponse createHoliday(CreateHolidayRequest request, String userId) {
-        String tenantId = getTenantId();
+        String tenantId = getCurrentTenantId();
         log.info("Creating holiday for date: {} in tenant: {}", request.getDate(), tenantId);
 
         // Check if holiday already exists for this date
@@ -71,7 +71,7 @@ public class HolidayManagementService extends BaseTenantService {
     @Transactional
     @CacheEvict(value = "holidays", allEntries = true)
     public HolidayResponse updateHoliday(String holidayId, CreateHolidayRequest request, String userId) {
-        String tenantId = getTenantId();
+        String tenantId = getCurrentTenantId();
         log.info("Updating holiday: {}", holidayId);
 
         Holiday holiday = holidayRepository.findById(holidayId)
@@ -112,7 +112,7 @@ public class HolidayManagementService extends BaseTenantService {
     @Transactional
     @CacheEvict(value = "holidays", allEntries = true)
     public void deleteHoliday(String holidayId, String userId) {
-        String tenantId = getTenantId();
+        String tenantId = getCurrentTenantId();
         log.info("Deleting holiday: {}", holidayId);
 
         Holiday holiday = holidayRepository.findById(holidayId)
@@ -135,7 +135,7 @@ public class HolidayManagementService extends BaseTenantService {
      * Get holiday by ID
      */
     public HolidayResponse getHolidayById(String holidayId) {
-        String tenantId = getTenantId();
+        String tenantId = getCurrentTenantId();
 
         Holiday holiday = holidayRepository.findById(holidayId)
                 .orElseThrow(() -> new BusinessException("Holiday not found"));
@@ -150,9 +150,9 @@ public class HolidayManagementService extends BaseTenantService {
     /**
      * Get holidays by year
      */
-    @Cacheable(value = "holidays", key = "T(com.ultron.backend.multitenancy.TenantContext).getTenantId() + '_year_' + #year")
+    @Cacheable(value = "holidays", key = "#root.target.getCurrentTenantId() + '_year_' + #year")
     public List<HolidayResponse> getHolidaysByYear(Integer year) {
-        String tenantId = getTenantId();
+        String tenantId = getCurrentTenantId();
         List<Holiday> holidays = holidayRepository
                 .findByTenantIdAndYearAndIsDeletedFalseOrderByDateAsc(tenantId, year);
         return holidays.stream().map(this::mapToResponse).collect(Collectors.toList());
@@ -162,7 +162,7 @@ public class HolidayManagementService extends BaseTenantService {
      * Get all holidays
      */
     public List<HolidayResponse> getAllHolidays() {
-        String tenantId = getTenantId();
+        String tenantId = getCurrentTenantId();
         // Get holidays for current year and next year
         int currentYear = java.time.LocalDate.now().getYear();
         List<Holiday> holidays = new ArrayList<>();

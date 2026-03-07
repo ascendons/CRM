@@ -39,7 +39,7 @@ public class BulkShiftAssignmentService extends BaseTenantService {
      */
     @Transactional
     public BulkAssignmentResult bulkAssignShift(BulkShiftAssignmentRequest request, String assignedBy) {
-        String tenantId = getTenantId();
+        String tenantId = getCurrentTenantId();
         log.info("Bulk assigning shift {} to {} users", request.getShiftId(), request.getUserIds().size());
 
         // Validate shift exists
@@ -60,7 +60,7 @@ public class BulkShiftAssignmentService extends BaseTenantService {
         for (String userId : request.getUserIds()) {
             try {
                 // Get user
-                Optional<User> userOpt = userRepository.findByIdAndTenantIdAndIsDeletedFalse(userId, tenantId);
+                Optional<User> userOpt = userRepository.findByIdAndTenantId(userId, tenantId);
                 if (userOpt.isEmpty()) {
                     failed.add(BulkAssignmentResult.FailedAssignment.builder()
                             .userId(userId)
@@ -71,12 +71,15 @@ public class BulkShiftAssignmentService extends BaseTenantService {
                 }
 
                 User user = userOpt.get();
+                String userName = user.getFullName() != null ? user.getFullName() :
+                    (user.getProfile() != null && user.getProfile().getFullName() != null) ?
+                    user.getProfile().getFullName() : user.getUsername();
 
                 // Create assignment
                 UserShiftAssignment assignment = UserShiftAssignment.builder()
                         .tenantId(tenantId)
                         .userId(userId)
-                        .userName(user.getName())
+                        .userName(userName)
                         .shiftId(shift.getShiftId())
                         .shiftName(shift.getName())
                         .officeLocationId(officeLocation != null ? officeLocation.getLocationId() : null)
@@ -106,7 +109,7 @@ public class BulkShiftAssignmentService extends BaseTenantService {
                         .reason(assignment.getReason())
                         .build());
 
-                log.info("Assigned shift {} to user {}", shift.getName(), user.getName());
+                log.info("Assigned shift {} to user {}", shift.getName(), userName);
 
             } catch (Exception e) {
                 log.error("Failed to assign shift to user {}: {}", userId, e.getMessage());
@@ -134,7 +137,7 @@ public class BulkShiftAssignmentService extends BaseTenantService {
      * Get user's active shift assignment
      */
     public ShiftAssignmentResponse getUserActiveAssignment(String userId) {
-        String tenantId = getTenantId();
+        String tenantId = getCurrentTenantId();
 
         List<UserShiftAssignment> assignments = assignmentRepository
                 .findByTenantIdAndUserIdOrderByEffectiveDateDesc(tenantId, userId);
@@ -161,7 +164,7 @@ public class BulkShiftAssignmentService extends BaseTenantService {
      * Get all assignments for a user
      */
     public List<ShiftAssignmentResponse> getUserAssignments(String userId) {
-        String tenantId = getTenantId();
+        String tenantId = getCurrentTenantId();
 
         List<UserShiftAssignment> assignments = assignmentRepository
                 .findByTenantIdAndUserIdOrderByEffectiveDateDesc(tenantId, userId);

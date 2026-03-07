@@ -1,4 +1,4 @@
-import api from '../api-client';
+import { api } from '../api-client';
 
 export interface CreateOfficeLocationRequest {
   name: string;
@@ -23,7 +23,7 @@ export interface CreateOfficeLocationRequest {
   contactEmail?: string;
 }
 
-export interface UpdateOfficeLocationRequest extends Partial<CreateOfficeLocationRequest> {}
+export interface UpdateOfficeLocationRequest extends Partial<CreateOfficeLocationRequest> { }
 
 export const officeLocationsApi = {
   // CRUD operations

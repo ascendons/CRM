@@ -20,7 +20,7 @@ import java.util.List;
  * REST controller for attendance regularization
  */
 @RestController
-@RequestMapping("/api/attendance/regularizations")
+@RequestMapping("/attendance/regularizations")
 @RequiredArgsConstructor
 @Slf4j
 public class AttendanceRegularizationController {

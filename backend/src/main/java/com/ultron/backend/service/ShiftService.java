@@ -189,7 +189,7 @@ public class ShiftService extends BaseTenantService {
      */
     public Shift getShiftById(String shiftId) {
         String tenantId = getCurrentTenantId();
-        return shiftRepository.findByShiftIdAndTenantId(shiftId, tenantId)
+        return shiftRepository.findFirstByShiftIdAndTenantId(shiftId, tenantId)
             .orElseThrow(() -> new ResourceNotFoundException("Shift not found: " + shiftId));
     }
 

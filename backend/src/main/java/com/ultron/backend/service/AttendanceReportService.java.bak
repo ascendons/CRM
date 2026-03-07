@@ -38,9 +38,9 @@ public class AttendanceReportService extends BaseTenantService {
     /**
      * Get daily attendance dashboard (real-time)
      */
-    @Cacheable(value = "dailyAttendance", key = "#root.target.getCurrentTenantId() + '_' + #date")
+    @Cacheable(value = "dailyAttendance", key = "T(com.ultron.backend.multitenancy.TenantContext).getTenantId() + '_' + #date")
     public DailyAttendanceDashboardResponse getDailyDashboard(LocalDate date) {
-        String tenantId = getCurrentTenantId();
+        String tenantId = getTenantId();
         log.info("Generating daily dashboard for date: {} in tenant: {}", date, tenantId);
 
         // Get all active users
@@ -146,18 +146,14 @@ public class AttendanceReportService extends BaseTenantService {
     /**
      * Get monthly attendance report for a user
      */
-    @Cacheable(value = "monthlyReport", key = "#root.target.getCurrentTenantId() + '_' + #userId + '_' + #year + '_' + #month")
+    @Cacheable(value = "monthlyReport", key = "T(com.ultron.backend.multitenancy.TenantContext).getTenantId() + '_' + #userId + '_' + #year + '_' + #month")
     public MonthlyAttendanceReportResponse getMonthlyReport(String userId, Integer year, Integer month) {
-        String tenantId = getCurrentTenantId();
+        String tenantId = getTenantId();
         log.info("Generating monthly report for user: {} year: {} month: {}", userId, year, month);
 
         // Get user
-        User user = userRepository.findByIdAndTenantId(userId, tenantId)
+        User user = userRepository.findByIdAndTenantIdAndIsDeletedFalse(userId, tenantId)
                 .orElseThrow(() -> new BusinessException("User not found"));
-
-        String userName = user.getFullName() != null ? user.getFullName() :
-                (user.getProfile() != null && user.getProfile().getFullName() != null) ?
-                        user.getProfile().getFullName() : user.getUsername();
 
         // Date range
         LocalDate startDate = LocalDate.of(year, month, 1);
@@ -267,7 +263,7 @@ public class AttendanceReportService extends BaseTenantService {
 
         return MonthlyAttendanceReportResponse.builder()
                 .userId(userId)
-                .userName(userName)
+                .userName(user.getName())
                 .userEmail(user.getEmail())
                 .year(year)
                 .month(month)
@@ -296,7 +292,7 @@ public class AttendanceReportService extends BaseTenantService {
      * Get team attendance (manager view)
      */
     public TeamAttendanceResponse getTeamAttendance(String managerId, LocalDate startDate, LocalDate endDate) {
-        String tenantId = getCurrentTenantId();
+        String tenantId = getTenantId();
         log.info("Generating team attendance for manager: {} from {} to {}", managerId, startDate, endDate);
 
         // Get team members
@@ -312,10 +308,6 @@ public class AttendanceReportService extends BaseTenantService {
         int teamOnLeaveCount = 0;
 
         for (User member : teamMembers) {
-            String memberName = member.getFullName() != null ? member.getFullName() :
-                    (member.getProfile() != null && member.getProfile().getFullName() != null) ?
-                            member.getProfile().getFullName() : member.getUsername();
-
             List<Attendance> attendances = attendanceRepository
                     .findByUserIdAndTenantIdAndAttendanceDateBetweenAndIsDeletedFalse(
                             member.getId(), tenantId, startDate, endDate);
@@ -375,7 +367,7 @@ public class AttendanceReportService extends BaseTenantService {
 
             teamMemberStats.add(TeamAttendanceResponse.TeamMemberAttendanceDto.builder()
                     .userId(member.getId())
-                    .userName(memberName)
+                    .userName(member.getName())
                     .userEmail(member.getEmail())
                     .totalDays(totalDays)
                     .presentDays((int) presentDays)
@@ -469,9 +461,7 @@ public class AttendanceReportService extends BaseTenantService {
     private String getUserName(List<User> users, String userId) {
         return users.stream()
                 .filter(u -> u.getId().equals(userId))
-                .map(u -> u.getFullName() != null ? u.getFullName() :
-                        (u.getProfile() != null && u.getProfile().getFullName() != null) ?
-                                u.getProfile().getFullName() : u.getUsername())
+                .map(User::getName)
                 .findFirst()
                 .orElse("Unknown");
     }

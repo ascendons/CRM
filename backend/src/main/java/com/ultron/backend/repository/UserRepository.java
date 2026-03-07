@@ -16,6 +16,12 @@ public interface UserRepository extends MongoRepository<User, String> {
     // ===== MULTI-TENANT SAFE METHODS =====
 
     /**
+     * Find user by id and tenantId
+     * MULTI-TENANT SAFE
+     */
+    Optional<User> findByIdAndTenantId(String id, String tenantId);
+
+    /**
      * Find user by userId and tenantId
      * MULTI-TENANT SAFE
      */

@@ -49,19 +49,23 @@ public class LeaveService extends BaseTenantService {
      */
     @Transactional
     @Caching(evict = {
-            @CacheEvict(value = "leaveBalance", key = "T(com.ultron.backend.multitenancy.TenantContext).getTenantId() + '_' + #userId"),
-            @CacheEvict(value = "userLeaves", key = "T(com.ultron.backend.multitenancy.TenantContext).getTenantId() + '_' + #userId")
+            @CacheEvict(value = "leaveBalance", key = "#root.target.getCurrentTenantId() + '_' + #userId"),
+            @CacheEvict(value = "userLeaves", key = "#root.target.getCurrentTenantId() + '_' + #userId")
     })
     public LeaveResponse applyLeave(CreateLeaveRequest request, String userId) {
-        String tenantId = getTenantId();
+        String tenantId = getCurrentTenantId();
         log.info("Applying leave for user: {} in tenant: {}", userId, tenantId);
 
         // Validate dates
         validateLeaveDates(request);
 
         // Get user details
-        User user = userRepository.findByIdAndTenantIdAndIsDeletedFalse(userId, tenantId)
+        User user = userRepository.findByIdAndTenantId(userId, tenantId)
                 .orElseThrow(() -> new BusinessException("User not found"));
+
+        String userName = user.getFullName() != null ? user.getFullName() :
+                (user.getProfile() != null && user.getProfile().getFullName() != null) ?
+                        user.getProfile().getFullName() : user.getUsername();
 
         // Calculate total days
         Double totalDays = calculateTotalDays(request);
@@ -75,7 +79,7 @@ public class LeaveService extends BaseTenantService {
 
         // Get or create leave balance for current year
         int year = request.getStartDate().getYear();
-        LeaveBalance leaveBalance = getOrCreateLeaveBalance(userId, user.getName(), year);
+        LeaveBalance leaveBalance = getOrCreateLeaveBalance(userId, userName, year);
 
         // Get balance before
         Double balanceBefore = leaveBalance.getBalances().get(request.getLeaveType()).getAvailable();
@@ -89,7 +93,7 @@ public class LeaveService extends BaseTenantService {
                 .leaveId(leaveIdGeneratorService.generateLeaveId())
                 .tenantId(tenantId)
                 .userId(userId)
-                .userName(user.getName())
+                .userName(userName)
                 .userEmail(user.getEmail())
                 .leaveType(request.getLeaveType())
                 .startDate(request.getStartDate())
@@ -122,7 +126,7 @@ public class LeaveService extends BaseTenantService {
                     user.getManagerId(),
                     "New Leave Request",
                     String.format("%s has applied for %s from %s to %s",
-                            user.getName(),
+                            userName,
                             request.getLeaveType().getDisplayName(),
                             request.getStartDate(),
                             request.getEndDate()),
@@ -145,7 +149,7 @@ public class LeaveService extends BaseTenantService {
             @CacheEvict(value = "dailyAttendance", allEntries = true)
     })
     public LeaveResponse approveLeave(ApproveLeaveRequest request, String managerId) {
-        String tenantId = getTenantId();
+        String tenantId = getCurrentTenantId();
         log.info("Processing leave approval: {} by manager: {}", request.getLeaveId(), managerId);
 
         Leave leave = leaveRepository.findByLeaveIdAndTenantId(request.getLeaveId(), tenantId)
@@ -155,12 +159,16 @@ public class LeaveService extends BaseTenantService {
             throw new BusinessException("Leave is not in pending status");
         }
 
-        User manager = userRepository.findByIdAndTenantIdAndIsDeletedFalse(managerId, tenantId)
+        User manager = userRepository.findByIdAndTenantId(managerId, tenantId)
                 .orElseThrow(() -> new BusinessException("Manager not found"));
+
+        String managerName = manager.getFullName() != null ? manager.getFullName() :
+                (manager.getProfile() != null && manager.getProfile().getFullName() != null) ?
+                        manager.getProfile().getFullName() : manager.getUsername();
 
         leave.setStatus(request.getApproved() ? LeaveStatus.APPROVED : LeaveStatus.REJECTED);
         leave.setApproverId(managerId);
-        leave.setApproverName(manager.getName());
+        leave.setApproverName(managerName);
         leave.setApprovedAt(LocalDateTime.now());
         leave.setApprovalNotes(request.getNotes());
         leave.setRejectionReason(request.getRejectionReason());
@@ -211,12 +219,12 @@ public class LeaveService extends BaseTenantService {
      */
     @Transactional
     @Caching(evict = {
-            @CacheEvict(value = "leaveBalance", key = "T(com.ultron.backend.multitenancy.TenantContext).getTenantId() + '_' + #userId"),
-            @CacheEvict(value = "userLeaves", key = "T(com.ultron.backend.multitenancy.TenantContext).getTenantId() + '_' + #userId"),
+            @CacheEvict(value = "leaveBalance", key = "#root.target.getCurrentTenantId() + '_' + #userId"),
+            @CacheEvict(value = "userLeaves", key = "#root.target.getCurrentTenantId() + '_' + #userId"),
             @CacheEvict(value = "dailyAttendance", allEntries = true)
     })
     public LeaveResponse cancelLeave(CancelLeaveRequest request, String userId) {
-        String tenantId = getTenantId();
+        String tenantId = getCurrentTenantId();
         log.info("Cancelling leave: {} by user: {}", request.getLeaveId(), userId);
 
         Leave leave = leaveRepository.findByLeaveIdAndTenantId(request.getLeaveId(), tenantId)
@@ -284,9 +292,9 @@ public class LeaveService extends BaseTenantService {
     /**
      * Get user's leaves
      */
-    @Cacheable(value = "userLeaves", key = "T(com.ultron.backend.multitenancy.TenantContext).getTenantId() + '_' + #userId")
+    @Cacheable(value = "userLeaves", key = "#root.target.getCurrentTenantId() + '_' + #userId")
     public List<LeaveResponse> getMyLeaves(String userId) {
-        String tenantId = getTenantId();
+        String tenantId = getCurrentTenantId();
         List<Leave> leaves = leaveRepository.findByUserIdAndTenantIdAndIsDeletedFalseOrderByStartDateDesc(userId, tenantId);
         return leaves.stream().map(this::mapToResponse).collect(Collectors.toList());
     }
@@ -295,7 +303,7 @@ public class LeaveService extends BaseTenantService {
      * Get leave by ID
      */
     public LeaveResponse getLeaveById(String leaveId) {
-        String tenantId = getTenantId();
+        String tenantId = getCurrentTenantId();
         Leave leave = leaveRepository.findByLeaveIdAndTenantId(leaveId, tenantId)
                 .orElseThrow(() -> new BusinessException("Leave not found"));
         return mapToResponse(leave);
@@ -304,13 +312,17 @@ public class LeaveService extends BaseTenantService {
     /**
      * Get user's leave balance
      */
-    @Cacheable(value = "leaveBalance", key = "T(com.ultron.backend.multitenancy.TenantContext).getTenantId() + '_' + #userId + '_' + #year")
+    @Cacheable(value = "leaveBalance", key = "#root.target.getCurrentTenantId() + '_' + #userId + '_' + #year")
     public LeaveBalanceResponse getMyBalance(String userId, Integer year) {
-        String tenantId = getTenantId();
-        User user = userRepository.findByIdAndTenantIdAndIsDeletedFalse(userId, tenantId)
+        String tenantId = getCurrentTenantId();
+        User user = userRepository.findByIdAndTenantId(userId, tenantId)
                 .orElseThrow(() -> new BusinessException("User not found"));
 
-        LeaveBalance balance = getOrCreateLeaveBalance(userId, user.getName(), year);
+        String userName = user.getFullName() != null ? user.getFullName() :
+                (user.getProfile() != null && user.getProfile().getFullName() != null) ?
+                        user.getProfile().getFullName() : user.getUsername();
+
+        LeaveBalance balance = getOrCreateLeaveBalance(userId, userName, year);
         return mapToBalanceResponse(balance);
     }
 
@@ -318,7 +330,7 @@ public class LeaveService extends BaseTenantService {
      * Get pending approvals for manager
      */
     public List<LeaveResponse> getPendingApprovals(String managerId) {
-        String tenantId = getTenantId();
+        String tenantId = getCurrentTenantId();
         List<Leave> leaves = leaveRepository.findByApproverIdAndTenantIdAndStatusAndIsDeletedFalseOrderByCreatedAtDesc(
                 managerId, tenantId, LeaveStatus.PENDING);
         return leaves.stream().map(this::mapToResponse).collect(Collectors.toList());
@@ -328,7 +340,7 @@ public class LeaveService extends BaseTenantService {
      * Get all pending approvals (admin)
      */
     public List<LeaveResponse> getAllPendingApprovals() {
-        String tenantId = getTenantId();
+        String tenantId = getCurrentTenantId();
         List<Leave> leaves = leaveRepository.findByTenantIdAndStatusAndIsDeletedFalseOrderByCreatedAtDesc(
                 tenantId, LeaveStatus.PENDING);
         return leaves.stream().map(this::mapToResponse).collect(Collectors.toList());
@@ -379,7 +391,7 @@ public class LeaveService extends BaseTenantService {
     }
 
     private void checkOverlappingLeaves(String userId, LocalDate startDate, LocalDate endDate) {
-        String tenantId = getTenantId();
+        String tenantId = getCurrentTenantId();
         List<LeaveStatus> activeStatuses = Arrays.asList(LeaveStatus.PENDING, LeaveStatus.APPROVED);
 
         List<Leave> overlappingLeaves = leaveRepository
@@ -392,13 +404,17 @@ public class LeaveService extends BaseTenantService {
     }
 
     private void checkLeaveBalance(String userId, LeaveType leaveType, Double requiredDays) {
-        String tenantId = getTenantId();
+        String tenantId = getCurrentTenantId();
         int year = LocalDate.now().getYear();
 
-        User user = userRepository.findByIdAndTenantIdAndIsDeletedFalse(userId, tenantId)
+        User user = userRepository.findByIdAndTenantId(userId, tenantId)
                 .orElseThrow(() -> new BusinessException("User not found"));
 
-        LeaveBalance balance = getOrCreateLeaveBalance(userId, user.getName(), year);
+        String userName = user.getFullName() != null ? user.getFullName() :
+                (user.getProfile() != null && user.getProfile().getFullName() != null) ?
+                        user.getProfile().getFullName() : user.getUsername();
+
+        LeaveBalance balance = getOrCreateLeaveBalance(userId, userName, year);
         LeaveBalance.LeaveTypeBalance typeBalance = balance.getBalances().get(leaveType);
 
         if (typeBalance == null) {
@@ -413,7 +429,7 @@ public class LeaveService extends BaseTenantService {
     }
 
     private LeaveBalance getOrCreateLeaveBalance(String userId, String userName, Integer year) {
-        String tenantId = getTenantId();
+        String tenantId = getCurrentTenantId();
 
         return leaveBalanceRepository.findByTenantIdAndUserIdAndYear(tenantId, userId, year)
                 .orElseGet(() -> {
@@ -452,7 +468,7 @@ public class LeaveService extends BaseTenantService {
     }
 
     private void createLeaveAttendanceRecords(Leave leave) {
-        String tenantId = getTenantId();
+        String tenantId = getCurrentTenantId();
         LocalDate current = leave.getStartDate();
 
         while (!current.isAfter(leave.getEndDate())) {
@@ -485,7 +501,7 @@ public class LeaveService extends BaseTenantService {
     }
 
     private void deleteLeaveAttendanceRecords(Leave leave) {
-        String tenantId = getTenantId();
+        String tenantId = getCurrentTenantId();
         LocalDate current = leave.getStartDate();
 
         while (!current.isAfter(leave.getEndDate())) {

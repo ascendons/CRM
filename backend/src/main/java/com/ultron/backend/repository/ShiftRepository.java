@@ -17,6 +17,13 @@ public interface ShiftRepository extends MongoRepository<Shift, String> {
     Optional<Shift> findByShiftIdAndTenantId(String shiftId, String tenantId);
 
     /**
+     * Find first shift by shiftId and tenantId (handles duplicates gracefully)
+     * MULTI-TENANT SAFE
+     * Use this instead of findByShiftIdAndTenantId when duplicates might exist
+     */
+    Optional<Shift> findFirstByShiftIdAndTenantId(String shiftId, String tenantId);
+
+    /**
      * Find all shifts for a specific tenant (excluding deleted)
      * MULTI-TENANT SAFE
      */

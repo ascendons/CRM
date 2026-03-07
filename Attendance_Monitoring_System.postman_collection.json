@@ -1,0 +1,758 @@
+{
+  "info": {
+    "name": "Attendance Monitoring System",
+    "description": "Complete API collection for testing Attendance Monitoring with GPS verification",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{jwt_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "jwt_token",
+      "value": ""
+    },
+    {
+      "key": "shift_id",
+      "value": ""
+    },
+    {
+      "key": "location_id",
+      "value": ""
+    },
+    {
+      "key": "attendance_id",
+      "value": ""
+    },
+    {
+      "key": "leave_id",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Authentication",
+      "item": [
+        {
+          "name": "Login - Admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.collectionVariables.set('jwt_token', jsonData.data.token);",
+                  "    console.log('Token saved:', jsonData.data.token);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"your_password\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Login - Employee",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"employee_username\",\n  \"password\": \"employee_password\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "login"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Setup - Office Locations",
+      "item": [
+        {
+          "name": "Create Office Location",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.collectionVariables.set('location_id', jsonData.data.locationId);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Head Office\",\n  \"code\": \"HQ\",\n  \"address\": \"123 Main Street, Business District\",\n  \"city\": \"Mumbai\",\n  \"state\": \"Maharashtra\",\n  \"country\": \"India\",\n  \"postalCode\": \"400001\",\n  \"latitude\": 19.0760,\n  \"longitude\": 72.8777,\n  \"radiusMeters\": 100,\n  \"type\": \"HEAD_OFFICE\",\n  \"enforceGeofence\": true,\n  \"isActive\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/office-locations",
+              "host": ["{{base_url}}"],
+              "path": ["api", "office-locations"]
+            }
+          }
+        },
+        {
+          "name": "Get All Office Locations",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/office-locations",
+              "host": ["{{base_url}}"],
+              "path": ["api", "office-locations"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Setup - Shifts",
+      "item": [
+        {
+          "name": "Create Day Shift",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.collectionVariables.set('shift_id', jsonData.data.shiftId);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Regular Day Shift\",\n  \"code\": \"DAY\",\n  \"description\": \"Standard 9 AM to 6 PM shift\",\n  \"startTime\": \"09:00:00\",\n  \"endTime\": \"18:00:00\",\n  \"workHoursMinutes\": 540,\n  \"type\": \"FIXED\",\n  \"graceMinutes\": 15,\n  \"mandatoryBreakMinutes\": 60,\n  \"maxBreakMinutes\": 90,\n  \"workingDays\": [\"MONDAY\", \"TUESDAY\", \"WEDNESDAY\", \"THURSDAY\", \"FRIDAY\"],\n  \"weekendDays\": [\"SATURDAY\", \"SUNDAY\"],\n  \"allowOvertime\": true,\n  \"maxOvertimeMinutesPerDay\": 180,\n  \"isDefault\": true,\n  \"isActive\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/shifts",
+              "host": ["{{base_url}}"],
+              "path": ["api", "shifts"]
+            }
+          }
+        },
+        {
+          "name": "Get All Shifts",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/shifts",
+              "host": ["{{base_url}}"],
+              "path": ["api", "shifts"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Setup - Holidays",
+      "item": [
+        {
+          "name": "Create Holiday",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"date\": \"2026-08-15\",\n  \"name\": \"Independence Day\",\n  \"description\": \"National Holiday\",\n  \"type\": \"NATIONAL\",\n  \"isOptional\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/holidays",
+              "host": ["{{base_url}}"],
+              "path": ["api", "holidays"]
+            }
+          }
+        },
+        {
+          "name": "Get Holidays by Year",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/holidays/year/2026",
+              "host": ["{{base_url}}"],
+              "path": ["api", "holidays", "year", "2026"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Setup - Shift Assignment",
+      "item": [
+        {
+          "name": "Bulk Assign Shift to Users",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"shiftId\": \"{{shift_id}}\",\n  \"officeLocationId\": \"{{location_id}}\",\n  \"userIds\": [\"USR-2026-01-00001\"],\n  \"effectiveDate\": \"2026-03-01\",\n  \"isTemporary\": false,\n  \"reason\": \"Initial shift assignment\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/admin/bulk/assign-shift",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "bulk", "assign-shift"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. Attendance - Check In/Out",
+      "item": [
+        {
+          "name": "Check In - Office",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.collectionVariables.set('attendance_id', jsonData.data.attendanceId);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"OFFICE\",\n  \"latitude\": 19.0760,\n  \"longitude\": 72.8777,\n  \"accuracy\": 10.5,\n  \"address\": \"Near Head Office\",\n  \"officeLocationId\": \"{{location_id}}\",\n  \"deviceInfo\": \"Mozilla/5.0\",\n  \"userNotes\": \"On time today!\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/attendance/check-in",
+              "host": ["{{base_url}}"],
+              "path": ["api", "attendance", "check-in"]
+            }
+          }
+        },
+        {
+          "name": "Check In - Remote",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"REMOTE\",\n  \"latitude\": 19.1000,\n  \"longitude\": 72.9000,\n  \"accuracy\": 10.0,\n  \"address\": \"Working from home\",\n  \"userNotes\": \"Remote work today\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/attendance/check-in",
+              "host": ["{{base_url}}"],
+              "path": ["api", "attendance", "check-in"]
+            }
+          }
+        },
+        {
+          "name": "Start Break",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"attendanceId\": \"{{attendance_id}}\",\n  \"type\": \"LUNCH\",\n  \"latitude\": 19.0760,\n  \"longitude\": 72.8777,\n  \"accuracy\": 10.0\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/attendance/break/start",
+              "host": ["{{base_url}}"],
+              "path": ["api", "attendance", "break", "start"]
+            }
+          }
+        },
+        {
+          "name": "End Break",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"attendanceId\": \"{{attendance_id}}\",\n  \"breakId\": \"BRK-001\",\n  \"latitude\": 19.0760,\n  \"longitude\": 72.8777,\n  \"accuracy\": 10.0\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/attendance/break/end",
+              "host": ["{{base_url}}"],
+              "path": ["api", "attendance", "break", "end"]
+            }
+          }
+        },
+        {
+          "name": "Check Out",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"attendanceId\": \"{{attendance_id}}\",\n  \"latitude\": 19.0760,\n  \"longitude\": 72.8777,\n  \"accuracy\": 10.0,\n  \"userNotes\": \"Completed all tasks\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/attendance/check-out",
+              "host": ["{{base_url}}"],
+              "path": ["api", "attendance", "check-out"]
+            }
+          }
+        },
+        {
+          "name": "Get My Today Attendance",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/attendance/my/today",
+              "host": ["{{base_url}}"],
+              "path": ["api", "attendance", "my", "today"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "7. Leave Management",
+      "item": [
+        {
+          "name": "Get My Leave Balance",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/leaves/my/balance?year=2026",
+              "host": ["{{base_url}}"],
+              "path": ["api", "leaves", "my", "balance"],
+              "query": [
+                {
+                  "key": "year",
+                  "value": "2026"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Apply Leave",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.collectionVariables.set('leave_id', jsonData.data.leaveId);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"leaveType\": \"CASUAL\",\n  \"startDate\": \"2026-03-10\",\n  \"endDate\": \"2026-03-12\",\n  \"reason\": \"Family function\",\n  \"isHalfDay\": false,\n  \"contactNumberDuringLeave\": \"+91-9876543210\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/leaves",
+              "host": ["{{base_url}}"],
+              "path": ["api", "leaves"]
+            }
+          }
+        },
+        {
+          "name": "Get My Leaves",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/leaves/my",
+              "host": ["{{base_url}}"],
+              "path": ["api", "leaves", "my"]
+            }
+          }
+        },
+        {
+          "name": "Manager - Get Pending Approvals",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/leaves/admin/pending",
+              "host": ["{{base_url}}"],
+              "path": ["api", "leaves", "admin", "pending"]
+            }
+          }
+        },
+        {
+          "name": "Manager - Approve Leave",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"leaveId\": \"{{leave_id}}\",\n  \"approved\": true,\n  \"notes\": \"Approved. Enjoy!\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/leaves/admin/approve",
+              "host": ["{{base_url}}"],
+              "path": ["api", "leaves", "admin", "approve"]
+            }
+          }
+        },
+        {
+          "name": "Manager - Reject Leave",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"leaveId\": \"{{leave_id}}\",\n  \"approved\": false,\n  \"rejectionReason\": \"Not enough staffing during this period\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/leaves/admin/approve",
+              "host": ["{{base_url}}"],
+              "path": ["api", "leaves", "admin", "approve"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "8. Regularization",
+      "item": [
+        {
+          "name": "Request Regularization",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"attendanceId\": \"{{attendance_id}}\",\n  \"attendanceDate\": \"2026-03-06\",\n  \"type\": \"FORGOT_CHECKOUT\",\n  \"requestedCheckInTime\": \"2026-03-06T09:00:00\",\n  \"requestedCheckOutTime\": \"2026-03-06T18:00:00\",\n  \"reason\": \"Forgot to check out due to urgent client call\",\n  \"requestedLatitude\": 19.0760,\n  \"requestedLongitude\": 72.8777,\n  \"requestedAddress\": \"Head Office\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/attendance/regularizations",
+              "host": ["{{base_url}}"],
+              "path": ["api", "attendance", "regularizations"]
+            }
+          }
+        },
+        {
+          "name": "Get My Regularizations",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/attendance/regularizations/my",
+              "host": ["{{base_url}}"],
+              "path": ["api", "attendance", "regularizations", "my"]
+            }
+          }
+        },
+        {
+          "name": "Manager - Get Pending Regularizations",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/attendance/regularizations/pending",
+              "host": ["{{base_url}}"],
+              "path": ["api", "attendance", "regularizations", "pending"]
+            }
+          }
+        },
+        {
+          "name": "Manager - Approve Regularization",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"regularizationId\": \"REG-2026-03-00001\",\n  \"approved\": true,\n  \"notes\": \"Valid reason, approved\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/attendance/regularizations/approve",
+              "host": ["{{base_url}}"],
+              "path": ["api", "attendance", "regularizations", "approve"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "9. Reports & Analytics",
+      "item": [
+        {
+          "name": "My Monthly Summary",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/attendance/my/summary?year=2026&month=3",
+              "host": ["{{base_url}}"],
+              "path": ["api", "attendance", "my", "summary"],
+              "query": [
+                {
+                  "key": "year",
+                  "value": "2026"
+                },
+                {
+                  "key": "month",
+                  "value": "3"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Admin - Daily Dashboard",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/attendance/admin/dashboard/daily?date=2026-03-07",
+              "host": ["{{base_url}}"],
+              "path": ["api", "attendance", "admin", "dashboard", "daily"],
+              "query": [
+                {
+                  "key": "date",
+                  "value": "2026-03-07"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Admin - Monthly Report",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/attendance/admin/report/monthly/USR-2026-01-00001?year=2026&month=3",
+              "host": ["{{base_url}}"],
+              "path": ["api", "attendance", "admin", "report", "monthly", "USR-2026-01-00001"],
+              "query": [
+                {
+                  "key": "year",
+                  "value": "2026"
+                },
+                {
+                  "key": "month",
+                  "value": "3"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Manager - Team Attendance",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/attendance/admin/team?startDate=2026-03-01&endDate=2026-03-07",
+              "host": ["{{base_url}}"],
+              "path": ["api", "attendance", "admin", "team"],
+              "query": [
+                {
+                  "key": "startDate",
+                  "value": "2026-03-01"
+                },
+                {
+                  "key": "endDate",
+                  "value": "2026-03-07"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "10. Negative Tests",
+      "item": [
+        {
+          "name": "Check In - Outside Geofence (FAIL)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"OFFICE\",\n  \"latitude\": 19.1000,\n  \"longitude\": 72.9000,\n  \"accuracy\": 10.0,\n  \"officeLocationId\": \"{{location_id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/attendance/check-in",
+              "host": ["{{base_url}}"],
+              "path": ["api", "attendance", "check-in"]
+            }
+          }
+        },
+        {
+          "name": "Duplicate Check In (FAIL)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"OFFICE\",\n  \"latitude\": 19.0760,\n  \"longitude\": 72.8777,\n  \"accuracy\": 10.0,\n  \"officeLocationId\": \"{{location_id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/attendance/check-in",
+              "host": ["{{base_url}}"],
+              "path": ["api", "attendance", "check-in"]
+            }
+          }
+        },
+        {
+          "name": "Leave - Insufficient Balance (FAIL)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"leaveType\": \"CASUAL\",\n  \"startDate\": \"2026-03-10\",\n  \"endDate\": \"2026-03-25\",\n  \"reason\": \"Long vacation\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/leaves",
+              "host": ["{{base_url}}"],
+              "path": ["api", "leaves"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

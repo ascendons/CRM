@@ -19,7 +19,7 @@ import java.util.List;
  * REST controller for holiday management
  */
 @RestController
-@RequestMapping("/api/holidays")
+@RequestMapping("/holidays")
 @RequiredArgsConstructor
 @Slf4j
 public class HolidayController {

@@ -48,7 +48,7 @@ public class AttendanceRegularizationService extends BaseTenantService {
     })
     public RegularizationResponse requestRegularization(
             CreateRegularizationRequest request, String userId) {
-        String tenantId = getCurrentTenantId();
+        String tenantId = getTenantId();
         log.info("User {} requesting regularization for date: {}", userId, request.getAttendanceDate());
 
         // Validate date is not too old (e.g., within last 7 days)
@@ -57,12 +57,8 @@ public class AttendanceRegularizationService extends BaseTenantService {
         }
 
         // Get user details
-        User user = userRepository.findByIdAndTenantId(userId, tenantId)
+        User user = userRepository.findByIdAndTenantIdAndIsDeletedFalse(userId, tenantId)
                 .orElseThrow(() -> new BusinessException("User not found"));
-
-        String userName = user.getFullName() != null ? user.getFullName() :
-                (user.getProfile() != null && user.getProfile().getFullName() != null) ?
-                        user.getProfile().getFullName() : user.getUsername();
 
         // Get or validate attendance record
         Attendance attendance = null;
@@ -94,7 +90,7 @@ public class AttendanceRegularizationService extends BaseTenantService {
                 .tenantId(tenantId)
                 .attendanceId(request.getAttendanceId())
                 .userId(userId)
-                .userName(userName)
+                .userName(user.getName())
                 .userEmail(user.getEmail())
                 .attendanceDate(request.getAttendanceDate())
                 .type(request.getType())
@@ -124,7 +120,7 @@ public class AttendanceRegularizationService extends BaseTenantService {
                     user.getManagerId(),
                     "Attendance Regularization Request",
                     String.format("%s has requested attendance regularization for %s (%s)",
-                            userName,
+                            user.getName(),
                             request.getAttendanceDate(),
                             request.getType().getDisplayName()),
                     "REGULARIZATION_REQUEST",
@@ -146,7 +142,7 @@ public class AttendanceRegularizationService extends BaseTenantService {
     })
     public RegularizationResponse approveRegularization(
             ApproveRegularizationRequest request, String managerId) {
-        String tenantId = getCurrentTenantId();
+        String tenantId = getTenantId();
         log.info("Manager {} processing regularization: {}", managerId, request.getRegularizationId());
 
         AttendanceRegularization regularization = regularizationRepository
@@ -157,17 +153,13 @@ public class AttendanceRegularizationService extends BaseTenantService {
             throw new BusinessException("Regularization is not in pending status");
         }
 
-        User manager = userRepository.findByIdAndTenantId(managerId, tenantId)
+        User manager = userRepository.findByIdAndTenantIdAndIsDeletedFalse(managerId, tenantId)
                 .orElseThrow(() -> new BusinessException("Manager not found"));
-
-        String managerName = manager.getFullName() != null ? manager.getFullName() :
-                (manager.getProfile() != null && manager.getProfile().getFullName() != null) ?
-                        manager.getProfile().getFullName() : manager.getUsername();
 
         regularization.setStatus(request.getApproved()
                 ? RegularizationStatus.APPROVED : RegularizationStatus.REJECTED);
         regularization.setApproverId(managerId);
-        regularization.setApproverName(managerName);
+        regularization.setApproverName(manager.getName());
         regularization.setApprovedAt(LocalDateTime.now());
         regularization.setApprovalNotes(request.getNotes());
         regularization.setRejectionReason(request.getRejectionReason());
@@ -204,7 +196,7 @@ public class AttendanceRegularizationService extends BaseTenantService {
      * Get user's regularizations
      */
     public List<RegularizationResponse> getMyRegularizations(String userId) {
-        String tenantId = getCurrentTenantId();
+        String tenantId = getTenantId();
         List<AttendanceRegularization> regularizations = regularizationRepository
                 .findByUserIdAndTenantIdAndIsDeletedFalseOrderByCreatedAtDesc(userId, tenantId);
         return regularizations.stream().map(this::mapToResponse).collect(Collectors.toList());
@@ -214,7 +206,7 @@ public class AttendanceRegularizationService extends BaseTenantService {
      * Get regularization by ID
      */
     public RegularizationResponse getRegularizationById(String regularizationId) {
-        String tenantId = getCurrentTenantId();
+        String tenantId = getTenantId();
         AttendanceRegularization regularization = regularizationRepository
                 .findByRegularizationIdAndTenantId(regularizationId, tenantId)
                 .orElseThrow(() -> new BusinessException("Regularization not found"));
@@ -225,7 +217,7 @@ public class AttendanceRegularizationService extends BaseTenantService {
      * Get pending approvals (manager)
      */
     public List<RegularizationResponse> getPendingApprovals(String managerId) {
-        String tenantId = getCurrentTenantId();
+        String tenantId = getTenantId();
         List<AttendanceRegularization> regularizations = regularizationRepository
                 .findByApproverIdAndTenantIdAndStatusAndIsDeletedFalseOrderByCreatedAtDesc(
                         managerId, tenantId, RegularizationStatus.PENDING);
@@ -236,7 +228,7 @@ public class AttendanceRegularizationService extends BaseTenantService {
      * Get all pending regularizations (admin)
      */
     public List<RegularizationResponse> getAllPendingRegularizations() {
-        String tenantId = getCurrentTenantId();
+        String tenantId = getTenantId();
         List<AttendanceRegularization> regularizations = regularizationRepository
                 .findByTenantIdAndStatusAndIsDeletedFalseOrderByCreatedAtDesc(
                         tenantId, RegularizationStatus.PENDING);
@@ -246,7 +238,7 @@ public class AttendanceRegularizationService extends BaseTenantService {
     // Helper methods
 
     private void applyRegularization(AttendanceRegularization regularization) {
-        String tenantId = getCurrentTenantId();
+        String tenantId = getTenantId();
 
         // Get or create attendance record
         Optional<Attendance> existingAtt = attendanceRepository

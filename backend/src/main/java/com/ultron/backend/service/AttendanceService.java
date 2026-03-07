@@ -41,6 +41,7 @@ public class AttendanceService extends BaseTenantService {
     private final AttendanceRepository attendanceRepository;
     private final AttendanceIdGeneratorService idGenerator;
     private final UserService userService;
+    private final com.ultron.backend.repository.UserRepository userRepository;
     private final ShiftService shiftService;
     private final OfficeLocationService officeLocationService;
     private final NotificationService notificationService;
@@ -70,10 +71,12 @@ public class AttendanceService extends BaseTenantService {
         }
 
         // 2. Get user details
-        User user = userService.getUserByUserId(userId);
-        if (user == null) {
-            throw new ResourceNotFoundException("User not found");
-        }
+        User user = userRepository.findByIdAndTenantId(userId, tenantId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        String userName = user.getFullName() != null ? user.getFullName() :
+                (user.getProfile() != null && user.getProfile().getFullName() != null) ?
+                        user.getProfile().getFullName() : user.getUsername();
 
         // 3. Get user shift
         Shift shift = shiftService.getUserActiveShift(userId);
@@ -143,7 +146,7 @@ public class AttendanceService extends BaseTenantService {
                             user.getManagerId(),
                             "GPS Spoofing Alert",
                             String.format("%s's check-in shows signs of GPS spoofing. Score: %d. Indicators: %s",
-                                    user.getName(), spoofingResult.getSuspicionScore(),
+                                    userName, spoofingResult.getSuspicionScore(),
                                     String.join(", ", spoofingResult.getIndicators())),
                             "GPS_SPOOFING_ALERT",
                             "/admin/attendance/daily"
@@ -318,7 +321,7 @@ public class AttendanceService extends BaseTenantService {
                  userId, netWorkMinutes, attendance.getOvertimeMinutes());
 
         // 6. Notifications
-        User user = userService.getUserByUserId(userId);
+        User user = userRepository.findByIdAndTenantId(userId, tenantId).orElse(null);
         if (attendance.getEarlyLeaveMinutes() != null && attendance.getEarlyLeaveMinutes() > 30
             && user != null && user.getManagerId() != null) {
             notificationService.createAndSendNotification(
@@ -483,7 +486,7 @@ public class AttendanceService extends BaseTenantService {
             .findByTenantIdAndAttendanceDateAndIsDeletedFalse(tenantId, date);
 
         // Get all active users
-        List<User> allUsers = userService.getActiveUsers();
+        List<User> allUsers = userRepository.findByTenantIdAndIsDeletedFalse(tenantId);
         int totalEmployees = allUsers.size();
 
         // Calculate statistics
