@@ -1012,7 +1012,7 @@ export default function ProposalForm({
 
                                 {/* Qty */}
                                 <div className="w-32 flex-shrink-0">
-                                    <textarea
+                                    <input
                                         value={item.quantity ?? ""}
                                         onChange={(e) => {
                                             const val = e.target.value.replace(/[^0-9]/g, '');
@@ -1024,7 +1024,8 @@ export default function ProposalForm({
                                             e.currentTarget.style.height = 'auto';
                                             e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px';
                                         }}
-                                        rows={1}
+                                        type="number"
+                                        min={0}
                                         placeholder="Qty"
                                         className={`${inputCls} resize-none overflow-hidden min-h-[40px]`}
                                         required
