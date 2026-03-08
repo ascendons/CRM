@@ -55,6 +55,7 @@ public class Product {
     // Tax Configuration
     private BigDecimal taxRate;  // Percentage (e.g., 18.00 for 18% GST)
     private String taxType;  // "GST", "VAT", "NONE"
+    private String hsnCode;
 
     // Categorization
     private String category;  // "Hardware", "Software", "Services"
