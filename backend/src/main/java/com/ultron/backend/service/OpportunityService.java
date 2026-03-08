@@ -25,6 +25,7 @@ import static com.ultron.backend.config.CacheConfig.GROWTH_TRENDS_CACHE;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -40,6 +41,7 @@ public class OpportunityService extends BaseTenantService {
     private final OpportunityIdGeneratorService opportunityIdGenerator;
     private final UserService userService;
     private final NotificationService notificationService;
+    private final DataVisibilityService dataVisibilityService;
 
     /**
      * Create a new opportunity
@@ -165,9 +167,46 @@ public class OpportunityService extends BaseTenantService {
     /**
      * Get all opportunities for current tenant
      */
+    /**
+     * Get opportunities for current user based on their data visibility level
+     * - Admin (ALL): Returns all opportunities in tenant
+     * - Manager (SUBORDINATES): Returns own + subordinates' opportunities
+     * - Employee (OWN): Returns only own opportunities
+     * This method implements proper RBAC based on role dataVisibility
+     */
+    public List<OpportunityResponse> getOpportunitiesForCurrentUser(String userId) {
+        String tenantId = getCurrentTenantId();
+        log.info("[Tenant: {}] User {} fetching opportunities with data visibility filtering", tenantId, userId);
+
+        // Get list of user IDs whose data this user can view
+        List<String> visibleUserIds = dataVisibilityService.getVisibleUserIds(userId);
+
+        if (visibleUserIds.isEmpty()) {
+            log.warn("[Tenant: {}] User {} has no visible users, returning empty list", tenantId, userId);
+            return Collections.emptyList();
+        }
+
+        log.debug("[Tenant: {}] User {} can see {} users' opportunities", tenantId, userId, visibleUserIds.size());
+
+        // Query opportunities owned by visible users
+        List<Opportunity> opportunities = opportunityRepository.findByOwnerIdInAndTenantIdAndIsDeletedFalse(
+                visibleUserIds, tenantId);
+
+        log.info("[Tenant: {}] Returning {} opportunities for user {}", tenantId, opportunities.size(), userId);
+
+        return opportunities.stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Get all opportunities (ADMIN ONLY - no filtering)
+     * @deprecated Use getOpportunitiesForCurrentUser() instead for proper RBAC
+     */
+    @Deprecated
     public List<OpportunityResponse> getAllOpportunities() {
         String tenantId = getCurrentTenantId();
-        log.debug("[Tenant: {}] Fetching all opportunities", tenantId);
+        log.warn("[Tenant: {}] DEPRECATED: getAllOpportunities() called - should use getOpportunitiesForCurrentUser()", tenantId);
         return opportunityRepository.findByTenantIdAndIsDeletedFalse(tenantId).stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());

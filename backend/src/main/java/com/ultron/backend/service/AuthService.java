@@ -198,6 +198,14 @@ public class AuthService {
 
         log.info("User logged in successfully: {} (tenant: {})", user.getId(), tenantId);
 
+        // Update last login timestamp
+        if (user.getSecurity() == null) {
+            user.setSecurity(User.UserSecurity.builder().build());
+        }
+        user.getSecurity().setLastLoginAt(LocalDateTime.now());
+        // TODO: Set lastLoginIP from HTTP request context if needed
+        userService.saveUser(user);
+
         // Log login activity (with explicit tenantId since context not set during
         // login)
         userActivityService.logLogin(user.getId(), tenantId, true);

@@ -11,6 +11,8 @@ import com.ultron.backend.dto.response.UserResponse;
 import com.ultron.backend.exception.ResourceNotFoundException;
 import com.ultron.backend.exception.UserAlreadyExistsException;
 import com.ultron.backend.repository.UserRepository;
+import com.ultron.backend.repository.RoleRepository;
+import com.ultron.backend.repository.ProfileRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -30,6 +32,8 @@ public class UserService extends BaseTenantService {
     private final UserRepository userRepository;
     private final UserIdGeneratorService userIdGeneratorService;
     private final PasswordEncoder passwordEncoder;
+    private final RoleRepository roleRepository;
+    private final ProfileRepository profileRepository;
 
     // ==================== Legacy methods (for backward compatibility) ====================
 
@@ -108,6 +112,22 @@ public class UserService extends BaseTenantService {
                 .failedLoginAttempts(0)
                 .build();
 
+        // Resolve managerId to MongoDB ID if it's a business ID (USR-...)
+        String assignedManagerId = normalizeToInternalId(request.getManagerId());
+        
+        // Auto-assign admin as manager if managerId is not provided
+        if (assignedManagerId == null || assignedManagerId.trim().isEmpty()) {
+            log.info("[Tenant: {}] Manager ID not provided, auto-assigning admin as default manager", tenantId);
+            assignedManagerId = findDefaultManager(tenantId);
+            if (assignedManagerId != null) {
+                log.info("[Tenant: {}] Auto-assigned admin {} as manager for user {}",
+                    tenantId, assignedManagerId, request.getUsername());
+            } else {
+                log.warn("[Tenant: {}] No admin found to assign as default manager for user {}",
+                    tenantId, request.getUsername());
+            }
+        }
+
         // Build user entity
         User user = User.builder()
                 .userId(userId)
@@ -121,7 +141,7 @@ public class UserService extends BaseTenantService {
                 .fullName(fullName)  // Legacy field
                 .roleId(request.getRoleId())
                 .profileId(request.getProfileId())
-                .managerId(request.getManagerId())
+                .managerId(assignedManagerId)  // Use auto-assigned manager if needed
                 .teamId(request.getTeamId())
                 .territoryId(request.getTerritoryId())
                 .status(UserStatus.ACTIVE)
@@ -132,8 +152,29 @@ public class UserService extends BaseTenantService {
                 .createdBy(createdBy)
                 .build();
 
-        // TODO: Fetch and set denormalized names (roleName, managerName, etc.)
-        // This will be done when Role and Profile entities are created
+        // Fetch and set denormalized names
+        if (request.getRoleId() != null) {
+            roleRepository.findByRoleIdAndTenantId(request.getRoleId(), tenantId)
+                    .ifPresent(role -> user.setRoleName(role.getRoleName()));
+        }
+
+        if (request.getProfileId() != null) {
+            profileRepository.findByProfileIdAndTenantId(request.getProfileId(), tenantId)
+                    .ifPresent(userProfile -> user.setProfileName(userProfile.getProfileName()));
+        }
+
+        // Use auto-assigned manager if not in request
+        String managerToLookup = (request.getManagerId() != null && !request.getManagerId().trim().isEmpty()) 
+                ? request.getManagerId() : assignedManagerId;
+
+        if (managerToLookup != null) {
+            userRepository.findById(managerToLookup)
+                    .ifPresent(manager -> {
+                        String managerFullName = manager.getProfile() != null ?
+                                manager.getProfile().getFullName() : manager.getUsername();
+                        user.setManagerName(managerFullName);
+                    });
+        }
 
         User savedUser = userRepository.save(user);
         log.info("User created successfully with userId: {}", savedUser.getUserId());
@@ -193,7 +234,10 @@ public class UserService extends BaseTenantService {
         // Update access control
         if (request.getRoleId() != null) user.setRoleId(request.getRoleId());
         if (request.getProfileId() != null) user.setProfileId(request.getProfileId());
-        if (request.getManagerId() != null) user.setManagerId(request.getManagerId());
+        if (request.getManagerId() != null) {
+            String normalizedManagerId = normalizeToInternalId(request.getManagerId());
+            user.setManagerId(normalizedManagerId);
+        }
         if (request.getTeamId() != null) user.setTeamId(request.getTeamId());
         if (request.getTerritoryId() != null) user.setTerritoryId(request.getTerritoryId());
 
@@ -207,6 +251,26 @@ public class UserService extends BaseTenantService {
         if (request.getCurrency() != null) user.getSettings().setCurrency(request.getCurrency());
         if (request.getEmailNotifications() != null) user.getSettings().setEmailNotifications(request.getEmailNotifications());
         if (request.getDesktopNotifications() != null) user.getSettings().setDesktopNotifications(request.getDesktopNotifications());
+
+        // Update denormalized names if IDs changed
+        if (request.getRoleId() != null) {
+            roleRepository.findByRoleIdAndTenantId(request.getRoleId(), tenantId)
+                    .ifPresent(role -> user.setRoleName(role.getRoleName()));
+        }
+
+        if (request.getProfileId() != null) {
+            profileRepository.findByProfileIdAndTenantId(request.getProfileId(), tenantId)
+                    .ifPresent(userProfile -> user.setProfileName(userProfile.getProfileName()));
+        }
+
+        if (request.getManagerId() != null) {
+            userRepository.findById(request.getManagerId())
+                    .ifPresent(manager -> {
+                        String managerFullName = manager.getProfile() != null ?
+                                manager.getProfile().getFullName() : manager.getUsername();
+                        user.setManagerName(managerFullName);
+                    });
+        }
 
         // Update audit fields
         user.setLastModifiedAt(LocalDateTime.now());
@@ -411,6 +475,77 @@ public class UserService extends BaseTenantService {
     }
 
     // ==================== Helper Methods ====================
+
+    /**
+     * Save user entity to database
+     */
+    @Transactional
+    public User saveUser(User user) {
+        return userRepository.save(user);
+    }
+
+    /**
+     * Find a default manager (admin) for a user when no manager is specified
+     * Searches for an active System Administrator user in the tenant
+     *
+     * @param tenantId The tenant ID to search within
+     * @return The userId of an admin user, or null if none found
+     */
+    private String findDefaultManager(String tenantId) {
+        try {
+            log.debug("[Tenant: {}] Searching for System Administrator to assign as default manager", tenantId);
+
+            // Query for active System Administrator users in the tenant
+            // roleId "ROLE-00001" is the System Administrator role (see PredefinedRoles)
+            List<User> adminUsers = userRepository.findByRoleIdAndTenantIdAndIsDeletedFalse(
+                "ROLE-00001",
+                tenantId
+            );
+
+            // Filter for active users and get the first one
+            Optional<User> adminUser = adminUsers.stream()
+                .filter(user -> user.getStatus() == UserStatus.ACTIVE)
+                .findFirst();
+
+            if (adminUser.isPresent()) {
+                String adminUserId = adminUser.get().getId();
+                log.debug("[Tenant: {}] Found System Administrator: {} ({})",
+                    tenantId,
+                    adminUser.get().getFullName(),
+                    adminUserId);
+                return adminUserId;
+            } else {
+                log.warn("[Tenant: {}] No active System Administrator found for default manager assignment", tenantId);
+                return null;
+            }
+        } catch (Exception e) {
+            log.error("[Tenant: {}] Error finding default manager: {}", tenantId, e.getMessage(), e);
+            return null;
+        }
+    }
+
+    /**
+     * Normalizes a user ID to the internal MongoDB ID.
+     * If the provided ID is a business ID (starts with "USR-"), it looks up the user.
+     * Otherwise, it returns the ID as is (assuming it's already a MongoDB ID or null).
+     */
+    private String normalizeToInternalId(String idOrUserId) {
+        if (idOrUserId == null || idOrUserId.trim().isEmpty()) {
+            return null;
+        }
+
+        if (idOrUserId.startsWith("USR-")) {
+            log.debug("Normalizing business ID {} to internal MongoDB ID", idOrUserId);
+            return userRepository.findByUserIdAndTenantId(idOrUserId, getCurrentTenantId())
+                    .map(User::getId)
+                    .orElseGet(() -> {
+                        log.warn("Could not find user with business ID: {}", idOrUserId);
+                        return idOrUserId; // Fallback to original if not found
+                    });
+        }
+
+        return idOrUserId;
+    }
 
     private UserResponse mapToResponse(User user) {
         UserResponse.UserProfileDTO profileDTO = null;

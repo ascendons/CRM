@@ -257,10 +257,14 @@ public class PermissionService extends BaseTenantService {
                 return op.getCanRead();
             case "EDIT":
             case "UPDATE":
+            case "APPROVE":
+            case "CANCEL":
+            case "ASSIGN":
                 return op.getCanEdit();
             case "DELETE":
                 return op.getCanDelete();
             case "VIEWALL":
+            case "READ_ALL":
                 return op.getCanViewAll();
             case "MODIFYALL":
                 return op.getCanModifyAll();

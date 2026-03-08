@@ -32,9 +32,15 @@ import {
   Mail,
   Phone,
   FileText,
-  Trophy
+  Trophy,
+  MapPin,
+  AlertCircle
 } from "lucide-react";
 import { Opportunity } from "@/types/opportunity";
+import { attendanceApi } from "@/lib/api/attendance";
+import { leavesApi } from "@/lib/api/leaves";
+import { AttendanceSummaryCard } from "@/components/attendance/AttendanceSummaryCard";
+import { LeaveSummaryCard } from "@/components/attendance/LeaveSummaryCard";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -51,6 +57,10 @@ export default function DashboardPage() {
   const [activeTab, setActiveTab] = useState<'upcoming' | 'recent'>('upcoming');
   const [monthlyRevenueGoal, setMonthlyRevenueGoal] = useState<number>(1000000); // 10L Default
   const [isLoading, setIsLoading] = useState(true);
+  const [todayAttendance, setTodayAttendance] = useState<any>(null);
+  const [attendanceLoading, setAttendanceLoading] = useState(false);
+  const [leaveBalance, setLeaveBalance] = useState<any>(null);
+  const [leaveLoading, setLeaveLoading] = useState(false);
 
   useEffect(() => {
     if (!authService.isAuthenticated()) {
@@ -61,10 +71,14 @@ export default function DashboardPage() {
     const currentUser = authService.getUser();
     setUser(currentUser);
     loadStatistics();
+    loadTodayAttendance();
+    loadLeaveData();
 
     // Revalidate when window gains focus (e.g., coming back from another tab)
     const handleFocus = () => {
       loadStatistics();
+      loadTodayAttendance();
+      loadLeaveData();
     };
 
     window.addEventListener('focus', handleFocus);
@@ -72,6 +86,37 @@ export default function DashboardPage() {
       window.removeEventListener('focus', handleFocus);
     };
   }, [router]);
+
+  const loadTodayAttendance = async () => {
+    try {
+      setAttendanceLoading(true);
+      const data = await attendanceApi.getMyToday();
+      console.log('📋 Today Attendance Data:', data);
+      setTodayAttendance(data);
+    } catch (error) {
+      console.error('❌ Failed to load attendance:', error);
+      setTodayAttendance(null);
+    } finally {
+      setAttendanceLoading(false);
+    }
+  };
+
+  const loadLeaveData = async () => {
+    try {
+      setLeaveLoading(true);
+      const currentYear = new Date().getFullYear();
+
+      const balance = await leavesApi.getMyBalance(currentYear).catch(() => null);
+      console.log('🏖️ Leave Balance:', balance);
+
+      setLeaveBalance(balance);
+    } catch (error) {
+      console.error('❌ Failed to load leave data:', error);
+      setLeaveBalance(null);
+    } finally {
+      setLeaveLoading(false);
+    }
+  };
 
   const loadStatistics = async () => {
     try {
@@ -159,8 +204,9 @@ export default function DashboardPage() {
     return `₹${amount}`;
   };
 
+
   return (
-    <div className="min-h-screen bg-transparent pb-12">
+    <div className="bg-slate-50 pb-12">
       {/* Top Navigation Bar Removed - Using Global Navigation */}
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 animate-fade-in-up">
@@ -187,6 +233,19 @@ export default function DashboardPage() {
               <span>Create Lead</span>
             </Link>
           </div>
+        </div>
+
+        {/* Attendance & Leave Summary Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <AttendanceSummaryCard
+            todayAttendance={todayAttendance}
+            loading={attendanceLoading}
+            onRefresh={loadTodayAttendance}
+          />
+          <LeaveSummaryCard
+            leaveBalance={leaveBalance}
+            loading={leaveLoading}
+          />
         </div>
 
         {/* Stats Grid */}

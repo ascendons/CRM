@@ -19,6 +19,8 @@ export default function EditUserPage({ params }: { params: Promise<{ id: string 
   const [saving, setSaving] = useState(false);
   const [roles, setRoles] = useState<RoleResponse[]>([]);
   const [profiles, setProfiles] = useState<ProfileResponse[]>([]);
+  const [allUsers, setAllUsers] = useState<UserResponse[]>([]);
+  const [loadingUsers, setLoadingUsers] = useState(false);
   const [loadingData, setLoadingData] = useState(true);
   const [formData, setFormData] = useState<UpdateUserRequest>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -30,8 +32,21 @@ export default function EditUserPage({ params }: { params: Promise<{ id: string 
     }
     loadUser();
     loadRolesAndProfiles();
+    loadAllUsers();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
+
+  const loadAllUsers = async () => {
+    try {
+      setLoadingUsers(true);
+      const data = await usersService.getAllUsers();
+      setAllUsers(data);
+    } catch (error) {
+      console.error("Failed to load users:", error);
+    } finally {
+      setLoadingUsers(false);
+    }
+  };
 
   const loadRolesAndProfiles = async () => {
     try {
@@ -341,15 +356,25 @@ export default function EditUserPage({ params }: { params: Promise<{ id: string 
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Manager ID</label>
-                <input
-                  type="text"
+                <label className="block text-sm font-medium text-gray-700 mb-1">Manager</label>
+                <select
                   name="managerId"
                   value={formData.managerId || ""}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Optional - enter user ID"
-                />
+                  disabled={loadingUsers}
+                  className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${loadingUsers ? "bg-gray-100 cursor-not-allowed" : ""
+                    }`}
+                >
+                  <option value="">No Manager (Administrator)</option>
+                  {allUsers
+                    .filter((u) => u.id !== user.id) // Cannot be own manager
+                    .map((u) => (
+                      <option key={u.id} value={u.id}>
+                        {u.profile.fullName} ({u.email})
+                      </option>
+                    ))}
+                </select>
+                {loadingUsers && <p className="mt-1 text-xs text-gray-500">Loading users...</p>}
               </div>
             </div>
           </div>

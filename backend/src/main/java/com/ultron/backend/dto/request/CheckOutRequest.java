@@ -1,0 +1,30 @@
+package com.ultron.backend.dto.request;
+
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class CheckOutRequest {
+
+    // Optional - kept for backward compatibility, but not used
+    // Checkout now uses userId + date which is more robust
+    private String attendanceId;
+
+    @NotNull(message = "Latitude is required")
+    private Double latitude;
+
+    @NotNull(message = "Longitude is required")
+    private Double longitude;
+
+    private Double accuracy;
+    private String address;
+    private String deviceInfo;
+    private String userNotes;
+}

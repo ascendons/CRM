@@ -37,6 +37,13 @@ public interface LeadRepository extends MongoRepository<Lead, String> {
     List<Lead> findByLeadOwnerIdAndTenantIdAndIsDeletedFalse(String ownerId, String tenantId);
 
     /**
+     * Find all leads by multiple owners and tenant (excluding deleted)
+     * Used for manager queries to get own + subordinates' leads
+     * MULTI-TENANT SAFE
+     */
+    List<Lead> findByLeadOwnerIdInAndTenantIdAndIsDeletedFalse(List<String> ownerIds, String tenantId);
+
+    /**
      * Find all leads by status and tenant (excluding deleted)
      * MULTI-TENANT SAFE
      */

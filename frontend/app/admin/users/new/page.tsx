@@ -11,11 +11,19 @@ import type { CreateUserRequest } from "@/types/user";
 import type { RoleResponse } from "@/types/role";
 import type { ProfileResponse } from "@/types/profile";
 
+interface UserOption {
+  id: string;
+  userId: string;
+  userName: string;
+  email: string;
+}
+
 export default function CreateUserPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [roles, setRoles] = useState<RoleResponse[]>([]);
   const [profiles, setProfiles] = useState<ProfileResponse[]>([]);
+  const [managers, setManagers] = useState<UserOption[]>([]);
   const [loadingData, setLoadingData] = useState(true);
   const [formData, setFormData] = useState<CreateUserRequest>({
     username: "",
@@ -52,15 +60,25 @@ export default function CreateUserPage() {
   const loadRolesAndProfiles = async () => {
     try {
       setLoadingData(true);
-      const [rolesData, profilesData] = await Promise.all([
+      const [rolesData, profilesData, usersData] = await Promise.all([
         rolesService.getAllRoles(true), // Only active roles
         profilesService.getAllProfiles(true), // Only active profiles
+        usersService.getActiveUsers(), // Get all active users for manager selection
       ]);
       setRoles(rolesData);
       setProfiles(profilesData);
+
+      // Map users to manager options
+      const managerOptions = usersData.map((user: any) => ({
+        id: user.id,
+        userId: user.userId,
+        userName: user.fullName || user.username || user.email,
+        email: user.email
+      }));
+      setManagers(managerOptions);
     } catch (error) {
-      console.error("Failed to load roles and profiles:", error);
-      showToast.error("Failed to load roles and profiles");
+      console.error("Failed to load roles, profiles, and users:", error);
+      showToast.error("Failed to load form data");
     } finally {
       setLoadingData(false);
     }
@@ -103,6 +121,10 @@ export default function CreateUserPage() {
 
     if (!formData.profileId) {
       newErrors.profileId = "Profile is required";
+    }
+
+    if (!formData.managerId) {
+      newErrors.managerId = "Manager is required";
     }
 
     setErrors(newErrors);
@@ -352,15 +374,30 @@ export default function CreateUserPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Manager ID</label>
-                <input
-                  type="text"
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Manager <span className="text-red-500">*</span>
+                </label>
+                <select
                   name="managerId"
                   value={formData.managerId}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Optional - enter user ID"
-                />
+                  disabled={loadingData}
+                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                    errors.managerId ? "border-red-500" : "border-gray-300"
+                  } ${loadingData ? "bg-gray-100 cursor-not-allowed" : ""}`}
+                >
+                  <option value="">Select a manager...</option>
+                  {managers.map((manager) => (
+                    <option key={manager.id} value={manager.userId}>
+                      {manager.userName} ({manager.userId}) - {manager.email}
+                    </option>
+                  ))}
+                </select>
+                {errors.managerId && <p className="mt-1 text-sm text-red-600">{errors.managerId}</p>}
+                {loadingData && <p className="mt-1 text-xs text-gray-500">Loading users...</p>}
+                <p className="mt-1 text-xs text-gray-500">
+                  Select the reporting manager for this user (required for leave approvals)
+                </p>
               </div>
             </div>
           </div>

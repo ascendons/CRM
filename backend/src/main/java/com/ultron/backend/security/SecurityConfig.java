@@ -45,6 +45,7 @@ public class SecurityConfig {
                         .requestMatchers("/organizations/register").permitAll()
                         .requestMatchers("/organizations/check-subdomain/**").permitAll()
                         .requestMatchers("/ping").permitAll()
+                        .requestMatchers("/admin/data/normalize").permitAll()
                         .requestMatchers("/actuator/**").permitAll()
                         .requestMatchers("/swagger-ui/**").permitAll()
                         .requestMatchers("/swagger-ui.html").permitAll()

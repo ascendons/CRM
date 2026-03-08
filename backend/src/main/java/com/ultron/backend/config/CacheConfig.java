@@ -36,6 +36,24 @@ public class CacheConfig {
     public static final String FIELD_PERMISSIONS_CACHE = "fieldPermissions";
     public static final String MODULE_PERMISSIONS_CACHE = "modulePermissions";
     public static final String PATH_PERMISSIONS_CACHE = "pathPermissions";
+    public static final String DATA_VISIBILITY_CACHE = "dataVisibility";
+    public static final String USER_DATA_VISIBILITY_CACHE = "userDataVisibility";
+
+    // Attendance-related caches
+    public static final String DAILY_ATTENDANCE_CACHE = "dailyAttendance";
+    public static final String USER_ATTENDANCE_SUMMARY = "userAttendanceSummary";
+    public static final String SHIFTS_CACHE = "shifts";
+    public static final String OFFICE_LOCATIONS_CACHE = "officeLocations";
+
+    // Leave-related caches
+    public static final String LEAVE_BALANCE_CACHE = "leaveBalance";
+    public static final String USER_LEAVES_CACHE = "userLeaves";
+    public static final String TEAM_LEAVES_CACHE = "teamLeaves";
+    public static final String LEAVE_POLICY_CACHE = "leavePolicy";
+    public static final String HOLIDAYS_CACHE = "holidays";
+
+    // Report caches
+    public static final String MONTHLY_REPORT_CACHE = "monthlyReport";
 
     @Bean
     public CacheManager cacheManager() {
@@ -52,7 +70,19 @@ public class CacheConfig {
                 SYSTEM_PERMISSIONS_CACHE,
                 FIELD_PERMISSIONS_CACHE,
                 MODULE_PERMISSIONS_CACHE,
-                PATH_PERMISSIONS_CACHE
+                PATH_PERMISSIONS_CACHE,
+                DATA_VISIBILITY_CACHE,
+                USER_DATA_VISIBILITY_CACHE,
+                DAILY_ATTENDANCE_CACHE,
+                USER_ATTENDANCE_SUMMARY,
+                SHIFTS_CACHE,
+                OFFICE_LOCATIONS_CACHE,
+                LEAVE_BALANCE_CACHE,
+                USER_LEAVES_CACHE,
+                TEAM_LEAVES_CACHE,
+                LEAVE_POLICY_CACHE,
+                HOLIDAYS_CACHE,
+                MONTHLY_REPORT_CACHE
         );
 
         cacheManager.setCaffeine(Caffeine.newBuilder()
@@ -67,8 +97,8 @@ public class CacheConfig {
                         log.debug("Cache eviction: key={}, cause={}", key, cause))
         );
 
-        log.info("Cache manager initialized with {} caches: dashboardStats, growthTrends, unreadNotifications, permissions, recordAccess, subordinates, allSubordinates, systemPermissions, fieldPermissions, modulePermissions, pathPermissions",
-                11);
+        log.info("Cache manager initialized with {} caches: dashboardStats, growthTrends, unreadNotifications, permissions, recordAccess, subordinates, allSubordinates, systemPermissions, fieldPermissions, modulePermissions, pathPermissions, dataVisibility, userDataVisibility, dailyAttendance, userAttendanceSummary, shifts, officeLocations, leaveBalance, userLeaves, teamLeaves, leavePolicy, holidays, monthlyReport",
+                23);
 
         return cacheManager;
     }

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import Navigation from "./components/Navigation";
+import AppLayout from "./components/AppLayout";
 import ToastProvider from "@/components/ToastProvider";
 import { TenantProvider } from "@/providers/TenantProvider";
 import { PermissionProvider } from "@/providers/PermissionProvider";
@@ -29,7 +29,7 @@ export default function RootLayout({
     <html lang="en" className="light">
       <head>
         <link
-          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap"
           rel="stylesheet"
         />
       </head>
@@ -39,8 +39,9 @@ export default function RootLayout({
             <OrganizationProvider>
               <WebSocketProvider>
                 <ToastProvider />
-                <Navigation />
-                {children}
+                <AppLayout>
+                  {children}
+                </AppLayout>
               </WebSocketProvider>
             </OrganizationProvider>
           </PermissionProvider>
