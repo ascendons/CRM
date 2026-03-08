@@ -96,54 +96,54 @@ export const leavesApi = {
   /**
    * Apply for leave
    */
-  applyLeave: (data: CreateLeaveRequest) =>
+  applyLeave: (data: CreateLeaveRequest): Promise<LeaveResponse> =>
     api.post('/leaves', data),
 
   /**
    * Get my leaves
    */
-  getMyLeaves: () =>
+  getMyLeaves: (): Promise<LeaveResponse[]> =>
     api.get('/leaves/my'),
 
   /**
    * Get team leaves (Manager)
    */
-  getTeamLeaves: () =>
+  getTeamLeaves: (): Promise<LeaveResponse[]> =>
     api.get('/leaves/team'),
 
   /**
    * Get leave by ID
    */
-  getLeaveById: (leaveId: string) =>
+  getLeaveById: (leaveId: string): Promise<LeaveResponse> =>
     api.get(`/leaves/${leaveId}`),
 
   /**
    * Cancel leave
    */
-  cancelLeave: (data: CancelLeaveRequest) =>
+  cancelLeave: (data: CancelLeaveRequest): Promise<LeaveResponse> =>
     api.post('/leaves/cancel', data),
 
   /**
    * Get leave balance
    */
-  getMyBalance: (year?: number) =>
+  getMyBalance: (year?: number): Promise<LeaveBalanceResponse> =>
     api.get(`/leaves/my/balance${year ? `?year=${year}` : ''}`),
 
   /**
    * Get pending approvals (Manager)
    */
-  getPendingApprovals: () =>
+  getPendingApprovals: (): Promise<LeaveResponse[]> =>
     api.get('/leaves/admin/pending'),
 
   /**
    * Get all pending approvals (Admin)
    */
-  getAllPendingApprovals: () =>
+  getAllPendingApprovals: (): Promise<LeaveResponse[]> =>
     api.get('/leaves/admin/all-pending'),
 
   /**
    * Approve or reject leave (Manager)
    */
-  approveLeave: (data: ApproveLeaveRequest) =>
+  approveLeave: (data: ApproveLeaveRequest): Promise<LeaveResponse> =>
     api.post('/leaves/admin/approve', data)
 };

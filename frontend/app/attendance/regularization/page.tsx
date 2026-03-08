@@ -11,10 +11,8 @@ export default function RegularizationPage() {
 
   const loadRegularizations = async () => {
     try {
-      const response = await regularizationApi.getMyRegularizations();
-      if (response.success) {
-        setRegularizations(response.data);
-      }
+      const data = await regularizationApi.getMyRegularizations();
+      setRegularizations(data || []);
     } catch (error) {
       console.error('Failed to load regularizations:', error);
       toast.error('Failed to load regularizations');

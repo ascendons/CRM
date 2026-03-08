@@ -57,11 +57,11 @@ export default function AttendancePage() {
       const startDateStr = startDate.toISOString().split('T')[0];
       const endDateStr = endDate.toISOString().split('T')[0];
 
-      const response = await attendanceApi.getMyHistory(startDateStr, endDateStr);
+      const data = await attendanceApi.getMyHistory(startDateStr, endDateStr);
 
-      if (response.success && Array.isArray(response.data)) {
+      if (Array.isArray(data)) {
         // Transform to calendar format
-        const records = response.data.map((record: any) => ({
+        const records = data.map((record: any) => ({
           date: record.attendanceDate,
           status: record.status,
           checkInTime: record.checkInTime,

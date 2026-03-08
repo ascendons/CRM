@@ -2,19 +2,19 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { locationsApi } from '@/lib/api/locations';
+import { locationsApi, CreateLocationRequest } from '@/lib/api/locations';
 import { getCurrentPosition } from '@/lib/utils/geolocation';
 import { toast } from 'react-hot-toast';
 import { ArrowLeft, Save, MapPin, Navigation } from 'lucide-react';
 import Link from 'next/link';
 
-const LOCATION_TYPES = ['HEAD_OFFICE', 'BRANCH', 'CLIENT_SITE', 'COWORKING'];
+const LOCATION_TYPES = ['HEAD_OFFICE', 'BRANCH', 'CLIENT_SITE', 'COWORKING'] as const;
 
 export default function NewLocationPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [gettingLocation, setGettingLocation] = useState(false);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<CreateLocationRequest>({
     name: '',
     code: '',
     address: '',
@@ -178,7 +178,7 @@ export default function NewLocationPage() {
                 </label>
                 <select
                   value={formData.type}
-                  onChange={(e) => setFormData({ ...formData, type: e.target.value })}
+                  onChange={(e) => setFormData({ ...formData, type: e.target.value as CreateLocationRequest['type'] })}
                   className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
                   {LOCATION_TYPES.map(type => (

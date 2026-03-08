@@ -2,48 +2,16 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { leavesApi } from '@/lib/api/leaves';
+import { leavesApi, LeaveResponse } from '@/lib/api/leaves';
 import { toast } from 'react-hot-toast';
 import { ArrowLeft, Calendar, Clock, CheckCircle, XCircle, AlertCircle, FileText } from 'lucide-react';
-
-interface Leave {
-  id: string;
-  leaveId: string;
-  userId: string;
-  userName: string;
-  leaveType: string;
-  startDate: string;
-  endDate: string;
-  totalDays: number;
-  businessDays: number;
-  isHalfDay: boolean;
-  halfDayType?: string;
-  reason: string;
-  attachments?: string[];
-  status: string;
-  approverId?: string;
-  approverName?: string;
-  approvedAt?: string;
-  approvalNotes?: string;
-  rejectionReason?: string;
-  isCancelled: boolean;
-  cancelledAt?: string;
-  cancelledBy?: string;
-  cancellationReason?: string;
-  isEmergencyLeave: boolean;
-  emergencyContactNumber?: string;
-  balanceBefore?: number;
-  balanceAfter?: number;
-  createdAt: string;
-  lastModifiedAt: string;
-}
 
 export default function LeaveDetailPage() {
   const params = useParams();
   const router = useRouter();
   const leaveId = params.id as string;
 
-  const [leave, setLeave] = useState<Leave | null>(null);
+  const [leave, setLeave] = useState<LeaveResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [cancelling, setCancelling] = useState(false);
 
@@ -355,7 +323,7 @@ export default function LeaveDetailPage() {
                 <Clock className="h-4 w-4" />
                 <span>Applied: {formatDateTime(leave.createdAt)}</span>
               </div>
-              {leave.lastModifiedAt !== leave.createdAt && (
+              {leave.lastModifiedAt && leave.lastModifiedAt !== leave.createdAt && (
                 <div className="flex items-center gap-2">
                   <Clock className="h-4 w-4" />
                   <span>Last Updated: {formatDateTime(leave.lastModifiedAt)}</span>

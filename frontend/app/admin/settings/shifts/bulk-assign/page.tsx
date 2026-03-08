@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { shiftsApi } from '@/lib/api/shifts';
-import { locationsApi } from '@/lib/api/locations';
+import { shiftsApi, ShiftResponse } from '@/lib/api/shifts';
+import { locationsApi, LocationResponse } from '@/lib/api/locations';
 import { api } from '@/lib/api-client';
 import { toast } from 'react-hot-toast';
 import { ArrowLeft, Users, Calendar, MapPin, Building2 } from 'lucide-react';
@@ -15,24 +15,6 @@ interface User {
   email: string;
   department?: string;
   role?: string;
-}
-
-interface Shift {
-  id: string;
-  shiftId: string;
-  name: string;
-  code: string;
-  startTime: string;
-  endTime: string;
-  type: string;
-}
-
-interface OfficeLocation {
-  id: string;
-  locationId: string;
-  name: string;
-  code: string;
-  city?: string;
 }
 
 interface BulkAssignRequest {
@@ -49,8 +31,8 @@ export default function BulkShiftAssignmentPage() {
   const router = useRouter();
 
   const [users, setUsers] = useState<User[]>([]);
-  const [shifts, setShifts] = useState<Shift[]>([]);
-  const [locations, setLocations] = useState<OfficeLocation[]>([]);
+  const [shifts, setShifts] = useState<ShiftResponse[]>([]);
+  const [locations, setLocations] = useState<LocationResponse[]>([]);
 
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
   const [formData, setFormData] = useState({
@@ -74,15 +56,15 @@ export default function BulkShiftAssignmentPage() {
   const loadData = async () => {
     try {
       setLoading(true);
-      const [usersResponse, shiftsResponse, locationsResponse] = await Promise.all([
-        api.get('/users/active'),
+      const [usersData, shiftsData, locationsData] = await Promise.all([
+        api.get<User[]>('/users/active'),
         shiftsApi.getActiveShifts(),
         locationsApi.getActiveLocations(),
       ]);
 
-      if (usersResponse.success) setUsers(usersResponse.data);
-      if (shiftsResponse.success) setShifts(shiftsResponse.data);
-      if (locationsResponse.success) setLocations(locationsResponse.data);
+      setUsers(Array.isArray(usersData) ? usersData : []);
+      setShifts(Array.isArray(shiftsData) ? shiftsData : []);
+      setLocations(Array.isArray(locationsData) ? locationsData : []);
     } catch (error) {
       console.error('Failed to load data:', error);
       toast.error('Failed to load data');
@@ -141,14 +123,9 @@ export default function BulkShiftAssignmentPage() {
 
     try {
       setSubmitting(true);
-      const response = await api.post('/bulk-operations/assign-shifts', payload);
-
-      if (response.success) {
-        toast.success(`Shift assigned to ${selectedUsers.length} user(s) successfully!`);
-        router.push('/admin/settings/shifts');
-      } else {
-        toast.error(response.message || 'Failed to assign shifts');
-      }
+      await api.post('/bulk-operations/assign-shifts', payload);
+      toast.success(`Shift assigned to ${selectedUsers.length} user(s) successfully!`);
+      router.push('/admin/settings/shifts');
     } catch (error: any) {
       console.error('Failed to assign shifts:', error);
       toast.error(error.message || 'Failed to assign shifts');

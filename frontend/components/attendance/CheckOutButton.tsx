@@ -28,14 +28,9 @@ export function CheckOutButton({ attendanceId, onSuccess }: CheckOutButtonProps)
         deviceInfo: getDeviceInfo()
       };
 
-      const response = await attendanceApi.checkOut(request);
-
-      if (response.success) {
-        toast.success('✅ Checked out successfully!');
-        onSuccess?.();
-      } else {
-        toast.error(response.message || 'Failed to check out');
-      }
+      await attendanceApi.checkOut(request);
+      toast.success('✅ Checked out successfully!');
+      onSuccess?.();
     } catch (error: any) {
       console.error('Check-out error:', error);
 

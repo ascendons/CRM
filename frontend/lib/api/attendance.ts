@@ -53,8 +53,8 @@ export const attendanceApi = {
     api.post('/attendance/break/end', data),
 
   // My attendance
-  getMyToday: () =>
-    api.get('/attendance/my/today'),
+  getMyToday: <T = any>() =>
+    api.get<T>('/attendance/my/today'),
 
   getMyHistory: (startDate: string, endDate: string) =>
     api.get(`/attendance/my/history?startDate=${startDate}&endDate=${endDate}`),
@@ -62,12 +62,12 @@ export const attendanceApi = {
   getMySummary: (year: number, month: number) =>
     api.get(`/attendance/my/summary?year=${year}&month=${month}`),
 
-  getAttendanceById: (attendanceId: string) =>
-    api.get(`/attendance/${attendanceId}`),
+  getAttendanceById: <T = any>(attendanceId: string) =>
+    api.get<T>(`/attendance/${attendanceId}`),
 
   // Admin APIs
-  getDailyDashboard: (date?: string) =>
-    api.get(`/attendance/admin/dashboard/daily${date ? '?date=' + date : ''}`),
+  getDailyDashboard: <T = any>(date?: string) =>
+    api.get<T>(`/attendance/admin/dashboard/daily${date ? '?date=' + date : ''}`),
 
   getMonthlyReport: (userId: string, year: number, month: number) =>
     api.get(`/attendance/admin/report/monthly/${userId}?year=${year}&month=${month}`),

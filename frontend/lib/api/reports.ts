@@ -133,18 +133,18 @@ export const reportsApi = {
   /**
    * Get monthly report for a user (admin)
    */
-  getMonthlyReport: (userId: string, year: number, month: number) =>
+  getMonthlyReport: (userId: string, year: number, month: number): Promise<MonthlyReportResponse> =>
     api.get(`/attendance/admin/report/monthly/${userId}?year=${year}&month=${month}`),
 
   /**
    * Get my monthly report
    */
-  getMyMonthlyReport: (year: number, month: number) =>
+  getMyMonthlyReport: (year: number, month: number): Promise<MonthlyReportResponse> =>
     api.get(`/attendance/my/report/monthly?year=${year}&month=${month}`),
 
   /**
    * Get team attendance (manager)
    */
   getTeamAttendance: (startDate: string, endDate: string) =>
-    api.get(`/attendance/admin/team?startDate=${startDate}&endDate=${endDate}`)
+    api.get<TeamAttendanceResponse>(`/attendance/admin/team?startDate=${startDate}&endDate=${endDate}`)
 };
