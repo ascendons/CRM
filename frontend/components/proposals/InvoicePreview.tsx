@@ -254,12 +254,41 @@ const InvoicePreview = forwardRef<HTMLDivElement, InvoicePreviewProps>(({
             {/* Terms and Totals Section Side-by-Side */}
             <div className="flex flex-col md:flex-row justify-between items-start gap-10 mb-10 print:pt-4">
                 {/* Payment Terms - Left Side */}
-                <div className="flex-1 space-y-4 print-break-inside-avoid">
+                <div className="flex-1 space-y-8 print-break-inside-avoid">
                     <div className="space-y-3">
                         <h3 className="text-[10px] font-black text-blue-900 uppercase tracking-widest underline decoration-blue-900/20 underline-offset-8">Payment Terms</h3>
                         <div className="text-[11px] text-gray-500 font-medium leading-relaxed whitespace-pre-line max-w-md">
-                            {/* {invoiceConfig?.termsAndConditions || '1. Standard 30-day payment cycle.\n2. Prices are subject to change based on market fluctuations.\n3. Orders will be processed only after confirmation.'} */}
-                            10% Advance Payment, 90% Before Dispatch
+                            {proposal.paymentTerms || '10% Advance Payment, 90% on Dispatch'}
+                        </div>
+                    </div>
+
+                    <div className="bg-gray-50 rounded-2xl p-4 border border-gray-100 max-w-md">
+                        <h3 className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-4">Bank Details</h3>
+                        <div className="space-y-2">
+                            {invoiceConfig?.bankName ? (
+                                <div className="grid grid-cols-2 gap-4 text-[10px]">
+                                    <div>
+                                        <p className="text-gray-400 font-bold uppercase tracking-tighter mb-0.5">Bank Name</p>
+                                        <p className="font-black text-gray-900 tracking-tight">{invoiceConfig.bankName}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-gray-400 font-bold uppercase tracking-tighter mb-0.5">Account Number</p>
+                                        <p className="font-black text-gray-900 tracking-tight font-mono">{invoiceConfig.accountNumber}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-gray-400 font-bold uppercase tracking-tighter mb-0.5">IFSC / Routing</p>
+                                        <p className="font-black text-gray-900 tracking-tight">{invoiceConfig.ifscCode}</p>
+                                    </div>
+                                    {invoiceConfig.branchName && (
+                                        <div>
+                                            <p className="text-gray-400 font-bold uppercase tracking-tighter mb-0.5">Branch</p>
+                                            <p className="font-black text-gray-900 tracking-tight">{invoiceConfig.branchName}</p>
+                                        </div>
+                                    )}
+                                </div>
+                            ) : (
+                                <p className="italic text-gray-400 text-xs">Bank details not available for this organization.</p>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -296,46 +325,27 @@ const InvoicePreview = forwardRef<HTMLDivElement, InvoicePreviewProps>(({
                         <div className="h-[2px] bg-white/10 w-full mb-3"></div>
                         <p className="text-[9px] text-white/40 font-bold uppercase tracking-[0.1em] text-center italic">
                             Amounts are inclusive of all applicable taxes.
+                            <br />
+                            Valid Till : {proposal.validUntil}
                         </p>
                     </div>
                 </div>
             </div>
 
             {/* Details & Signature Section */}
-            <div className="grid grid-cols-12 gap-10 items-end print-break-inside-avoid">
-                <div className="col-span-7">
-                    <div className="bg-gray-50 rounded-2xl p-6 border border-gray-100">
-                        <h3 className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-4">Bank Details</h3>
-                        <div className="space-y-2">
-                            {invoiceConfig?.bankName ? (
-                                <div className="grid grid-cols-2 gap-4 text-[10px]">
-                                    <div>
-                                        <p className="text-gray-400 font-bold uppercase tracking-tighter mb-0.5">Bank Name</p>
-                                        <p className="font-black text-gray-900 tracking-tight">{invoiceConfig.bankName}</p>
-                                    </div>
-                                    <div>
-                                        <p className="text-gray-400 font-bold uppercase tracking-tighter mb-0.5">Account Number</p>
-                                        <p className="font-black text-gray-900 tracking-tight font-mono">{invoiceConfig.accountNumber}</p>
-                                    </div>
-                                    <div>
-                                        <p className="text-gray-400 font-bold uppercase tracking-tighter mb-0.5">IFSC / Routing</p>
-                                        <p className="font-black text-gray-900 tracking-tight">{invoiceConfig.ifscCode}</p>
-                                    </div>
-                                    {invoiceConfig.branchName && (
-                                        <div>
-                                            <p className="text-gray-400 font-bold uppercase tracking-tighter mb-0.5">Branch</p>
-                                            <p className="font-black text-gray-900 tracking-tight">{invoiceConfig.branchName}</p>
-                                        </div>
-                                    )}
-                                </div>
-                            ) : (
-                                <p className="italic text-gray-400 text-xs">Bank details not available for this organization.</p>
-                            )}
+            <div className="flex justify-between items-end gap-10 print-break-inside-avoid">
+                {/* Terms and Conditions - Left Side */}
+                <div className="flex-1 space-y-4">
+                    <div className="space-y-3">
+                        <h3 className="text-[9px] font-black text-blue-900 uppercase tracking-widest underline decoration-blue-900/20 underline-offset-8">Terms and Conditions</h3>
+                        <div className="text-[9px] text-gray-500 font-medium leading-relaxed whitespace-pre-line max-w-md">
+                            {invoiceConfig?.termsAndConditions || '1. Standard 30-day payment cycle.\n2. Prices are subject to change based on market fluctuations.\n3. Orders will be processed only after confirmation.'}
                         </div>
                     </div>
                 </div>
 
-                <div className="col-span-5 flex flex-col items-center">
+                {/* Signature - Right Side */}
+                <div className="w-full max-w-[240px] flex flex-col items-center">
                     <div className="w-full flex flex-col items-center space-y-6">
                         {invoiceConfig?.authorizedSignatorySealUrl && (
                             <img
