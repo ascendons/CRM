@@ -5,6 +5,7 @@ import { attendanceApi } from '@/lib/api/attendance';
 import { locationsApi } from '@/lib/api/locations';
 import { toast } from 'react-hot-toast';
 import Link from 'next/link';
+import { ArrowLeft } from 'lucide-react';
 
 interface AttendanceLocation {
   latitude: number;
@@ -280,11 +281,20 @@ export default function DailyAttendancePage() {
     <div className="max-w-4xl mx-auto p-6 space-y-6">
       {/* Header */}
       <div className="flex justify-between items-start">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Daily Attendance</h1>
-          <p className="text-gray-600 mt-1">
-            {currentTime.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-          </p>
+        <div className="flex items-center gap-4">
+          <Link
+            href="/attendance"
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            title="Back to Attendance"
+          >
+            <ArrowLeft className="h-6 w-6 text-gray-600" />
+          </Link>
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Daily Attendance</h1>
+            <p className="text-gray-600 mt-1">
+              {currentTime.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+            </p>
+          </div>
         </div>
         <Link
           href="/attendance"

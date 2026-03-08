@@ -34,20 +34,13 @@ import {
   FileText,
   Trophy,
   MapPin,
-  LogIn,
-  LogOut,
-  Umbrella,
-  CalendarDays,
-  History,
   AlertCircle
 } from "lucide-react";
 import { Opportunity } from "@/types/opportunity";
 import { attendanceApi } from "@/lib/api/attendance";
 import { leavesApi } from "@/lib/api/leaves";
-import { CheckInButton } from "@/components/attendance/CheckInButton";
-import { CheckOutButton } from "@/components/attendance/CheckOutButton";
-import { AttendanceStatusBadge } from "@/components/attendance/AttendanceStatusBadge";
-import { BreakTimer } from "@/components/attendance/BreakTimer";
+import { AttendanceSummaryCard } from "@/components/attendance/AttendanceSummaryCard";
+import { LeaveSummaryCard } from "@/components/attendance/LeaveSummaryCard";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -67,7 +60,6 @@ export default function DashboardPage() {
   const [todayAttendance, setTodayAttendance] = useState<any>(null);
   const [attendanceLoading, setAttendanceLoading] = useState(false);
   const [leaveBalance, setLeaveBalance] = useState<any>(null);
-  const [recentLeaves, setRecentLeaves] = useState<any[]>([]);
   const [leaveLoading, setLeaveLoading] = useState(false);
 
   useEffect(() => {
@@ -114,22 +106,13 @@ export default function DashboardPage() {
       setLeaveLoading(true);
       const currentYear = new Date().getFullYear();
 
-      // Load leave balance and recent leaves in parallel
-      const [balance, leaves] = await Promise.all([
-        leavesApi.getMyBalance(currentYear).catch(() => null),
-        leavesApi.getMyLeaves().catch(() => [])
-      ]);
-
+      const balance = await leavesApi.getMyBalance(currentYear).catch(() => null);
       console.log('🏖️ Leave Balance:', balance);
-      console.log('📋 Recent Leaves:', leaves);
 
       setLeaveBalance(balance);
-      // Get only the 3 most recent leaves
-      setRecentLeaves(Array.isArray(leaves) ? leaves.slice(0, 3) : []);
     } catch (error) {
       console.error('❌ Failed to load leave data:', error);
       setLeaveBalance(null);
-      setRecentLeaves([]);
     } finally {
       setLeaveLoading(false);
     }
@@ -221,31 +204,6 @@ export default function DashboardPage() {
     return `₹${amount}`;
   };
 
-  const formatTime = (dateTime?: string) => {
-    if (!dateTime) return '-';
-    return new Date(dateTime).toLocaleTimeString('en-US', {
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
-
-  const formatDuration = (minutes?: number) => {
-    if (!minutes) return '-';
-    const hours = Math.floor(minutes / 60);
-    const mins = minutes % 60;
-    return `${hours}h ${mins}m`;
-  };
-
-  const isCheckedIn = todayAttendance && !todayAttendance.checkOutTime;
-  const isCheckedOut = todayAttendance && todayAttendance.checkOutTime;
-
-  // Debug logs
-  console.log('🔍 Attendance State:', {
-    todayAttendance,
-    isCheckedIn,
-    isCheckedOut,
-    attendanceLoading
-  });
 
   return (
     <div className="bg-slate-50 pb-12">
@@ -277,286 +235,17 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Attendance Check-in/out Section */}
-        <div className="bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-700 rounded-2xl shadow-xl overflow-hidden relative">
-          {/* Background decoration */}
-          <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
-          <div className="absolute bottom-0 left-0 w-48 h-48 bg-indigo-500/30 rounded-full blur-2xl translate-y-1/2 -translate-x-1/2"></div>
-
-          <div className="relative z-10 p-6">
-            {attendanceLoading ? (
-              <div className="flex items-center justify-center py-8">
-                <div className="w-8 h-8 border-3 border-white/30 border-t-white rounded-full animate-spin"></div>
-              </div>
-            ) : !todayAttendance ? (
-              // Not checked in yet
-              <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-                <div className="flex items-center gap-4 text-white">
-                  <div className="h-14 w-14 rounded-2xl bg-white/10 backdrop-blur-sm flex items-center justify-center border border-white/20">
-                    <LogIn className="h-7 w-7" />
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-bold">Good {new Date().getHours() < 12 ? 'Morning' : new Date().getHours() < 17 ? 'Afternoon' : 'Evening'}!</h3>
-                    <p className="text-blue-100 text-sm">Ready to start your day? Mark your attendance.</p>
-                  </div>
-                </div>
-                <div className="w-full md:w-auto">
-                  <CheckInButton onSuccess={loadTodayAttendance} />
-                </div>
-              </div>
-            ) : isCheckedIn ? (
-              // Checked in - show current session
-              <div className="space-y-4">
-                <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-                  <div className="flex items-center gap-4 text-white">
-                    <div className="h-14 w-14 rounded-2xl bg-emerald-500/20 backdrop-blur-sm flex items-center justify-center border border-emerald-400/30">
-                      <CheckCircle2 className="h-7 w-7 text-emerald-300" />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-bold flex items-center gap-2">
-                        You&apos;re Checked In
-                        <span className="inline-flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                      </h3>
-                      <p className="text-blue-100 text-sm">Don&apos;t forget to check out when done!</p>
-                    </div>
-                  </div>
-                  <div className="w-full md:w-auto">
-                    <CheckOutButton
-                      attendanceId={todayAttendance.attendanceId}
-                      onSuccess={loadTodayAttendance}
-                    />
-                  </div>
-                </div>
-
-                {/* Current Session Info */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
-                    <p className="text-xs text-blue-100 font-medium mb-1">Check-in</p>
-                    <p className="text-lg font-bold text-white">{formatTime(todayAttendance.checkInTime)}</p>
-                  </div>
-                  <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
-                    <p className="text-xs text-blue-100 font-medium mb-1">Type</p>
-                    <p className="text-lg font-bold text-white">{todayAttendance.type}</p>
-                  </div>
-                  <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
-                    <p className="text-xs text-blue-100 font-medium mb-1">Status</p>
-                    <div className="mt-1">
-                      <AttendanceStatusBadge
-                        status={todayAttendance.status}
-                        lateMinutes={todayAttendance.lateMinutes}
-                      />
-                    </div>
-                  </div>
-                  <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
-                    <p className="text-xs text-blue-100 font-medium mb-1">Location</p>
-                    <p className="text-sm font-semibold text-white flex items-center gap-1">
-                      {todayAttendance.isLocationVerified ? (
-                        <>
-                          <MapPin className="h-3 w-3 text-emerald-300" />
-                          <span className="text-emerald-300">Verified</span>
-                        </>
-                      ) : (
-                        <>
-                          <MapPin className="h-3 w-3 text-amber-300" />
-                          <span className="text-amber-300">Outside</span>
-                        </>
-                      )}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Break Timer */}
-                <BreakTimer
-                  attendanceId={todayAttendance.attendanceId}
-                  activeBreak={todayAttendance.breaks?.find((b: any) => !b.endTime)}
-                  onBreakUpdate={loadTodayAttendance}
-                />
-              </div>
-            ) : isCheckedOut ? (
-              // Checked out - show summary
-              <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-                <div className="flex items-center gap-4 text-white">
-                  <div className="h-14 w-14 rounded-2xl bg-purple-500/20 backdrop-blur-sm flex items-center justify-center border border-purple-400/30">
-                    <LogOut className="h-7 w-7 text-purple-300" />
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-bold">Day Complete! 🎉</h3>
-                    <p className="text-blue-100 text-sm">You&apos;ve successfully checked out for today.</p>
-                  </div>
-                </div>
-
-                {/* Work Summary */}
-                <div className="flex gap-3">
-                  <div className="bg-white/10 backdrop-blur-sm rounded-xl px-4 py-3 border border-white/20">
-                    <p className="text-xs text-blue-100 font-medium">Total Work</p>
-                    <p className="text-xl font-bold text-white">{formatDuration(todayAttendance.totalWorkMinutes)}</p>
-                  </div>
-                  {todayAttendance.overtimeMinutes > 0 && (
-                    <div className="bg-emerald-500/20 backdrop-blur-sm rounded-xl px-4 py-3 border border-emerald-400/30">
-                      <p className="text-xs text-emerald-200 font-medium">Overtime</p>
-                      <p className="text-xl font-bold text-emerald-300">{formatDuration(todayAttendance.overtimeMinutes)}</p>
-                    </div>
-                  )}
-                  {todayAttendance.lateMinutes > 0 && (
-                    <div className="bg-amber-500/20 backdrop-blur-sm rounded-xl px-4 py-3 border border-amber-400/30">
-                      <p className="text-xs text-amber-200 font-medium">Late By</p>
-                      <p className="text-xl font-bold text-amber-300">{todayAttendance.lateMinutes} min</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            ) : null}
-          </div>
-        </div>
-
-        {/* Leave Balance Section */}
-        <div className="bg-gradient-to-br from-emerald-600 via-teal-600 to-cyan-700 rounded-2xl shadow-xl overflow-hidden relative">
-          {/* Background decoration */}
-          <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
-          <div className="absolute bottom-0 left-0 w-48 h-48 bg-teal-500/30 rounded-full blur-2xl translate-y-1/2 -translate-x-1/2"></div>
-
-          <div className="relative z-10 p-6">
-            {leaveLoading ? (
-              <div className="flex items-center justify-center py-8">
-                <div className="w-8 h-8 border-3 border-white/30 border-t-white rounded-full animate-spin"></div>
-              </div>
-            ) : (
-              <div className="space-y-6">
-                {/* Header */}
-                <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-                  <div className="flex items-center gap-4 text-white">
-                    <div className="h-14 w-14 rounded-2xl bg-white/10 backdrop-blur-sm flex items-center justify-center border border-white/20">
-                      <Umbrella className="h-7 w-7" />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-bold">Leave Balance</h3>
-                      <p className="text-emerald-100 text-sm">Your available leave balance for {new Date().getFullYear()}</p>
-                    </div>
-                  </div>
-                  <div className="flex gap-2 w-full md:w-auto">
-                    <Link
-                      href="/leaves/new"
-                      className="flex-1 md:flex-none px-4 py-2.5 bg-white text-emerald-700 rounded-xl font-semibold text-sm hover:bg-emerald-50 transition-all flex items-center justify-center gap-2 shadow-lg"
-                    >
-                      <CalendarDays className="h-4 w-4" />
-                      <span>Apply Leave</span>
-                    </Link>
-                    <Link
-                      href="/leaves"
-                      className="flex-1 md:flex-none px-4 py-2.5 bg-white/10 backdrop-blur-sm text-white border border-white/20 rounded-xl font-semibold text-sm hover:bg-white/20 transition-all flex items-center justify-center gap-2"
-                    >
-                      <History className="h-4 w-4" />
-                      <span>View All</span>
-                    </Link>
-                  </div>
-                </div>
-
-                {/* Leave Balance Cards */}
-                {leaveBalance && leaveBalance.balances ? (
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    {Object.entries(leaveBalance.balances).map(([leaveType, balance]: [string, any]) => {
-                      const percentage = balance.total > 0 ? (balance.available / balance.total) * 100 : 0;
-                      const displayType = leaveType.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, (l: string) => l.toUpperCase());
-
-                      return (
-                        <div key={leaveType} className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
-                          <div className="flex items-center justify-between mb-3">
-                            <p className="text-xs text-emerald-100 font-medium">{displayType}</p>
-                            <div className="relative w-10 h-10">
-                              {/* Circular progress */}
-                              <svg className="transform -rotate-90 w-10 h-10">
-                                <circle
-                                  cx="20"
-                                  cy="20"
-                                  r="16"
-                                  stroke="rgba(255,255,255,0.2)"
-                                  strokeWidth="3"
-                                  fill="none"
-                                />
-                                <circle
-                                  cx="20"
-                                  cy="20"
-                                  r="16"
-                                  stroke="white"
-                                  strokeWidth="3"
-                                  fill="none"
-                                  strokeDasharray={`${2 * Math.PI * 16}`}
-                                  strokeDashoffset={`${2 * Math.PI * 16 * (1 - percentage / 100)}`}
-                                  strokeLinecap="round"
-                                />
-                              </svg>
-                              <div className="absolute inset-0 flex items-center justify-center">
-                                <span className="text-[10px] font-bold text-white">{Math.round(percentage)}%</span>
-                              </div>
-                            </div>
-                          </div>
-                          <div className="space-y-1">
-                            <div className="flex items-baseline gap-1">
-                              <p className="text-2xl font-bold text-white">{balance.available}</p>
-                              <p className="text-xs text-emerald-200">/ {balance.total}</p>
-                            </div>
-                            <p className="text-xs text-emerald-200">
-                              {balance.used} used {balance.pending > 0 && `• ${balance.pending} pending`}
-                            </p>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                ) : (
-                  <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20 text-center">
-                    <AlertCircle className="h-8 w-8 text-white/60 mx-auto mb-2" />
-                    <p className="text-white/80 text-sm">No leave balance data available</p>
-                  </div>
-                )}
-
-                {/* Recent Leaves */}
-                {recentLeaves.length > 0 && (
-                  <div className="border-t border-white/20 pt-4">
-                    <div className="flex items-center justify-between mb-3">
-                      <h4 className="text-sm font-semibold text-white">Recent Leaves</h4>
-                      <Link href="/leaves" className="text-xs text-emerald-200 hover:text-white transition-colors">
-                        View All →
-                      </Link>
-                    </div>
-                    <div className="space-y-2">
-                      {recentLeaves.map((leave) => (
-                        <div key={leave.leaveId} className="bg-white/10 backdrop-blur-sm rounded-lg p-3 border border-white/20 hover:bg-white/15 transition-colors">
-                          <div className="flex items-center justify-between">
-                            <div className="flex-1">
-                              <div className="flex items-center gap-2">
-                                <p className="text-sm font-medium text-white">
-                                  {leave.leaveType?.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, (l: string) => l.toUpperCase())}
-                                </p>
-                                <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-                                  leave.status === 'APPROVED' ? 'bg-emerald-500/30 text-emerald-200' :
-                                  leave.status === 'PENDING' ? 'bg-amber-500/30 text-amber-200' :
-                                  leave.status === 'REJECTED' ? 'bg-red-500/30 text-red-200' :
-                                  'bg-white/20 text-white'
-                                }`}>
-                                  {leave.status}
-                                </span>
-                              </div>
-                              <p className="text-xs text-emerald-200 mt-1">
-                                {new Date(leave.startDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })} - {new Date(leave.endDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
-                                {' • '}{leave.totalDays} {leave.totalDays === 1 ? 'day' : 'days'}
-                              </p>
-                            </div>
-                            <Link
-                              href={`/leaves/${leave.leaveId}`}
-                              className="text-white/60 hover:text-white transition-colors"
-                            >
-                              <ArrowUpRight className="h-4 w-4" />
-                            </Link>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
+        {/* Attendance & Leave Summary Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <AttendanceSummaryCard
+            todayAttendance={todayAttendance}
+            loading={attendanceLoading}
+            onRefresh={loadTodayAttendance}
+          />
+          <LeaveSummaryCard
+            leaveBalance={leaveBalance}
+            loading={leaveLoading}
+          />
         </div>
 
         {/* Stats Grid */}

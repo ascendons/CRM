@@ -1,12 +1,14 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { attendanceApi } from '@/lib/api/attendance';
 import { CheckInButton } from '@/components/attendance/CheckInButton';
 import { CheckOutButton } from '@/components/attendance/CheckOutButton';
 import { AttendanceStatusBadge } from '@/components/attendance/AttendanceStatusBadge';
 import AttendanceCalendar from '@/components/attendance/AttendanceCalendar';
 import { toast } from 'react-hot-toast';
+import { CalendarClock, ArrowLeft } from 'lucide-react';
 
 interface Attendance {
   id: string;
@@ -25,6 +27,9 @@ interface Attendance {
 export default function AttendancePage() {
   const [todayAttendance, setTodayAttendance] = useState<Attendance | null>(null);
   const [loading, setLoading] = useState(true);
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [attendanceRecords, setAttendanceRecords] = useState<any[]>([]);
+  const [calendarLoading, setCalendarLoading] = useState(false);
 
   const loadTodayAttendance = async () => {
     try {
@@ -39,9 +44,48 @@ export default function AttendancePage() {
     }
   };
 
+  const loadMonthAttendance = async () => {
+    try {
+      setCalendarLoading(true);
+      const year = currentDate.getFullYear();
+      const month = currentDate.getMonth() + 1; // 0-indexed to 1-indexed
+
+      // Get first and last day of month
+      const startDate = new Date(year, month - 1, 1);
+      const endDate = new Date(year, month, 0);
+
+      const startDateStr = startDate.toISOString().split('T')[0];
+      const endDateStr = endDate.toISOString().split('T')[0];
+
+      const response = await attendanceApi.getMyHistory(startDateStr, endDateStr);
+
+      if (response.success && Array.isArray(response.data)) {
+        // Transform to calendar format
+        const records = response.data.map((record: any) => ({
+          date: record.attendanceDate,
+          status: record.status,
+          checkInTime: record.checkInTime,
+          checkOutTime: record.checkOutTime,
+          workMinutes: record.totalWorkMinutes
+        }));
+        setAttendanceRecords(records);
+      }
+    } catch (error) {
+      console.error('Failed to load month attendance:', error);
+      setAttendanceRecords([]);
+    } finally {
+      setCalendarLoading(false);
+    }
+  };
+
   useEffect(() => {
     loadTodayAttendance();
+    loadMonthAttendance();
   }, []);
+
+  useEffect(() => {
+    loadMonthAttendance();
+  }, [currentDate]);
 
   const formatTime = (dateTime?: string) => {
     if (!dateTime) return '-';
@@ -72,16 +116,25 @@ export default function AttendancePage() {
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">My Attendance</h1>
-        <p className="text-gray-600 mt-1">
-          {new Date().toLocaleDateString('en-US', {
-            weekday: 'long',
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-          })}
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">My Attendance</h1>
+          <p className="text-gray-600 mt-1">
+            {new Date().toLocaleDateString('en-US', {
+              weekday: 'long',
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric'
+            })}
+          </p>
+        </div>
+        <Link
+          href="/attendance/daily"
+          className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold text-sm transition-all shadow-lg shadow-blue-600/25 hover:shadow-blue-600/40 hover:-translate-y-0.5"
+        >
+          <CalendarClock className="h-5 w-5" />
+          <span>Daily View</span>
+        </Link>
       </div>
 
       {/* Main Action Card */}
@@ -223,13 +276,23 @@ export default function AttendancePage() {
       {/* Attendance Calendar */}
       <div className="mt-8">
         <h2 className="text-2xl font-bold text-gray-900 mb-4">Monthly Calendar</h2>
-        <AttendanceCalendar
-          onDateClick={(date, record) => {
-            if (record) {
-              toast.success(`${date.toLocaleDateString()}: ${record.status}`);
-            }
-          }}
-        />
+        {calendarLoading ? (
+          <div className="bg-white rounded-xl shadow p-12 flex items-center justify-center">
+            <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+          </div>
+        ) : (
+          <AttendanceCalendar
+            year={currentDate.getFullYear()}
+            month={currentDate.getMonth()}
+            attendanceRecords={attendanceRecords}
+            onDateClick={(date) => {
+              const record = attendanceRecords.find(r => r.date === date);
+              if (record) {
+                toast.success(`${new Date(date).toLocaleDateString()}: ${record.status}`);
+              }
+            }}
+          />
+        )}
       </div>
     </div>
   );
