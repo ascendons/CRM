@@ -251,7 +251,7 @@ const InvoicePreview = forwardRef<HTMLDivElement, InvoicePreviewProps>(({
             </div>
 
             {/* Terms and Totals Section Side-by-Side */}
-            <div className="flex flex-col md:flex-row justify-between items-start gap-10 mb-10 print:pt-4">
+            <div className="flex flex-col md:flex-row justify-between items-start gap-10 mb-4 print:pt-4">
                 {/* Payment Terms - Left Side */}
                 <div className="flex-1 space-y-8 print-break-inside-avoid">
                     <div className="space-y-3">
