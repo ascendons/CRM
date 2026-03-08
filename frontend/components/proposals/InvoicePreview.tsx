@@ -111,17 +111,17 @@ const InvoicePreview = forwardRef<HTMLDivElement, InvoicePreviewProps>(({
                         </div> */}
                     </div>
 
-                    <div className="mt-auto space-y-1 text-xs">
+                    <div className="mt-auto space-y-1 text-[10px]">
                         {invoiceConfig?.gstNumber && (
-                            <p className="flex justify-end gap-2">
-                                <span className="font-bold text-gray-400 uppercase tracking-widest">GST:</span>
-                                <span className="font-black text-gray-900">{invoiceConfig.gstNumber}</span>
+                            <p className="flex justify-end">
+                                <span className="text-gray-400 uppercase tracking-widest">GST:</span>
+                                <span className="text-gray-500">{invoiceConfig.gstNumber}</span>
                             </p>
                         )}
                         {invoiceConfig?.cinNumber && (
-                            <p className="flex justify-end gap-2">
-                                <span className="font-bold text-gray-400 uppercase tracking-widest">CIN:</span>
-                                <span className="font-black text-gray-900">{invoiceConfig.cinNumber}</span>
+                            <p className="flex justify-end">
+                                <span className="text-gray-400 uppercase tracking-widest">CIN:</span>
+                                <span className="text-gray-500">{invoiceConfig.cinNumber}</span>
                             </p>
                         )}
                     </div>
@@ -129,7 +129,7 @@ const InvoicePreview = forwardRef<HTMLDivElement, InvoicePreviewProps>(({
             </div>
 
             {/* Meta Information: Reference Left, Date Right */}
-            <div className="flex justify-between items-center bg-blue-50/30 rounded-xl pb-5">
+            <div className="flex justify-between items-center bg-blue-50/30 rounded-xl pb-2 mb-2">
                 <div>
                     <span className="text-[10px] font-black text-blue-900/40 uppercase tracking-[0.2em] block mb-1">Reference Number</span>
                     <span className="text-lg font-black text-blue-900 tracking-tight">{proposal.proposalNumber}</span>
@@ -258,7 +258,8 @@ const InvoicePreview = forwardRef<HTMLDivElement, InvoicePreviewProps>(({
                     <div className="space-y-3">
                         <h3 className="text-[10px] font-black text-blue-900 uppercase tracking-widest underline decoration-blue-900/20 underline-offset-8">Payment Terms</h3>
                         <div className="text-[11px] text-gray-500 font-medium leading-relaxed whitespace-pre-line max-w-md">
-                            {invoiceConfig?.termsAndConditions || '1. Standard 30-day payment cycle.\n2. Prices are subject to change based on market fluctuations.\n3. Orders will be processed only after confirmation.'}
+                            {/* {invoiceConfig?.termsAndConditions || '1. Standard 30-day payment cycle.\n2. Prices are subject to change based on market fluctuations.\n3. Orders will be processed only after confirmation.'} */}
+                            10% Advance Payment, 90% Before Dispatch
                         </div>
                     </div>
                 </div>
@@ -294,7 +295,7 @@ const InvoicePreview = forwardRef<HTMLDivElement, InvoicePreviewProps>(({
                         </div>
                         <div className="h-[2px] bg-white/10 w-full mb-3"></div>
                         <p className="text-[9px] text-white/40 font-bold uppercase tracking-[0.1em] text-center italic">
-                            Amounts are inclusive of all applicable taxes and costs.
+                            Amounts are inclusive of all applicable taxes.
                         </p>
                     </div>
                 </div>
@@ -304,7 +305,7 @@ const InvoicePreview = forwardRef<HTMLDivElement, InvoicePreviewProps>(({
             <div className="grid grid-cols-12 gap-10 items-end print-break-inside-avoid">
                 <div className="col-span-7">
                     <div className="bg-gray-50 rounded-2xl p-6 border border-gray-100">
-                        <h3 className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-4">Bank Settlement Details</h3>
+                        <h3 className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-4">Bank Details</h3>
                         <div className="space-y-2">
                             {invoiceConfig?.bankName ? (
                                 <div className="grid grid-cols-2 gap-4 text-[10px]">
