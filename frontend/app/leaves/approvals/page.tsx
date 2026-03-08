@@ -12,10 +12,8 @@ export default function LeaveApprovalsPage() {
 
   const loadPendingApprovals = async () => {
     try {
-      const response = await leavesApi.getPendingApprovals();
-      if (response.success) {
-        setPendingLeaves(response.data);
-      }
+      const leaves = await leavesApi.getPendingApprovals();
+      setPendingLeaves(leaves);
     } catch (error) {
       console.error('Failed to load pending approvals:', error);
       toast.error('Failed to load pending approvals');
@@ -40,16 +38,12 @@ export default function LeaveApprovalsPage() {
         approved: true
       };
 
-      const response = await leavesApi.approveLeave(request);
-      if (response.success) {
-        toast.success('Leave approved successfully!');
-        loadPendingApprovals();
-      } else {
-        toast.error(response.message || 'Failed to approve leave');
-      }
+      await leavesApi.approveLeave(request);
+      toast.success('Leave approved successfully!');
+      loadPendingApprovals();
     } catch (error: any) {
       console.error('Approval error:', error);
-      toast.error(error.response?.data?.message || 'Failed to approve leave');
+      toast.error(error.message || 'Failed to approve leave');
     } finally {
       setProcessingId(null);
     }
@@ -70,16 +64,12 @@ export default function LeaveApprovalsPage() {
         rejectionReason: reason
       };
 
-      const response = await leavesApi.approveLeave(request);
-      if (response.success) {
-        toast.success('Leave rejected');
-        loadPendingApprovals();
-      } else {
-        toast.error(response.message || 'Failed to reject leave');
-      }
+      await leavesApi.approveLeave(request);
+      toast.success('Leave rejected');
+      loadPendingApprovals();
     } catch (error: any) {
       console.error('Rejection error:', error);
-      toast.error(error.response?.data?.message || 'Failed to reject leave');
+      toast.error(error.message || 'Failed to reject leave');
     } finally {
       setProcessingId(null);
     }

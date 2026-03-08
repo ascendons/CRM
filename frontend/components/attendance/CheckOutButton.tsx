@@ -21,7 +21,7 @@ export function CheckOutButton({ attendanceId, onSuccess }: CheckOutButtonProps)
       const position = await getCurrentPosition();
 
       const request: CheckOutRequest = {
-        attendanceId,
+        // attendanceId is optional now - backend uses userId + date instead
         latitude: position.coords.latitude,
         longitude: position.coords.longitude,
         accuracy: position.coords.accuracy,

@@ -34,17 +34,12 @@ export function LeaveRequestForm({ onSuccess, onCancel }: LeaveRequestFormProps)
     setLoading(true);
 
     try {
-      const response = await leavesApi.applyLeave(formData);
-
-      if (response.success) {
-        toast.success('Leave request submitted successfully!');
-        onSuccess?.();
-      } else {
-        toast.error(response.message || 'Failed to submit leave request');
-      }
+      await leavesApi.applyLeave(formData);
+      toast.success('Leave request submitted successfully!');
+      onSuccess?.();
     } catch (error: any) {
       console.error('Leave request error:', error);
-      toast.error(error.response?.data?.message || 'Failed to submit leave request');
+      toast.error(error.message || 'Failed to submit leave request');
     } finally {
       setLoading(false);
     }

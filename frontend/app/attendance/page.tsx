@@ -5,7 +5,7 @@ import { attendanceApi } from '@/lib/api/attendance';
 import { CheckInButton } from '@/components/attendance/CheckInButton';
 import { CheckOutButton } from '@/components/attendance/CheckOutButton';
 import { AttendanceStatusBadge } from '@/components/attendance/AttendanceStatusBadge';
-import { AttendanceCalendar } from '@/components/attendance/AttendanceCalendar';
+import AttendanceCalendar from '@/components/attendance/AttendanceCalendar';
 import { toast } from 'react-hot-toast';
 
 interface Attendance {

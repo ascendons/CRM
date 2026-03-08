@@ -25,6 +25,10 @@ public interface LeaveRepository extends MongoRepository<Leave, String> {
     List<Leave> findByUserIdAndTenantIdAndIsDeletedFalseOrderByStartDateDesc(
             String userId, String tenantId);
 
+    // Team leaves (for multiple users)
+    List<Leave> findByUserIdInAndTenantIdAndIsDeletedFalseOrderByStartDateDesc(
+            List<String> userIds, String tenantId);
+
     List<Leave> findByUserIdAndTenantIdAndStatusAndIsDeletedFalse(
             String userId, String tenantId, LeaveStatus status);
 

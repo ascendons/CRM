@@ -70,12 +70,14 @@ export default function Sidebar({ isMobileOpen, onMobileClose, isCollapsed, onTo
       items: [
         { href: "/attendance", label: "Attendance", icon: "schedule", alwaysVisible: true },
         { href: "/leaves", label: "Leaves", icon: "beach_access", alwaysVisible: true },
+        { href: "/admin/attendance/shifts", label: "Shift Management", icon: "work_history", module: "ADMINISTRATION" },
       ],
     },
     {
       title: "Administration",
       items: [
-        { href: "/admin", label: "Admin Panel", icon: "settings", module: "ADMINISTRATION" },
+        { href: "/admin", label: "Admin Panel", icon: "admin_panel_settings", module: "ADMINISTRATION" },
+        { href: "/admin/settings", label: "Settings", icon: "settings", module: "ADMINISTRATION" },
       ],
     },
   ];

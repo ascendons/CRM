@@ -43,6 +43,7 @@ public class LeaveService extends BaseTenantService {
     private final LeaveIdGeneratorService leaveIdGeneratorService;
     private final NotificationService notificationService;
     private final HolidayService holidayService;
+    private final LeavePolicyService leavePolicyService;
 
     /**
      * Apply for leave
@@ -50,7 +51,8 @@ public class LeaveService extends BaseTenantService {
     @Transactional
     @Caching(evict = {
             @CacheEvict(value = "leaveBalance", key = "#root.target.getCurrentTenantId() + '_' + #userId"),
-            @CacheEvict(value = "userLeaves", key = "#root.target.getCurrentTenantId() + '_' + #userId")
+            @CacheEvict(value = "userLeaves", key = "#root.target.getCurrentTenantId() + '_' + #userId"),
+            @CacheEvict(value = "teamLeaves", allEntries = true)
     })
     public LeaveResponse applyLeave(CreateLeaveRequest request, String userId) {
         String tenantId = getCurrentTenantId();
@@ -131,7 +133,7 @@ public class LeaveService extends BaseTenantService {
                             request.getStartDate(),
                             request.getEndDate()),
                     "LEAVE_APPLIED",
-                    "/leaves/approvals/" + leave.getLeaveId()
+                    "/leaves/approvals"
             );
         }
 
@@ -146,6 +148,7 @@ public class LeaveService extends BaseTenantService {
     @Caching(evict = {
             @CacheEvict(value = "leaveBalance", allEntries = true),
             @CacheEvict(value = "userLeaves", allEntries = true),
+            @CacheEvict(value = "teamLeaves", allEntries = true),
             @CacheEvict(value = "dailyAttendance", allEntries = true)
     })
     public LeaveResponse approveLeave(ApproveLeaveRequest request, String managerId) {
@@ -207,8 +210,20 @@ public class LeaveService extends BaseTenantService {
                         leave.getEndDate(),
                         request.getApproved() ? "approved" : "rejected"),
                 request.getApproved() ? "LEAVE_APPROVED" : "LEAVE_REJECTED",
-                "/leaves/" + leave.getLeaveId()
+                "/leaves/" + leave.getLeaveId() // Employee detail page
         );
+
+        // Notify manager as well (optional, but good for confirmation)
+        notificationService.createAndSendNotification(
+                managerId,
+                request.getApproved() ? "Leave Approval Confirmation" : "Leave Rejection Confirmation",
+                String.format("You have %s the leave request for %s",
+                        request.getApproved() ? "approved" : "rejected",
+                        leave.getUserName()),
+                "LEAVE_ACTION_CONFIRMED",
+                "/leaves/approvals"
+        );
+
 
         log.info("Leave {} for user: {}", request.getApproved() ? "approved" : "rejected", leave.getUserId());
         return mapToResponse(leave);
@@ -221,6 +236,7 @@ public class LeaveService extends BaseTenantService {
     @Caching(evict = {
             @CacheEvict(value = "leaveBalance", key = "#root.target.getCurrentTenantId() + '_' + #userId"),
             @CacheEvict(value = "userLeaves", key = "#root.target.getCurrentTenantId() + '_' + #userId"),
+            @CacheEvict(value = "teamLeaves", allEntries = true),
             @CacheEvict(value = "dailyAttendance", allEntries = true)
     })
     public LeaveResponse cancelLeave(CancelLeaveRequest request, String userId) {
@@ -281,7 +297,7 @@ public class LeaveService extends BaseTenantService {
                             leave.getStartDate(),
                             leave.getEndDate()),
                     "LEAVE_CANCELLED",
-                    "/leaves/" + leave.getLeaveId()
+                    "/leaves/approvals" // Manager approval list
             );
         }
 
@@ -296,6 +312,31 @@ public class LeaveService extends BaseTenantService {
     public List<LeaveResponse> getMyLeaves(String userId) {
         String tenantId = getCurrentTenantId();
         List<Leave> leaves = leaveRepository.findByUserIdAndTenantIdAndIsDeletedFalseOrderByStartDateDesc(userId, tenantId);
+        return leaves.stream().map(this::mapToResponse).collect(Collectors.toList());
+    }
+
+    /**
+     * Get team leaves (for manager's reportees)
+     */
+    @Cacheable(value = "teamLeaves", key = "#root.target.getCurrentTenantId() + '_manager_' + #managerId")
+    public List<LeaveResponse> getTeamLeaves(String managerId) {
+        String tenantId = getCurrentTenantId();
+
+        // Get all users who report to this manager
+        List<User> reportees = userRepository.findByManagerIdAndTenantIdAndIsDeletedFalse(managerId, tenantId);
+
+        if (reportees.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        // Get user IDs
+        List<String> reporteeIds = reportees.stream()
+            .map(User::getId)
+            .collect(Collectors.toList());
+
+        // Get all leaves for these users
+        List<Leave> leaves = leaveRepository.findByUserIdInAndTenantIdAndIsDeletedFalseOrderByStartDateDesc(reporteeIds, tenantId);
+
         return leaves.stream().map(this::mapToResponse).collect(Collectors.toList());
     }
 
@@ -433,7 +474,37 @@ public class LeaveService extends BaseTenantService {
 
         return leaveBalanceRepository.findByTenantIdAndUserIdAndYear(tenantId, userId, year)
                 .orElseGet(() -> {
-                    LeaveBalance newBalance = LeaveBalance.initializeDefaultBalance(tenantId, userId, userName, year);
+                    log.info("Creating new leave balance for user: {} year: {}", userId, year);
+
+                    // Get policy and build balances based on configured allocations
+                    Map<LeaveType, LeaveBalance.LeaveTypeBalance> balances = new HashMap<>();
+
+                    for (LeaveType leaveType : LeaveType.values()) {
+                        Double allocation = leavePolicyService.getDefaultAllocation(leaveType);
+                        Boolean isCarryForward = leavePolicyService.isCarryForwardEnabled(leaveType);
+
+                        if (allocation != null && allocation > 0) {
+                            balances.put(leaveType, LeaveBalance.LeaveTypeBalance.builder()
+                                    .total(allocation)
+                                    .used(0.0)
+                                    .pending(0.0)
+                                    .available(allocation)
+                                    .isCarryForward(isCarryForward)
+                                    .carriedForward(0.0)
+                                    .lastUpdated(LocalDateTime.now())
+                                    .build());
+                        }
+                    }
+
+                    LeaveBalance newBalance = LeaveBalance.builder()
+                            .tenantId(tenantId)
+                            .userId(userId)
+                            .userName(userName)
+                            .year(year)
+                            .balances(balances)
+                            .createdAt(LocalDateTime.now())
+                            .build();
+
                     return leaveBalanceRepository.save(newBalance);
                 });
     }

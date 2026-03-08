@@ -1,20 +1,24 @@
 package com.ultron.backend.service;
 
 import com.ultron.backend.domain.entity.Shift;
+import com.ultron.backend.domain.entity.UserShiftAssignment;
 import com.ultron.backend.dto.request.CreateShiftRequest;
 import com.ultron.backend.dto.request.UpdateShiftRequest;
 import com.ultron.backend.dto.response.ShiftResponse;
 import com.ultron.backend.exception.BusinessException;
 import com.ultron.backend.exception.ResourceNotFoundException;
 import com.ultron.backend.repository.ShiftRepository;
+import com.ultron.backend.repository.UserShiftAssignmentRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -27,6 +31,7 @@ public class ShiftService extends BaseTenantService {
 
     private final ShiftRepository shiftRepository;
     private final ShiftIdGeneratorService idGenerator;
+    private final UserShiftAssignmentRepository userShiftAssignmentRepository;
 
     /**
      * Create new shift
@@ -230,20 +235,59 @@ public class ShiftService extends BaseTenantService {
     }
 
     /**
-     * Get user's active shift (stub - to be implemented with UserShiftAssignment)
+     * Get user's active shift based on current date
      */
     public Shift getUserActiveShift(String userId) {
-        // TODO: Implement with UserShiftAssignment table
-        // For now, return default shift
+        String tenantId = getCurrentTenantId();
+        LocalDate today = LocalDate.now();
+
+        log.debug("Finding active shift for user {} on date {}", userId, today);
+
+        // Find all assignments for user, ordered by effective date descending
+        List<UserShiftAssignment> assignments = userShiftAssignmentRepository
+            .findByTenantIdAndUserIdOrderByEffectiveDateDesc(tenantId, userId);
+
+        // Find the most recent assignment that's active today
+        Optional<UserShiftAssignment> activeAssignment = assignments.stream()
+            .filter(assignment -> !assignment.getIsDeleted())
+            .filter(assignment -> !assignment.getEffectiveDate().isAfter(today)) // effectiveDate <= today
+            .filter(assignment -> assignment.getEndDate() == null || !assignment.getEndDate().isBefore(today)) // endDate is null or endDate >= today
+            .findFirst();
+
+        if (activeAssignment.isPresent()) {
+            String shiftId = activeAssignment.get().getShiftId();
+            log.debug("Found active shift assignment: {}", shiftId);
+            try {
+                return getShiftById(shiftId);
+            } catch (ResourceNotFoundException e) {
+                log.warn("Assigned shift {} not found, falling back to default shift", shiftId);
+                return getDefaultShift();
+            }
+        }
+
+        log.debug("No active shift assignment found for user {}, returning default shift", userId);
         return getDefaultShift();
     }
 
     /**
-     * Get user's office location ID (stub - to be implemented with UserShiftAssignment)
+     * Get user's office location ID based on current shift assignment
      */
     public String getUserOfficeLocationId(String userId) {
-        // TODO: Implement with UserShiftAssignment table
-        return null;
+        String tenantId = getCurrentTenantId();
+        LocalDate today = LocalDate.now();
+
+        // Find all assignments for user, ordered by effective date descending
+        List<UserShiftAssignment> assignments = userShiftAssignmentRepository
+            .findByTenantIdAndUserIdOrderByEffectiveDateDesc(tenantId, userId);
+
+        // Find the most recent assignment that's active today
+        Optional<UserShiftAssignment> activeAssignment = assignments.stream()
+            .filter(assignment -> !assignment.getIsDeleted())
+            .filter(assignment -> !assignment.getEffectiveDate().isAfter(today))
+            .filter(assignment -> assignment.getEndDate() == null || !assignment.getEndDate().isBefore(today))
+            .findFirst();
+
+        return activeAssignment.map(UserShiftAssignment::getOfficeLocationId).orElse(null);
     }
 
     /**

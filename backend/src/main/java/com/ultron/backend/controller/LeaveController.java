@@ -67,6 +67,26 @@ public class LeaveController {
     }
 
     /**
+     * Get team leaves (Manager)
+     */
+    @GetMapping("/team")
+    @PreAuthorize("hasPermission('LEAVE', 'APPROVE')")
+    public ResponseEntity<ApiResponse<List<LeaveResponse>>> getTeamLeaves(
+            Authentication authentication) {
+        String managerId = authentication.getName();
+        log.info("Manager {} fetching team leaves", managerId);
+
+        List<LeaveResponse> leaves = leaveService.getTeamLeaves(managerId);
+
+        return ResponseEntity.ok(
+                ApiResponse.<List<LeaveResponse>>builder()
+                        .success(true)
+                        .message("Team leaves retrieved successfully")
+                        .data(leaves)
+                        .build());
+    }
+
+    /**
      * Get leave by ID
      */
     @GetMapping("/{leaveId}")

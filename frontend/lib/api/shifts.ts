@@ -1,13 +1,15 @@
-import { api } from '../api-client';
+import { api } from "../api-client";
 
-export interface CreateShiftRequest {
+export interface ShiftResponse {
+  id: string;
+  shiftId: string;
   name: string;
   description?: string;
-  code: string;
-  startTime: string; // "09:00"
-  endTime: string; // "18:00"
+  code?: string;
+  startTime: string;
+  endTime: string;
   workHoursMinutes: number;
-  type: 'FIXED' | 'FLEXIBLE' | 'ROTATIONAL';
+  type: "FIXED" | "FLEXIBLE" | "ROTATIONAL";
   graceMinutes?: number;
   flexibleStartMinutes?: number;
   flexibleEndMinutes?: number;
@@ -19,28 +21,56 @@ export interface CreateShiftRequest {
   maxOvertimeMinutesPerDay?: number;
   minOvertimeMinutes?: number;
   isDefault?: boolean;
-  isActive?: boolean;
+  isActive: boolean;
+  createdAt: string;
+  createdBy?: string;
+  lastModifiedAt?: string;
+  lastModifiedBy?: string;
 }
 
-export interface UpdateShiftRequest extends Partial<CreateShiftRequest> { }
+export interface CreateShiftRequest {
+  name: string;
+  description?: string;
+  code?: string;
+  startTime: string;
+  endTime: string;
+  workHoursMinutes?: number; // Will be calculated from startTime and endTime
+  type: "FIXED" | "FLEXIBLE" | "ROTATIONAL";
+  graceMinutes?: number;
+  flexibleStartMinutes?: number;
+  flexibleEndMinutes?: number;
+  mandatoryBreakMinutes?: number;
+  maxBreakMinutes?: number;
+  workingDays?: string[];
+  weekendDays?: string[];
+  allowOvertime?: boolean;
+  maxOvertimeMinutesPerDay?: number;
+  minOvertimeMinutes?: number;
+  isDefault?: boolean;
+}
 
 export const shiftsApi = {
-  // CRUD operations
-  create: (data: CreateShiftRequest) =>
-    api.post('/shifts', data),
+  getAllShifts: async (): Promise<ShiftResponse[]> => {
+    return api.get("/shifts");
+  },
 
-  update: (id: string, data: UpdateShiftRequest) =>
-    api.put(`/shifts/${id}`, data),
+  getActiveShifts: async (): Promise<ShiftResponse[]> => {
+    return api.get("/shifts/active");
+  },
 
-  delete: (id: string) =>
-    api.delete(`/shifts/${id}`),
+  getShiftById: async (id: string): Promise<ShiftResponse> => {
+    return api.get(`/shifts/${id}`);
+  },
 
-  getById: (id: string) =>
-    api.get(`/shifts/${id}`),
+  createShift: async (data: CreateShiftRequest): Promise<ShiftResponse> => {
+    return api.post("/shifts", data);
+  },
 
-  getAll: () =>
-    api.get('/shifts'),
+  updateShift: async (id: string, data: Partial<CreateShiftRequest>): Promise<ShiftResponse> => {
+    return api.put(`/shifts/${id}`, data);
+  },
 
-  getActive: () =>
-    api.get('/shifts/active')
+  deleteShift: async (id: string): Promise<void> => {
+    return api.delete(`/shifts/${id}`);
+  },
 };

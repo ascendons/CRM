@@ -12,7 +12,7 @@ export interface CheckInRequest {
 }
 
 export interface CheckOutRequest {
-  attendanceId: string;
+  attendanceId?: string; // Optional - backend uses userId + date instead
   latitude: number;
   longitude: number;
   accuracy?: number;

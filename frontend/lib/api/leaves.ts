@@ -106,6 +106,12 @@ export const leavesApi = {
     api.get('/leaves/my'),
 
   /**
+   * Get team leaves (Manager)
+   */
+  getTeamLeaves: () =>
+    api.get('/leaves/team'),
+
+  /**
    * Get leave by ID
    */
   getLeaveById: (leaveId: string) =>

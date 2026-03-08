@@ -82,7 +82,7 @@ export function BreakTimer({ attendanceId, activeBreak, onBreakUpdate }: BreakTi
 
       await attendanceApi.endBreak({
         attendanceId,
-        breakId: activeBreak.id
+        breakId: activeBreak.breakId
       });
 
       toast.success('Break ended!');

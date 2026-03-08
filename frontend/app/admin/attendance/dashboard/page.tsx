@@ -1,20 +1,44 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { reportsApi, DailyDashboardResponse } from '@/lib/api/reports';
+import { attendanceApi } from '@/lib/api/attendance';
 import { toast } from 'react-hot-toast';
+
+interface DailyDashboardResponse {
+  date: string;
+  totalEmployees: number;
+  totalWorkingEmployees: number;
+  presentCount: number;
+  lateCount: number;
+  absentCount: number;
+  onLeaveCount: number;
+  halfDayCount: number;
+  weekOffCount: number;
+  holidayCount: number;
+  checkedInCount: number;
+  checkedOutCount: number;
+  notCheckedInCount: number;
+  onBreakCount?: number;
+  presentPercentage: number;
+  latePercentage: number;
+  absentPercentage: number;
+  averageWorkHours: number;
+  overtimeCount: number;
+  totalOvertimeHours: number;
+  recentActivities: any[];
+  attendanceList?: any[];
+}
 
 export default function AttendanceDashboardPage() {
   const [dashboard, setDashboard] = useState<DailyDashboardResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+  const [autoRefresh, setAutoRefresh] = useState(true);
 
   const loadDashboard = async () => {
     try {
-      const response = await reportsApi.getDailyDashboard(selectedDate);
-      if (response.success) {
-        setDashboard(response.data);
-      }
+      const data = await attendanceApi.getDailyDashboard(selectedDate);
+      setDashboard(data);
     } catch (error) {
       console.error('Failed to load dashboard:', error);
       toast.error('Failed to load dashboard');
@@ -25,10 +49,14 @@ export default function AttendanceDashboardPage() {
 
   useEffect(() => {
     loadDashboard();
-    // Auto-refresh every 2 minutes
-    const interval = setInterval(loadDashboard, 120000);
-    return () => clearInterval(interval);
   }, [selectedDate]);
+
+  useEffect(() => {
+    if (!autoRefresh) return;
+    // Auto-refresh every 30 seconds when enabled
+    const interval = setInterval(loadDashboard, 30000);
+    return () => clearInterval(interval);
+  }, [autoRefresh, selectedDate]);
 
   if (loading) {
     return (
@@ -60,7 +88,7 @@ export default function AttendanceDashboardPage() {
           <h1 className="text-3xl font-bold text-gray-900">Attendance Dashboard</h1>
           <p className="text-gray-600 mt-1">Real-time attendance monitoring and analytics</p>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
           <input
             type="date"
             value={selectedDate}
@@ -69,8 +97,21 @@ export default function AttendanceDashboardPage() {
             className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
           <button
+            onClick={() => setAutoRefresh(!autoRefresh)}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
+              autoRefresh
+                ? 'bg-blue-600 text-white hover:bg-blue-700'
+                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+            }`}
+          >
+            <span className="material-symbols-outlined text-lg">
+              {autoRefresh ? 'sync' : 'sync_disabled'}
+            </span>
+            Auto
+          </button>
+          <button
             onClick={loadDashboard}
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors"
+            className="px-4 py-2 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors"
           >
             Refresh
           </button>

@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
  * REST controller for bulk operations
  */
 @RestController
-@RequestMapping("/api/admin/bulk")
+@RequestMapping("/admin/bulk")
 @RequiredArgsConstructor
 @Slf4j
 public class BulkOperationsController {

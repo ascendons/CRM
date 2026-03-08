@@ -1,236 +1,171 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { attendanceApi } from '@/lib/api/attendance';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { AttendanceStatusBadge } from './AttendanceStatusBadge';
+import { useState } from 'react';
 
-interface AttendanceCalendarProps {
-  userId?: string;
-  onDateClick?: (date: Date, attendance: any) => void;
+interface AttendanceRecord {
+  date: string;
+  status: string;
+  checkInTime?: string;
+  checkOutTime?: string;
+  workMinutes?: number;
 }
 
-export function AttendanceCalendar({ userId, onDateClick }: AttendanceCalendarProps) {
-  const [currentDate, setCurrentDate] = useState(new Date());
-  const [attendance, setAttendance] = useState<Map<string, any>>(new Map());
-  const [loading, setLoading] = useState(true);
+interface AttendanceCalendarProps {
+  year: number;
+  month: number;
+  attendanceRecords: AttendanceRecord[];
+  onDateClick?: (date: string) => void;
+}
 
-  const year = currentDate.getFullYear();
-  const month = currentDate.getMonth();
-
-  useEffect(() => {
-    loadAttendance();
-  }, [year, month, userId]);
-
-  const loadAttendance = async () => {
-    try {
-      setLoading(true);
-
-      // Get first and last day of month
-      const firstDay = new Date(year, month, 1);
-      const lastDay = new Date(year, month + 1, 0);
-
-      const startDate = firstDay.toISOString().split('T')[0];
-      const endDate = lastDay.toISOString().split('T')[0];
-
-      const data = await attendanceApi.getMyHistory(startDate, endDate);
-
-      // Create map of date -> attendance record
-      const attendanceMap = new Map();
-      if (Array.isArray(data)) {
-        data.forEach((record: any) => {
-          const dateKey = record.attendanceDate;
-          attendanceMap.set(dateKey, record);
-        });
-      }
-
-      setAttendance(attendanceMap);
-    } catch (error) {
-      console.error('Failed to load attendance:', error);
-      setAttendance(new Map());
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const getDaysInMonth = () => {
-    const firstDay = new Date(year, month, 1);
-    const lastDay = new Date(year, month + 1, 0);
-    const daysInMonth = lastDay.getDate();
-    const startingDayOfWeek = firstDay.getDay();
-
-    const days = [];
-
-    // Add empty cells for days before month starts
-    for (let i = 0; i < startingDayOfWeek; i++) {
-      days.push(null);
-    }
-
-    // Add all days of the month
-    for (let day = 1; day <= daysInMonth; day++) {
-      days.push(day);
-    }
-
-    return days;
-  };
+export default function AttendanceCalendar({
+  year,
+  month,
+  attendanceRecords,
+  onDateClick
+}: AttendanceCalendarProps) {
+  const [currentMonth, setCurrentMonth] = useState({ year, month });
 
   const getStatusColor = (status: string) => {
-    const colors: Record<string, string> = {
-      'PRESENT': 'bg-emerald-100 text-emerald-700 border-emerald-300',
-      'LATE': 'bg-amber-100 text-amber-700 border-amber-300',
-      'HALF_DAY': 'bg-blue-100 text-blue-700 border-blue-300',
-      'ABSENT': 'bg-red-100 text-red-700 border-red-300',
-      'ON_LEAVE': 'bg-purple-100 text-purple-700 border-purple-300',
-      'HOLIDAY': 'bg-slate-100 text-slate-700 border-slate-300',
-      'WEEK_OFF': 'bg-slate-50 text-slate-500 border-slate-200',
-      'PENDING': 'bg-yellow-100 text-yellow-700 border-yellow-300'
+    const colors: Record<string, { bg: string; border: string; text: string }> = {
+      PRESENT: { bg: 'bg-green-100', border: 'border-green-400', text: 'text-green-800' },
+      LATE: { bg: 'bg-yellow-100', border: 'border-yellow-400', text: 'text-yellow-800' },
+      ABSENT: { bg: 'bg-red-100', border: 'border-red-400', text: 'text-red-800' },
+      HALF_DAY: { bg: 'bg-orange-100', border: 'border-orange-400', text: 'text-orange-800' },
+      ON_LEAVE: { bg: 'bg-blue-100', border: 'border-blue-400', text: 'text-blue-800' },
+      HOLIDAY: { bg: 'bg-purple-100', border: 'border-purple-400', text: 'text-purple-800' },
+      WEEK_OFF: { bg: 'bg-gray-100', border: 'border-gray-400', text: 'text-gray-600' }
     };
-    return colors[status] || 'bg-gray-100 text-gray-700 border-gray-300';
+    return colors[status] || { bg: 'bg-white', border: 'border-gray-200', text: 'text-gray-400' };
   };
 
   const getStatusIcon = (status: string) => {
     const icons: Record<string, string> = {
-      'PRESENT': '✓',
-      'LATE': '⚠',
-      'HALF_DAY': '½',
-      'ABSENT': '✗',
-      'ON_LEAVE': '🏖',
-      'HOLIDAY': '🎉',
-      'WEEK_OFF': '🏠',
-      'PENDING': '⏳'
+      PRESENT: '✓',
+      LATE: '⏰',
+      ABSENT: '✗',
+      HALF_DAY: '½',
+      ON_LEAVE: '🏖️',
+      HOLIDAY: '🎉',
+      WEEK_OFF: '🏠'
     };
-    return icons[status] || '•';
+    return icons[status] || '';
   };
 
-  const previousMonth = () => {
-    setCurrentDate(new Date(year, month - 1));
+  const getDaysInMonth = (year: number, month: number) => {
+    return new Date(year, month + 1, 0).getDate();
   };
 
-  const nextMonth = () => {
-    setCurrentDate(new Date(year, month + 1));
+  const getFirstDayOfMonth = (year: number, month: number) => {
+    return new Date(year, month, 1).getDay();
+  };
+
+  const formatDuration = (minutes?: number) => {
+    if (!minutes) return '';
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    return `${hours}h ${mins}m`;
+  };
+
+  const daysInMonth = getDaysInMonth(currentMonth.year, currentMonth.month);
+  const firstDay = getFirstDayOfMonth(currentMonth.year, currentMonth.month);
+  const monthName = new Date(currentMonth.year, currentMonth.month).toLocaleDateString('en-US', { month: 'long' });
+
+  const calendarDays = [];
+  for (let i = 0; i < firstDay; i++) {
+    calendarDays.push(null);
+  }
+  for (let day = 1; day <= daysInMonth; day++) {
+    calendarDays.push(day);
+  }
+
+  const getAttendanceForDate = (day: number) => {
+    const dateStr = `${currentMonth.year}-${String(currentMonth.month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    return attendanceRecords.find(record => record.date.startsWith(dateStr));
+  };
+
+  const goToPreviousMonth = () => {
+    setCurrentMonth(prev => prev.month === 0 ? { year: prev.year - 1, month: 11 } : { year: prev.year, month: prev.month - 1 });
+  };
+
+  const goToNextMonth = () => {
+    setCurrentMonth(prev => prev.month === 11 ? { year: prev.year + 1, month: 0 } : { year: prev.year, month: prev.month + 1 });
+  };
+
+  const goToToday = () => {
+    const now = new Date();
+    setCurrentMonth({ year: now.getFullYear(), month: now.getMonth() });
   };
 
   const today = new Date();
-  const days = getDaysInMonth();
+  const isToday = (day: number) => {
+    return day === today.getDate() && currentMonth.month === today.getMonth() && currentMonth.year === today.getFullYear();
+  };
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4">
-        <div className="flex items-center justify-between">
-          <button
-            onClick={previousMonth}
-            className="p-2 hover:bg-white/10 rounded-lg transition-colors"
-          >
-            <ChevronLeft className="h-5 w-5 text-white" />
+    <div className="bg-white rounded-xl shadow p-6">
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-2xl font-bold text-gray-900">{monthName} {currentMonth.year}</h2>
+        <div className="flex gap-2">
+          <button onClick={goToPreviousMonth} className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+            <span className="material-symbols-outlined">chevron_left</span>
           </button>
-
-          <h2 className="text-xl font-bold text-white">
-            {currentDate.toLocaleString('default', { month: 'long', year: 'numeric' })}
-          </h2>
-
-          <button
-            onClick={nextMonth}
-            className="p-2 hover:bg-white/10 rounded-lg transition-colors"
-          >
-            <ChevronRight className="h-5 w-5 text-white" />
+          <button onClick={goToToday} className="px-4 py-2 border border-gray-300 font-medium rounded-lg hover:bg-gray-50">
+            Today
+          </button>
+          <button onClick={goToNextMonth} className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+            <span className="material-symbols-outlined">chevron_right</span>
           </button>
         </div>
       </div>
 
-      {/* Calendar Grid */}
-      <div className="p-4">
-        {/* Day Headers */}
-        <div className="grid grid-cols-7 gap-2 mb-2">
-          {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-            <div key={day} className="text-center text-xs font-semibold text-slate-600 py-2">
-              {day}
-            </div>
-          ))}
-        </div>
+      <div className="grid grid-cols-7 gap-2 mb-2">
+        {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
+          <div key={day} className="text-center text-sm font-semibold text-gray-600 py-2">{day}</div>
+        ))}
+      </div>
 
-        {/* Calendar Days */}
-        <div className="grid grid-cols-7 gap-2">
-          {loading ? (
-            <div className="col-span-7 flex items-center justify-center py-12">
-              <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
-            </div>
-          ) : (
-            days.map((day, index) => {
-              if (day === null) {
-                return <div key={`empty-${index}`} className="aspect-square" />;
-              }
+      <div className="grid grid-cols-7 gap-2">
+        {calendarDays.map((day, index) => {
+          if (day === null) return <div key={`empty-${index}`} className="aspect-square" />;
 
-              const date = new Date(year, month, day);
-              const dateKey = date.toISOString().split('T')[0];
-              const record = attendance.get(dateKey);
+          const attendance = getAttendanceForDate(day);
+          const colors = attendance ? getStatusColor(attendance.status) : { bg: 'bg-white', border: 'border-gray-200', text: 'text-gray-700' };
+          const icon = attendance ? getStatusIcon(attendance.status) : '';
 
-              const isToday =
-                date.getDate() === today.getDate() &&
-                date.getMonth() === today.getMonth() &&
-                date.getFullYear() === today.getFullYear();
-
-              const isFuture = date > today;
-
-              return (
-                <button
-                  key={day}
-                  onClick={() => onDateClick?.(date, record)}
-                  disabled={!record && !isToday}
-                  className={`
-                    aspect-square p-2 rounded-lg border-2 transition-all
-                    ${record ? getStatusColor(record.status) : 'bg-white border-slate-200'}
-                    ${isToday ? 'ring-2 ring-blue-500 ring-offset-2' : ''}
-                    ${isFuture ? 'opacity-40' : ''}
-                    ${record || isToday ? 'hover:scale-105 hover:shadow-md cursor-pointer' : 'cursor-default'}
-                    disabled:cursor-default disabled:hover:scale-100 disabled:hover:shadow-none
-                  `}
-                >
-                  <div className="flex flex-col items-center justify-center h-full">
-                    <span className={`text-sm font-semibold ${isToday ? 'text-blue-600' : ''}`}>
-                      {day}
-                    </span>
-                    {record && (
-                      <span className="text-lg mt-1">
-                        {getStatusIcon(record.status)}
-                      </span>
-                    )}
-                    {record && record.lateMinutes > 0 && (
-                      <span className="text-[10px] font-medium mt-0.5">
-                        -{record.lateMinutes}m
-                      </span>
-                    )}
-                  </div>
-                </button>
-              );
-            })
-          )}
-        </div>
-
-        {/* Legend */}
-        <div className="mt-6 pt-4 border-t border-slate-200">
-          <p className="text-xs font-semibold text-slate-600 mb-3">Legend:</p>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-            {[
-              { status: 'PRESENT', label: 'Present' },
-              { status: 'LATE', label: 'Late' },
-              { status: 'ON_LEAVE', label: 'On Leave' },
-              { status: 'ABSENT', label: 'Absent' },
-              { status: 'HOLIDAY', label: 'Holiday' },
-              { status: 'WEEK_OFF', label: 'Week Off' },
-              { status: 'HALF_DAY', label: 'Half Day' },
-              { status: 'PENDING', label: 'Pending' }
-            ].map(({ status, label }) => (
-              <div key={status} className="flex items-center gap-2">
-                <div className={`w-4 h-4 rounded border-2 ${getStatusColor(status)}`}>
-                  <span className="text-[10px] flex items-center justify-center">
-                    {getStatusIcon(status)}
-                  </span>
-                </div>
-                <span className="text-xs text-slate-600">{label}</span>
+          return (
+            <button
+              key={day}
+              onClick={() => onDateClick && onDateClick(`${currentMonth.year}-${String(currentMonth.month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`)}
+              className={`aspect-square border-2 rounded-lg p-2 hover:shadow-md ${colors.bg} ${colors.border} ${isToday(day) ? 'ring-2 ring-blue-500' : ''}`}
+            >
+              <div className="flex flex-col h-full">
+                <div className={`text-sm font-semibold ${colors.text}`}>{day}</div>
+                {icon && <div className="text-lg">{icon}</div>}
+                {attendance?.workMinutes && <div className="text-xs text-gray-600 mt-auto">{formatDuration(attendance.workMinutes)}</div>}
               </div>
-            ))}
-          </div>
+            </button>
+          );
+        })}
+      </div>
+
+      <div className="mt-6 pt-6 border-t border-gray-200">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          {[
+            { status: 'PRESENT', label: 'Present' },
+            { status: 'LATE', label: 'Late' },
+            { status: 'ABSENT', label: 'Absent' },
+            { status: 'ON_LEAVE', label: 'On Leave' }
+          ].map(({ status, label }) => {
+            const colors = getStatusColor(status);
+            return (
+              <div key={status} className="flex items-center gap-2">
+                <div className={`w-8 h-8 border-2 rounded ${colors.bg} ${colors.border} flex items-center justify-center`}>
+                  {getStatusIcon(status)}
+                </div>
+                <span className="text-sm text-gray-700">{label}</span>
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>

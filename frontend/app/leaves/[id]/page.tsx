@@ -54,13 +54,8 @@ export default function LeaveDetailPage() {
   const loadLeaveDetails = async () => {
     try {
       setLoading(true);
-      const response = await leavesApi.getLeaveById(leaveId);
-      if (response.success) {
-        setLeave(response.data);
-      } else {
-        toast.error('Failed to load leave details');
-        router.push('/leaves');
-      }
+      const leave = await leavesApi.getLeaveById(leaveId);
+      setLeave(leave);
     } catch (error) {
       console.error('Failed to load leave:', error);
       toast.error('Failed to load leave details');
@@ -81,13 +76,9 @@ export default function LeaveDetailPage() {
 
     try {
       setCancelling(true);
-      const response = await leavesApi.cancelLeave(leaveId, reason.trim());
-      if (response.success) {
-        toast.success('Leave cancelled successfully');
-        loadLeaveDetails();
-      } else {
-        toast.error(response.message || 'Failed to cancel leave');
-      }
+      await leavesApi.cancelLeave({ leaveId, cancellationReason: reason.trim() });
+      toast.success('Leave cancelled successfully');
+      loadLeaveDetails();
     } catch (error: any) {
       console.error('Failed to cancel leave:', error);
       toast.error(error.message || 'Failed to cancel leave');

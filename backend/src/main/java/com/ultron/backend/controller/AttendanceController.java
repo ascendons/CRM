@@ -212,6 +212,30 @@ public class AttendanceController {
     }
 
     /**
+     * Get my monthly summary (quick stats)
+     * GET /api/v1/attendance/my/summary?year=2026&month=3
+     */
+    @GetMapping("/my/summary")
+    @PreAuthorize("hasPermission('ATTENDANCE', 'READ')")
+    public ResponseEntity<ApiResponse<com.ultron.backend.dto.response.AttendanceSummaryResponse>> getMySummary(
+            @RequestParam Integer year,
+            @RequestParam Integer month) {
+
+        String currentUserId = getCurrentUserId();
+        log.info("User {} fetching monthly summary for year: {} month: {}", currentUserId, year, month);
+
+        com.ultron.backend.dto.response.AttendanceSummaryResponse response =
+            attendanceReportService.getUserMonthlySummary(currentUserId, year, month);
+
+        return ResponseEntity.ok(
+                ApiResponse.<com.ultron.backend.dto.response.AttendanceSummaryResponse>builder()
+                        .success(true)
+                        .message("Monthly summary retrieved successfully")
+                        .data(response)
+                        .build());
+    }
+
+    /**
      * Get my monthly report
      * GET /api/v1/attendance/my/report/monthly?year=2026&month=3
      */

@@ -185,6 +185,9 @@ export function usePermissions() {
         return objectPerm.canViewAll;
       case "MODIFYALL":
         return objectPerm.canModifyAll;
+      case "APPROVE":
+        // APPROVE permission - check if user can modify (approve is a form of editing)
+        return objectPerm.canEdit || objectPerm.canModifyAll;
       default:
         return false;
     }

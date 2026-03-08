@@ -48,6 +48,8 @@ public class CacheConfig {
     // Leave-related caches
     public static final String LEAVE_BALANCE_CACHE = "leaveBalance";
     public static final String USER_LEAVES_CACHE = "userLeaves";
+    public static final String TEAM_LEAVES_CACHE = "teamLeaves";
+    public static final String LEAVE_POLICY_CACHE = "leavePolicy";
     public static final String HOLIDAYS_CACHE = "holidays";
 
     // Report caches
@@ -77,6 +79,8 @@ public class CacheConfig {
                 OFFICE_LOCATIONS_CACHE,
                 LEAVE_BALANCE_CACHE,
                 USER_LEAVES_CACHE,
+                TEAM_LEAVES_CACHE,
+                LEAVE_POLICY_CACHE,
                 HOLIDAYS_CACHE,
                 MONTHLY_REPORT_CACHE
         );
@@ -93,8 +97,8 @@ public class CacheConfig {
                         log.debug("Cache eviction: key={}, cause={}", key, cause))
         );
 
-        log.info("Cache manager initialized with {} caches: dashboardStats, growthTrends, unreadNotifications, permissions, recordAccess, subordinates, allSubordinates, systemPermissions, fieldPermissions, modulePermissions, pathPermissions, dataVisibility, userDataVisibility, dailyAttendance, userAttendanceSummary, shifts, officeLocations, leaveBalance, userLeaves, holidays, monthlyReport",
-                21);
+        log.info("Cache manager initialized with {} caches: dashboardStats, growthTrends, unreadNotifications, permissions, recordAccess, subordinates, allSubordinates, systemPermissions, fieldPermissions, modulePermissions, pathPermissions, dataVisibility, userDataVisibility, dailyAttendance, userAttendanceSummary, shifts, officeLocations, leaveBalance, userLeaves, teamLeaves, leavePolicy, holidays, monthlyReport",
+                23);
 
         return cacheManager;
     }

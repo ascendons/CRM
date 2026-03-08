@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { attendanceApi, CheckInRequest } from '@/lib/api/attendance';
+import { locationsApi } from '@/lib/api/locations';
 import { getCurrentPosition, getDeviceInfo } from '@/lib/utils/geolocation';
 import { toast } from 'react-hot-toast';
 
@@ -10,11 +11,49 @@ interface CheckInButtonProps {
   officeLocationId?: string;
 }
 
+interface OfficeLocation {
+  id: string;
+  locationId: string;
+  name: string;
+  address: string;
+}
+
 export function CheckInButton({ onSuccess, officeLocationId }: CheckInButtonProps) {
   const [loading, setLoading] = useState(false);
   const [attendanceType, setAttendanceType] = useState<'OFFICE' | 'REMOTE' | 'FIELD'>('OFFICE');
+  const [officeLocations, setOfficeLocations] = useState<OfficeLocation[]>([]);
+  const [selectedLocationId, setSelectedLocationId] = useState<string>(officeLocationId || '');
+
+  useEffect(() => {
+    loadOfficeLocations();
+  }, []);
+
+  useEffect(() => {
+    if (officeLocationId) {
+      setSelectedLocationId(officeLocationId);
+    }
+  }, [officeLocationId]);
+
+  const loadOfficeLocations = async () => {
+    try {
+      const data = await locationsApi.getActiveLocations();
+      setOfficeLocations(data || []);
+      // Auto-select first location if not already set
+      if (data && data.length > 0 && !selectedLocationId) {
+        setSelectedLocationId(data[0].locationId || data[0].id);
+      }
+    } catch (error: any) {
+      console.error('Failed to load office locations:', error);
+    }
+  };
 
   const handleCheckIn = async () => {
+    // Validate office location for OFFICE type
+    if (attendanceType === 'OFFICE' && !selectedLocationId) {
+      toast.error('Please select an office location or create one in Settings');
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -27,26 +66,28 @@ export function CheckInButton({ onSuccess, officeLocationId }: CheckInButtonProp
         longitude: position.coords.longitude,
         accuracy: position.coords.accuracy,
         deviceInfo: getDeviceInfo(),
-        officeLocationId: attendanceType === 'OFFICE' ? officeLocationId : undefined
+        officeLocationId: attendanceType === 'OFFICE' ? selectedLocationId : undefined
       };
+
+      console.log('Check-in request:', request);
 
       const response = await attendanceApi.checkIn(request);
 
-      if (response.success) {
-        toast.success('✅ Checked in successfully!');
-        onSuccess?.();
-      } else {
-        toast.error(response.message || 'Failed to check in');
-      }
+      toast.success('✅ Checked in successfully!');
+      onSuccess?.();
     } catch (error: any) {
       console.error('Check-in error:', error);
 
-      if (error.message?.includes('permission')) {
+      const errorMessage = error.message || error.response?.data?.message || 'Failed to check in';
+
+      if (errorMessage.includes('permission')) {
         toast.error('📍 Please enable location access to check in');
-      } else if (error.message?.includes('geofence')) {
-        toast.error(error.message);
+      } else if (errorMessage.includes('geofence')) {
+        toast.error(errorMessage);
+      } else if (errorMessage.includes('Office location')) {
+        toast.error('⚠️ ' + errorMessage);
       } else {
-        toast.error('Failed to check in. Please try again.');
+        toast.error(errorMessage);
       }
     } finally {
       setLoading(false);
@@ -87,6 +128,35 @@ export function CheckInButton({ onSuccess, officeLocationId }: CheckInButtonProp
           Field
         </button>
       </div>
+
+      {/* Office Location Selector (only for OFFICE type) */}
+      {attendanceType === 'OFFICE' && officeLocations.length > 0 && (
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-gray-700">
+            Select Office Location
+          </label>
+          <select
+            value={selectedLocationId}
+            onChange={(e) => setSelectedLocationId(e.target.value)}
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          >
+            {officeLocations.map((location) => (
+              <option key={location.id} value={location.locationId || location.id}>
+                {location.name} - {location.address}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+
+      {/* Warning if no office locations configured */}
+      {attendanceType === 'OFFICE' && officeLocations.length === 0 && (
+        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+          <p className="text-sm text-yellow-800">
+            ⚠️ No office locations configured. Please contact your admin or create one in Settings.
+          </p>
+        </div>
+      )}
 
       <button
         onClick={handleCheckIn}

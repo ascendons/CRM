@@ -466,6 +466,91 @@ public class AttendanceReportService extends BaseTenantService {
         return remarks;
     }
 
+    /**
+     * Get user monthly summary (simplified version for quick stats)
+     */
+    @Cacheable(value = "userAttendanceSummary", key = "#root.target.getCurrentTenantId() + '_' + #userId + '_' + #year + '_' + #month")
+    public com.ultron.backend.dto.response.AttendanceSummaryResponse getUserMonthlySummary(String userId, Integer year, Integer month) {
+        String tenantId = getCurrentTenantId();
+        log.info("Generating monthly summary for user: {} year: {} month: {}", userId, year, month);
+
+        // Get user
+        User user = userRepository.findByIdAndTenantId(userId, tenantId)
+                .orElseThrow(() -> new BusinessException("User not found"));
+
+        String userName = user.getFullName() != null ? user.getFullName() :
+                (user.getProfile() != null && user.getProfile().getFullName() != null) ?
+                        user.getProfile().getFullName() : user.getUsername();
+
+        // Date range
+        LocalDate startDate = LocalDate.of(year, month, 1);
+        LocalDate endDate = startDate.withDayOfMonth(startDate.lengthOfMonth());
+
+        // Get attendance records
+        List<Attendance> attendances = attendanceRepository
+                .findByUserIdAndTenantIdAndAttendanceDateBetweenAndIsDeletedFalse(
+                        userId, tenantId, startDate, endDate);
+
+        // Calculate working days (exclude weekends)
+        long workingDays = startDate.datesUntil(endDate.plusDays(1))
+                .filter(date -> date.getDayOfWeek() != DayOfWeek.SATURDAY && date.getDayOfWeek() != DayOfWeek.SUNDAY)
+                .count();
+
+        // Count by status
+        Map<AttendanceStatus, Long> statusCounts = attendances.stream()
+                .collect(Collectors.groupingBy(Attendance::getStatus, Collectors.counting()));
+
+        int presentDays = statusCounts.getOrDefault(AttendanceStatus.PRESENT, 0L).intValue();
+        int lateDays = statusCounts.getOrDefault(AttendanceStatus.LATE, 0L).intValue();
+        int halfDays = statusCounts.getOrDefault(AttendanceStatus.HALF_DAY, 0L).intValue();
+        int leaveDays = statusCounts.getOrDefault(AttendanceStatus.ON_LEAVE, 0L).intValue();
+        int holidays = statusCounts.getOrDefault(AttendanceStatus.HOLIDAY, 0L).intValue();
+        int absentDays = (int) workingDays - presentDays - lateDays - halfDays - leaveDays - holidays;
+
+        // Time statistics
+        int totalWorkMinutes = attendances.stream()
+                .filter(a -> a.getTotalWorkMinutes() != null)
+                .mapToInt(Attendance::getTotalWorkMinutes)
+                .sum();
+        int totalWorkHours = totalWorkMinutes / 60;
+
+        int totalOvertimeMinutes = attendances.stream()
+                .filter(a -> a.getOvertimeMinutes() != null)
+                .mapToInt(Attendance::getOvertimeMinutes)
+                .sum();
+        int totalOvertimeHours = totalOvertimeMinutes / 60;
+
+        int totalLateMinutes = attendances.stream()
+                .filter(a -> a.getLateMinutes() != null)
+                .mapToInt(Attendance::getLateMinutes)
+                .sum();
+
+        int avgWorkHours = (presentDays + lateDays) > 0 ? totalWorkHours / (presentDays + lateDays) : 0;
+
+        // Attendance percentage
+        double attendancePercentage = workingDays > 0
+                ? ((presentDays + lateDays + halfDays) * 100.0 / workingDays) : 0.0;
+
+        return com.ultron.backend.dto.response.AttendanceSummaryResponse.builder()
+                .userId(userId)
+                .userName(userName)
+                .startDate(startDate)
+                .endDate(endDate)
+                .presentDays(presentDays)
+                .absentDays(Math.max(0, absentDays))
+                .lateDays(lateDays)
+                .halfDays(halfDays)
+                .leaveDays(leaveDays)
+                .holidays(holidays)
+                .workingDays((int) workingDays)
+                .totalWorkHours(totalWorkHours)
+                .averageWorkHours(avgWorkHours)
+                .totalOvertimeHours(totalOvertimeHours)
+                .totalLateMinutes(totalLateMinutes)
+                .attendancePercentage(attendancePercentage)
+                .build();
+    }
+
     private String getUserName(List<User> users, String userId) {
         return users.stream()
                 .filter(u -> u.getId().equals(userId))

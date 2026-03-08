@@ -13,8 +13,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class CheckOutRequest {
 
-    @NotBlank(message = "Attendance ID is required")
-    private String attendanceId; // The attendance record to check out from
+    // Optional - kept for backward compatibility, but not used
+    // Checkout now uses userId + date which is more robust
+    private String attendanceId;
 
     @NotNull(message = "Latitude is required")
     private Double latitude;

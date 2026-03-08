@@ -242,18 +242,14 @@ public class AttendanceService extends BaseTenantService {
     public AttendanceResponse checkOut(CheckOutRequest request, String userId) {
         String tenantId = getCurrentTenantId();
         LocalDateTime now = LocalDateTime.now();
+        LocalDate today = now.toLocalDate();
 
         log.info("Check-out request for user {} at location ({}, {})", userId, request.getLatitude(), request.getLongitude());
 
-        // 1. Find today's attendance
+        // 1. Find today's attendance by userId + date (more robust than attendanceId)
         Attendance attendance = attendanceRepository
-            .findByAttendanceIdAndTenantId(request.getAttendanceId(), tenantId)
-            .orElseThrow(() -> new ResourceNotFoundException("Attendance record not found"));
-
-        // Validate user
-        if (!attendance.getUserId().equals(userId)) {
-            throw new BusinessException("This attendance record does not belong to you");
-        }
+            .findByUserIdAndAttendanceDateAndTenantIdAndIsDeletedFalse(userId, today, tenantId)
+            .orElseThrow(() -> new ResourceNotFoundException("No attendance record found for today. Please check in first."));
 
         // Validate already checked out
         if (attendance.getCheckOutTime() != null) {
