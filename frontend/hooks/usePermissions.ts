@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { api } from "@/lib/api-client";
+import { authService } from "@/lib/auth";
 
 // ===== TYPE DEFINITIONS =====
 
@@ -87,10 +88,18 @@ export function usePermissions() {
   }, []);
 
   /**
-   * Load permissions on mount
+   * Load permissions on mount (only if authenticated)
    */
   useEffect(() => {
-    loadPermissions();
+    // Check if user is authenticated before trying to load permissions
+    if (authService.isAuthenticated()) {
+      loadPermissions();
+    } else {
+      // User not authenticated, skip loading and clear state
+      setPermissions(null);
+      setLoading(false);
+      console.log("[usePermissions] User not authenticated, skipping permission load");
+    }
   }, [loadPermissions]);
 
   /**
