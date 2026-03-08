@@ -87,7 +87,6 @@ const InvoicePreview = forwardRef<HTMLDivElement, InvoicePreviewProps>(({
                                 src={invoiceConfig.logoUrl}
                                 alt="Logo"
                                 className="max-w-[60px] max-h-[60px] object-contain"
-                                crossOrigin="anonymous"
                             />
                         </div>
                     )}
@@ -352,7 +351,6 @@ const InvoicePreview = forwardRef<HTMLDivElement, InvoicePreviewProps>(({
                                 src={invoiceConfig.authorizedSignatorySealUrl}
                                 alt="Seal"
                                 className="max-w-[140px] max-h-[140px] object-contain opacity-90 drop-shadow-sm"
-                                crossOrigin="anonymous"
                             />
                         )}
                         <div className="w-full h-[1px] bg-blue-900/10"></div>
