@@ -128,7 +128,8 @@ public class ProfileMigrationService {
                         createFullAccessPermission("OPPORTUNITY"),
                         createFullAccessPermission("ACTIVITY"),
                         createFullAccessPermission("PRODUCT"),
-                        createFullAccessPermission("PROPOSAL")
+                        createFullAccessPermission("PROPOSAL"),
+                        createFullAccessPermission("LOCATION")
                 ))
                 .fieldPermissions(new ArrayList<>())  // No restrictions
                 .systemPermissions(Profile.SystemPermissions.builder()
@@ -173,7 +174,8 @@ public class ProfileMigrationService {
                         createFullAccessPermission("OPPORTUNITY"),
                         createFullAccessPermission("ACTIVITY"),
                         createFullAccessPermission("PRODUCT"),
-                        createFullAccessPermission("PROPOSAL")
+                        createFullAccessPermission("PROPOSAL"),
+                        createFullAccessPermission("LOCATION")
                 ))
                 .fieldPermissions(new ArrayList<>())
                 .systemPermissions(Profile.SystemPermissions.builder()
@@ -218,7 +220,8 @@ public class ProfileMigrationService {
                         createStandardPermission("OPPORTUNITY"),
                         createStandardPermission("ACTIVITY"),
                         createStandardPermission("PRODUCT"),
-                        createStandardPermission("PROPOSAL")
+                        createStandardPermission("PROPOSAL"),
+                        createStandardPermission("LOCATION")
                 ))
                 .fieldPermissions(new ArrayList<>())
                 .systemPermissions(Profile.SystemPermissions.builder()
@@ -263,7 +266,8 @@ public class ProfileMigrationService {
                         createReadOnlyPermission("OPPORTUNITY"),
                         createReadOnlyPermission("ACTIVITY"),
                         createReadOnlyPermission("PRODUCT"),
-                        createReadOnlyPermission("PROPOSAL")
+                        createReadOnlyPermission("PROPOSAL"),
+                        createReadOnlyPermission("LOCATION")
                 ))
                 .fieldPermissions(new ArrayList<>())
                 .systemPermissions(Profile.SystemPermissions.builder()

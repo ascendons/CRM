@@ -2,6 +2,7 @@ package com.ultron.backend.exception;
 
 import com.ultron.backend.dto.response.ApiResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -13,6 +14,7 @@ import com.ultron.backend.multitenancy.TenantContextMissingException;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.expression.spel.SpelEvaluationException;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -37,6 +39,19 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(UserAlreadyExistsException.class)
     public ResponseEntity<ApiResponse<Object>> handleUserAlreadyExists(UserAlreadyExistsException ex) {
         ApiResponse<Object> response = ApiResponse.error(ex.getMessage(), null);
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+    }
+    
+    @ExceptionHandler(DuplicateKeyException.class)
+    public ResponseEntity<ApiResponse<Object>> handleDuplicateKey(DuplicateKeyException ex) {
+        log.error("Duplicate key error: {}", ex.getMessage());
+        String message = "A record with this unique identifier already exists.";
+        if (ex.getMessage() != null && ex.getMessage().contains("locationId_tenantId_unique")) {
+            message = "An office location with this ID already exists. Please try again.";
+        } else if (ex.getMessage() != null && ex.getMessage().contains("code_tenantId_unique")) {
+            message = "An office location with this code already exists.";
+        }
+        ApiResponse<Object> response = ApiResponse.error(message, null);
         return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
     }
 
@@ -140,6 +155,13 @@ public class GlobalExceptionHandler {
         log.error("SpEL Evaluation Error: {}", ex.getMessage());
         ApiResponse<Object> response = ApiResponse.error("An internal caching error occurred.", null);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+    }
+ 
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    public ResponseEntity<ApiResponse<Object>> handleAuthorizationDenied(AuthorizationDeniedException ex) {
+        log.warn("Permission denied: {}", ex.getMessage());
+        ApiResponse<Object> response = ApiResponse.error("You do not have permission to perform this action.", null);
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
     }
 
     /**

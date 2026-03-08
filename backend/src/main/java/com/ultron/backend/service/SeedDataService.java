@@ -110,7 +110,8 @@ public class SeedDataService implements CommandLineRunner {
                 createFullObjectPermission("ACCOUNT"),
                 createFullObjectPermission("CONTACT"),
                 createFullObjectPermission("OPPORTUNITY"),
-                createFullObjectPermission("ACTIVITY")
+                createFullObjectPermission("ACTIVITY"),
+                createFullObjectPermission("LOCATION")
         );
 
         // System permissions - all enabled

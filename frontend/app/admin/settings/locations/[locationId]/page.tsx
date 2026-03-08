@@ -93,7 +93,7 @@ export default function EditLocationPage() {
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Copy all form sections from new/page.tsx but with formData values */}
           {/* For brevity, implementing key fields only */}
-          
+
           <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
             <h2 className="text-lg font-semibold text-slate-900 mb-4">Basic Information</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -136,17 +136,32 @@ export default function EditLocationPage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-2">Latitude *</label>
-                <input type="number" step="any" required value={formData.latitude} onChange={(e) => setFormData({ ...formData, latitude: parseFloat(e.target.value) })}
+                <input type="number" step="any" required
+                  value={isNaN(formData.latitude) ? '' : formData.latitude}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setFormData({ ...formData, latitude: val === '' ? 0 : parseFloat(val) });
+                  }}
                   className="w-full px-4 py-2 border border-slate-300 rounded-lg font-mono text-sm" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-2">Longitude *</label>
-                <input type="number" step="any" required value={formData.longitude} onChange={(e) => setFormData({ ...formData, longitude: parseFloat(e.target.value) })}
+                <input type="number" step="any" required
+                  value={isNaN(formData.longitude) ? '' : formData.longitude}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setFormData({ ...formData, longitude: val === '' ? 0 : parseFloat(val) });
+                  }}
                   className="w-full px-4 py-2 border border-slate-300 rounded-lg font-mono text-sm" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-2">Radius (m) *</label>
-                <input type="number" min="10" required value={formData.radiusMeters} onChange={(e) => setFormData({ ...formData, radiusMeters: parseInt(e.target.value) })}
+                <input type="number" min="10" required
+                  value={isNaN(formData.radiusMeters) ? '' : formData.radiusMeters}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setFormData({ ...formData, radiusMeters: val === '' ? 100 : parseInt(val) });
+                  }}
                   className="w-full px-4 py-2 border border-slate-300 rounded-lg" />
               </div>
             </div>

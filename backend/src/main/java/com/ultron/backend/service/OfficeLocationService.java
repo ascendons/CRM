@@ -198,7 +198,6 @@ public class OfficeLocationService extends BaseTenantService {
     /**
      * Get all locations for tenant
      */
-    @Cacheable(value = "officeLocations", key = "#tenantId + '_all'")
     public List<OfficeLocationResponse> getAllLocations() {
         String tenantId = getCurrentTenantId();
 

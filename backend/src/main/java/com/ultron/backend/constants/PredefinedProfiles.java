@@ -27,7 +27,8 @@ public class PredefinedProfiles {
                     createFullAccessPermission("OPPORTUNITY"),
                     createFullAccessPermission("ACTIVITY"),
                     createFullAccessPermission("PRODUCT"),
-                    createFullAccessPermission("PROPOSAL")
+                    createFullAccessPermission("PROPOSAL"),
+                    createFullAccessPermission("LOCATION")
             ))
             .fieldPermissions(Arrays.asList())  // No restrictions
             .systemPermissions(Profile.SystemPermissions.builder()
@@ -64,7 +65,8 @@ public class PredefinedProfiles {
                     createFullAccessPermission("OPPORTUNITY"),
                     createFullAccessPermission("ACTIVITY"),
                     createFullAccessPermission("PRODUCT"),
-                    createFullAccessPermission("PROPOSAL")
+                    createFullAccessPermission("PROPOSAL"),
+                    createFullAccessPermission("LOCATION")
             ))
             .fieldPermissions(Arrays.asList())
             .systemPermissions(Profile.SystemPermissions.builder()
@@ -101,7 +103,8 @@ public class PredefinedProfiles {
                     createStandardPermission("OPPORTUNITY"),
                     createStandardPermission("ACTIVITY"),
                     createStandardPermission("PRODUCT"),
-                    createStandardPermission("PROPOSAL")
+                    createStandardPermission("PROPOSAL"),
+                    createStandardPermission("LOCATION")
             ))
             .fieldPermissions(Arrays.asList())
             .systemPermissions(Profile.SystemPermissions.builder()
@@ -138,7 +141,8 @@ public class PredefinedProfiles {
                     createReadOnlyPermission("OPPORTUNITY"),
                     createReadOnlyPermission("ACTIVITY"),
                     createReadOnlyPermission("PRODUCT"),
-                    createReadOnlyPermission("PROPOSAL")
+                    createReadOnlyPermission("PROPOSAL"),
+                    createReadOnlyPermission("LOCATION")
             ))
             .fieldPermissions(Arrays.asList())
             .systemPermissions(Profile.SystemPermissions.builder()

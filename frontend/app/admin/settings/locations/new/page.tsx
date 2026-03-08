@@ -221,8 +221,11 @@ export default function NewLocationPage() {
                   type="number"
                   step="any"
                   required
-                  value={formData.latitude}
-                  onChange={(e) => setFormData({ ...formData, latitude: parseFloat(e.target.value) })}
+                  value={isNaN(formData.latitude) ? '' : formData.latitude}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setFormData({ ...formData, latitude: val === '' ? 0 : parseFloat(val) });
+                  }}
                   className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-sm"
                   placeholder="19.0760"
                 />
@@ -235,8 +238,11 @@ export default function NewLocationPage() {
                   type="number"
                   step="any"
                   required
-                  value={formData.longitude}
-                  onChange={(e) => setFormData({ ...formData, longitude: parseFloat(e.target.value) })}
+                  value={isNaN(formData.longitude) ? '' : formData.longitude}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setFormData({ ...formData, longitude: val === '' ? 0 : parseFloat(val) });
+                  }}
                   className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-sm"
                   placeholder="72.8777"
                 />
@@ -249,8 +255,11 @@ export default function NewLocationPage() {
                   type="number"
                   min="10"
                   required
-                  value={formData.radiusMeters}
-                  onChange={(e) => setFormData({ ...formData, radiusMeters: parseInt(e.target.value) })}
+                  value={isNaN(formData.radiusMeters) ? '' : formData.radiusMeters}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setFormData({ ...formData, radiusMeters: val === '' ? 100 : parseInt(val) });
+                  }}
                   className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
                 <p className="text-xs text-slate-500 mt-1">
