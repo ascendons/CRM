@@ -5,7 +5,10 @@ echo "Starting CRM Backend"
 echo "========================================"
 echo ""
 
-cd backend
+# Get the directory where this script is located
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+# Navigate to project root, then to backend
+cd "$SCRIPT_DIR/../backend" || { echo "❌ Backend directory not found"; exit 1; }
 
 echo "Checking MongoDB status..."
 if ! pgrep -x "mongod" > /dev/null; then

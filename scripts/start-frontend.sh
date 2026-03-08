@@ -5,7 +5,10 @@ echo "Starting CRM Frontend"
 echo "========================================"
 echo ""
 
-cd frontend
+# Get the directory where this script is located
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+# Navigate to project root, then to frontend
+cd "$SCRIPT_DIR/../frontend" || { echo "❌ Frontend directory not found"; exit 1; }
 
 echo "Checking if node_modules exists..."
 if [ ! -d "node_modules" ]; then
