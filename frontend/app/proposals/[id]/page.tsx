@@ -808,6 +808,7 @@ export default function ProposalDetailPage({
           proposalId={proposal.id}
           proposalNumber={proposal.proposalNumber}
           onClose={() => setShowInvoicePreview(false)}
+          proposal={proposal}
         />
       )}
 
