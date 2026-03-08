@@ -16,10 +16,8 @@ export default function TeamAttendancePage() {
   const loadTeamAttendance = async () => {
     setLoading(true);
     try {
-      const response = await reportsApi.getTeamAttendance(startDate, endDate);
-      if (response.success) {
-        setTeamData(response.data);
-      }
+      const data = await reportsApi.getTeamAttendance(startDate, endDate);
+      setTeamData(data);
     } catch (error) {
       console.error('Failed to load team attendance:', error);
       toast.error('Failed to load team attendance');

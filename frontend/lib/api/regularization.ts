@@ -62,36 +62,36 @@ export const regularizationApi = {
   /**
    * Request attendance regularization
    */
-  requestRegularization: (data: CreateRegularizationRequest) =>
+  requestRegularization: (data: CreateRegularizationRequest): Promise<RegularizationResponse> =>
     api.post('/attendance/regularizations', data),
 
   /**
    * Get my regularizations
    */
-  getMyRegularizations: () =>
+  getMyRegularizations: (): Promise<RegularizationResponse[]> =>
     api.get('/attendance/regularizations/my'),
 
   /**
    * Get regularization by ID
    */
-  getRegularizationById: (regularizationId: string) =>
+  getRegularizationById: (regularizationId: string): Promise<RegularizationResponse> =>
     api.get(`/attendance/regularizations/${regularizationId}`),
 
   /**
    * Get pending approvals (Manager)
    */
-  getPendingApprovals: () =>
+  getPendingApprovals: (): Promise<RegularizationResponse[]> =>
     api.get('/attendance/regularizations/admin/pending'),
 
   /**
    * Get all pending regularizations (Admin)
    */
-  getAllPendingRegularizations: () =>
+  getAllPendingRegularizations: (): Promise<RegularizationResponse[]> =>
     api.get('/attendance/regularizations/admin/all-pending'),
 
   /**
    * Approve or reject regularization (Manager)
    */
-  approveRegularization: (data: ApproveRegularizationRequest) =>
+  approveRegularization: (data: ApproveRegularizationRequest): Promise<RegularizationResponse> =>
     api.post('/attendance/regularizations/admin/approve', data)
 };

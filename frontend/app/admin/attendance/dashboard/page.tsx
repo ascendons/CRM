@@ -37,7 +37,7 @@ export default function AttendanceDashboardPage() {
 
   const loadDashboard = async () => {
     try {
-      const data = await attendanceApi.getDailyDashboard(selectedDate);
+      const data = await attendanceApi.getDailyDashboard<DailyDashboardResponse>(selectedDate);
       setDashboard(data);
     } catch (error) {
       console.error('Failed to load dashboard:', error);

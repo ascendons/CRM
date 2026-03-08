@@ -37,35 +37,35 @@ export const holidaysApi = {
    * Create holiday
    */
   createHoliday: (data: CreateHolidayRequest) =>
-    api.post('/holidays', data),
+    api.post<HolidayResponse>('/holidays', data),
 
   /**
    * Update holiday
    */
   updateHoliday: (holidayId: string, data: CreateHolidayRequest) =>
-    api.put(`/holidays/${holidayId}`, data),
+    api.put<HolidayResponse>(`/holidays/${holidayId}`, data),
 
   /**
    * Delete holiday
    */
   deleteHoliday: (holidayId: string) =>
-    api.delete(`/holidays/${holidayId}`),
+    api.delete<void>(`/holidays/${holidayId}`),
 
   /**
    * Get holiday by ID
    */
   getHolidayById: (holidayId: string) =>
-    api.get(`/holidays/${holidayId}`),
+    api.get<HolidayResponse>(`/holidays/${holidayId}`),
 
   /**
    * Get holidays by year
    */
   getHolidaysByYear: (year: number) =>
-    api.get(`/holidays/year/${year}`),
+    api.get<HolidayResponse[]>(`/holidays/year/${year}`),
 
   /**
    * Get all holidays
    */
   getAllHolidays: () =>
-    api.get('/holidays')
+    api.get<HolidayResponse[]>('/holidays')
 };

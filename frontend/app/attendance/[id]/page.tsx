@@ -82,13 +82,8 @@ export default function AttendanceDetailPage() {
   const loadAttendanceDetails = async () => {
     try {
       setLoading(true);
-      const response = await attendanceApi.getAttendanceById(attendanceId);
-      if (response.success) {
-        setAttendance(response.data);
-      } else {
-        toast.error('Failed to load attendance details');
-        router.push('/attendance');
-      }
+      const data = await attendanceApi.getAttendanceById<Attendance>(attendanceId);
+      setAttendance(data);
     } catch (error) {
       console.error('Failed to load attendance:', error);
       toast.error('Failed to load attendance details');

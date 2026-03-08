@@ -2,18 +2,18 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { shiftsApi } from '@/lib/api/shifts';
+import { shiftsApi, CreateShiftRequest } from '@/lib/api/shifts';
 import { toast } from 'react-hot-toast';
 import { ArrowLeft, Save } from 'lucide-react';
 import Link from 'next/link';
 
-const SHIFT_TYPES = ['FIXED', 'FLEXIBLE', 'ROTATIONAL'];
+const SHIFT_TYPES = ['FIXED', 'FLEXIBLE', 'ROTATIONAL'] as const;
 const DAYS_OF_WEEK = ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY'];
 
 export default function NewShiftPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<CreateShiftRequest>({
     name: '',
     code: '',
     description: '',
@@ -31,8 +31,7 @@ export default function NewShiftPage() {
     allowOvertime: true,
     maxOvertimeMinutesPerDay: 180,
     minOvertimeMinutes: 30,
-    isDefault: false,
-    isActive: true
+    isDefault: false
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -52,12 +51,15 @@ export default function NewShiftPage() {
   };
 
   const toggleWorkingDay = (day: string) => {
-    setFormData(prev => ({
-      ...prev,
-      workingDays: prev.workingDays.includes(day)
-        ? prev.workingDays.filter(d => d !== day)
-        : [...prev.workingDays, day]
-    }));
+    setFormData(prev => {
+      const currentDays = prev.workingDays || [];
+      return {
+        ...prev,
+        workingDays: currentDays.includes(day)
+          ? currentDays.filter(d => d !== day)
+          : [...currentDays, day]
+      };
+    });
   };
 
   return (
@@ -156,7 +158,7 @@ export default function NewShiftPage() {
                 </label>
                 <select
                   value={formData.type}
-                  onChange={(e) => setFormData({ ...formData, type: e.target.value })}
+                  onChange={(e) => setFormData({ ...formData, type: e.target.value as CreateShiftRequest['type'] })}
                   className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
                   {SHIFT_TYPES.map(type => (
@@ -213,7 +215,7 @@ export default function NewShiftPage() {
                   type="button"
                   onClick={() => toggleWorkingDay(day)}
                   className={`px-4 py-3 rounded-lg font-semibold text-sm transition-colors ${
-                    formData.workingDays.includes(day)
+                    formData.workingDays?.includes(day)
                       ? 'bg-blue-600 text-white'
                       : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                   }`}
@@ -270,20 +272,8 @@ export default function NewShiftPage() {
 
           {/* Status */}
           <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
-            <h2 className="text-lg font-semibold text-slate-900 mb-4">Status</h2>
+            <h2 className="text-lg font-semibold text-slate-900 mb-4">Default Settings</h2>
             <div className="space-y-3">
-              <label className="flex items-center gap-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={formData.isActive}
-                  onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
-                  className="w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-blue-500"
-                />
-                <div>
-                  <span className="text-sm font-medium text-slate-700">Active</span>
-                  <p className="text-xs text-slate-500">Shift can be assigned to employees</p>
-                </div>
-              </label>
               <label className="flex items-center gap-3 cursor-pointer">
                 <input
                   type="checkbox"

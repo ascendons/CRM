@@ -17,10 +17,8 @@ export default function AttendanceReportsPage() {
   const loadReport = async () => {
     setLoading(true);
     try {
-      const response = await reportsApi.getMyMonthlyReport(year, month);
-      if (response.success) {
-        setReport(response.data);
-      }
+      const data = await reportsApi.getMyMonthlyReport(year, month);
+      setReport(data);
     } catch (error) {
       console.error('Failed to load report:', error);
       toast.error('Failed to load report');
@@ -36,8 +34,8 @@ export default function AttendanceReportsPage() {
   const handleExportExcel = () => {
     if (!report) return;
 
-    if (report.dailyRecords && report.dailyRecords.length > 0) {
-      const { headers, rows } = formatAttendanceForExport(report.dailyRecords);
+    if (report.dailyAttendance && report.dailyAttendance.length > 0) {
+      const { headers, rows } = formatAttendanceForExport(report.dailyAttendance);
       exportToExcel({
         headers,
         rows,
@@ -52,8 +50,8 @@ export default function AttendanceReportsPage() {
   const handleExportPDF = () => {
     if (!report) return;
 
-    if (report.dailyRecords && report.dailyRecords.length > 0) {
-      const { headers, rows } = formatAttendanceForExport(report.dailyRecords);
+    if (report.dailyAttendance && report.dailyAttendance.length > 0) {
+      const { headers, rows } = formatAttendanceForExport(report.dailyAttendance);
       exportToPDF({
         headers,
         rows,

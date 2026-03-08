@@ -123,9 +123,9 @@ export default function LocationsPage() {
                     </div>
                     <div className="flex items-center gap-1">
                       {location.isActive ? (
-                        <CheckCircle2 className="h-5 w-5 text-emerald-500" title="Active" />
+                        <CheckCircle2 className="h-5 w-5 text-emerald-500" />
                       ) : (
-                        <XCircle className="h-5 w-5 text-slate-400" title="Inactive" />
+                        <XCircle className="h-5 w-5 text-slate-400" />
                       )}
                     </div>
                   </div>

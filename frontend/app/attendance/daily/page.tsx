@@ -80,7 +80,7 @@ export default function DailyAttendancePage() {
   const loadTodayAttendance = async () => {
     try {
       setLoading(true);
-      const data = await attendanceApi.getMyToday();
+      const data = await attendanceApi.getMyToday<TodayAttendance>();
       setAttendance(data);
     } catch (error: any) {
       if (error.response?.status !== 404) {
