@@ -20,6 +20,7 @@ public class ProductResponse {
     private String sku;
     private String productName;
     private String description;
+    private String hsnCode;
 
     private BigDecimal basePrice;
     private BigDecimal listPrice;

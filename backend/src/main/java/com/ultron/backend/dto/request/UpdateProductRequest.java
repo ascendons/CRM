@@ -22,6 +22,9 @@ public class UpdateProductRequest {
     @Size(max = 1000, message = "Description must be less than 1000 characters")
     private String description;
 
+    @Size(max = 50, message = "HSN code must be less than 50 characters")
+    private String hsnCode;
+
     @Positive(message = "Base price must be positive")
     @Digits(integer = 10, fraction = 2, message = "Base price must have at most 10 integer digits and 2 decimal places")
     private BigDecimal basePrice;
