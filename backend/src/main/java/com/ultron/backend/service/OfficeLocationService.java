@@ -95,7 +95,7 @@ public class OfficeLocationService extends BaseTenantService {
         String tenantId = getCurrentTenantId();
         String userId = getCurrentUserId();
 
-        OfficeLocation location = officeLocationRepository.findByLocationIdAndTenantId(id, tenantId)
+        OfficeLocation location = officeLocationRepository.findByLocationIdAndTenantIdAndIsDeletedFalse(id, tenantId)
             .orElseThrow(() -> new ResourceNotFoundException("Office location not found"));
 
         validateResourceTenantOwnership(location.getTenantId());
@@ -156,7 +156,7 @@ public class OfficeLocationService extends BaseTenantService {
         String tenantId = getCurrentTenantId();
         String userId = getCurrentUserId();
 
-        OfficeLocation location = officeLocationRepository.findByLocationIdAndTenantId(id, tenantId)
+        OfficeLocation location = officeLocationRepository.findByLocationIdAndTenantIdAndIsDeletedFalse(id, tenantId)
             .orElseThrow(() -> new ResourceNotFoundException("Office location not found"));
 
         validateResourceTenantOwnership(location.getTenantId());
@@ -180,7 +180,7 @@ public class OfficeLocationService extends BaseTenantService {
     @Cacheable(value = "officeLocations", key = "#id")
     public OfficeLocationResponse getLocationResponseById(String id) {
         String tenantId = getCurrentTenantId();
-        OfficeLocation location = officeLocationRepository.findByLocationIdAndTenantId(id, tenantId)
+        OfficeLocation location = officeLocationRepository.findByLocationIdAndTenantIdAndIsDeletedFalse(id, tenantId)
             .orElseThrow(() -> new ResourceNotFoundException("Office location not found"));
 
         validateResourceTenantOwnership(location.getTenantId());
@@ -193,7 +193,7 @@ public class OfficeLocationService extends BaseTenantService {
      */
     public OfficeLocation getLocationById(String locationId) {
         String tenantId = getCurrentTenantId();
-        return officeLocationRepository.findByLocationIdAndTenantId(locationId, tenantId)
+        return officeLocationRepository.findByLocationIdAndTenantIdAndIsDeletedFalse(locationId, tenantId)
             .orElseThrow(() -> new ResourceNotFoundException("Office location not found: " + locationId));
     }
 

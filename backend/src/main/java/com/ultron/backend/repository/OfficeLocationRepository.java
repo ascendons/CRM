@@ -13,9 +13,10 @@ public interface OfficeLocationRepository extends MongoRepository<OfficeLocation
 
     /**
      * Find office location by unique locationId and tenantId (LOC-YYYY-MM-XXXXX)
+     * Excludes soft-deleted records
      * MULTI-TENANT SAFE
      */
-    Optional<OfficeLocation> findByLocationIdAndTenantId(String locationId, String tenantId);
+    Optional<OfficeLocation> findByLocationIdAndTenantIdAndIsDeletedFalse(String locationId, String tenantId);
 
     /**
      * Find all office locations for a specific tenant (excluding deleted)

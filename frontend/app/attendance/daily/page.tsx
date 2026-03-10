@@ -15,7 +15,7 @@ interface AttendanceLocation {
 }
 
 interface BreakRecord {
-  id: string;
+  breakId: string;
   type: string;
   startTime: string;
   endTime?: string;
@@ -226,7 +226,7 @@ export default function DailyAttendancePage() {
     try {
       await attendanceApi.endBreak({
         attendanceId: attendance.attendanceId,
-        breakId: activeBreak.id,
+        breakId: activeBreak.breakId,
         latitude: currentLocation?.coords.latitude,
         longitude: currentLocation?.coords.longitude,
         accuracy: currentLocation?.coords.accuracy
