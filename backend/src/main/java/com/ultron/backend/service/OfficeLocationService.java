@@ -95,7 +95,7 @@ public class OfficeLocationService extends BaseTenantService {
         String tenantId = getCurrentTenantId();
         String userId = getCurrentUserId();
 
-        OfficeLocation location = officeLocationRepository.findById(id)
+        OfficeLocation location = officeLocationRepository.findByLocationIdAndTenantId(id, tenantId)
             .orElseThrow(() -> new ResourceNotFoundException("Office location not found"));
 
         validateResourceTenantOwnership(location.getTenantId());
@@ -153,9 +153,10 @@ public class OfficeLocationService extends BaseTenantService {
      */
     @CacheEvict(value = "officeLocations", allEntries = true)
     public void deleteLocation(String id) {
+        String tenantId = getCurrentTenantId();
         String userId = getCurrentUserId();
 
-        OfficeLocation location = officeLocationRepository.findById(id)
+        OfficeLocation location = officeLocationRepository.findByLocationIdAndTenantId(id, tenantId)
             .orElseThrow(() -> new ResourceNotFoundException("Office location not found"));
 
         validateResourceTenantOwnership(location.getTenantId());
@@ -174,11 +175,12 @@ public class OfficeLocationService extends BaseTenantService {
     }
 
     /**
-     * Get location by ID
+     * Get location by ID (using locationId, not MongoDB _id)
      */
     @Cacheable(value = "officeLocations", key = "#id")
     public OfficeLocationResponse getLocationResponseById(String id) {
-        OfficeLocation location = officeLocationRepository.findById(id)
+        String tenantId = getCurrentTenantId();
+        OfficeLocation location = officeLocationRepository.findByLocationIdAndTenantId(id, tenantId)
             .orElseThrow(() -> new ResourceNotFoundException("Office location not found"));
 
         validateResourceTenantOwnership(location.getTenantId());
