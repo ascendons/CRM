@@ -2,35 +2,16 @@ package com.ultron.backend.service;
 
 import org.springframework.stereotype.Service;
 
-import java.time.YearMonth;
-import java.util.concurrent.atomic.AtomicInteger;
-
 /**
- * Service to generate unique Proposal IDs in format: PROP-YYYY-MM-XXXXX
- * Example: PROP-2025-02-00001
- *
- * Thread-safe implementation with proper month boundary handling
+ * Service to generate unique Proposal IDs using timestamp
+ * Format: PROP-timestamp
+ * Example: PROP-1773242807123
  */
 @Service
 public class ProposalIdGeneratorService {
 
-    private final AtomicInteger counter = new AtomicInteger(0);
-    private volatile YearMonth lastYearMonth = null;
-
     public synchronized String generateProposalId() {
-        YearMonth currentYearMonth = YearMonth.now();
-
-        // Reset counter if new month (using proper YearMonth comparison)
-        if (lastYearMonth == null || !currentYearMonth.equals(lastYearMonth)) {
-            counter.set(0);
-            lastYearMonth = currentYearMonth;
-        }
-
-        int sequence = counter.incrementAndGet();
-
-        return String.format("PROP-%d-%02d-%05d",
-            currentYearMonth.getYear(),
-            currentYearMonth.getMonthValue(),
-            sequence);
+        long timestamp = System.currentTimeMillis();
+        return String.format("PROP-%d", timestamp);
     }
 }

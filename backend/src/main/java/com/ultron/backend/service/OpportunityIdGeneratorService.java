@@ -2,26 +2,16 @@ package com.ultron.backend.service;
 
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.concurrent.atomic.AtomicInteger;
-
+/**
+ * Service to generate unique Opportunity IDs using timestamp
+ * Format: OPP-timestamp
+ * Example: OPP-1773242807123
+ */
 @Service
 public class OpportunityIdGeneratorService {
 
-    private final AtomicInteger counter = new AtomicInteger(0);
-    private String lastDate = "";
-
     public synchronized String generateOpportunityId() {
-        LocalDateTime now = LocalDateTime.now();
-        String currentDate = now.format(DateTimeFormatter.ofPattern("yyyy-MM"));
-
-        if (!currentDate.equals(lastDate)) {
-            counter.set(0);
-            lastDate = currentDate;
-        }
-
-        int sequence = counter.incrementAndGet();
-        return String.format("OPP-%s-%05d", currentDate, sequence);
+        long timestamp = System.currentTimeMillis();
+        return String.format("OPP-%d", timestamp);
     }
 }
