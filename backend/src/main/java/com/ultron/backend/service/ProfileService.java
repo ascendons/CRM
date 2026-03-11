@@ -1,6 +1,5 @@
 package com.ultron.backend.service;
 
-import com.ultron.backend.constants.PredefinedProfiles;
 import com.ultron.backend.domain.entity.Profile;
 import com.ultron.backend.dto.request.CreateProfileRequest;
 import com.ultron.backend.dto.request.UpdateProfileRequest;
@@ -20,17 +19,18 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class ProfileService {
+public class ProfileService extends BaseTenantService {
 
     private final ProfileRepository profileRepository;
     private final ProfileIdGeneratorService profileIdGeneratorService;
 
     @Transactional
     public ProfileResponse createProfile(CreateProfileRequest request, String createdBy) {
-        log.info("Creating new profile: {}", request.getProfileName());
+        String tenantId = getCurrentTenantId();
+        log.info("Creating new profile: {} for tenant: {}", request.getProfileName(), tenantId);
 
-        // Validate unique name
-        if (profileRepository.existsByProfileName(request.getProfileName())) {
+        // Validate unique name within tenant
+        if (profileRepository.existsByProfileNameAndTenantId(request.getProfileName(), tenantId)) {
             throw new UserAlreadyExistsException("Profile name already exists: " + request.getProfileName());
         }
 
@@ -40,6 +40,8 @@ public class ProfileService {
         // Build profile entity
         Profile profile = Profile.builder()
                 .profileId(profileId)
+                .tenantId(tenantId)
+                .isSystemProfile(false)
                 .profileName(request.getProfileName())
                 .description(request.getDescription())
                 .objectPermissions(buildObjectPermissions(request.getObjectPermissions()))
@@ -58,14 +60,24 @@ public class ProfileService {
 
     @Transactional
     public ProfileResponse updateProfile(String id, UpdateProfileRequest request, String modifiedBy) {
-        log.info("Updating profile with id: {}", id);
+        String tenantId = getCurrentTenantId();
+        log.info("Updating profile with id: {} for tenant: {}", id, tenantId);
 
-        Profile profile = profileRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Profile not found with id: " + id));
+        // Find profile - try by MongoDB _id first, then by profileId
+        Profile profile = profileRepository.findById(id).orElse(null);
+        if (profile != null && !tenantId.equals(profile.getTenantId())) {
+            profile = null; // Profile belongs to different tenant
+        }
+        if (profile == null) {
+            profile = profileRepository.findByProfileIdAndTenantId(id, tenantId).orElse(null);
+        }
+        if (profile == null) {
+            throw new ResourceNotFoundException("Profile not found with id: " + id);
+        }
 
         // Update name if changed
         if (request.getProfileName() != null && !request.getProfileName().equals(profile.getProfileName())) {
-            if (profileRepository.existsByProfileName(request.getProfileName())) {
+            if (profileRepository.existsByProfileNameAndTenantId(request.getProfileName(), tenantId)) {
                 throw new UserAlreadyExistsException("Profile name already exists: " + request.getProfileName());
             }
             profile.setProfileName(request.getProfileName());
@@ -95,50 +107,79 @@ public class ProfileService {
     }
 
     public ProfileResponse getProfileById(String id) {
-        // Use predefined profiles instead of database
-        Profile profile = PredefinedProfiles.getProfileById(id);
+        String tenantId = getCurrentTenantId();
+        log.debug("Fetching profile by id: {} for tenant: {}", id, tenantId);
+
+        // Try MongoDB _id first (check if it belongs to tenant)
+        Profile profile = profileRepository.findById(id).orElse(null);
+        if (profile != null && !tenantId.equals(profile.getTenantId())) {
+            profile = null; // Profile belongs to different tenant
+        }
+
+        // If not found, try profileId within tenant
+        if (profile == null) {
+            profile = profileRepository.findByProfileIdAndTenantId(id, tenantId).orElse(null);
+        }
+
         if (profile == null) {
             throw new ResourceNotFoundException("Profile not found with id: " + id);
         }
+
         return mapToResponse(profile);
     }
 
     public ProfileResponse getProfileByProfileId(String profileId) {
-        // Use predefined profiles instead of database
-        Profile profile = PredefinedProfiles.getProfileById(profileId);
-        if (profile == null) {
-            throw new ResourceNotFoundException("Profile not found with profileId: " + profileId);
-        }
+        String tenantId = getCurrentTenantId();
+        log.debug("Fetching profile by profileId: {} for tenant: {}", profileId, tenantId);
+        Profile profile = profileRepository.findByProfileIdAndTenantId(profileId, tenantId)
+                .orElseThrow(() -> new ResourceNotFoundException("Profile not found with profileId: " + profileId));
         return mapToResponse(profile);
     }
 
     public List<ProfileResponse> getAllProfiles() {
-        // Use predefined profiles instead of database
-        return PredefinedProfiles.getAllProfiles().stream()
+        String tenantId = getCurrentTenantId();
+        log.debug("Fetching all profiles for tenant: {}", tenantId);
+        return profileRepository.findByTenantIdAndIsDeletedFalse(tenantId).stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
 
     public List<ProfileResponse> getActiveProfiles() {
-        // Use predefined profiles instead of database
-        return PredefinedProfiles.getActiveProfiles().stream()
+        String tenantId = getCurrentTenantId();
+        log.debug("Fetching active profiles for tenant: {}", tenantId);
+        return profileRepository.findByTenantIdAndIsActiveAndIsDeletedFalse(tenantId, true).stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
 
     public List<ProfileResponse> searchProfiles(String searchTerm) {
-        // Use predefined profiles instead of database
-        return PredefinedProfiles.searchProfiles(searchTerm).stream()
+        String tenantId = getCurrentTenantId();
+        log.debug("Searching profiles with term: {} for tenant: {}", searchTerm, tenantId);
+        String searchLower = searchTerm.toLowerCase();
+        return profileRepository.findByTenantIdAndIsDeletedFalse(tenantId).stream()
+                .filter(p -> p.getProfileName().toLowerCase().contains(searchLower) ||
+                        (p.getProfileId() != null && p.getProfileId().toLowerCase().contains(searchLower)) ||
+                        (p.getDescription() != null && p.getDescription().toLowerCase().contains(searchLower)))
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
 
     @Transactional
     public void deleteProfile(String id, String deletedBy) {
-        log.info("Deleting profile with id: {}", id);
+        String tenantId = getCurrentTenantId();
+        log.info("Deleting profile with id: {} for tenant: {}", id, tenantId);
 
-        Profile profile = profileRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Profile not found with id: " + id));
+        // Find profile - try by MongoDB _id first, then by profileId
+        Profile profile = profileRepository.findById(id).orElse(null);
+        if (profile != null && !tenantId.equals(profile.getTenantId())) {
+            profile = null; // Profile belongs to different tenant
+        }
+        if (profile == null) {
+            profile = profileRepository.findByProfileIdAndTenantId(id, tenantId).orElse(null);
+        }
+        if (profile == null) {
+            throw new ResourceNotFoundException("Profile not found with id: " + id);
+        }
 
         // Soft delete
         profile.setIsDeleted(true);

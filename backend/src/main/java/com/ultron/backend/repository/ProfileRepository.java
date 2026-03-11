@@ -13,6 +13,7 @@ public interface ProfileRepository extends MongoRepository<Profile, String> {
 
     // Find by business ID
     Optional<Profile> findByProfileId(String profileId);
+    Optional<Profile> findByProfileIdAndIsDeletedFalse(String profileId);
 
     // Find by name
     Optional<Profile> findByProfileName(String profileName);

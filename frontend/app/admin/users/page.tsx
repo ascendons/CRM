@@ -311,6 +311,13 @@ export default function UsersPage() {
                         >
                           <span className="material-symbols-outlined text-lg">edit</span>
                         </button>
+                        <button
+                          onClick={() => router.push(`/admin/users/${user.userId}/permissions`)}
+                          className="text-purple-600 hover:text-purple-900 mr-4"
+                          title="Manage permissions"
+                        >
+                          <span className="material-symbols-outlined text-lg">admin_panel_settings</span>
+                        </button>
                         {user.isActive ? (
                           <button
                             onClick={() => handleDeactivate(user.id)}

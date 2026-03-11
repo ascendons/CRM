@@ -36,6 +36,8 @@ interface TodayAttendance {
   isLocationVerified: boolean;
   checkInLocation?: AttendanceLocation;
   checkOutLocation?: AttendanceLocation;
+  systemNotes?: string;
+  leaveId?: string;
 }
 
 interface OfficeLocation {

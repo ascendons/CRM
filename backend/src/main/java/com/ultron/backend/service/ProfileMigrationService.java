@@ -119,16 +119,25 @@ public class ProfileMigrationService {
                 .profileName("System Administrator")
                 .description("Full access to all objects and fields")
                 .objectPermissions(Arrays.asList(
+                        // Administration
                         createFullAccessPermission("USER"),
                         createFullAccessPermission("ROLE"),
                         createFullAccessPermission("PROFILE"),
+                        // CRM
                         createFullAccessPermission("LEAD"),
                         createFullAccessPermission("ACCOUNT"),
                         createFullAccessPermission("CONTACT"),
                         createFullAccessPermission("OPPORTUNITY"),
                         createFullAccessPermission("ACTIVITY"),
                         createFullAccessPermission("PRODUCT"),
-                        createFullAccessPermission("PROPOSAL")
+                        createFullAccessPermission("PROPOSAL"),
+                        // HR
+                        createFullAccessPermission("ATTENDANCE"),
+                        createFullAccessPermission("SHIFT"),
+                        createFullAccessPermission("LEAVE"),
+                        createFullAccessPermission("HOLIDAY"),
+                        // Settings
+                        createFullAccessPermission("LOCATION")
                 ))
                 .fieldPermissions(new ArrayList<>())  // No restrictions
                 .systemPermissions(Profile.SystemPermissions.builder()
@@ -164,16 +173,25 @@ public class ProfileMigrationService {
                 .profileName("Sales Manager")
                 .description("Manage sales objects with team visibility")
                 .objectPermissions(Arrays.asList(
+                        // Administration (Read Only)
                         createReadOnlyPermission("USER"),
                         createReadOnlyPermission("ROLE"),
                         createReadOnlyPermission("PROFILE"),
+                        // CRM (Full Access)
                         createFullAccessPermission("LEAD"),
                         createFullAccessPermission("ACCOUNT"),
                         createFullAccessPermission("CONTACT"),
                         createFullAccessPermission("OPPORTUNITY"),
                         createFullAccessPermission("ACTIVITY"),
                         createFullAccessPermission("PRODUCT"),
-                        createFullAccessPermission("PROPOSAL")
+                        createFullAccessPermission("PROPOSAL"),
+                        // HR (Standard Access - no VIEWALL for attendance)
+                        createStandardPermission("ATTENDANCE"),  // Can manage own, not view all
+                        createFullAccessPermission("SHIFT"),
+                        createFullAccessPermission("LEAVE"),
+                        createFullAccessPermission("HOLIDAY"),
+                        // Settings (Read Only)
+                        createReadOnlyPermission("LOCATION")
                 ))
                 .fieldPermissions(new ArrayList<>())
                 .systemPermissions(Profile.SystemPermissions.builder()
@@ -209,16 +227,25 @@ public class ProfileMigrationService {
                 .profileName("Sales Representative")
                 .description("Standard sales user access")
                 .objectPermissions(Arrays.asList(
+                        // Administration
                         createReadOnlyPermission("USER"),
                         createNoAccessPermission("ROLE"),
                         createNoAccessPermission("PROFILE"),
+                        // CRM
                         createStandardPermission("LEAD"),
                         createStandardPermission("ACCOUNT"),
                         createStandardPermission("CONTACT"),
                         createStandardPermission("OPPORTUNITY"),
                         createStandardPermission("ACTIVITY"),
                         createStandardPermission("PRODUCT"),
-                        createStandardPermission("PROPOSAL")
+                        createStandardPermission("PROPOSAL"),
+                        // HR
+                        createStandardPermission("ATTENDANCE"),
+                        createReadOnlyPermission("SHIFT"),
+                        createStandardPermission("LEAVE"),
+                        createReadOnlyPermission("HOLIDAY"),
+                        // Settings
+                        createReadOnlyPermission("LOCATION")
                 ))
                 .fieldPermissions(new ArrayList<>())
                 .systemPermissions(Profile.SystemPermissions.builder()
@@ -254,16 +281,25 @@ public class ProfileMigrationService {
                 .profileName("Read Only User")
                 .description("View-only access to all objects")
                 .objectPermissions(Arrays.asList(
+                        // Administration
                         createReadOnlyPermission("USER"),
                         createReadOnlyPermission("ROLE"),
                         createReadOnlyPermission("PROFILE"),
+                        // CRM
                         createReadOnlyPermission("LEAD"),
                         createReadOnlyPermission("ACCOUNT"),
                         createReadOnlyPermission("CONTACT"),
                         createReadOnlyPermission("OPPORTUNITY"),
                         createReadOnlyPermission("ACTIVITY"),
                         createReadOnlyPermission("PRODUCT"),
-                        createReadOnlyPermission("PROPOSAL")
+                        createReadOnlyPermission("PROPOSAL"),
+                        // HR
+                        createReadOnlyPermission("ATTENDANCE"),
+                        createReadOnlyPermission("SHIFT"),
+                        createReadOnlyPermission("LEAVE"),
+                        createReadOnlyPermission("HOLIDAY"),
+                        // Settings
+                        createReadOnlyPermission("LOCATION")
                 ))
                 .fieldPermissions(new ArrayList<>())
                 .systemPermissions(Profile.SystemPermissions.builder()

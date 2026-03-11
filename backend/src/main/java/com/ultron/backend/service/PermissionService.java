@@ -49,7 +49,19 @@ public class PermissionService extends BaseTenantService {
             return false;
         }
 
-        // Get user's profile from database (tenant-aware)
+        // PRIORITY 1: Check user-specific permission overrides first
+        if (user.getPermissionOverrides() != null && !user.getPermissionOverrides().isEmpty()) {
+            for (User.PermissionOverride override : user.getPermissionOverrides()) {
+                if (override.getObjectName().equalsIgnoreCase(objectName) &&
+                    override.getAction().equalsIgnoreCase(action)) {
+                    boolean granted = override.getGranted();
+                    log.debug("User-specific override found: granted={}", granted);
+                    return granted;
+                }
+            }
+        }
+
+        // PRIORITY 2: Fall back to profile permissions
         Profile profile = profileRepository.findByProfileIdAndTenantId(user.getProfileId(), user.getTenantId())
                 .orElse(null);
         if (profile == null || !profile.getIsActive() || profile.getIsDeleted()) {
@@ -62,7 +74,7 @@ public class PermissionService extends BaseTenantService {
             for (Profile.ObjectPermission op : profile.getObjectPermissions()) {
                 if (op.getObjectName().equalsIgnoreCase(objectName)) {
                     boolean hasPermission = checkObjectPermission(op, action);
-                    log.debug("Permission check result: {}", hasPermission);
+                    log.debug("Profile permission check result: {}", hasPermission);
                     return hasPermission;
                 }
             }

@@ -1,53 +1,41 @@
 import { api } from "./api-client";
 import type { ProfileResponse, CreateProfileRequest, UpdateProfileRequest } from "@/types/profile";
-import * as PredefinedProfiles from "./predefined-profiles";
 
 /**
- * Profiles service using predefined enums instead of database
- * All read operations use local predefined profiles
- * Write operations are disabled (profiles are hardcoded)
+ * Profiles service - manages profile CRUD operations via API
  */
 export const profilesService = {
   async createProfile(data: CreateProfileRequest): Promise<ProfileResponse> {
-    // Profiles are predefined - cannot create new profiles
-    throw new Error("Cannot create profiles - profiles are predefined in code");
+    const response = await api.post<ProfileResponse>("/profiles", data);
+    return response;
   },
 
   async getAllProfiles(activeOnly = false): Promise<ProfileResponse[]> {
-    // Use predefined profiles instead of API call
-    return Promise.resolve(activeOnly ? PredefinedProfiles.getActiveProfiles() : PredefinedProfiles.getAllProfiles());
+    const response = await api.get<ProfileResponse[]>(`/profiles?activeOnly=${activeOnly}`);
+    return response;
   },
 
   async getProfileById(id: string): Promise<ProfileResponse> {
-    // Use predefined profiles instead of API call
-    const profile = PredefinedProfiles.getProfileById(id);
-    if (!profile) {
-      throw new Error(`Profile not found with id: ${id}`);
-    }
-    return Promise.resolve(profile);
+    const response = await api.get<ProfileResponse>(`/profiles/${id}`);
+    return response;
   },
 
   async getProfileByProfileId(profileId: string): Promise<ProfileResponse> {
-    // Use predefined profiles instead of API call
-    const profile = PredefinedProfiles.getProfileById(profileId);
-    if (!profile) {
-      throw new Error(`Profile not found with profileId: ${profileId}`);
-    }
-    return Promise.resolve(profile);
+    const response = await api.get<ProfileResponse>(`/profiles/code/${profileId}`);
+    return response;
   },
 
   async searchProfiles(query: string): Promise<ProfileResponse[]> {
-    // Use predefined profiles instead of API call
-    return Promise.resolve(PredefinedProfiles.searchProfiles(query));
+    const response = await api.get<ProfileResponse[]>(`/profiles/search?query=${encodeURIComponent(query)}`);
+    return response;
   },
 
   async updateProfile(id: string, data: UpdateProfileRequest): Promise<ProfileResponse> {
-    // Profiles are predefined - cannot update profiles
-    throw new Error("Cannot update profiles - profiles are predefined in code");
+    const response = await api.put<ProfileResponse>(`/profiles/${id}`, data);
+    return response;
   },
 
   async deleteProfile(id: string): Promise<void> {
-    // Profiles are predefined - cannot delete profiles
-    throw new Error("Cannot delete profiles - profiles are predefined in code");
+    await api.delete(`/profiles/${id}`);
   },
 };

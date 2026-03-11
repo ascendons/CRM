@@ -73,6 +73,9 @@ public class User {
     private String territoryId;
     private String territoryName;  // Denormalized
 
+    // User-specific Permission Overrides
+    private List<PermissionOverride> permissionOverrides;
+
     // Legacy fields (keep for backward compatibility)
     private String fullName;  // Will be populated from profile.fullName
 
@@ -157,5 +160,24 @@ public class User {
         @Builder.Default
         private Integer failedLoginAttempts = 0;
         private LocalDateTime lockedUntil;  // null if not locked
+    }
+
+    // Nested class for Permission Override (embedded document)
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class PermissionOverride {
+        private String objectName;  // e.g., "LEAD", "ATTENDANCE"
+        private String action;  // e.g., "CREATE", "READ", "EDIT", "DELETE", "VIEWALL"
+        @Builder.Default
+        private Boolean granted = true;  // true = grant, false = explicit deny
+
+        // Audit fields
+        private String grantedBy;  // userId of admin who granted
+        private String grantedByName;  // name of admin (denormalized)
+        private LocalDateTime grantedAt;
+        private String reason;  // optional reason for override
+        private LocalDateTime expiresAt;  // optional expiration
     }
 }
