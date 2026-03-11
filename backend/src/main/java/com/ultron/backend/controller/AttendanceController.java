@@ -7,6 +7,7 @@ import com.ultron.backend.dto.request.CheckOutRequest;
 import com.ultron.backend.dto.response.ApiResponse;
 import com.ultron.backend.dto.response.AttendanceResponse;
 import com.ultron.backend.dto.attendance.DailyAttendanceDashboardResponse;
+import com.ultron.backend.dto.attendance.DetailedDailyAttendanceDto;
 import com.ultron.backend.dto.attendance.MonthlyAttendanceReportResponse;
 import com.ultron.backend.dto.attendance.TeamAttendanceResponse;
 import com.ultron.backend.service.AttendanceReportService;
@@ -277,6 +278,28 @@ public class AttendanceController {
                 ApiResponse.<TeamAttendanceResponse>builder()
                         .success(true)
                         .message("Team attendance retrieved successfully")
+                        .data(response)
+                        .build());
+    }
+
+    /**
+     * Admin: Get detailed daily attendance for all team members
+     * GET /api/v1/attendance/admin/daily-list?date=2026-03-07
+     */
+    @GetMapping("/admin/daily-list")
+    @PreAuthorize("hasPermission('ATTENDANCE', 'READ_ALL')")
+    public ResponseEntity<ApiResponse<List<DetailedDailyAttendanceDto>>> getDetailedDailyAttendance(
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+
+        LocalDate targetDate = date != null ? date : LocalDate.now();
+        log.info("Fetching detailed daily attendance list for date: {}", targetDate);
+
+        List<DetailedDailyAttendanceDto> response = attendanceReportService.getDetailedDailyAttendance(targetDate);
+
+        return ResponseEntity.ok(
+                ApiResponse.<List<DetailedDailyAttendanceDto>>builder()
+                        .success(true)
+                        .message("Detailed daily attendance retrieved successfully")
                         .data(response)
                         .build());
     }

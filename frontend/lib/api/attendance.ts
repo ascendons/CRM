@@ -73,5 +73,8 @@ export const attendanceApi = {
     api.get(`/attendance/admin/report/monthly/${userId}?year=${year}&month=${month}`),
 
   getTeamAttendance: (startDate: string, endDate: string) =>
-    api.get(`/attendance/admin/team?startDate=${startDate}&endDate=${endDate}`)
+    api.get(`/attendance/admin/team?startDate=${startDate}&endDate=${endDate}`),
+
+  getDetailedDailyAttendance: (date?: string) =>
+    api.get(`/attendance/admin/daily-list${date ? '?date=' + date : ''}`)
 };
