@@ -168,6 +168,12 @@ const InvoicePreview = forwardRef<HTMLDivElement, InvoicePreviewProps>(({
                                     <span className="font-bold text-gray-900 truncate">{proposal.customerEmail}</span>
                                 </p>
                             )}
+                            {proposal.customerPhone && (
+                                <p className="flex gap-2">
+                                    <span className="font-bold text-gray-400 uppercase w-10 underline decoration-blue-100 underline-offset-4">Phone</span>
+                                    <span className="font-bold text-gray-900 truncate">{proposal.customerPhone}</span>
+                                </p>
+                            )}
                         </div>
                     </div>
                 </div>
