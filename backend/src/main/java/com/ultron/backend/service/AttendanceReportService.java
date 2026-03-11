@@ -551,6 +551,60 @@ public class AttendanceReportService extends BaseTenantService {
                 .build();
     }
 
+    /**
+     * Get detailed daily attendance list for all team members
+     */
+    public List<DetailedDailyAttendanceDto> getDetailedDailyAttendance(LocalDate date) {
+        String tenantId = getCurrentTenantId();
+        log.info("Fetching detailed daily attendance for date: {} in tenant: {}", date, tenantId);
+
+        // Get all active users
+        List<User> allUsers = userRepository.findByTenantIdAndIsDeletedFalse(tenantId);
+
+        // Get attendance records for the date
+        List<Attendance> attendances = attendanceRepository
+                .findByTenantIdAndAttendanceDateAndIsDeletedFalse(tenantId, date);
+
+        // Create a map of userId -> attendance for quick lookup
+        Map<String, Attendance> attendanceMap = attendances.stream()
+                .collect(Collectors.toMap(Attendance::getUserId, a -> a, (a1, a2) -> a1));
+
+        // Build response for each user
+        return allUsers.stream()
+                .map(user -> {
+                    Attendance att = attendanceMap.get(user.getId());
+
+                    return DetailedDailyAttendanceDto.builder()
+                            .userId(user.getId())
+                            .userName(user.getFullName() != null ? user.getFullName() :
+                                    (user.getProfile() != null && user.getProfile().getFullName() != null) ?
+                                            user.getProfile().getFullName() : user.getUsername())
+                            .userEmail(user.getEmail())
+                            .department(user.getProfile() != null ? user.getProfile().getDepartment() : null)
+                            .attendanceId(att != null ? att.getAttendanceId() : null)
+                            .status(att != null ? att.getStatus().toString() : "ABSENT")
+                            .checkInTime(att != null && att.getCheckInTime() != null ?
+                                    formatDateTime(att.getCheckInTime()) : null)
+                            .checkOutTime(att != null && att.getCheckOutTime() != null ?
+                                    formatDateTime(att.getCheckOutTime()) : null)
+                            .type(att != null && att.getType() != null ? att.getType().toString() : null)
+                            .totalWorkMinutes(att != null ? att.getTotalWorkMinutes() : null)
+                            .lateMinutes(att != null ? att.getLateMinutes() : null)
+                            .overtimeMinutes(att != null ? att.getOvertimeMinutes() : null)
+                            .isLocationVerified(att != null ? att.getIsLocationVerified() : null)
+                            .locationValidationMessage(att != null ? att.getLocationValidationMessage() : null)
+                            .checkInLatitude(att != null && att.getCheckInLocation() != null ?
+                                    att.getCheckInLocation().getLatitude() : null)
+                            .checkInLongitude(att != null && att.getCheckInLocation() != null ?
+                                    att.getCheckInLocation().getLongitude() : null)
+                            .checkInAddress(att != null && att.getCheckInLocation() != null ?
+                                    att.getCheckInLocation().getAddress() : null)
+                            .breaks(null) // Simplified - not mapping breaks for now
+                            .build();
+                })
+                .collect(Collectors.toList());
+    }
+
     private String getUserName(List<User> users, String userId) {
         return users.stream()
                 .filter(u -> u.getId().equals(userId))

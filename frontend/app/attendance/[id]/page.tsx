@@ -26,7 +26,7 @@ interface AttendanceLocation {
 }
 
 interface BreakRecord {
-  id: string;
+  breakId: string;
   type: string;
   startTime: string;
   endTime?: string;
@@ -300,7 +300,7 @@ export default function AttendanceDetailPage() {
               </h3>
               <div className="space-y-3">
                 {attendance.breaks.map((breakRecord) => (
-                  <div key={breakRecord.id} className="bg-slate-50 rounded-xl p-4 flex items-center justify-between">
+                  <div key={breakRecord.breakId} className="bg-slate-50 rounded-xl p-4 flex items-center justify-between">
                     <div className="flex items-center gap-4">
                       <span className="text-2xl">{getBreakTypeLabel(breakRecord.type).split(' ')[0]}</span>
                       <div>

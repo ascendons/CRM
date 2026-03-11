@@ -15,7 +15,7 @@ interface AttendanceLocation {
 }
 
 interface BreakRecord {
-  id: string;
+  breakId: string;
   type: string;
   startTime: string;
   endTime?: string;
@@ -226,7 +226,7 @@ export default function DailyAttendancePage() {
     try {
       await attendanceApi.endBreak({
         attendanceId: attendance.attendanceId,
-        breakId: activeBreak.id,
+        breakId: activeBreak.breakId,
         latitude: currentLocation?.coords.latitude,
         longitude: currentLocation?.coords.longitude,
         accuracy: currentLocation?.coords.accuracy
@@ -276,6 +276,7 @@ export default function DailyAttendancePage() {
 
   const hasCheckedIn = !!attendance?.checkInTime;
   const hasCheckedOut = !!attendance?.checkOutTime;
+  const isOnLeave = attendance?.status === 'ON_LEAVE';
 
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-6">
@@ -336,8 +337,28 @@ export default function DailyAttendancePage() {
         </div>
       </div>
 
+      {/* Leave Notice */}
+      {isOnLeave && (
+        <div className="bg-blue-50 border border-blue-200 rounded-xl p-6">
+          <div className="flex items-start gap-4">
+            <div className="flex-shrink-0">
+              <svg className="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <div className="flex-1">
+              <h3 className="text-lg font-semibold text-blue-900 mb-1">You're on Leave Today</h3>
+              <p className="text-blue-700 text-sm mb-2">{attendance.systemNotes || 'You have an approved leave for today.'}</p>
+              {attendance.leaveId && (
+                <p className="text-blue-600 text-xs">Leave ID: {attendance.leaveId}</p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Action Buttons */}
-      {!hasCheckedIn && (
+      {!hasCheckedIn && !isOnLeave && (
         <div className="bg-white rounded-xl shadow p-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Check In</h2>
 
@@ -402,7 +423,7 @@ export default function DailyAttendancePage() {
       )}
 
       {/* Today's Attendance Summary */}
-      {hasCheckedIn && attendance && (
+      {hasCheckedIn && attendance && !isOnLeave && (
         <div className="bg-white rounded-xl shadow overflow-hidden">
           <div className="px-6 py-4 bg-gray-50 border-b border-gray-200">
             <div className="flex items-center justify-between">

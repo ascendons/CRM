@@ -44,6 +44,7 @@ public class Product {
     private String sku;  // Stock Keeping Unit (unique per tenant via compound index)
     private String productName;
     private String description;
+    private String hsnCode;
 
     // Pricing
     private BigDecimal basePrice;  // Unit price before tax

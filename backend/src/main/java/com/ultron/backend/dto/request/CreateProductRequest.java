@@ -27,6 +27,9 @@ public class CreateProductRequest {
 
     @Size(max = 1000, message = "Description must be less than 1000 characters")
     private String description;
+    
+    @Size(max = 50, message = "HSN code must be less than 50 characters")
+    private String hsnCode;
 
     @NotNull(message = "Base price is required")
     @Positive(message = "Base price must be positive")

@@ -558,7 +558,7 @@ public class LeaveService extends BaseTenantService {
                             .attendanceDate(current)
                             .status(AttendanceStatus.ON_LEAVE)
                             .leaveId(leave.getLeaveId())
-                            .systemNotes("Auto-created for approved leave: " + leave.getLeaveType().getDisplayName())
+                            .systemNotes(leave.getLeaveType().getDisplayName() + " - " + leave.getReason())
                             .createdAt(LocalDateTime.now())
                             .createdBy("SYSTEM")
                             .isDeleted(false)

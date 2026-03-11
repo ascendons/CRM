@@ -6,6 +6,7 @@ export interface ProductResponse {
   sku: string;
   productName: string;
   description?: string;
+  hsnCode?: string;
   basePrice: number;
   listPrice?: number;
   discount?: number;
@@ -34,6 +35,7 @@ export interface CreateProductRequest {
   sku: string;
   productName: string;
   description?: string;
+  hsnCode?: string;
   basePrice: number;
   listPrice?: number;
   discount?: number;
@@ -53,6 +55,7 @@ export interface CreateProductRequest {
 export interface UpdateProductRequest {
   productName?: string;
   description?: string;
+  hsnCode?: string;
   basePrice?: number;
   listPrice?: number;
   discount?: number;

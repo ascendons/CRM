@@ -50,7 +50,7 @@ public class BulkShiftAssignmentService extends BaseTenantService {
         OfficeLocation officeLocation = null;
         if (request.getOfficeLocationId() != null) {
             officeLocation = officeLocationRepository
-                    .findByLocationIdAndTenantId(request.getOfficeLocationId(), tenantId)
+                    .findByLocationIdAndTenantIdAndIsDeletedFalse(request.getOfficeLocationId(), tenantId)
                     .orElseThrow(() -> new RuntimeException("Office location not found"));
         }
 

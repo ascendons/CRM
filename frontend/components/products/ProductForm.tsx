@@ -21,6 +21,7 @@ export default function ProductForm({ initialData, onSubmit, isEditing = false }
     const [category, setCategory] = useState(initialData?.category || "");
     const [subcategory, setSubcategory] = useState(initialData?.subcategory || "");
     const [description, setDescription] = useState(initialData?.description || "");
+    const [hsnCode, setHsnCode] = useState(initialData?.hsnCode || "");
     const [basePrice, setBasePrice] = useState<number>(initialData?.basePrice || 0);
     const [taxRate, setTaxRate] = useState<number>(initialData?.taxRate || 18);
     const [taxType, setTaxType] = useState(initialData?.taxType || "GST");
@@ -43,6 +44,7 @@ export default function ProductForm({ initialData, onSubmit, isEditing = false }
             setCategory(initialData.category || "");
             setSubcategory(initialData.subcategory || "");
             setDescription(initialData.description || "");
+            setHsnCode(initialData.hsnCode || "");
             setBasePrice(initialData.basePrice);
             setTaxRate(initialData.taxRate || 0);
             setTaxType(initialData.taxType || "GST");
@@ -85,6 +87,7 @@ export default function ProductForm({ initialData, onSubmit, isEditing = false }
                 category: category.trim() || undefined,
                 subcategory: subcategory.trim() || undefined,
                 description: description.trim() || undefined,
+                hsnCode: hsnCode.trim() || undefined,
                 basePrice,
                 taxRate,
                 taxType,
@@ -170,6 +173,21 @@ export default function ProductForm({ initialData, onSubmit, isEditing = false }
                             value={subcategory}
                             onChange={(e) => setSubcategory(e.target.value)}
                             placeholder="e.g., Laptops"
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        />
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                            HSN Code
+                        </label>
+                        <input
+                            type="text"
+                            value={hsnCode}
+                            onChange={(e) => setHsnCode(e.target.value)}
+                            placeholder="e.g., 8471"
                             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         />
                     </div>

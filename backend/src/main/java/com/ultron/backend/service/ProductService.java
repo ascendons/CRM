@@ -52,6 +52,7 @@ public class ProductService extends BaseTenantService {
                 .sku(request.getSku())
                 .productName(request.getProductName())
                 .description(request.getDescription())
+                .hsnCode(request.getHsnCode())
                 .basePrice(request.getBasePrice())
                 .listPrice(request.getListPrice())
                 .discount(request.getDiscount())
@@ -195,6 +196,9 @@ public class ProductService extends BaseTenantService {
         if (request.getDescription() != null) {
             product.setDescription(request.getDescription());
         }
+        if (request.getHsnCode() != null) {
+            product.setHsnCode(request.getHsnCode());
+        }
         if (request.getBasePrice() != null) {
             product.setBasePrice(request.getBasePrice());
         }
@@ -295,6 +299,7 @@ public class ProductService extends BaseTenantService {
                 .sku(product.getSku())
                 .productName(product.getProductName())
                 .description(product.getDescription())
+                .hsnCode(product.getHsnCode())
                 .basePrice(product.getBasePrice())
                 .listPrice(product.getListPrice())
                 .discount(product.getDiscount())

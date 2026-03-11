@@ -29,8 +29,9 @@ export function AttendanceSummaryCard({ todayAttendance, loading, onRefresh }: A
     return `${hours}h ${mins}m`;
   };
 
-  const isCheckedIn = todayAttendance && !todayAttendance.checkOutTime;
-  const isCheckedOut = todayAttendance && todayAttendance.checkOutTime;
+  const isOnLeave = todayAttendance?.status === 'ON_LEAVE';
+  const isCheckedIn = todayAttendance && todayAttendance.checkInTime && !todayAttendance.checkOutTime && !isOnLeave;
+  const isCheckedOut = todayAttendance && todayAttendance.checkOutTime && !isOnLeave;
 
   if (loading) {
     return (
@@ -75,7 +76,23 @@ export function AttendanceSummaryCard({ todayAttendance, loading, onRefresh }: A
         </div>
 
         {/* Status */}
-        {!todayAttendance ? (
+        {isOnLeave ? (
+          <div className="space-y-3">
+            <div className="flex items-center justify-between py-2 px-3 bg-blue-50 border border-blue-100 rounded-lg">
+              <div className="flex items-center gap-2 text-blue-700">
+                <MapPin className="h-4 w-4" />
+                <span className="text-sm font-medium">On Leave Today</span>
+              </div>
+            </div>
+            <div className="bg-slate-50 rounded-lg p-3">
+              <p className="text-xs text-slate-500 mb-1">Leave Type</p>
+              <p className="text-sm font-semibold text-slate-900">{todayAttendance.systemNotes || 'Approved Leave'}</p>
+              {todayAttendance.leaveId && (
+                <p className="text-xs text-slate-500 mt-1">ID: {todayAttendance.leaveId}</p>
+              )}
+            </div>
+          </div>
+        ) : !todayAttendance ? (
           <div className="space-y-3">
             <div className="flex items-center justify-between py-2 px-3 bg-amber-50 border border-amber-100 rounded-lg">
               <div className="flex items-center gap-2 text-amber-700">

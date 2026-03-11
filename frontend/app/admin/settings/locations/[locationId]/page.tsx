@@ -29,9 +29,9 @@ export default function EditLocationPage() {
       setLoading(true);
       const data = await locationsApi.getLocationById(locationId);
       setFormData(data);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to load location:', error);
-      toast.error('Failed to load location');
+      toast.error(error.message || 'Failed to load location');
       router.push('/admin/settings/locations');
     } finally {
       setLoading(false);
