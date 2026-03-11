@@ -256,6 +256,11 @@ public class AttendanceService extends BaseTenantService {
             throw new BusinessException("You have already checked out at " + attendance.getCheckOutTime());
         }
 
+        // Validate check-in time exists
+        if (attendance.getCheckInTime() == null) {
+            throw new BusinessException("Invalid attendance record: missing check-in time. Please contact support.");
+        }
+
         // 2. Update checkout details
         attendance.setCheckOutTime(now);
         attendance.setCheckOutLocation(buildLocationFromCheckout(request));
@@ -317,7 +322,7 @@ public class AttendanceService extends BaseTenantService {
                  userId, netWorkMinutes, attendance.getOvertimeMinutes());
 
         // 6. Notifications
-        User user = userRepository.findByIdAndTenantId(userId, tenantId).orElse(null);
+        User user = userRepository.findByUserIdAndTenantId(userId, tenantId).orElse(null);
         if (attendance.getEarlyLeaveMinutes() != null && attendance.getEarlyLeaveMinutes() > 30
             && user != null && user.getManagerId() != null) {
             notificationService.createAndSendNotification(
