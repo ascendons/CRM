@@ -222,11 +222,11 @@ public class UserController {
         Profile profile = profileRepository.findByProfileIdAndTenantId(user.getProfileId(), user.getTenantId())
                 .orElseThrow(() -> new RuntimeException("Profile not found"));
 
-        // Build permission manifest
+        // Build permission manifest (with null-safe handling for minimal access profiles)
         UserPermissionsResponse permissions = UserPermissionsResponse.builder()
-                .modules(role.getModulePermissions())
-                .objectPermissions(profile.getObjectPermissions())
-                .fieldPermissions(profile.getFieldPermissions())
+                .modules(role.getModulePermissions() != null ? role.getModulePermissions() : new java.util.ArrayList<>())
+                .objectPermissions(profile.getObjectPermissions() != null ? profile.getObjectPermissions() : new java.util.ArrayList<>())
+                .fieldPermissions(profile.getFieldPermissions() != null ? profile.getFieldPermissions() : new java.util.ArrayList<>())
                 .systemPermissions(UserPermissionsResponse.SystemPermissionsDTO.builder()
                         .dataVisibility(role.getPermissions() != null ? role.getPermissions().getDataVisibility() : "OWN")
                         .canManageUsers(role.getPermissions() != null ? role.getPermissions().getCanManageUsers() : false)
