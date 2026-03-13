@@ -10,7 +10,8 @@ public enum ProposalStatus {
     SENT("Sent"),
     ACCEPTED("Accepted"),
     REJECTED("Rejected"),
-    EXPIRED("Expired");
+    EXPIRED("Expired"),
+    VOIDED("Voided");
 
     private final String displayName;
 

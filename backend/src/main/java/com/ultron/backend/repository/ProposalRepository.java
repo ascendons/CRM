@@ -27,6 +27,7 @@ public interface ProposalRepository extends MongoRepository<Proposal, String> {
      * MULTI-TENANT SAFE
      */
     Optional<Proposal> findByProposalIdAndTenantId(String proposalId, String tenantId);
+    List<Proposal> findByParentProposalIdAndTenantId(String parentProposalId, String tenantId);
 
     /**
      * Find all active proposals for a specific tenant (not deleted)

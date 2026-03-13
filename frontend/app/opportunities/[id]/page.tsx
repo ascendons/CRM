@@ -545,6 +545,7 @@ export default function OpportunityDetailPage({ params }: { params: Promise<{ id
                         <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Proposal #</th>
                         <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Title</th>
                         <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Total</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
                         <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
                         <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Valid Until</th>
                         <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
@@ -558,6 +559,17 @@ export default function OpportunityDetailPage({ params }: { params: Promise<{ id
                           </td>
                           <td className="px-4 py-4 text-sm text-gray-900">{proposal.title}</td>
                           <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">₹{proposal.totalAmount.toLocaleString()}</td>
+                          <td className="px-4 py-4 whitespace-nowrap">
+                            <span
+                              className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                                proposal.isProforma
+                                  ? "bg-purple-100 text-purple-800"
+                                  : "bg-blue-100 text-blue-800"
+                              }`}
+                            >
+                              {proposal.isProforma ? "Proforma" : "Quotation"}
+                            </span>
+                          </td>
                           <td className="px-4 py-4 whitespace-nowrap">
                             <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-${getProposalStatusColor(proposal.status)}-100 text-${getProposalStatusColor(proposal.status)}-800`}>
                               {getProposalStatusLabel(proposal.status)}

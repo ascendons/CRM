@@ -11,6 +11,7 @@ export enum ProposalStatus {
   ACCEPTED = "ACCEPTED",
   REJECTED = "REJECTED",
   EXPIRED = "EXPIRED",
+  VOIDED = "VOIDED",
 }
 
 export enum ProposalSource {
@@ -238,7 +239,9 @@ export function getProposalStatusColor(status: ProposalStatus): string {
     case ProposalStatus.REJECTED:
       return "red";
     case ProposalStatus.EXPIRED:
-      return "orange";
+      return "gray";
+    case ProposalStatus.VOIDED:
+      return "red";
     default:
       return "gray";
   }
@@ -263,6 +266,8 @@ export function getProposalStatusLabel(status: ProposalStatus): string {
       return "Rejected";
     case ProposalStatus.EXPIRED:
       return "Expired";
+    case ProposalStatus.VOIDED:
+      return "Voided";
     default:
       return status;
   }

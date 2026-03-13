@@ -207,4 +207,11 @@ export const proposalsService = {
   async internalReject(id: string, reason: string): Promise<ProposalResponse> {
     return api.post(`/proposals/${id}/internal-reject`, { reason });
   },
+
+  /**
+   * Void a proforma invoice
+   */
+  async voidProposal(id: string): Promise<ProposalResponse> {
+    return api.post(`/proposals/${id}/void`, {});
+  },
 };

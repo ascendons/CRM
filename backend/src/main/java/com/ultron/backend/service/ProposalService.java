@@ -15,6 +15,7 @@ import com.ultron.backend.repository.ProductRepository;
 import com.ultron.backend.repository.ProposalRepository;
 import com.ultron.backend.repository.UserRepository;
 import com.ultron.backend.repository.DynamicProductRepository;
+import com.ultron.backend.repository.AuditLogRepository;
 import com.ultron.backend.domain.entity.DynamicProduct.ProductAttribute;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -47,6 +48,7 @@ public class ProposalService extends BaseTenantService {
     private final PdfService pdfService;
     private final InvoiceTemplateService invoiceTemplateService;
     private final com.ultron.backend.repository.OrganizationRepository organizationRepository;
+    private final AuditLogRepository auditLogRepository;
     private final ProposalVersioningService proposalVersioningService;
     private final NotificationService notificationService;
 
@@ -236,6 +238,7 @@ public class ProposalService extends BaseTenantService {
             case REJECTED -> 5;
             case DRAFT -> 6;
             case EXPIRED -> 7;
+            case VOIDED -> 8;
         };
     }
 
@@ -1559,5 +1562,80 @@ public class ProposalService extends BaseTenantService {
     }
     public InvoiceTemplateService getInvoiceTemplateService() {
         return invoiceTemplateService;
+    }
+
+    // ==================== PREMIUM FEATURES ====================
+
+    /**
+     * Returns the audit activity log for a given proposal.
+     */
+    public List<com.ultron.backend.domain.entity.AuditLog> getProposalActivity(String proposalId) {
+        String tenantId = getCurrentTenantId();
+        Proposal proposal = proposalRepository.findByIdAndTenantId(proposalId, tenantId)
+                .orElseThrow(() -> new ResourceNotFoundException("Proposal not found: " + proposalId));
+        return auditLogRepository.findByEntityTypeAndEntityIdAndTenantIdOrderByTimestampDesc("PROPOSAL", proposal.getId(), tenantId);
+    }
+
+    /**
+     * Returns linked documents: children if quotation, parent if proforma.
+     */
+    public List<ProposalResponse> getRelatedDocuments(String proposalId) {
+        String tenantId = getCurrentTenantId();
+        Proposal proposal = proposalRepository.findByIdAndTenantId(proposalId, tenantId)
+                .orElseThrow(() -> new ResourceNotFoundException("Proposal not found: " + proposalId));
+
+        if (Boolean.TRUE.equals(proposal.getIsProforma()) && proposal.getParentProposalId() != null) {
+            // This is a proforma: return parent quotation
+            return proposalRepository.findByIdAndTenantId(proposal.getParentProposalId(), tenantId)
+                    .map(p -> List.of(mapToResponse(p)))
+                    .orElse(List.of());
+        } else {
+            // This is a quotation: return all child proformas
+            return proposalRepository.findByParentProposalIdAndTenantId(proposal.getId(), tenantId)
+                    .stream().map(this::mapToResponse).collect(Collectors.toList());
+        }
+    }
+
+    /**
+     * Voids a proforma invoice, optionally resetting the parent quotation's hasBeenConverted flag.
+     */
+    @Transactional
+    public ProposalResponse voidProforma(String proposalId, String userId) {
+        String tenantId = getCurrentTenantId();
+        Proposal proposal = proposalRepository.findByIdAndTenantId(proposalId, tenantId)
+                .orElseThrow(() -> new ResourceNotFoundException("Proposal not found: " + proposalId));
+
+        if (!Boolean.TRUE.equals(proposal.getIsProforma())) {
+            throw new IllegalStateException("Only Proforma Invoices can be voided.");
+        }
+        if (proposal.getStatus() == ProposalStatus.VOIDED) {
+            throw new IllegalStateException("This Proforma is already voided.");
+        }
+
+        proposal.setStatus(ProposalStatus.VOIDED);
+        proposal.setLastModifiedAt(LocalDateTime.now());
+        proposal.setLastModifiedBy(userId);
+
+        // If parent quotation exists, check if all sibling proformas are voided and reset flag
+        if (proposal.getParentProposalId() != null) {
+            List<Proposal> siblings = proposalRepository.findByParentProposalIdAndTenantId(proposal.getParentProposalId(), tenantId);
+            boolean allVoided = siblings.stream()
+                    .filter(s -> !s.getId().equals(proposal.getId()))
+                    .allMatch(s -> s.getStatus() == ProposalStatus.VOIDED);
+            if (allVoided) {
+                proposalRepository.findByIdAndTenantId(proposal.getParentProposalId(), tenantId).ifPresent(parent -> {
+                    parent.setHasBeenConverted(false);
+                    proposalRepository.save(parent);
+                    log.info("Reset hasBeenConverted on parent quotation: {}", parent.getProposalId());
+                });
+            }
+        }
+
+        Proposal saved = proposalRepository.save(proposal);
+        auditLogService.logAsync("PROPOSAL", saved.getId(), saved.getTitle(),
+                "VOIDED", "Proforma Invoice voided",
+                ProposalStatus.DRAFT.toString(), ProposalStatus.VOIDED.toString(),
+                userId, null);
+        return mapToResponse(saved);
     }
 }

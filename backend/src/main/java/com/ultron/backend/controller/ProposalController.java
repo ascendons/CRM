@@ -556,4 +556,57 @@ public class ProposalController {
                         .data(proposals)
                         .build());
     }
+
+    /**
+     * GET /api/v1/proposals/{id}/activity
+     * Returns the audit activity log for a proposal.
+     */
+    @GetMapping("/{id}/activity")
+    @PreAuthorize("hasPermission('PROPOSAL', 'READ')")
+    public ResponseEntity<ApiResponse<List<com.ultron.backend.domain.entity.AuditLog>>> getProposalActivity(
+            @PathVariable String id) {
+        log.info("Fetching activity for proposal: {}", id);
+        List<com.ultron.backend.domain.entity.AuditLog> activity = proposalService.getProposalActivity(id);
+        return ResponseEntity.ok(ApiResponse.<List<com.ultron.backend.domain.entity.AuditLog>>builder()
+                .success(true)
+                .message("Activity fetched")
+                .data(activity)
+                .build());
+    }
+
+    /**
+     * GET /api/v1/proposals/{id}/related
+     * Returns linked quotation or proforma documents.
+     */
+    @GetMapping("/{id}/related")
+    @PreAuthorize("hasPermission('PROPOSAL', 'READ')")
+    public ResponseEntity<ApiResponse<List<ProposalResponse>>> getRelatedDocuments(
+            @PathVariable String id) {
+        log.info("Fetching related documents for proposal: {}", id);
+        List<ProposalResponse> related = proposalService.getRelatedDocuments(id);
+        return ResponseEntity.ok(ApiResponse.<List<ProposalResponse>>builder()
+                .success(true)
+                .message("Related documents fetched")
+                .data(related)
+                .build());
+    }
+
+    /**
+     * POST /api/v1/proposals/{id}/void
+     * Voids a proforma invoice.
+     */
+    @PostMapping("/{id}/void")
+    @PreAuthorize("hasPermission('PROPOSAL', 'UPDATE')")
+    public ResponseEntity<ApiResponse<ProposalResponse>> voidProforma(
+            @PathVariable String id,
+            Authentication authentication) {
+        String currentUserId = authentication.getName();
+        log.info("User {} voiding proforma: {}", currentUserId, id);
+        ProposalResponse response = proposalService.voidProforma(id, currentUserId);
+        return ResponseEntity.ok(ApiResponse.<ProposalResponse>builder()
+                .success(true)
+                .message("Proforma voided successfully")
+                .data(response)
+                .build());
+    }
 }

@@ -28,6 +28,7 @@ import ProposalVersionHistory from "@/components/proposals/ProposalVersionHistor
 import InvoicePreviewModal from "@/components/proposals/InvoicePreviewModal";
 import ProposalVersionDiff from "@/components/proposals/ProposalVersionDiff";
 import ProposalSnapshotModal from "@/components/proposals/ProposalSnapshotModal";
+import DocumentTimeline from "@/components/proposals/DocumentTimeline";
 import { ProposalVersionResponse } from "@/types/proposal-version";
 
 export default function ProposalDetailPage() {
@@ -408,6 +409,14 @@ export default function ProposalDetailPage() {
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Document Lifecycle Timeline */}
+        <DocumentTimeline
+          status={proposal.status}
+          isProforma={proposal.isProforma}
+          hasBeenConverted={proposal.hasBeenConverted}
+          isRejected={proposal.status === ProposalStatus.REJECTED}
+        />
+
         {/* Header */}
         <div className="bg-white rounded-lg shadow p-6 mb-6">
           <div className="flex justify-between items-start">
@@ -592,6 +601,28 @@ export default function ProposalDetailPage() {
                 </PermissionGuard>
               )}
               <PermissionGuard resource="PROPOSAL" action="DELETE">
+                {proposal.isProforma && proposal.status !== ProposalStatus.VOIDED && currentUser?.role === 'ADMIN' && (
+                  <button
+                      onClick={async () => {
+                        if (!confirm("Are you sure you want to void this Proforma Invoice? This action cannot be undone.")) return;
+                        setActionLoading(true);
+                        try {
+                          const updatedProposal = await proposalsService.voidProposal(id);
+                          setProposal(updatedProposal);
+                          showToast.success("Proforma voided successfully.");
+                        } catch (error: any) {
+                          showToast.error(error.message || "Failed to void.");
+                        } finally {
+                          setActionLoading(false);
+                        }
+                      }}
+                    disabled={actionLoading}
+                    className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 disabled:opacity-50"
+                    title="Void this Proforma Invoice"
+                  >
+                    Void
+                  </button>
+                )}
                 <button
                   onClick={() => setShowDeleteModal(true)}
                   disabled={actionLoading}
@@ -711,7 +742,23 @@ export default function ProposalDetailPage() {
             )}
 
             {activeTab === 'details' && (
-              <>
+              <div className="space-y-6">
+                {/* Milestone Progress Visual for Quotations */}
+                {!proposal.isProforma && proposal.hasBeenConverted && (
+                  <div className="bg-white rounded-lg shadow p-6 border-l-4 border-blue-500">
+                    <div className="flex justify-between items-center mb-2">
+                      <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wider">Billing Progress</h3>
+                      <span className="text-sm font-bold text-blue-600">Converted to Proformas</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2.5">
+                      <div className="bg-blue-600 h-2.5 rounded-full" style={{ width: '100%' }}></div>
+                    </div>
+                    <p className="text-xs text-gray-500 mt-2 italic">
+                      All milestones have been converted to Proforma Invoices. See "Related Documents" for details.
+                    </p>
+                  </div>
+                )}
+ 
                 {/* Basic Information */}
                 <DetailSection title="Proposal Details">
                   <dl>
@@ -723,7 +770,7 @@ export default function ProposalDetailPage() {
                     <DetailRow label="Owner" value={proposal.ownerName} />
                   </dl>
                 </DetailSection>
-
+ 
                 {/* Approval Information for Quotations */}
                 {!proposal.isProforma && (proposal.approverIds?.length || 0) > 0 && (
                   <DetailSection title="Approval Status">
@@ -761,7 +808,7 @@ export default function ProposalDetailPage() {
                     </div>
                   </DetailSection>
                 )}
-
+ 
                 {/* Source Information */}
                 <DetailSection title="Source">
                   <dl>
@@ -776,7 +823,7 @@ export default function ProposalDetailPage() {
                     <DetailRow label="Name" value={proposal.sourceName} />
                   </dl>
                 </DetailSection>
-
+ 
                 {/* Address Information */}
                 {(proposal.billingAddress || proposal.shippingAddress) && (
                   <DetailSection title="Address Information">
@@ -804,7 +851,7 @@ export default function ProposalDetailPage() {
                     </div>
                   </DetailSection>
                 )}
-
+ 
                 {/* Line Items */}
                 <DetailSection title="Line Items">
                   <div className="overflow-x-auto">
@@ -835,14 +882,14 @@ export default function ProposalDetailPage() {
                         {proposal.lineItems.map((item) => {
                           let displayName = item.productName;
                           let displayDesc = item.description;
-
+ 
                           // Check for custom product name encoded in description
                           if (item.description && item.description.includes(':::')) {
                             const parts = item.description.split(':::');
                             displayName = parts[0];
                             displayDesc = parts[1];
                           }
-
+ 
                           return (
                             <tr key={item.lineItemId}>
                               <td className="px-4 py-4">
@@ -885,7 +932,7 @@ export default function ProposalDetailPage() {
                     </table>
                   </div>
                 </DetailSection>
-
+ 
                 {/* Terms */}
                 {(proposal.paymentTerms ||
                   proposal.deliveryTerms ||
@@ -910,12 +957,7 @@ export default function ProposalDetailPage() {
                       </dl>
                     </DetailSection>
                   )}
-
-                {/* Activity History */}
-                <DetailSection title="Activity History">
-                  <AuditLogTimeline entityName="PROPOSAL" entityId={proposal.id} />
-                </DetailSection>
-              </>
+              </div>
             )}
           </div>
 
