@@ -1,7 +1,7 @@
 "use client";
 
-import { use, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import {
   ProposalResponse,
@@ -19,6 +19,8 @@ import { showToast } from "@/lib/toast";
 import ConfirmModal from "@/components/ConfirmModal";
 import { AuditLogTimeline } from "@/components/common/AuditLogTimeline";
 import { PermissionGuard } from "@/components/common/PermissionGuard";
+import { usersService } from "@/lib/users";
+import { UserResponse } from "@/types/user";
 import ProposalComments from "@/components/proposals/ProposalComments";
 import CommercialNegotiation from "@/components/proposals/CommercialNegotiation";
 import { MessageSquare, Gavel, History } from "lucide-react";
@@ -28,13 +30,12 @@ import ProposalVersionDiff from "@/components/proposals/ProposalVersionDiff";
 import ProposalSnapshotModal from "@/components/proposals/ProposalSnapshotModal";
 import { ProposalVersionResponse } from "@/types/proposal-version";
 
-export default function ProposalDetailPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = use(params);
+export default function ProposalDetailPage() {
   const router = useRouter();
+  const params = useParams();
+  const id = params?.id as string;
+  console.log("[ProposalDetailPage] Rendered with id:", id);
+
   const [proposal, setProposal] = useState<ProposalResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -44,7 +45,50 @@ export default function ProposalDetailPage({
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [rejectionReason, setRejectionReason] = useState("");
 
+  const [showApprovalModal, setShowApprovalModal] = useState(false);
+  const [availableUsers, setAvailableUsers] = useState<UserResponse[]>([]);
+  const [selectedApprovers, setSelectedApprovers] = useState<string[]>([]);
+
+  const [showConvertModal, setShowConvertModal] = useState(false);
+  const [selectedMilestones, setSelectedMilestones] = useState<any[]>([]);
+
   const [actionLoading, setActionLoading] = useState(false);
+  const [currentUser, setCurrentUser] = useState<any>(null);
+
+  useEffect(() => {
+    const user = authService.getUser();
+    console.log("[ProposalDetailPage] Current user from authService:", user);
+    setCurrentUser(user);
+  }, []);
+
+  useEffect(() => {
+    if (proposal && currentUser) {
+      const isApp = checkIsApprover();
+      console.log("[ProposalDetailPage] Visibility Debug:", {
+        status: proposal.status,
+        isApprover: isApp,
+        approverIds: proposal.approverIds,
+        currentUserId: currentUser.userId,
+        currentId: currentUser.id,
+        userRole: currentUser.role
+      });
+    }
+  }, [proposal, currentUser]);
+
+  const checkIsApprover = () => {
+    if (!proposal || !currentUser) return false;
+    
+    // Admin/Manager bypass
+    if (currentUser.role === 'ADMIN' || currentUser.role === 'MANAGER') return true;
+    
+    const approverIds = proposal.approverIds || [];
+    const myId = currentUser.userId || currentUser.id;
+    
+    // Match by ID
+    if (myId && approverIds.includes(myId)) return true;
+    
+    return false;
+  };
 
   // Negotiation state
   const [showNegotiationModal, setShowNegotiationModal] = useState(false);
@@ -140,12 +184,92 @@ export default function ProposalDetailPage({
     }
   };
 
+  const handleOpenApprovalModal = async () => {
+    console.log("[ProposalDetailPage] handleOpenApprovalModal called");
+    try {
+      setActionLoading(true);
+      console.log("[ProposalDetailPage] Fetching active users...");
+      const users = await usersService.getActiveUsers();
+      console.log("[ProposalDetailPage] Users fetched:", users);
+      
+      const usersArray = Array.isArray(users) ? users : [];
+      setAvailableUsers(usersArray);
+      
+      const initialApprovers = proposal?.approverIds || [];
+      console.log("[ProposalDetailPage] Initial approvers:", initialApprovers);
+      setSelectedApprovers(initialApprovers);
+      
+      console.log("[ProposalDetailPage] Showing approval modal");
+      setShowApprovalModal(true);
+    } catch (err) {
+      console.error("[ProposalDetailPage] Failed to load users for approval:", err);
+      showToast.error("Failed to load users for approval");
+      setAvailableUsers([]);
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleRequestApproval = async () => {
+    if (!proposal) return;
+    if (selectedApprovers.length === 0) {
+      showToast.error("Please select at least one approver");
+      return;
+    }
+    try {
+      setActionLoading(true);
+      // First update the approvers
+      await proposalsService.updateProposal(proposal.id, { approverIds: selectedApprovers });
+      // Then request approval
+      await proposalsService.requestApproval(proposal.id);
+      showToast.success("Quotation sent for approval");
+      setShowApprovalModal(false);
+      loadProposal();
+    } catch (err) {
+      showToast.error(err instanceof Error ? err.message : "Failed to request approval");
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleApprove = async () => {
+    if (!proposal) return;
+    try {
+      setActionLoading(true);
+      await proposalsService.approveProposal(proposal.id);
+      showToast.success("Quotation approved");
+      loadProposal();
+    } catch (err) {
+      showToast.error(err instanceof Error ? err.message : "Failed to approve quotation");
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleInternalReject = async () => {
+    if (!proposal) return;
+    const reason = window.prompt("Please provide a reason for rejection:");
+    if (reason === null) return; // User cancelled prompt
+
+    try {
+      setActionLoading(true);
+      await proposalsService.internalReject(proposal.id, reason);
+      showToast.success("Quotation rejected and moved back to draft");
+      loadProposal();
+    } catch (err) {
+      showToast.error(err instanceof Error ? err.message : "Failed to reject quotation");
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
   const handleConvertToProforma = async () => {
     if (!proposal) return;
     try {
       setActionLoading(true);
-      await proposalsService.convertToProforma(proposal.id);
-      showToast.success("Quotation converted to Proforma Invoice successfully");
+      await proposalsService.convertToProforma(proposal.id, selectedMilestones);
+      showToast.success("Quotation converted to Proforma Invoice(s) successfully");
+      setShowConvertModal(false);
       loadProposal();
     } catch (err) {
       showToast.error(
@@ -306,6 +430,22 @@ export default function ProposalDetailPage({
                   Customer: {proposal.customerName}
                 </p>
               )}
+              
+              {proposal.approvedByNames && proposal.approvedByNames.length > 0 && (
+                <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg flex items-center gap-3 text-green-800 shadow-sm">
+                  <div className="bg-green-100 p-2 rounded-full">
+                    <CheckCircle className="h-5 w-5 text-green-600" />
+                  </div>
+                  <div>
+                    <span className="font-semibold text-lg">
+                      Approved by: {proposal.approvedByNames.join(", ")}
+                    </span>
+                    <p className="text-sm text-green-700 mt-1">
+                      This quotation has been officially approved and is ready for the next stage.
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
             <div className="flex gap-2">
               <Link
@@ -320,9 +460,64 @@ export default function ProposalDetailPage({
                 className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 flex items-center gap-2 disabled:opacity-50"
               >
                 <Download className="h-4 w-4" />
-                Invoice
+                {proposal.isProforma ? "Proforma" : "Quotation"}
               </button>
+              
               {proposal.status === ProposalStatus.DRAFT && (
+                <>
+                  {!proposal.isProforma && (
+                    <button
+                      onClick={handleOpenApprovalModal}
+                      disabled={actionLoading}
+                      className="px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 disabled:opacity-50 flex items-center gap-2"
+                    >
+                      <CheckCircle className="h-4 w-4" />
+                      Request Approval
+                    </button>
+                  )}
+                  {proposal.isProforma && (
+                    <PermissionGuard resource="PROPOSAL" action="SEND">
+                      <button
+                        onClick={handleSend}
+                        disabled={actionLoading}
+                        className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
+                      >
+                        Send to Customer
+                      </button>
+                    </PermissionGuard>
+                  )}
+                </>
+              )}
+
+              {/* Internal Approval Actions (Hidden for Proforma) */}
+              {proposal.status === ProposalStatus.PENDING_APPROVAL && !proposal.isProforma && (
+                <div className="flex gap-2">
+                  {checkIsApprover() && (
+                    <>
+                      {!proposal.approvedByIds?.includes(currentUser?.userId || "") && (
+                        <button
+                          onClick={handleApprove}
+                          disabled={actionLoading}
+                          className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 flex items-center gap-2 shadow-sm"
+                        >
+                          <CheckCircle className="h-4 w-4" />
+                          Approve Quotation
+                        </button>
+                      )}
+                      <button
+                        onClick={handleInternalReject}
+                        disabled={actionLoading}
+                        className="px-4 py-2 bg-white text-red-600 border border-red-200 rounded-lg hover:bg-red-50 disabled:opacity-50 flex items-center gap-2 shadow-sm"
+                      >
+                        <XCircle className="h-4 w-4" />
+                        Reject
+                      </button>
+                    </>
+                  )}
+                </div>
+              )}
+
+              {proposal.status === ProposalStatus.PENDING_ON_CUSTOMER && !proposal.isProforma && (
                 <PermissionGuard resource="PROPOSAL" action="SEND">
                   <button
                     onClick={handleSend}
@@ -344,46 +539,55 @@ export default function ProposalDetailPage({
                   </Link>
                 </PermissionGuard>
               )}
-              {proposal.status === ProposalStatus.SENT && (
+              {(proposal.status === ProposalStatus.SENT || 
+                proposal.status === ProposalStatus.PENDING_APPROVAL || 
+                proposal.status === ProposalStatus.PENDING_ON_CUSTOMER) && !proposal.isProforma && (
                 <>
                   <PermissionGuard resource="PROPOSAL" action="APPROVE">
                     <button
                       onClick={handleAccept}
                       disabled={actionLoading}
-                      className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
+                      className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 flex items-center gap-2"
                     >
+                      <CheckCircle className="h-4 w-4" />
                       Accept
                     </button>
                   </PermissionGuard>
-                  <PermissionGuard resource="PROPOSAL" action="EDIT">
-                    <button
-                      onClick={() => setShowNegotiationModal(true)}
-                      disabled={actionLoading}
-                      className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50"
-                    >
-                      Negotiate
-                    </button>
-                  </PermissionGuard>
+                  {proposal.status === ProposalStatus.SENT && (
+                    <PermissionGuard resource="PROPOSAL" action="EDIT">
+                      <button
+                        onClick={() => setShowNegotiationModal(true)}
+                        disabled={actionLoading}
+                        className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50"
+                      >
+                        Negotiate
+                      </button>
+                    </PermissionGuard>
+                  )}
                   <PermissionGuard resource="PROPOSAL" action="REJECT">
                     <button
                       onClick={() => setShowRejectModal(true)}
                       disabled={actionLoading}
-                      className="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 disabled:opacity-50"
+                      className="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 disabled:opacity-50 flex items-center gap-2"
                     >
+                      <XCircle className="h-4 w-4" />
                       Reject
                     </button>
                   </PermissionGuard>
                 </>
               )}
-              {proposal.status === ProposalStatus.ACCEPTED && !proposal.isProforma && (
+              {proposal.status === ProposalStatus.ACCEPTED && !proposal.isProforma && currentUser?.role === 'ADMIN' && (
                 <PermissionGuard resource="PROPOSAL" action="UPDATE">
                   <button
-                    onClick={handleConvertToProforma}
-                    disabled={actionLoading}
+                    onClick={() => {
+                        setSelectedMilestones([{ name: "Full Payment", percentage: 100 }]);
+                        setShowConvertModal(true);
+                    }}
+                    disabled={actionLoading || proposal.hasBeenConverted}
                     className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 flex items-center gap-2 disabled:opacity-50"
                   >
                     <CheckCircle className="h-4 w-4" />
-                    Convert to Proforma
+                    {proposal.hasBeenConverted ? "Converted to Proforma" : "Convert to Proforma"}
                   </button>
                 </PermissionGuard>
               )}
@@ -519,6 +723,44 @@ export default function ProposalDetailPage({
                     <DetailRow label="Owner" value={proposal.ownerName} />
                   </dl>
                 </DetailSection>
+
+                {/* Approval Information for Quotations */}
+                {!proposal.isProforma && (proposal.approverIds?.length || 0) > 0 && (
+                  <DetailSection title="Approval Status">
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100">
+                        <span className="text-sm font-medium text-gray-700">Status</span>
+                        <span className={`px-2 py-1 text-xs font-bold rounded-full ${
+                          proposal.status === ProposalStatus.PENDING_APPROVAL ? 'bg-amber-100 text-amber-700' :
+                          proposal.status === ProposalStatus.PENDING_ON_CUSTOMER ? 'bg-emerald-100 text-emerald-700' :
+                          'bg-gray-100 text-gray-700'
+                        }`}>
+                          {getProposalStatusLabel(proposal.status)}
+                        </span>
+                      </div>
+                      <div>
+                        <h4 className="text-xs font-semibold text-gray-500 uppercase mb-2">Approvers</h4>
+                        <div className="space-y-2">
+                          {proposal.approverIds?.map(approverId => {
+                            const isApproved = proposal.approvedByIds?.includes(approverId) || false;
+                            return (
+                              <div key={approverId} className="flex items-center justify-between text-sm">
+                                <span className="text-gray-900">User ID: {approverId}</span>
+                                {isApproved ? (
+                                  <span className="flex items-center gap-1 text-emerald-600 font-medium">
+                                    <CheckCircle className="h-3 w-3" /> Approved
+                                  </span>
+                                ) : (
+                                  <span className="text-amber-500">Pending</span>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </div>
+                  </DetailSection>
+                )}
 
                 {/* Source Information */}
                 <DetailSection title="Source">
@@ -730,6 +972,14 @@ export default function ProposalDetailPage({
                       {formatCurrency(proposal.totalAmount)}
                     </dd>
                   </div>
+                  {proposal.milestonePayableAmount !== undefined && proposal.milestonePayableAmount !== null && (
+                    <div className="flex justify-between text-xl font-extrabold border-t-2 border-blue-100 pt-3 mt-2 bg-blue-50 p-2 rounded-lg">
+                      <dt className="text-blue-900">Payable Amount</dt>
+                      <dd className="text-blue-700">
+                        {formatCurrency(proposal.milestonePayableAmount)}
+                      </dd>
+                    </div>
+                  )}
                 </dl>
               </DetailSection>
 
@@ -902,6 +1152,207 @@ export default function ProposalDetailPage({
           isOpen={!!selectedVersion}
           onClose={() => setSelectedVersion(null)}
         />
+      )}
+
+      {/* Request Approval Modal */}
+      {showApprovalModal && (
+        <div className="fixed inset-0 z-[100] overflow-y-auto">
+          {/* Backdrop */}
+          <div 
+            className="fixed inset-0 bg-black bg-opacity-50 transition-opacity" 
+            aria-hidden="true" 
+            onClick={() => setShowApprovalModal(false)}
+          ></div>
+
+          {/* Modal Container */}
+          <div className="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+            <div 
+              className="relative bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg w-full"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                <div className="sm:flex sm:items-start">
+                  <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 sm:mx-0 sm:h-10 sm:w-10">
+                    <CheckCircle className="h-6 w-6 text-blue-600" aria-hidden="true" />
+                  </div>
+                  <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+                    <h3 className="text-lg leading-6 font-medium text-gray-900" id="modal-title">
+                      Request Approval
+                    </h3>
+                    <div className="mt-2">
+                      <p className="text-sm text-gray-500 mb-4">
+                        Select users to tag for approving this quotation.
+                      </p>
+                      
+                      <div className="max-h-60 overflow-y-auto border border-gray-200 rounded-md">
+                        {Array.isArray(availableUsers) && availableUsers.length > 0 ? (
+                          availableUsers.map((user, idx) => {
+                            if (!user) return null;
+                            const userId = user.id || user.userId || `unknown-${idx}`;
+                            const isChecked = (selectedApprovers || []).includes(userId);
+                            return (
+                              <div key={userId} className="flex items-center p-3 border-b border-gray-100 hover:bg-gray-50">
+                                <input
+                                  id={`user-${userId}`}
+                                  type="checkbox"
+                                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                  checked={isChecked}
+                                  onChange={(e) => {
+                                    if (e.target.checked) {
+                                      setSelectedApprovers(prev => [...prev, userId]);
+                                    } else {
+                                      setSelectedApprovers(prev => prev.filter(aid => aid !== userId));
+                                    }
+                                  }}
+                                />
+                                <label htmlFor={`user-${userId}`} className="ml-3 block text-sm font-medium text-gray-700 cursor-pointer w-full">
+                                  {user.profile?.fullName || `${user.profile?.firstName || ""} ${user.profile?.lastName || ""}`.trim() || user.username || "System User"} 
+                                  <span className="text-gray-400 font-normal ml-1">({user.email || "No email"})</span>
+                                </label>
+                              </div>
+                            );
+                          })
+                        ) : (
+                          <div className="p-4 text-sm text-gray-500 text-center">No active users found.</div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                <button
+                  type="button"
+                  disabled={actionLoading}
+                  className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50"
+                  onClick={handleRequestApproval}
+                >
+                  {actionLoading ? "Sending..." : "Send Request"}
+                </button>
+                <button
+                  type="button"
+                  disabled={actionLoading}
+                  className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50"
+                  onClick={() => setShowApprovalModal(false)}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Convert to Proforma Modal */}
+      {showConvertModal && (
+        <div className="fixed inset-0 z-[100] overflow-y-auto">
+          {/* Backdrop */}
+          <div 
+            className="fixed inset-0 bg-black bg-opacity-50 transition-opacity" 
+            aria-hidden="true" 
+            onClick={() => setShowConvertModal(false)}
+          ></div>
+
+          {/* Modal Container */}
+          <div className="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+            <div 
+              className="relative bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-xl w-full"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                <div className="sm:flex sm:items-start">
+                  <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-indigo-100 sm:mx-0 sm:h-10 sm:w-10">
+                    <CheckCircle className="h-6 w-6 text-indigo-600" aria-hidden="true" />
+                  </div>
+                  <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+                    <h3 className="text-lg leading-6 font-medium text-gray-900" id="modal-title">
+                      Convert to Proforma Invoice
+                    </h3>
+                    <div className="mt-2 text-left">
+                      <p className="text-sm text-gray-500 mb-4">
+                        If you want to split this quotation into multiple proforma invoices based on milestones, add them below. Otherwise, keep it as a single 100% stage.
+                      </p>
+                      
+                      <div className="space-y-3">
+                        {selectedMilestones.map((milestone, index) => (
+                          <div key={index} className="flex gap-2 items-end">
+                            <div className="flex-1">
+                              <label className="block text-xs font-medium text-gray-500 mb-1">Milestone Name</label>
+                              <input
+                                type="text"
+                                value={milestone.name}
+                                onChange={(e) => {
+                                  const newMilestones = [...selectedMilestones];
+                                  newMilestones[index].name = e.target.value;
+                                  setSelectedMilestones(newMilestones);
+                                }}
+                                className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm p-2 bg-gray-50"
+                                placeholder="e.g. Advance"
+                              />
+                            </div>
+                            <div className="w-24">
+                              <label className="block text-xs font-medium text-gray-500 mb-1">Percentage (%)</label>
+                              <input
+                                type="number"
+                                value={milestone.percentage}
+                                onChange={(e) => {
+                                  const newMilestones = [...selectedMilestones];
+                                  newMilestones[index].percentage = parseFloat(e.target.value) || 0;
+                                  setSelectedMilestones(newMilestones);
+                                }}
+                                className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm p-2 bg-gray-50"
+                              />
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => setSelectedMilestones(selectedMilestones.filter((_, i) => i !== index))}
+                              className="p-2 text-red-500 hover:text-red-700"
+                            >
+                              <X className="h-4 w-4" />
+                            </button>
+                          </div>
+                        ))}
+                        
+                        <button
+                          type="button"
+                          onClick={() => setSelectedMilestones([...selectedMilestones, { name: "", percentage: 0 }])}
+                          className="w-full py-2 border-2 border-dashed border-gray-300 text-gray-500 rounded-lg hover:border-indigo-300 hover:text-indigo-600 transition-colors text-sm"
+                        >
+                          + Add Milestone
+                        </button>
+                        
+                        <div className="pt-2 flex justify-between items-center text-sm border-t border-gray-100">
+                          <span className="text-gray-500 font-medium">Total Percentage:</span>
+                          <span className={`font-bold text-base ${selectedMilestones.reduce((sum, m) => sum + m.percentage, 0) === 100 ? 'text-green-600' : 'text-red-600'}`}>
+                            {selectedMilestones.reduce((sum, m) => sum + m.percentage, 0)}%
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                <button
+                  type="button"
+                  disabled={actionLoading || selectedMilestones.reduce((sum, m) => sum + m.percentage, 0) !== 100}
+                  className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50"
+                  onClick={handleConvertToProforma}
+                >
+                  Convert
+                </button>
+                <button
+                  type="button"
+                  disabled={actionLoading}
+                  className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50"
+                  onClick={() => setShowConvertModal(false)}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
 
     </div >

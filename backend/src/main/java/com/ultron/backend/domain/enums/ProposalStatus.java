@@ -5,6 +5,8 @@ import lombok.Getter;
 @Getter
 public enum ProposalStatus {
     DRAFT("Draft"),
+    PENDING_APPROVAL("Pending Approval"),
+    PENDING_ON_CUSTOMER("Pending on Customer"),
     SENT("Sent"),
     ACCEPTED("Accepted"),
     REJECTED("Rejected"),

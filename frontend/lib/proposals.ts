@@ -29,14 +29,17 @@ export const proposalsService = {
   /**
    * Get all proposals
    */
-  async getAllProposals(pagination?: PaginationParams): Promise<Page<ProposalResponse> | ProposalResponse[]> {
+  async getAllProposals(pagination?: PaginationParams, isProforma?: boolean): Promise<Page<ProposalResponse> | ProposalResponse[]> {
     const params = new URLSearchParams();
     if (pagination) {
       if (pagination.page !== undefined) params.append("page", String(pagination.page - 1));
       if (pagination.size !== undefined) params.append("size", String(pagination.size));
       if (pagination.sort) params.append("sort", pagination.sort);
     }
-    return api.get(pagination ? `/proposals?${params.toString()}` : "/proposals");
+    if (isProforma !== undefined) {
+      params.append("isProforma", String(isProforma));
+    }
+    return api.get(params.toString() ? `/proposals?${params.toString()}` : "/proposals");
   },
 
   /**
@@ -181,7 +184,27 @@ export const proposalsService = {
   /**
    * Convert proposal to Proforma Invoice (ACCEPTED only)
    */
-  async convertToProforma(id: string): Promise<ProposalResponse> {
-    return api.post(`/proposals/${id}/convert-to-proforma`, {});
+  async convertToProforma(id: string, paymentMilestones: import("@/types/proposal").PaymentMilestoneDTO[]): Promise<ProposalResponse[]> {
+    return api.post(`/proposals/${id}/convert-to-proforma`, paymentMilestones);
+  },
+
+  /**
+   * Request approval for a proposal
+   */
+  async requestApproval(id: string): Promise<ProposalResponse> {
+    return api.post(`/proposals/${id}/request-approval`, {});
+  },
+
+  /**
+   * Approve a proposal
+   */
+  async approveProposal(id: string): Promise<ProposalResponse> {
+    return api.post(`/proposals/${id}/approve`, {});
+  },
+  /**
+   * Reject a proposal internally by an approver
+   */
+  async internalReject(id: string, reason: string): Promise<ProposalResponse> {
+    return api.post(`/proposals/${id}/internal-reject`, { reason });
   },
 };

@@ -39,6 +39,9 @@ public class CreateProposalRequest {
     @ValidUntilConstraint(maxMonths = 12)
     private LocalDate validUntil;
 
+    private Boolean isProforma;
+    private List<String> approverIds;
+
     // Customer Information
     @Size(max = 200, message = "Company name must be less than 200 characters")
     private String companyName;

@@ -26,12 +26,16 @@ import { Lead } from "@/types/lead";
 import { Opportunity } from "@/types/opportunity";
 import { CountryStateSelector } from "../common/CountryStateSelector";
 import CatalogProductSearch from "./CatalogProductSearch";
+import { usersService } from "@/lib/users";
+import { UserResponse } from "@/types/user";
+import { CheckCircle, Send } from "lucide-react";
 
 interface ProposalFormProps {
     mode: "create" | "edit";
     initialData?: ProposalResponse;
     sourceType?: ProposalSource;
     sourceId?: string;
+    isProforma?: boolean;
 }
 
 // Card wrapper for each section
@@ -71,6 +75,7 @@ export default function ProposalForm({
     initialData,
     sourceType,
     sourceId: initialSourceId,
+    isProforma: initialIsProforma,
 }: ProposalFormProps) {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
@@ -80,9 +85,14 @@ export default function ProposalForm({
     const [errors, setErrors] = useState<string[]>([]);
 
     // Form state
+    const [isProforma, setIsProforma] = useState<boolean>(
+        initialData?.isProforma ?? (initialIsProforma || false)
+    );
     const [source, setSource] = useState<ProposalSource>(
         initialData?.source || sourceType || ProposalSource.LEAD
     );
+    const [approverIds, setApproverIds] = useState<string[]>(initialData?.approverIds || []);
+    const [availableUsers, setAvailableUsers] = useState<UserResponse[]>([]);
     const [sourceId, setSourceId] = useState(
         initialData?.sourceId || initialSourceId || ""
     );
@@ -250,12 +260,17 @@ export default function ProposalForm({
 
     const loadData = async () => {
         try {
-            const [productsData, leadsData, opportunitiesData, orgData] = await Promise.all([
+            const [productsData, leadsData, opportunitiesData, orgData, usersData] = await Promise.all([
                 productsService.getAllProducts(),
                 leadsService.getAllLeads(),
                 opportunitiesService.getAllOpportunities(),
-                organizationApi.getCurrent()
+                organizationApi.getCurrent(),
+                usersService.getActiveUsers()
             ]);
+
+            if (Array.isArray(usersData)) {
+                setAvailableUsers(usersData);
+            }
 
             if (Array.isArray(productsData)) {
                 setProducts(productsData);
@@ -465,10 +480,21 @@ export default function ProposalForm({
                     paymentTerms: paymentTerms.trim() || undefined,
                     deliveryTerms: deliveryTerms.trim() || undefined,
                     notes: notes.trim() || undefined,
+                    isProforma,
+                    approverIds: approverIds.length > 0 ? approverIds : undefined,
                 };
 
                 const created = await proposalsService.createProposal(request);
-                showToast.success("Proposal created successfully");
+                
+                // Handle "Save & Request Approval"
+                const shouldRequest = document.getElementsByName('requestApproval')[0]?.getAttribute('value') === 'true';
+
+                if (shouldRequest) {
+                    await proposalsService.requestApproval(created.id);
+                    showToast.success("Quotation created and sent for approval");
+                } else {
+                    showToast.success(`${isProforma ? 'Proposal' : 'Quotation'} created successfully`);
+                }
 
                 if (source === ProposalSource.LEAD && sourceId) {
                     try {
@@ -504,13 +530,23 @@ export default function ProposalForm({
                     paymentTerms: paymentTerms.trim() || undefined,
                     deliveryTerms: deliveryTerms.trim() || undefined,
                     notes: notes.trim() || undefined,
+                    isProforma,
+                    approverIds: approverIds.length > 0 ? approverIds : undefined,
                 };
 
                 const updated = await proposalsService.updateProposal(
                     initialData.id,
                     request
                 );
-                showToast.success("Proposal updated successfully");
+
+                const shouldRequest = document.getElementsByName('requestApproval')[0]?.getAttribute('value') === 'true';
+
+                if (shouldRequest) {
+                  await proposalsService.requestApproval(updated.id);
+                  showToast.success("Quotation updated and sent for approval");
+                } else {
+                  showToast.success(`${isProforma ? 'Proposal' : 'Quotation'} updated successfully`);
+                }
                 router.push(`/proposals/${updated.id}`);
             }
         } catch (err) {
@@ -1314,80 +1350,82 @@ export default function ProposalForm({
                 </SectionCard>
 
                 {/* Card: Payment Milestones */}
-                <SectionCard
-                    title="Payment Milestones"
-                    description="Split payment into multiple stages"
-                    icon={
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                        </svg>
-                    }
-                >
-                    <div className="space-y-3">
-                        {paymentMilestones.length > 0 ? (
-                            <>
-                                <div className="flex items-center justify-between text-xs">
-                                    <span className="text-gray-500">Total allocation:</span>
-                                    <span className={`font-semibold ${milestoneTotal === 100 ? 'text-green-600' : 'text-red-600'}`}>
-                                        {milestoneTotal}% {milestoneTotal === 100 ? '✓' : '(must be 100%)'}
-                                    </span>
-                                </div>
-                                {paymentMilestones.map((milestone, index) => (
-                                    <div key={index} className="flex gap-2 items-end">
-                                        <div className="flex-1">
-                                            {index === 0 && <label className="block text-xs text-gray-500 mb-1">Name <span className="text-red-500">*</span></label>}
-                                            <input
-                                                type="text"
-                                                value={milestone.name}
-                                                onChange={(e) => updateMilestone(index, "name", e.target.value)}
-                                                placeholder="e.g. Advance"
-                                                className={inputCls}
-                                                required
-                                                disabled={isReadOnly}
-                                            />
-                                        </div>
-                                        <div className="w-24">
-                                            {index === 0 && <label className="block text-xs text-gray-500 mb-1">% <span className="text-red-500">*</span></label>}
-                                            <div className="relative">
+                {isProforma && (
+                    <SectionCard
+                        title="Payment Milestones"
+                        description="Split payment into multiple stages"
+                        icon={
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                            </svg>
+                        }
+                    >
+                        <div className="space-y-3">
+                            {paymentMilestones.length > 0 ? (
+                                <>
+                                    <div className="flex items-center justify-between text-xs">
+                                        <span className="text-gray-500">Total allocation:</span>
+                                        <span className={`font-semibold ${milestoneTotal === 100 ? 'text-green-600' : 'text-red-600'}`}>
+                                            {milestoneTotal}% {milestoneTotal === 100 ? '✓' : '(must be 100%)'}
+                                        </span>
+                                    </div>
+                                    {paymentMilestones.map((milestone, index) => (
+                                        <div key={index} className="flex gap-2 items-end">
+                                            <div className="flex-1">
+                                                {index === 0 && <label className="block text-xs text-gray-500 mb-1">Name <span className="text-red-500">*</span></label>}
                                                 <input
-                                                    type="number"
-                                                    value={milestone.percentage || ""}
-                                                    onChange={(e) => updateMilestone(index, "percentage", parseFloat(e.target.value) || 0)}
-                                                    step="0.01"
-                                                    max="100"
-                                                    min="0"
+                                                    type="text"
+                                                    value={milestone.name}
+                                                    onChange={(e) => updateMilestone(index, "name", e.target.value)}
+                                                    placeholder="e.g. Advance"
                                                     className={inputCls}
                                                     required
                                                     disabled={isReadOnly}
                                                 />
-                                                <span className="absolute inset-y-0 right-3 flex items-center text-gray-400 text-xs">%</span>
                                             </div>
+                                            <div className="w-24">
+                                                {index === 0 && <label className="block text-xs text-gray-500 mb-1">% <span className="text-red-500">*</span></label>}
+                                                <div className="relative">
+                                                    <input
+                                                        type="number"
+                                                        value={milestone.percentage || ""}
+                                                        onChange={(e) => updateMilestone(index, "percentage", parseFloat(e.target.value) || 0)}
+                                                        step="0.01"
+                                                        max="100"
+                                                        min="0"
+                                                        className={inputCls}
+                                                        required
+                                                        disabled={isReadOnly}
+                                                    />
+                                                    <span className="absolute inset-y-0 right-3 flex items-center text-gray-400 text-xs">%</span>
+                                                </div>
+                                            </div>
+                                            <button
+                                                type="button"
+                                                onClick={() => removeMilestone(index)}
+                                                disabled={isReadOnly}
+                                                className="p-2 text-red-500 hover:text-red-700 disabled:text-gray-400"
+                                            >
+                                                ✕
+                                            </button>
                                         </div>
-                                        <button
-                                            type="button"
-                                            onClick={() => removeMilestone(index)}
-                                            disabled={isReadOnly}
-                                            className="p-2 text-red-500 hover:text-red-700 disabled:text-gray-400"
-                                        >
-                                            ✕
-                                        </button>
-                                    </div>
-                                ))}
-                            </>
-                        ) : (
-                            <p className="text-sm text-gray-400 italic">No milestones. Proposal is 100% upfront.</p>
-                        )}
+                                    ))}
+                                </>
+                            ) : (
+                                <p className="text-sm text-gray-400 italic">No milestones. Proposal is 100% upfront.</p>
+                            )}
 
-                        <button
-                            type="button"
-                            onClick={addMilestone}
-                            disabled={isReadOnly}
-                            className="w-full py-2 border-2 border-dashed border-gray-300 text-gray-500 rounded-lg hover:border-blue-300 hover:text-blue-600 transition-colors text-sm disabled:opacity-50"
-                        >
-                            + Add Milestone
-                        </button>
-                    </div>
-                </SectionCard>
+                            <button
+                                type="button"
+                                onClick={addMilestone}
+                                disabled={isReadOnly}
+                                className="w-full py-2 border-2 border-dashed border-gray-300 text-gray-500 rounded-lg hover:border-blue-300 hover:text-blue-600 transition-colors text-sm disabled:opacity-50"
+                            >
+                                + Add Milestone
+                            </button>
+                        </div>
+                    </SectionCard>
+                )}
             </div>
 
             {/* ── ROW 4: Terms & Conditions (full width, 3 columns) ── */}
@@ -1437,6 +1475,50 @@ export default function ProposalForm({
                 </div>
             </SectionCard>
 
+            {/* Card: Approvers (Only for Quotations) */}
+            {!isProforma && (
+                <SectionCard
+                    title="Tag Approvers"
+                    description="Select people who need to approve this quotation"
+                    icon={
+                        <CheckCircle className="w-4 h-4" />
+                    }
+                >
+                    <div className="space-y-4">
+                        <p className="text-xs text-gray-500">
+                            This quotation will be sent for approval to the people you tag here.
+                        </p>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-48 overflow-y-auto p-1 text-left">
+                            {availableUsers.map(user => (
+                                <div key={user.userId} className="flex items-center p-2 border border-gray-100 rounded-lg hover:bg-gray-50">
+                                    <input
+                                        type="checkbox"
+                                        id={`approver-${user.userId}`}
+                                        checked={approverIds.includes(user.userId)}
+                                        onChange={(e) => {
+                                            if (e.target.checked) {
+                                                setApproverIds([...approverIds, user.userId]);
+                                            } else {
+                                                setApproverIds(approverIds.filter(id => id !== user.userId));
+                                            }
+                                        }}
+                                        className="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
+                                    />
+                                    <label htmlFor={`approver-${user.userId}`} className="ml-3 block text-sm text-gray-700 cursor-pointer">
+                                        {user.profile?.fullName || user.username}
+                                    </label>
+                                </div>
+                            ))}
+                            {availableUsers.length === 0 && (
+                                <div className="col-span-full py-4 text-center text-xs text-gray-400 italic">
+                                    No active users found to tag.
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </SectionCard>
+            )}
+
             {/* ── Actions ── */}
             <div className="flex justify-end gap-3 pb-4">
                 <button
@@ -1455,9 +1537,37 @@ export default function ProposalForm({
                     {loading
                         ? "Saving..."
                         : mode === "create"
-                            ? "Create Proposal"
-                            : "Update Proposal"}
+                            ? isProforma ? "Create Proposal" : "Create Quotation"
+                            : isProforma ? "Update Proposal" : "Update Quotation"}
                 </button>
+                {!isProforma && (
+                    <button
+                        type="button"
+                        onClick={async () => {
+                            if (approverIds.length === 0) {
+                                showToast.error("Please tag at least one approver");
+                                return;
+                            }
+                            // Form submission logic with auto-request approval could be added here
+                            // For now we'll handle it via normal submit plus a flag
+                            const form = document.querySelector('form');
+                            if (form) {
+                                // Add a hidden input to signal "send for approval"
+                                const hiddenInput = document.createElement('input');
+                                hiddenInput.type = 'hidden';
+                                hiddenInput.name = 'requestApproval';
+                                hiddenInput.value = 'true';
+                                form.appendChild(hiddenInput);
+                                form.requestSubmit();
+                            }
+                        }}
+                        disabled={loading || isReadOnly}
+                        className="px-6 py-2.5 bg-amber-600 text-white rounded-lg hover:bg-amber-700 disabled:opacity-50 text-sm font-medium shadow-sm flex items-center gap-2"
+                    >
+                        <Send className="h-4 w-4" />
+                        Save & Request Approval
+                    </button>
+                )}
             </div>
         </form>
     );

@@ -1,11 +1,9 @@
 package com.ultron.backend.service;
 
-import com.ultron.backend.domain.entity.Lead;
-import com.ultron.backend.domain.entity.Opportunity;
-import com.ultron.backend.domain.entity.Product;
-import com.ultron.backend.domain.entity.Proposal;
+import com.ultron.backend.domain.entity.*;
 import com.ultron.backend.domain.enums.ProposalSource;
 import com.ultron.backend.domain.enums.ProposalStatus;
+import com.ultron.backend.domain.enums.UserRole;
 import com.ultron.backend.dto.AddressDTO;
 import com.ultron.backend.dto.request.CreateProposalRequest;
 import com.ultron.backend.dto.request.UpdateProposalRequest;
@@ -17,7 +15,6 @@ import com.ultron.backend.repository.ProductRepository;
 import com.ultron.backend.repository.ProposalRepository;
 import com.ultron.backend.repository.UserRepository;
 import com.ultron.backend.repository.DynamicProductRepository;
-import com.ultron.backend.domain.entity.DynamicProduct;
 import com.ultron.backend.domain.entity.DynamicProduct.ProductAttribute;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -105,6 +102,9 @@ public class ProposalService extends BaseTenantService {
                 .gstNumber(request.getGstNumber())
                 .paymentMilestones(mapMilestones(request.getPaymentMilestones()))
                 .currentMilestoneIndex(0)
+                .isProforma(request.getIsProforma() != null ? request.getIsProforma() : false)
+                .approverIds(request.getApproverIds() != null ? request.getApproverIds() : List.of())
+                .approvedByIds(List.of())
                 .status(ProposalStatus.DRAFT)
                 .ownerId(createdBy)
                 .ownerName(getUserName(createdBy))
@@ -230,10 +230,12 @@ public class ProposalService extends BaseTenantService {
     private int getStatusPriority(ProposalStatus status) {
         return switch (status) {
             case ACCEPTED -> 1;
-            case SENT -> 2;
-            case REJECTED -> 3;
-            case DRAFT -> 4;
-            case EXPIRED -> 5;
+            case PENDING_ON_CUSTOMER -> 2;
+            case PENDING_APPROVAL -> 3;
+            case SENT -> 4;
+            case REJECTED -> 5;
+            case DRAFT -> 6;
+            case EXPIRED -> 7;
         };
     }
 
@@ -384,6 +386,10 @@ public class ProposalService extends BaseTenantService {
             proposal.setPaymentMilestones(mapMilestones(request.getPaymentMilestones()));
         }
 
+        if (request.getApproverIds() != null) {
+            proposal.setApproverIds(request.getApproverIds());
+        }
+
         // Update audit fields
         proposal.setLastModifiedAt(LocalDateTime.now());
         proposal.setLastModifiedBy(userId);
@@ -521,8 +527,11 @@ public class ProposalService extends BaseTenantService {
         // Validate tenant ownership
         validateResourceTenantOwnership(proposal.getTenantId());
 
-        if (proposal.getStatus() != ProposalStatus.SENT) {
-            throw new IllegalStateException("Only sent proposals can be accepted");
+        System.out.println("DEBUG: acceptProposal called for status: " + proposal.getStatus());
+        if (proposal.getStatus() != ProposalStatus.SENT && 
+            proposal.getStatus() != ProposalStatus.PENDING_APPROVAL && 
+            proposal.getStatus() != ProposalStatus.PENDING_ON_CUSTOMER) {
+            throw new IllegalStateException("Proposal cannot be accepted in current status: " + proposal.getStatus());
         }
 
         ProposalStatus oldStatus = proposal.getStatus();
@@ -583,6 +592,408 @@ public class ProposalService extends BaseTenantService {
     }
 
     @Transactional
+    public ProposalResponse requestApproval(String id, String userId) {
+        String tenantId = getCurrentTenantId();
+        Proposal proposal = findProposalById(id, tenantId);
+
+        // Validate tenant ownership
+        validateResourceTenantOwnership(proposal.getTenantId());
+
+        if (proposal.getStatus() != ProposalStatus.DRAFT && 
+            proposal.getStatus() != ProposalStatus.PENDING_APPROVAL && 
+            proposal.getStatus() != ProposalStatus.PENDING_ON_CUSTOMER) {
+            throw new IllegalStateException("Only draft, pending approval or pending on customer quotations can be sent for approval");
+        }
+        
+        if (proposal.getApproverIds() == null || proposal.getApproverIds().isEmpty()) {
+            throw new IllegalStateException("No approvers assigned to this quotation");
+        }
+
+        ProposalStatus oldStatus = proposal.getStatus();
+        proposal.setStatus(ProposalStatus.PENDING_APPROVAL);
+        proposal.setApprovedByIds(List.of()); // reset approvals just in case
+        proposal.setApprovedByNames(List.of());
+        proposal.setLastModifiedAt(LocalDateTime.now());
+        proposal.setLastModifiedBy(userId);
+        proposal.setLastModifiedByName(getUserName(userId));
+
+        Proposal saved = proposalRepository.save(proposal);
+
+        log.info("Quotation approval requested: proposalId={}, requestedBy={}", saved.getProposalId(), userId);
+
+        auditLogService.logAsync("PROPOSAL", saved.getId(), saved.getTitle(),
+                "STATUS_CHANGE", "Quotation sent for approval",
+                oldStatus.toString(), saved.getStatus().toString(),
+                userId, null);
+
+        proposalVersioningService.createSnapshot(saved, "PENDING_APPROVAL", "Quotation sent for approval", userId);
+
+        // Notify approvers
+        for (String approverId : saved.getApproverIds()) {
+            try {
+                notificationService.createAndSendNotification(
+                    approverId,
+                    "Quotation Approval Required: " + saved.getProposalId(),
+                    "Quotation '" + saved.getTitle() + "' requires your approval before sending to customer.",
+                    "PROPOSAL_APPROVAL_REQUESTED",
+                    "/proposals/" + saved.getId()
+                );
+            } catch (Exception e) {
+                log.error("Failed to notify approver {}: {}", approverId, e.getMessage());
+            }
+        }
+
+        return mapToResponse(saved);
+    }
+
+    @Transactional
+    public ProposalResponse approve(String id, String userId) {
+        String tenantId = getCurrentTenantId();
+        Proposal proposal = findProposalById(id, tenantId);
+
+        validateResourceTenantOwnership(proposal.getTenantId());
+
+        if (proposal.getStatus() != ProposalStatus.PENDING_APPROVAL) {
+            throw new IllegalStateException("Proposal is not pending approval");
+        }
+
+        User currentUser = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalStateException("User context not found"));
+
+        boolean isAssigned = false;
+        if (proposal.getApproverIds() != null) {
+            isAssigned = proposal.getApproverIds().contains(currentUser.getId()) || 
+                         (currentUser.getUserId() != null && proposal.getApproverIds().contains(currentUser.getUserId()));
+        }
+
+        // Admin/Manager bypass or assigned check
+        if (!isAssigned && currentUser.getRole() != UserRole.ADMIN && currentUser.getRole() != UserRole.MANAGER) {
+            throw new IllegalStateException("You are not an assigned approver for this quotation");
+        }
+
+        List<String> approvedBy = proposal.getApprovedByIds() != null ? new java.util.ArrayList<>(proposal.getApprovedByIds()) : new java.util.ArrayList<>();
+        if (approvedBy.contains(userId)) {
+            throw new IllegalStateException("You already approved this quotation");
+        }
+        
+        approvedBy.add(userId);
+        proposal.setApprovedByIds(approvedBy);
+        
+        List<String> approvedByNames = proposal.getApprovedByNames() != null ? new java.util.ArrayList<>(proposal.getApprovedByNames()) : new java.util.ArrayList<>();
+        String userName = currentUser.getProfile() != null ? currentUser.getProfile().getFullName() : currentUser.getFullName();
+        if (userName != null && !approvedByNames.contains(userName)) {
+            approvedByNames.add(userName);
+        }
+        proposal.setApprovedByNames(approvedByNames);
+
+        proposal.setLastModifiedAt(LocalDateTime.now());
+        proposal.setLastModifiedBy(userId);
+        proposal.setLastModifiedByName(userName);
+
+        ProposalStatus oldStatus = proposal.getStatus();
+        // Any single approval moves it to PENDING_ON_CUSTOMER (as per user requirement)
+        proposal.setStatus(ProposalStatus.PENDING_ON_CUSTOMER);
+
+        Proposal saved = proposalRepository.save(proposal);
+
+        log.info("Quotation approved: proposalId={}, approvedBy={}", saved.getProposalId(), userId);
+
+        auditLogService.logAsync("PROPOSAL", saved.getId(), saved.getTitle(),
+                "STATUS_CHANGE", "Quotation approved by " + getUserName(userId),
+                oldStatus.toString(), saved.getStatus().toString(),
+                userId, null);
+
+        proposalVersioningService.createSnapshot(saved, "PENDING_ON_CUSTOMER", 
+                "Quotation approved by " + getUserName(userId), userId);
+
+        // Notify owner about approval
+        if (saved.getOwnerId() != null) {
+            try {
+                notificationService.createAndSendNotification(
+                    saved.getOwnerId(),
+                    "Quotation Approved \u2705: " + saved.getProposalId(),
+                    "Quotation '" + saved.getTitle() + "' was approved by " + getUserName(userId) + " and is ready for the customer.",
+                    "PROPOSAL_APPROVED",
+                    "/proposals/" + saved.getId()
+                );
+            } catch (Exception e) {
+                log.error("Failed to notify owner {}: {}", saved.getOwnerId(), e.getMessage());
+            }
+        }
+
+        return mapToResponse(saved);
+    }
+
+    @Transactional
+    public ProposalResponse rejectByApprover(String id, String reason, String userId) {
+        String tenantId = getCurrentTenantId();
+        Proposal proposal = findProposalById(id, tenantId);
+
+        validateResourceTenantOwnership(proposal.getTenantId());
+
+        if (proposal.getStatus() != ProposalStatus.PENDING_APPROVAL) {
+            throw new IllegalStateException("Proposal is not pending approval");
+        }
+
+        User currentUser = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalStateException("User context not found"));
+
+        boolean isAssigned = false;
+        if (proposal.getApproverIds() != null) {
+            isAssigned = proposal.getApproverIds().contains(currentUser.getId()) || 
+                         (currentUser.getUserId() != null && proposal.getApproverIds().contains(currentUser.getUserId()));
+        }
+
+        // Admin/Manager bypass or assigned check
+        if (!isAssigned && currentUser.getRole() != UserRole.ADMIN && currentUser.getRole() != UserRole.MANAGER) {
+            throw new IllegalStateException("You are not an assigned approver for this quotation");
+        }
+
+        ProposalStatus oldStatus = proposal.getStatus();
+        proposal.setStatus(ProposalStatus.DRAFT); // Move back to draft for fixing
+        proposal.setLastModifiedAt(LocalDateTime.now());
+        proposal.setLastModifiedBy(userId);
+        proposal.setLastModifiedByName(getUserName(userId));
+        
+        // Clear previous approvals on internal rejection
+        proposal.setApprovedByIds(List.of());
+        proposal.setApprovedByNames(List.of());
+
+        Proposal saved = proposalRepository.save(proposal);
+
+        log.info("Quotation rejected by approver: proposalId={}, rejectedBy={}, reason={}", 
+                 saved.getProposalId(), userId, reason);
+
+        auditLogService.logAsync("PROPOSAL", saved.getId(), saved.getTitle(),
+                "STATUS_CHANGE", "Quotation rejected by approver: " + getUserName(userId) + ". Reason: " + reason,
+                oldStatus.toString(), saved.getStatus().toString(),
+                userId, Map.of("reason", reason != null ? reason : ""));
+
+        proposalVersioningService.createSnapshot(saved, "DRAFT", 
+                "Quotation rejected by approver: " + getUserName(userId) + ". Reason: " + reason, userId);
+
+        // Notify owner about rejection
+        if (saved.getOwnerId() != null) {
+            try {
+                notificationService.createAndSendNotification(
+                    saved.getOwnerId(),
+                    "Quotation Rejected by Approver \u274C: " + saved.getProposalId(),
+                    "Quotation '" + saved.getTitle() + "' was rejected by " + getUserName(userId) + ". Reason: " + reason,
+                    "PROPOSAL_REJECTED_INTERNAL",
+                    "/proposals/" + saved.getId()
+                );
+            } catch (Exception e) {
+                log.error("Failed to notify owner {}: {}", saved.getOwnerId(), e.getMessage());
+            }
+        }
+
+        return mapToResponse(saved);
+    }
+
+    @Transactional
+    public List<ProposalResponse> convertToProformaWithMilestones(String id, List<CreateProposalRequest.PaymentMilestoneDTO> milestones, String userId) {
+        String tenantId = getCurrentTenantId();
+        Proposal proposal = findProposalById(id, tenantId);
+
+        // Validate tenant ownership
+        validateResourceTenantOwnership(proposal.getTenantId());
+
+        if (proposal.getStatus() != ProposalStatus.ACCEPTED) {
+            throw new IllegalStateException("Only accepted quotations can be converted to Proforma Invoice");
+        }
+
+        if (Boolean.TRUE.equals(proposal.getIsProforma())) {
+            throw new IllegalStateException("This is already a Proforma Invoice");
+        }
+
+        if (milestones == null || milestones.isEmpty()) {
+            throw new IllegalArgumentException("Milestones are required to convert to multiple Proforma Invoices");
+        }
+
+        // Validate milestones total 100%
+        BigDecimal totalPercentage = milestones.stream()
+                .map(CreateProposalRequest.PaymentMilestoneDTO::getPercentage)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        if (totalPercentage.compareTo(new BigDecimal("100")) != 0) {
+            throw new IllegalArgumentException("Milestone percentages must total 100%");
+        }
+
+        List<Proposal> generatedProformas = new java.util.ArrayList<>();
+        
+        // Original proposal total amounts
+        BigDecimal originalSubtotal = proposal.getSubtotal();
+        BigDecimal originalTax = proposal.getTaxAmount();
+        BigDecimal originalDiscount = proposal.getDiscountAmount();
+        BigDecimal originalTotal = proposal.getTotalAmount();
+
+        for (int i = 0; i < milestones.size(); i++) {
+            CreateProposalRequest.PaymentMilestoneDTO milestone = milestones.get(i);
+            BigDecimal percentage = milestone.getPercentage().divide(new BigDecimal("100"), 4, java.math.RoundingMode.HALF_UP);
+
+            boolean isLast = (i == milestones.size() - 1);
+
+            // Generate new proposal ID for proforma
+            String proformaId = proposalIdGeneratorService.generateProposalId(); 
+
+            BigDecimal milestoneSubtotalPart = originalSubtotal.multiply(percentage).setScale(2, java.math.RoundingMode.HALF_UP);
+            BigDecimal milestoneTax = isLast ? originalTax : BigDecimal.ZERO;
+            BigDecimal milestonePayable = milestoneSubtotalPart.add(milestoneTax);
+
+            // Deep copy proposal properties
+            Proposal proforma = Proposal.builder()
+                    .proposalId(proformaId)
+                    .tenantId(tenantId)
+                    .source(proposal.getSource())
+                    .sourceId(proposal.getSourceId())
+                    .sourceName(proposal.getSourceName())
+                    .proposalNumber(proformaId)
+                    .title(proposal.getTitle() + " - " + milestone.getName())
+                    .description(proposal.getDescription())
+                    .validUntil(proposal.getValidUntil())
+                    .companyName(proposal.getCompanyName())
+                    .customerName(proposal.getCustomerName())
+                    .customerEmail(proposal.getCustomerEmail())
+                    .customerPhone(proposal.getCustomerPhone())
+                    .billingAddress(proposal.getBillingAddress())
+                    .shippingAddress(proposal.getShippingAddress())
+                    .gstType(isLast ? proposal.getGstType() : com.ultron.backend.domain.enums.GstType.NONE)
+                    .gstNumber(proposal.getGstNumber())
+                    .status(ProposalStatus.DRAFT)
+                    .ownerId(userId)
+                    .ownerName(getUserName(userId))
+                    .paymentTerms(proposal.getPaymentTerms())
+                    .deliveryTerms(proposal.getDeliveryTerms())
+                    .notes(proposal.getNotes())
+                    .isDeleted(false)
+                    .createdAt(LocalDateTime.now())
+                    .createdBy(userId)
+                    .createdByName(getUserName(userId))
+                    .isProforma(true)
+                    .parentProposalId(proposal.getId())
+                    .leadId(proposal.getLeadId())
+                    .leadName(proposal.getLeadName())
+                    .opportunityId(proposal.getOpportunityId())
+                    .opportunityName(proposal.getOpportunityName())
+                    .accountId(proposal.getAccountId())
+                    .accountName(proposal.getAccountName())
+                    .contactId(proposal.getContactId())
+                    .contactName(proposal.getContactName())
+                    .subtotal(originalSubtotal)
+                    .taxAmount(milestoneTax)
+                    .discountAmount(originalDiscount)
+                    .totalAmount(originalSubtotal.add(milestoneTax))
+                    .milestonePayableAmount(milestonePayable)
+                    .build();
+
+            // Set a single milestone reflecting 100% of this proforma
+            Proposal.PaymentMilestone singleMilestone = Proposal.PaymentMilestone.builder()
+                    .name(milestone.getName())
+                    .percentage(new BigDecimal("100"))
+                    .build();
+            proforma.setPaymentMilestones(List.of(singleMilestone));
+            proforma.setCurrentMilestoneIndex(0);
+
+            // Scale line items (quantity stays same, unit price stays same, tax changes)
+            if (proposal.getLineItems() != null) {
+                List<Proposal.ProposalLineItem> newItems = new java.util.ArrayList<>();
+                for (Proposal.ProposalLineItem item : proposal.getLineItems()) {
+                    Proposal.ProposalLineItem newItem = Proposal.ProposalLineItem.builder()
+                            .lineItemId(UUID.randomUUID().toString())
+                            .productId(item.getProductId())
+                            .productName(item.getProductName())
+                            .sku(item.getSku())
+                            .description(item.getDescription())
+                            .quantity(item.getQuantity())
+                            .unit(item.getUnit())
+                            .hsnCode(item.getHsnCode())
+                            .unitPrice(item.getUnitPrice())
+                            .taxRate(isLast ? item.getTaxRate() : BigDecimal.ZERO)
+                            .discountType(item.getDiscountType())
+                            .discountValue(item.getDiscountValue())
+                            .build();
+
+                    // Recalculate line totals
+                    BigDecimal lineSubtotal = newItem.getUnitPrice().multiply(new BigDecimal(newItem.getQuantity()));
+                    newItem.setLineSubtotal(lineSubtotal);
+                    
+                    BigDecimal lineDiscountAmount = BigDecimal.ZERO;
+                    if (newItem.getDiscountValue() != null && newItem.getDiscountValue().compareTo(BigDecimal.ZERO) > 0) {
+                        if (newItem.getDiscountType() == com.ultron.backend.domain.enums.DiscountType.PERCENTAGE) {
+                            lineDiscountAmount = lineSubtotal.multiply(newItem.getDiscountValue()).divide(new BigDecimal("100"), 2, java.math.RoundingMode.HALF_UP);
+                        } else {
+                            lineDiscountAmount = newItem.getDiscountValue();
+                        }
+                    }
+                    newItem.setLineDiscountAmount(lineDiscountAmount);
+
+                    BigDecimal taxableAmount = lineSubtotal.subtract(lineDiscountAmount);
+                    BigDecimal lineTaxAmount = BigDecimal.ZERO;
+                    if (newItem.getTaxRate() != null && newItem.getTaxRate().compareTo(BigDecimal.ZERO) > 0) {
+                        lineTaxAmount = taxableAmount.multiply(newItem.getTaxRate()).divide(new BigDecimal("100"), 2, java.math.RoundingMode.HALF_UP);
+                    }
+                    newItem.setLineTaxAmount(lineTaxAmount);
+
+                    newItem.setLineTotal(taxableAmount.add(lineTaxAmount));
+                    newItems.add(newItem);
+                }
+                proforma.setLineItems(newItems);
+            }
+
+            // Copy overall discount (if any), scaling fixed amounts
+            if (proposal.getDiscount() != null) {
+                Proposal.DiscountConfig newDiscount = Proposal.DiscountConfig.builder()
+                        .overallDiscountType(proposal.getDiscount().getOverallDiscountType())
+                        .discountReason(proposal.getDiscount().getDiscountReason())
+                        .build();
+                
+                if (proposal.getDiscount().getOverallDiscountType() == com.ultron.backend.domain.enums.DiscountType.FIXED_AMOUNT) {
+                    newDiscount.setOverallDiscountValue(proposal.getDiscount().getOverallDiscountValue().multiply(percentage).setScale(2, java.math.RoundingMode.HALF_UP));
+                } else {
+                    newDiscount.setOverallDiscountValue(proposal.getDiscount().getOverallDiscountValue());
+                }
+                proforma.setDiscount(newDiscount);
+            }
+
+            Proposal savedProforma = proposalRepository.save(proforma);
+            generatedProformas.add(savedProforma);
+
+            // Create version snapshot for new proforma
+            proposalVersioningService.createSnapshot(savedProforma, "CREATED_FROM_QUOTATION", "Converted from Quotation " + proposal.getProposalId(), userId);
+        }
+
+        // Technically we leave the Quotation as ACCEPTED, or we could change it to indicate it's been converted.
+        // We'll leave it as ACCEPTED, but knowing the proformas generated from it.
+
+        proposal.setHasBeenConverted(true);
+        proposalRepository.save(proposal);
+
+        log.info("Quotation {} converted to {} Proforma Invoices", proposal.getProposalId(), generatedProformas.size());
+
+        auditLogService.logAsync("PROPOSAL", proposal.getId(), proposal.getTitle(),
+                "CONVERT_TO_PROFORMA", "Quotation converted to " + generatedProformas.size() + " Proforma Invoices",
+                null, null,
+                userId, null);
+
+        proposalVersioningService.createSnapshot(proposal, "CONVERT_TO_PROFORMA", "Converted to " + generatedProformas.size() + " Proforma Invoices", userId);
+
+        if (proposal.getOwnerId() != null) {
+            try {
+                notificationService.createAndSendNotification(
+                    proposal.getOwnerId(),
+                    "Quotation Converted: " + proposal.getProposalId(),
+                    "Quotation '" + proposal.getTitle() + "' has been converted into " + generatedProformas.size() + " Proforma Invoice(s)",
+                    "PROPOSAL_PROFORMA_CONVERTED",
+                    "/proposals/" + proposal.getId() // Or maybe a different route for seeing related
+                );
+            } catch (Exception e) {
+                log.error("Failed to set notification: {}", e.getMessage());
+            }
+        }
+
+        return generatedProformas.stream().map(this::mapToResponse).collect(Collectors.toList());
+    }
+
+    @Transactional
     public ProposalResponse convertToProforma(String id, String userId) {
         String tenantId = getCurrentTenantId();
         Proposal proposal = findProposalById(id, tenantId);
@@ -599,6 +1010,8 @@ public class ProposalService extends BaseTenantService {
         }
 
         proposal.setIsProforma(true);
+        proposal.setHasBeenConverted(true);
+        proposal.setMilestonePayableAmount(proposal.getTotalAmount());
         proposal.setLastModifiedAt(LocalDateTime.now());
         proposal.setLastModifiedBy(userId);
         proposal.setLastModifiedByName(getUserName(userId));
@@ -643,8 +1056,10 @@ public class ProposalService extends BaseTenantService {
         // Validate tenant ownership
         validateResourceTenantOwnership(proposal.getTenantId());
 
-        if (proposal.getStatus() != ProposalStatus.SENT) {
-            throw new IllegalStateException("Only sent proposals can be rejected");
+        if (proposal.getStatus() != ProposalStatus.SENT && 
+            proposal.getStatus() != ProposalStatus.PENDING_APPROVAL && 
+            proposal.getStatus() != ProposalStatus.PENDING_ON_CUSTOMER) {
+            throw new IllegalStateException("Proposal cannot be rejected in current status: " + proposal.getStatus());
         }
 
         ProposalStatus oldStatus = proposal.getStatus();
@@ -695,18 +1110,40 @@ public class ProposalService extends BaseTenantService {
     }
 
     public List<ProposalResponse> getAllProposals() {
+        return getAllProposalsList(null);
+    }
+
+    public List<ProposalResponse> getAllProposalsList(Boolean isProforma) {
         String tenantId = getCurrentTenantId();
-        log.debug("[Tenant: {}] Fetching all proposals", tenantId);
-        return proposalRepository.findByTenantIdAndIsDeletedFalse(tenantId).stream()
+        log.debug("[Tenant: {}] Fetching all proposals, isProforma={}", tenantId, isProforma);
+        
+        List<Proposal> proposals;
+        if (isProforma != null) {
+            proposals = proposalRepository.findByIsProformaAndTenantIdAndIsDeletedFalse(isProforma, tenantId);
+        } else {
+            proposals = proposalRepository.findByTenantIdAndIsDeletedFalse(tenantId);
+        }
+        
+        return proposals.stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
 
     public Page<ProposalResponse> getAllProposals(Pageable pageable) {
+        return getAllProposalsPage(null, pageable);
+    }
+
+    public Page<ProposalResponse> getAllProposalsPage(Boolean isProforma, Pageable pageable) {
         String tenantId = getCurrentTenantId();
-        log.debug("[Tenant: {}] Fetching all proposals (paginated)", tenantId);
-        return proposalRepository.findByTenantIdAndIsDeletedFalse(tenantId, pageable)
-                .map(this::mapToResponse);
+        log.debug("[Tenant: {}] Fetching all proposals (paginated), isProforma={}", tenantId, isProforma);
+        
+        if (isProforma != null) {
+            return proposalRepository.findByIsProformaAndTenantIdAndIsDeletedFalse(isProforma, tenantId, pageable)
+                    .map(this::mapToResponse);
+        } else {
+            return proposalRepository.findByTenantIdAndIsDeletedFalse(tenantId, pageable)
+                    .map(this::mapToResponse);
+        }
     }
 
     public ProposalResponse getProposalById(String id) {
@@ -987,12 +1424,17 @@ public class ProposalService extends BaseTenantService {
                 .gstNumber(proposal.getGstNumber())
                 .paymentMilestones(proposal.getPaymentMilestones())
                 .currentMilestoneIndex(proposal.getCurrentMilestoneIndex())
-                .isProforma(proposal.getIsProforma())
+                .isProforma(Boolean.TRUE.equals(proposal.getIsProforma()))
+                .hasBeenConverted(Boolean.TRUE.equals(proposal.getHasBeenConverted()))
                 .parentProposalId(proposal.getParentProposalId())
+                .approverIds(proposal.getApproverIds() != null ? proposal.getApproverIds() : List.of())
+                .approvedByIds(proposal.getApprovedByIds() != null ? proposal.getApprovedByIds() : List.of())
+                .approvedByNames(proposal.getApprovedByNames() != null ? proposal.getApprovedByNames() : List.of())
                 .subtotal(proposal.getSubtotal())
                 .discountAmount(proposal.getDiscountAmount())
                 .taxAmount(proposal.getTaxAmount())
                 .totalAmount(proposal.getTotalAmount())
+                .milestonePayableAmount(proposal.getMilestonePayableAmount())
                 .status(proposal.getStatus())
                 .sentAt(proposal.getSentAt())
                 .acceptedAt(proposal.getAcceptedAt())
