@@ -193,7 +193,7 @@ function ProfilesPageContent() {
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm text-gray-900">
                       {profile.objectPermissions.length} object(s)
-                      {profile.fieldPermissions.length > 0 && (
+                      {profile.fieldPermissions?.length > 0 && (
                         <div className="text-xs text-gray-500">
                           {profile.fieldPermissions.length} field permission(s)
                         </div>
