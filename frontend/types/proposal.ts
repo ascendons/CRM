@@ -109,6 +109,7 @@ export interface ProposalResponse {
   // Milestones
   paymentMilestones?: PaymentMilestoneDTO[];
   currentMilestoneIndex?: number;
+  milestonePayableAmount?: number;
   parentProposalId?: string;
 
   // Totals

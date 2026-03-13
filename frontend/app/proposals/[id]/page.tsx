@@ -549,8 +549,8 @@ export default function ProposalDetailPage() {
                 </PermissionGuard>
               )}
               {(proposal.status === ProposalStatus.SENT || 
-                proposal.status === ProposalStatus.PENDING_APPROVAL || 
-                proposal.status === ProposalStatus.PENDING_ON_CUSTOMER) && !proposal.isProforma && (
+                proposal.status === ProposalStatus.PENDING_ON_CUSTOMER ||
+                proposal.status === ProposalStatus.NEGOTIATION) && !proposal.isProforma && (
                 <>
                   <PermissionGuard resource="PROPOSAL" action="APPROVE">
                     <button
@@ -623,13 +623,15 @@ export default function ProposalDetailPage() {
                     Void
                   </button>
                 )}
-                <button
-                  onClick={() => setShowDeleteModal(true)}
-                  disabled={actionLoading}
-                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50"
-                >
-                  Delete
-                </button>
+                {proposal.status === ProposalStatus.DRAFT && (
+                  <button
+                    onClick={() => setShowDeleteModal(true)}
+                    disabled={actionLoading}
+                    className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50"
+                  >
+                    Delete
+                  </button>
+                )}
               </PermissionGuard>
             </div>
           </div>
