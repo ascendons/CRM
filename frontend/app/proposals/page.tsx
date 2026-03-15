@@ -38,6 +38,7 @@ export default function ProposalsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<ProposalStatus | "ALL">("ALL");
   const [error, setError] = useState("");
+  const [activeTab, setActiveTab] = useState<"QUOTATION" | "PROFORMA">("QUOTATION");
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -64,23 +65,29 @@ export default function ProposalsPage() {
         sort: `${sortColumn},${sortDirection}`
       };
 
+      const isProforma = activeTab === "PROFORMA";
+
       let response;
       if (searchTerm) {
         response = await proposalsService.searchProposals(searchTerm, pagination);
       } else if (statusFilter !== "ALL") {
         response = await proposalsService.getProposalsByStatus(statusFilter, pagination);
       } else {
-        response = await proposalsService.getAllProposals(pagination);
+        response = await proposalsService.getAllProposals(pagination, isProforma);
       }
+
+      const applyTabFilter = (proposals: ProposalResponse[]) => {
+        return proposals.filter(p => !!p.isProforma === isProforma);
+      };
 
       if ('content' in response) {
         setProposals(response.content);
-        setFilteredProposals(response.content); // Kept for types but filtered locally via server now
+        setFilteredProposals(applyTabFilter(response.content));
         setTotalElements(response.totalElements);
         setTotalPages(response.totalPages);
       } else {
         setProposals(response);
-        setFilteredProposals(response);
+        setFilteredProposals(applyTabFilter(response));
         setTotalElements(response.length);
         setTotalPages(1);
       }
@@ -89,19 +96,7 @@ export default function ProposalsPage() {
     } finally {
       setLoading(false);
     }
-  }, [currentPage, itemsPerPage, sortColumn, sortDirection, searchTerm, statusFilter]);
-
-  useEffect(() => {
-    // Check authentication
-    if (!authService.isAuthenticated()) {
-      router.push("/login");
-      return;
-    }
-
-    loadProposals();
-  }, [router, loadProposals]);
-
-  // Removed client-side filtering effects as we use server-side filtered data now
+  }, [currentPage, itemsPerPage, sortColumn, sortDirection, searchTerm, statusFilter, activeTab]);
 
   useEffect(() => {
     // Check authentication
@@ -200,8 +195,10 @@ export default function ProposalsPage() {
   const getStatusBadge = (status: ProposalStatus) => {
     // Map existing colors to detailed tailwind classes if needed, or stick to simple mapping
     // Here using a simple tailored mapping for demonstration
-    const statusStyles = {
+    const statusStyles: Record<string, string> = {
       [ProposalStatus.DRAFT]: "bg-slate-100 text-slate-700 border-slate-200   ",
+      [ProposalStatus.PENDING_APPROVAL]: "bg-amber-50 text-amber-700 border-amber-100   ",
+      [ProposalStatus.PENDING_ON_CUSTOMER]: "bg-cyan-50 text-cyan-700 border-cyan-100   ",
       [ProposalStatus.SENT]: "bg-blue-50 text-blue-700 border-blue-100   ",
       [ProposalStatus.ACCEPTED]: "bg-emerald-50 text-emerald-700 border-emerald-100   ",
       [ProposalStatus.REJECTED]: "bg-rose-50 text-rose-700 border-rose-100   ",
@@ -239,18 +236,46 @@ export default function ProposalsPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between py-4 gap-4">
             <div>
-              <h1 className="text-2xl font-bold text-slate-900  tracking-tight">Proposals</h1>
-              <p className="text-sm text-slate-500 ">Manage quotations and track proposal status.</p>
+              <h1 className="text-2xl font-bold text-slate-900  tracking-tight">Quotations | Proforma Invoices</h1>
+              <p className="text-sm text-slate-500 ">Manage quotations and track proforma invoices.</p>
             </div>
             <div className="flex items-center gap-3">
               <button
-                onClick={() => router.push("/proposals/new")}
+                onClick={() => router.push(`/proposals/new?isProforma=${activeTab === 'PROFORMA'}`)}
                 className="flex items-center gap-2 px-5 py-2 bg-primary hover:bg-primary-hover text-white rounded-xl text-sm font-bold shadow-lg shadow-primary/25 hover:shadow-primary/40 hover:-translate-y-0.5 transition-all"
               >
                 <Plus className="h-4 w-4" />
-                Create Proposal
+                Create {activeTab === "QUOTATION" ? "Quotation" : "Proposal"}
               </button>
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Tabs */}
+      <div className="bg-white border-b border-slate-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex space-x-8">
+            <button
+              onClick={() => { setActiveTab("QUOTATION"); setCurrentPage(1); }}
+              className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                activeTab === "QUOTATION"
+                  ? "border-primary text-primary"
+                  : "border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300"
+              }`}
+            >
+              Quotations
+            </button>
+            <button
+              onClick={() => { setActiveTab("PROFORMA"); setCurrentPage(1); }}
+              className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                activeTab === "PROFORMA"
+                  ? "border-primary text-primary"
+                  : "border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300"
+              }`}
+            >
+              Proforma Invoices (Proposals)
+            </button>
           </div>
         </div>
       </div>
@@ -278,6 +303,8 @@ export default function ProposalsPage() {
                 >
                   <option value="ALL">All Status</option>
                   <option value={ProposalStatus.DRAFT}>Draft</option>
+                  <option value={ProposalStatus.PENDING_APPROVAL}>Pending Approval</option>
+                  <option value={ProposalStatus.PENDING_ON_CUSTOMER}>Pending On Customer</option>
                   <option value={ProposalStatus.SENT}>Sent</option>
                   <option value={ProposalStatus.ACCEPTED}>Accepted</option>
                   <option value={ProposalStatus.REJECTED}>Rejected</option>

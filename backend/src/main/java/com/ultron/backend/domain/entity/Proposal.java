@@ -130,9 +130,18 @@ public class Proposal {
     private List<PaymentMilestone> paymentMilestones;
     @Builder.Default
     private Integer currentMilestoneIndex = 0;
+    private BigDecimal milestonePayableAmount;
     @Builder.Default
     private Boolean isProforma = false;
+    @Builder.Default
+    private Boolean hasBeenConverted = false;
     private String parentProposalId;
+
+    // Approvals
+    private List<String> approverIds;
+    private List<String> approvedByIds;
+    private List<String> approvedByNames;
+
 
     // Embedded Classes
 

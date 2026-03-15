@@ -4,11 +4,14 @@
 
 export enum ProposalStatus {
   DRAFT = "DRAFT",
+  PENDING_APPROVAL = "PENDING_APPROVAL",
+  PENDING_ON_CUSTOMER = "PENDING_ON_CUSTOMER",
   SENT = "SENT",
   NEGOTIATION = "NEGOTIATION",
   ACCEPTED = "ACCEPTED",
   REJECTED = "REJECTED",
   EXPIRED = "EXPIRED",
+  VOIDED = "VOIDED",
 }
 
 export enum ProposalSource {
@@ -106,6 +109,7 @@ export interface ProposalResponse {
   // Milestones
   paymentMilestones?: PaymentMilestoneDTO[];
   currentMilestoneIndex?: number;
+  milestonePayableAmount?: number;
   parentProposalId?: string;
 
   // Totals
@@ -116,6 +120,12 @@ export interface ProposalResponse {
 
   // Proforma status
   isProforma?: boolean;
+  hasBeenConverted?: boolean;
+
+  // Approval Flow
+  approverIds?: string[];
+  approvedByIds?: string[];
+  approvedByNames?: string[];
 
   // Status
   status: ProposalStatus;
@@ -185,6 +195,8 @@ export interface CreateProposalRequest {
   paymentTerms?: string;
   deliveryTerms?: string;
   notes?: string;
+  isProforma?: boolean;
+  approverIds?: string[];
 }
 
 export interface UpdateProposalRequest {
@@ -206,6 +218,8 @@ export interface UpdateProposalRequest {
   paymentTerms?: string;
   deliveryTerms?: string;
   notes?: string;
+  isProforma?: boolean;
+  approverIds?: string[];
 }
 
 // Helper functions for status badge colors
@@ -213,8 +227,12 @@ export function getProposalStatusColor(status: ProposalStatus): string {
   switch (status) {
     case ProposalStatus.DRAFT:
       return "gray";
-    case ProposalStatus.SENT:
+    case ProposalStatus.PENDING_APPROVAL:
+      return "yellow";
+    case ProposalStatus.PENDING_ON_CUSTOMER:
       return "blue";
+    case ProposalStatus.SENT:
+      return "cyan";
     case ProposalStatus.NEGOTIATION:
       return "purple";
     case ProposalStatus.ACCEPTED:
@@ -222,7 +240,9 @@ export function getProposalStatusColor(status: ProposalStatus): string {
     case ProposalStatus.REJECTED:
       return "red";
     case ProposalStatus.EXPIRED:
-      return "orange";
+      return "gray";
+    case ProposalStatus.VOIDED:
+      return "red";
     default:
       return "gray";
   }
@@ -233,6 +253,10 @@ export function getProposalStatusLabel(status: ProposalStatus): string {
   switch (status) {
     case ProposalStatus.DRAFT:
       return "Draft";
+    case ProposalStatus.PENDING_APPROVAL:
+      return "Pending Approval";
+    case ProposalStatus.PENDING_ON_CUSTOMER:
+      return "Pending On Customer";
     case ProposalStatus.SENT:
       return "Sent";
     case ProposalStatus.NEGOTIATION:
@@ -243,6 +267,8 @@ export function getProposalStatusLabel(status: ProposalStatus): string {
       return "Rejected";
     case ProposalStatus.EXPIRED:
       return "Expired";
+    case ProposalStatus.VOIDED:
+      return "Voided";
     default:
       return status;
   }

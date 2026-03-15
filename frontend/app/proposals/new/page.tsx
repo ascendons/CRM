@@ -9,12 +9,15 @@ function CreateProposalContent() {
   const searchParams = useSearchParams();
   const source = (searchParams.get("source") as ProposalSource) || undefined;
   const sourceId = searchParams.get("sourceId") || undefined;
+  const isProformaQuery = searchParams.get("isProforma");
+  const isProforma = isProformaQuery === "true";
 
   return (
     <ProposalForm
       mode="create"
       sourceType={source}
       sourceId={sourceId}
+      isProforma={isProforma}
     />
   );
 }
@@ -25,9 +28,9 @@ export default function NewProposalPage() {
       {/* Page Header */}
       <div className="bg-white border-b border-gray-200 px-6 py-5">
         <div className="max-w-[1600px] mx-auto">
-          <h1 className="text-2xl font-bold text-gray-900">Create New Proposal</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Create New Proposal / Quotation</h1>
           <p className="text-gray-500 mt-1 text-sm">
-            Create a quotation for a lead or opportunity
+            Create a quotation or proforma invoice for a lead or opportunity
           </p>
         </div>
       </div>

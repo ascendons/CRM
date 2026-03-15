@@ -19,6 +19,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/proposals")
@@ -56,15 +57,17 @@ public class ProposalController {
     /**
      * Get all proposals (with optional pagination)
      * GET /api/v1/proposals
-     * Supports pagination with query params: page, size, sort
+     * Supports pagination with query params: page, size, sort, isProforma
      */
     @GetMapping
     @PreAuthorize("hasPermission('PROPOSAL', 'READ')")
-    public ResponseEntity<ApiResponse<?>> getAllProposals(Pageable pageable) {
-        log.info("Fetching all proposals (pageable: {})", pageable.isPaged());
+    public ResponseEntity<ApiResponse<?>> getAllProposals(
+            @RequestParam(required = false) Boolean isProforma,
+            Pageable pageable) {
+        log.info("Fetching all proposals (pageable: {}, isProforma: {})", pageable.isPaged(), isProforma);
 
         if (pageable.isPaged()) {
-            Page<ProposalResponse> proposals = proposalService.getAllProposals(pageable);
+            Page<ProposalResponse> proposals = proposalService.getAllProposalsPage(isProforma, pageable);
             return ResponseEntity.ok(
                     ApiResponse.<Page<ProposalResponse>>builder()
                             .success(true)
@@ -72,7 +75,7 @@ public class ProposalController {
                             .data(proposals)
                             .build());
         } else {
-            List<ProposalResponse> proposals = proposalService.getAllProposals();
+            List<ProposalResponse> proposals = proposalService.getAllProposalsList(isProforma);
             return ResponseEntity.ok(
                     ApiResponse.<List<ProposalResponse>>builder()
                             .success(true)
@@ -346,6 +349,77 @@ public class ProposalController {
     }
 
     /**
+     * Request approval for a Quotation internally
+     * POST /api/v1/proposals/{id}/request-approval
+     */
+    @PostMapping("/{id}/request-approval")
+    @PreAuthorize("hasPermission('PROPOSAL', 'EDIT')")
+    public ResponseEntity<ApiResponse<ProposalResponse>> requestApproval(
+            @PathVariable String id,
+            Authentication authentication) {
+
+        String currentUserId = authentication.getName();
+        log.info("User {} requesting approval for proposal {}", currentUserId, id);
+
+        ProposalResponse proposal = proposalService.requestApproval(id, currentUserId);
+
+        return ResponseEntity.ok(
+                ApiResponse.<ProposalResponse>builder()
+                        .success(true)
+                        .message("Approval requested successfully")
+                        .data(proposal)
+                        .build());
+    }
+
+    /**
+     * Approve a Quotation internally
+     * POST /api/v1/proposals/{id}/approve
+     */
+    @PostMapping("/{id}/approve")
+    @PreAuthorize("hasPermission('PROPOSAL', 'APPROVE')")
+    public ResponseEntity<ApiResponse<ProposalResponse>> approve(
+            @PathVariable String id,
+            Authentication authentication) {
+
+        String currentUserId = authentication.getName();
+        log.info("User {} approving proposal {}", currentUserId, id);
+
+        ProposalResponse proposal = proposalService.approve(id, currentUserId);
+
+        return ResponseEntity.ok(
+                ApiResponse.<ProposalResponse>builder()
+                        .success(true)
+                        .message("Proposal approved successfully")
+                        .data(proposal)
+                        .build());
+    }
+
+    /**
+     * Reject a Quotation internally by an approver
+     * POST /api/v1/proposals/{id}/internal-reject
+     */
+    @PostMapping("/{id}/internal-reject")
+    @PreAuthorize("hasPermission('PROPOSAL', 'APPROVE')")
+    public ResponseEntity<ApiResponse<ProposalResponse>> internalReject(
+            @PathVariable String id,
+            @RequestBody(required = false) Map<String, String> body,
+            Authentication authentication) {
+
+        String currentUserId = authentication.getName();
+        String reason = body != null ? body.get("reason") : "";
+        log.info("User {} rejecting proposal {} internally. Reason: {}", currentUserId, id, reason);
+
+        ProposalResponse proposal = proposalService.rejectByApprover(id, reason, currentUserId);
+
+        return ResponseEntity.ok(
+                ApiResponse.<ProposalResponse>builder()
+                        .success(true)
+                        .message("Proposal rejected successfully")
+                        .data(proposal)
+                        .build());
+    }
+
+    /**
      * Accept proposal
      * POST /api/v1/proposals/{id}/accept
      * Requires PROPOSAL:APPROVE permission (separate from EDIT to prevent conflict of interest)
@@ -460,25 +534,79 @@ public class ProposalController {
     }
 
     /**
-     * Convert an accepted quotation to a Proforma Invoice
+     * Convert an accepted quotation to one or more Proforma Invoices
      * POST /api/v1/proposals/{id}/convert-to-proforma
      */
     @PostMapping("/{id}/convert-to-proforma")
     @PreAuthorize("hasPermission('PROPOSAL', 'UPDATE')")
-    public ResponseEntity<ApiResponse<ProposalResponse>> convertToProforma(
+    public ResponseEntity<ApiResponse<List<ProposalResponse>>> convertToProforma(
             @PathVariable String id,
+            @RequestBody List<CreateProposalRequest.PaymentMilestoneDTO> milestones,
             Authentication authentication) {
 
         String currentUserId = authentication.getName();
-        log.info("User {} converting proposal {} to Proforma Invoice", currentUserId, id);
+        log.info("User {} converting quotation {} to Proforma Invoice(s) with milestones", currentUserId, id);
 
-        ProposalResponse proposal = proposalService.convertToProforma(id, currentUserId);
+        List<ProposalResponse> proposals = proposalService.convertToProformaWithMilestones(id, milestones, currentUserId);
 
         return ResponseEntity.ok(
-                ApiResponse.<ProposalResponse>builder()
+                ApiResponse.<List<ProposalResponse>>builder()
                         .success(true)
-                        .message("Quotation converted to Proforma Invoice successfully")
-                        .data(proposal)
+                        .message("Quotation converted to Proforma Invoices successfully")
+                        .data(proposals)
                         .build());
+    }
+
+    /**
+     * GET /api/v1/proposals/{id}/activity
+     * Returns the audit activity log for a proposal.
+     */
+    @GetMapping("/{id}/activity")
+    @PreAuthorize("hasPermission('PROPOSAL', 'READ')")
+    public ResponseEntity<ApiResponse<List<com.ultron.backend.domain.entity.AuditLog>>> getProposalActivity(
+            @PathVariable String id) {
+        log.info("Fetching activity for proposal: {}", id);
+        List<com.ultron.backend.domain.entity.AuditLog> activity = proposalService.getProposalActivity(id);
+        return ResponseEntity.ok(ApiResponse.<List<com.ultron.backend.domain.entity.AuditLog>>builder()
+                .success(true)
+                .message("Activity fetched")
+                .data(activity)
+                .build());
+    }
+
+    /**
+     * GET /api/v1/proposals/{id}/related
+     * Returns linked quotation or proforma documents.
+     */
+    @GetMapping("/{id}/related")
+    @PreAuthorize("hasPermission('PROPOSAL', 'READ')")
+    public ResponseEntity<ApiResponse<List<ProposalResponse>>> getRelatedDocuments(
+            @PathVariable String id) {
+        log.info("Fetching related documents for proposal: {}", id);
+        List<ProposalResponse> related = proposalService.getRelatedDocuments(id);
+        return ResponseEntity.ok(ApiResponse.<List<ProposalResponse>>builder()
+                .success(true)
+                .message("Related documents fetched")
+                .data(related)
+                .build());
+    }
+
+    /**
+     * POST /api/v1/proposals/{id}/void
+     * Voids a proforma invoice.
+     */
+    @PostMapping("/{id}/void")
+    @PreAuthorize("hasPermission('PROPOSAL', 'UPDATE')")
+    public ResponseEntity<ApiResponse<ProposalResponse>> voidProforma(
+            @PathVariable String id,
+            Authentication authentication) {
+        String currentUserId = authentication.getName();
+        log.info("User {} voiding proforma: {}", currentUserId, id);
+        ProposalResponse response = proposalService.voidProforma(id, currentUserId);
+        return ResponseEntity.ok(ApiResponse.<ProposalResponse>builder()
+                .success(true)
+                .message("Proforma voided successfully")
+                .data(response)
+                .build());
     }
 }

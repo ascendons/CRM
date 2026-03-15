@@ -64,8 +64,15 @@ public class ProposalResponse {
     // Milestones
     private List<Proposal.PaymentMilestone> paymentMilestones;
     private Integer currentMilestoneIndex;
+    private BigDecimal milestonePayableAmount;
     private Boolean isProforma;
+    private Boolean hasBeenConverted;
     private String parentProposalId;
+
+    // Approvals
+    private List<String> approverIds;
+    private List<String> approvedByIds;
+    private List<String> approvedByNames;
 
     // Totals
     private BigDecimal subtotal;

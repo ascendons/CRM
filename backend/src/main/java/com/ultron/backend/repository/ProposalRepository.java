@@ -27,11 +27,18 @@ public interface ProposalRepository extends MongoRepository<Proposal, String> {
      * MULTI-TENANT SAFE
      */
     Optional<Proposal> findByProposalIdAndTenantId(String proposalId, String tenantId);
+    List<Proposal> findByParentProposalIdAndTenantId(String parentProposalId, String tenantId);
 
     /**
      * Find all active proposals for a specific tenant (not deleted)
      * MULTI-TENANT SAFE
      */
+    @Query("{ 'tenantId': ?1, 'isDeleted': false, 'isProforma': { $in: [?0, null] } }")
+    List<Proposal> findByIsProformaAndTenantIdAndIsDeletedFalse(Boolean isProforma, String tenantId);
+    
+    @Query("{ 'tenantId': ?1, 'isDeleted': false, 'isProforma': { $in: [?0, null] } }")
+    Page<Proposal> findByIsProformaAndTenantIdAndIsDeletedFalse(Boolean isProforma, String tenantId, Pageable pageable);
+    
     List<Proposal> findByTenantIdAndIsDeletedFalse(String tenantId);
     Page<Proposal> findByTenantIdAndIsDeletedFalse(String tenantId, Pageable pageable);
 
