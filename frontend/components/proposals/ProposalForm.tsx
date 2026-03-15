@@ -1035,7 +1035,7 @@ export default function ProposalForm({
 
                                 {/* Unit */}
                                 <div className="w-16 flex-shrink-0">
-                                    <textarea
+                                    <input
                                         value={item.unit || ""}
                                         onChange={(e) => {
                                             updateLineItem(index, "unit", e.target.value);
@@ -1046,7 +1046,6 @@ export default function ProposalForm({
                                             e.currentTarget.style.height = 'auto';
                                             e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px';
                                         }}
-                                        rows={1}
                                         placeholder="Unit"
                                         className={`${inputCls} resize-none overflow-hidden min-h-[40px]`}
                                         disabled={isReadOnly}
@@ -1055,7 +1054,7 @@ export default function ProposalForm({
 
                                 {/* HSN Code */}
                                 <div className="w-24 flex-shrink-0">
-                                    <textarea
+                                    <input
                                         value={item.hsnCode || ""}
                                         onChange={(e) => {
                                             updateLineItem(index, "hsnCode", e.target.value);
@@ -1066,7 +1065,6 @@ export default function ProposalForm({
                                             e.currentTarget.style.height = 'auto';
                                             e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px';
                                         }}
-                                        rows={1}
                                         placeholder="HSN"
                                         className={`${inputCls} resize-none overflow-hidden min-h-[40px]`}
                                         disabled={isReadOnly}
@@ -1075,7 +1073,7 @@ export default function ProposalForm({
 
                                 {/* Unit Price */}
                                 <div className="w-36 flex-shrink-0">
-                                    <textarea
+                                    <input
                                         value={item.unitPrice || ""}
                                         onChange={(e) => {
                                             const val = e.target.value.replace(/[^0-9.]/g, '');
@@ -1087,7 +1085,6 @@ export default function ProposalForm({
                                             e.currentTarget.style.height = 'auto';
                                             e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px';
                                         }}
-                                        rows={1}
                                         placeholder="₹ Price"
                                         className={`${inputCls} resize-none overflow-hidden min-h-[40px]`}
                                         disabled={isReadOnly}
@@ -1110,7 +1107,7 @@ export default function ProposalForm({
 
                                 {/* Discount Value */}
                                 <div className="w-24 flex-shrink-0">
-                                    <textarea
+                                    <input
                                         value={item.discountValue || ""}
                                         onChange={(e) => {
                                             const val = e.target.value.replace(/[^0-9.]/g, '');
@@ -1122,7 +1119,6 @@ export default function ProposalForm({
                                             e.currentTarget.style.height = 'auto';
                                             e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px';
                                         }}
-                                        rows={1}
                                         placeholder={item.discountType === DiscountType.PERCENTAGE ? "%" : "₹"}
                                         className={`${inputCls} ${!item.discountType ? "opacity-30 pointer-events-none" : ""} resize-none overflow-hidden min-h-[40px]`}
                                         disabled={isReadOnly || !item.discountType}
