@@ -148,30 +148,37 @@ const InvoicePreview = forwardRef<HTMLDivElement, InvoicePreviewProps>(({
                     </h2>
                     <div className="bg-white border-l-4 border-blue-900 pl-5 py-2">
                         <div className="font-black text-gray-900 text-base tracking-tight mb-1">
-                            {proposal.companyName || proposal.customerName}
+                            {proposal.billingAddress?.name || proposal.billingAddress?.companyName || proposal.companyName || proposal.customerName}
                         </div>
-                        {proposal.billingAddress && (
-                            <div className="text-[10px] text-gray-500 font-medium leading-relaxed whitespace-pre-line mb-3">
-                                {proposal.billingAddress.street && `${proposal.billingAddress.street}`}
-                            </div>
-                        )}
+                        <div className="text-[10px] text-gray-500 font-medium leading-relaxed whitespace-pre-line mb-3">
+                            {(() => {
+                                const addr = proposal.billingAddress;
+                                if (!addr) return null;
+                                const parts = [
+                                    addr.street,
+                                    [addr.city, addr.state, addr.postalCode].filter(Boolean).join(', '),
+                                    addr.country
+                                ].filter(Boolean);
+                                return parts.join('\n');
+                            })()}
+                        </div>
                         <div className="grid grid-cols-1 gap-1 text-[10px]">
-                            {proposal.gstNumber && (
+                            {(proposal.billingAddress?.gstNumber || proposal.gstNumber) && (
                                 <p className="flex gap-2">
                                     <span className="font-bold text-gray-400 uppercase w-10 underline decoration-blue-100 underline-offset-4">GSTIN</span>
-                                    <span className="font-bold text-gray-900 tracking-wide">{proposal.gstNumber}</span>
+                                    <span className="font-bold text-gray-900 tracking-wide">{proposal.billingAddress?.gstNumber || proposal.gstNumber}</span>
                                 </p>
                             )}
-                            {proposal.customerEmail && (
+                            {(proposal.billingAddress?.email || proposal.customerEmail) && (
                                 <p className="flex gap-2">
                                     <span className="font-bold text-gray-400 uppercase w-10 underline decoration-blue-100 underline-offset-4">Email</span>
-                                    <span className="font-bold text-gray-900 truncate">{proposal.customerEmail}</span>
+                                    <span className="font-bold text-gray-900 truncate">{proposal.billingAddress?.email || proposal.customerEmail}</span>
                                 </p>
                             )}
-                            {proposal.customerPhone && (
+                            {(proposal.billingAddress?.phone || proposal.customerPhone) && (
                                 <p className="flex gap-2">
                                     <span className="font-bold text-gray-400 uppercase w-10 underline decoration-blue-100 underline-offset-4">Phone</span>
-                                    <span className="font-bold text-gray-900 truncate">{proposal.customerPhone}</span>
+                                    <span className="font-bold text-gray-900 truncate">{proposal.billingAddress?.phone || proposal.customerPhone}</span>
                                 </p>
                             )}
                         </div>
@@ -185,34 +192,42 @@ const InvoicePreview = forwardRef<HTMLDivElement, InvoicePreviewProps>(({
                     </h2>
                     <div className="bg-white border-l-4 border-blue-900 pl-5 py-2">
                         <div className="font-black text-gray-900 text-base tracking-tight mb-1">
-                            {proposal.companyName || proposal.customerName}
+                            {proposal.shippingAddress?.name || 
+                             proposal.shippingAddress?.companyName || 
+                             proposal.billingAddress?.name || 
+                             proposal.billingAddress?.companyName || 
+                             proposal.companyName || 
+                             proposal.customerName}
                         </div>
-                        {(() => {
-                            const address = proposal.shippingAddress || proposal.billingAddress;
-                            if (!address) return null;
-                            return (
-                                <div className="text-[10px] text-gray-500 font-medium leading-relaxed whitespace-pre-line mb-3">
-                                    {address.street && `${address.street}`}
-                                </div>
-                            );
-                        })()}
+                        <div className="text-[10px] text-gray-500 font-medium leading-relaxed whitespace-pre-line mb-3">
+                            {(() => {
+                                const addr = proposal.shippingAddress || proposal.billingAddress;
+                                if (!addr) return null;
+                                const parts = [
+                                    addr.street,
+                                    [addr.city, addr.state, addr.postalCode].filter(Boolean).join(', '),
+                                    addr.country
+                                ].filter(Boolean);
+                                return parts.join('\n');
+                            })()}
+                        </div>
                         <div className="grid grid-cols-1 gap-1 text-[10px]">
-                            {proposal.gstNumber && (
+                            {(proposal.shippingAddress?.gstNumber || proposal.billingAddress?.gstNumber || proposal.gstNumber) && (
                                 <p className="flex gap-2">
                                     <span className="font-bold text-gray-400 uppercase w-10 underline decoration-blue-100 underline-offset-4">GSTIN</span>
-                                    <span className="font-bold text-gray-900 tracking-wide">{proposal.gstNumber}</span>
+                                    <span className="font-bold text-gray-900 tracking-wide">{proposal.shippingAddress?.gstNumber || proposal.billingAddress?.gstNumber || proposal.gstNumber}</span>
                                 </p>
                             )}
-                            {proposal.customerEmail && (
+                            {(proposal.shippingAddress?.email || proposal.billingAddress?.email || proposal.customerEmail) && (
                                 <p className="flex gap-2">
                                     <span className="font-bold text-gray-400 uppercase w-10 underline decoration-blue-100 underline-offset-4">Email</span>
-                                    <span className="font-bold text-gray-900 truncate">{proposal.customerEmail}</span>
+                                    <span className="font-bold text-gray-900 truncate">{proposal.shippingAddress?.email || proposal.billingAddress?.email || proposal.customerEmail}</span>
                                 </p>
                             )}
-                            {proposal.customerPhone && (
+                            {(proposal.shippingAddress?.phone || proposal.billingAddress?.phone || proposal.customerPhone) && (
                                 <p className="flex gap-2">
                                     <span className="font-bold text-gray-400 uppercase w-10 underline decoration-blue-100 underline-offset-4">Phone</span>
-                                    <span className="font-bold text-gray-900 truncate">{proposal.customerPhone}</span>
+                                    <span className="font-bold text-gray-900 truncate">{proposal.shippingAddress?.phone || proposal.billingAddress?.phone || proposal.customerPhone}</span>
                                 </p>
                             )}
                         </div>

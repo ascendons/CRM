@@ -57,11 +57,16 @@ export interface DiscountConfig {
 }
 
 export interface CustomerAddress {
+  name?: string;
+  companyName?: string;
+  email?: string;
+  phone?: string;
   street?: string;
   city?: string;
   state?: string;
   postalCode?: string;
   country?: string;
+  gstNumber?: string;
 }
 
 export interface ProposalResponse {

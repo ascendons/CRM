@@ -197,10 +197,15 @@ public class Proposal {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class CustomerAddress {
+        private String name;
+        private String companyName;
+        private String email;
+        private String phone;
         private String street;
         private String city;
         private String state;
         private String postalCode;
         private String country;
+        private String gstNumber;
     }
 }

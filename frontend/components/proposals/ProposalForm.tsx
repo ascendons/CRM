@@ -111,29 +111,35 @@ export default function ProposalForm({
     );
     const [notes, setNotes] = useState(initialData?.notes || "");
 
-    // Customer Contact state
-    const [companyName, setCompanyName] = useState(initialData?.companyName || "");
-    const [customerName, setCustomerName] = useState(initialData?.customerName || "");
-    const [customerEmail, setCustomerEmail] = useState(initialData?.customerEmail || "");
-    const [customerPhone, setCustomerPhone] = useState(initialData?.customerPhone || "");
+    // Customer Contact state (Removed, now integrated into billingAddress)
 
     // Address state
     const [billingAddress, setBillingAddress] = useState<CustomerAddress>(
         initialData?.billingAddress || {
+            name: "",
+            companyName: "",
+            email: "",
+            phone: "",
             street: "",
             city: "",
             state: "",
             postalCode: "",
             country: "",
+            gstNumber: "",
         }
     );
     const [shippingAddress, setShippingAddress] = useState<CustomerAddress>(
         initialData?.shippingAddress || {
+            name: "",
+            companyName: "",
+            email: "",
+            phone: "",
             street: "",
             city: "",
             state: "",
             postalCode: "",
             country: "",
+            gstNumber: "",
         }
     );
 
@@ -163,19 +169,21 @@ export default function ProposalForm({
         if (mode === "create" && !hasInitiallyPopulated && leads.length > 0 && source === ProposalSource.LEAD && sourceId) {
             const lead = leads.find(l => l.id === sourceId);
             if (lead) {
+                const initialName = `${lead.firstName || ""} ${lead.lastName || ""}`.trim();
                 setBillingAddress({
+                    name: initialName,
+                    companyName: lead.companyName || "",
+                    email: lead.email || "",
+                    phone: lead.phone || lead.mobilePhone || "",
                     street: lead.streetAddress || "",
                     city: lead.city || "",
                     state: lead.state || "",
                     postalCode: lead.postalCode || "",
                     country: lead.country || "",
+                    gstNumber: lead.gstNumber || ""
                 });
 
-                setGstNumber(lead.gstNumber || "");
-                setCompanyName(lead.companyName || "");
-                setCustomerName(`${lead.firstName || ""} ${lead.lastName || ""}`.trim());
-                setCustomerEmail(lead.email || "");
-                setCustomerPhone(lead.phone || lead.mobilePhone || "");
+                // Top-level states removed, using billingAddress natively
             }
             setHasInitiallyPopulated(true);
         }
@@ -466,10 +474,10 @@ export default function ProposalForm({
                     title: title.trim(),
                     description: description.trim() || undefined,
                     validUntil,
-                    companyName: companyName.trim() || undefined,
-                    customerName: customerName.trim() || undefined,
-                    customerEmail: customerEmail.trim() || undefined,
-                    customerPhone: customerPhone.trim() || undefined,
+                    companyName: billingAddress.companyName?.trim() || undefined,
+                    customerName: billingAddress.name?.trim() || undefined,
+                    customerEmail: billingAddress.email?.trim() || undefined,
+                    customerPhone: billingAddress.phone?.trim() || undefined,
                     billingAddress,
                     shippingAddress,
                     lineItems: processedLineItems,
@@ -516,10 +524,10 @@ export default function ProposalForm({
                     description: description.trim() || undefined,
                     status: status,
                     validUntil,
-                    companyName: companyName.trim() || undefined,
-                    customerName: customerName.trim() || undefined,
-                    customerEmail: customerEmail.trim() || undefined,
-                    customerPhone: customerPhone.trim() || undefined,
+                    companyName: billingAddress.companyName?.trim() || undefined,
+                    customerName: billingAddress.name?.trim() || undefined,
+                    customerEmail: billingAddress.email?.trim() || undefined,
+                    customerPhone: billingAddress.phone?.trim() || undefined,
                     billingAddress,
                     shippingAddress,
                     lineItems: processedLineItems,
@@ -659,18 +667,20 @@ export default function ProposalForm({
                                         if (source === ProposalSource.LEAD && selectedId) {
                                             const lead = leads.find(l => l.id === selectedId);
                                             if (lead) {
+                                                const initialName = `${lead.firstName || ""} ${lead.lastName || ""}`.trim();
                                                 setBillingAddress({
+                                                    name: initialName,
+                                                    companyName: lead.companyName || "",
+                                                    email: lead.email || "",
+                                                    phone: lead.phone || lead.mobilePhone || "",
                                                     street: lead.streetAddress || "",
                                                     city: lead.city || "",
                                                     state: lead.state || "",
                                                     postalCode: lead.postalCode || "",
                                                     country: lead.country || "",
+                                                    gstNumber: lead.gstNumber || ""
                                                 });
                                                 setGstNumber(lead.gstNumber || "");
-                                                setCompanyName(lead.companyName || "");
-                                                setCustomerName(`${lead.firstName || ""} ${lead.lastName || ""}`.trim());
-                                                setCustomerEmail(lead.email || "");
-                                                setCustomerPhone(lead.phone || lead.mobilePhone || "");
                                             }
                                         }
                                     }}
@@ -766,66 +776,71 @@ export default function ProposalForm({
                     }
                 >
                     <div className="space-y-6">
-                        {/* Customer Contact Information */}
-                        <div>
-                            <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Contact Information</h3>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                                <div>
-                                    <label className="block text-xs font-medium text-gray-500 mb-1">Company Name</label>
-                                    <input
-                                        type="text"
-                                        value={companyName}
-                                        onChange={(e) => setCompanyName(e.target.value)}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm disabled:bg-gray-100"
-                                        disabled={isReadOnly}
-                                        placeholder="Company Name"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-xs font-medium text-gray-500 mb-1">Customer Name</label>
-                                    <input
-                                        type="text"
-                                        value={customerName}
-                                        onChange={(e) => setCustomerName(e.target.value)}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm disabled:bg-gray-100"
-                                        disabled={isReadOnly}
-                                        placeholder="Name"
-                                    />
-                                </div>
-                            </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                    <label className="block text-xs font-medium text-gray-500 mb-1">Email</label>
-                                    <input
-                                        type="email"
-                                        value={customerEmail}
-                                        onChange={(e) => setCustomerEmail(e.target.value)}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm disabled:bg-gray-100"
-                                        disabled={isReadOnly}
-                                        placeholder="Email address"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-xs font-medium text-gray-500 mb-1">Phone Number</label>
-                                    <input
-                                        type="tel"
-                                        value={customerPhone}
-                                        onChange={(e) => setCustomerPhone(e.target.value)}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm disabled:bg-gray-100"
-                                        disabled={isReadOnly}
-                                        placeholder="Phone number"
-                                    />
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="h-px bg-gray-200 w-full" />
-
                         {/* Addresses Grid */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             {/* Billing Address */}
                             <div className="space-y-3">
-                                <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Billing Address</h3>
+                                <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Billing Details</h3>
+                                <div className="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <label className="block text-xs font-medium text-gray-500 mb-1">Name</label>
+                                        <input
+                                            type="text"
+                                            value={billingAddress.name || ""}
+                                            onChange={(e) => setBillingAddress({ ...billingAddress, name: e.target.value })}
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm disabled:bg-gray-100"
+                                            disabled={isReadOnly}
+                                            placeholder="Contact Name"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-medium text-gray-500 mb-1">Company</label>
+                                        <input
+                                            type="text"
+                                            value={billingAddress.companyName || ""}
+                                            onChange={(e) => setBillingAddress({ ...billingAddress, companyName: e.target.value })}
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm disabled:bg-gray-100"
+                                            disabled={isReadOnly}
+                                            placeholder="Company Name"
+                                        />
+                                    </div>
+                                </div>
+                                <div className="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <label className="block text-xs font-medium text-gray-500 mb-1">Email</label>
+                                        <input
+                                            type="email"
+                                            value={billingAddress.email || ""}
+                                            onChange={(e) => setBillingAddress({ ...billingAddress, email: e.target.value })}
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm disabled:bg-gray-100"
+                                            disabled={isReadOnly}
+                                            placeholder="Email"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-medium text-gray-500 mb-1">Phone</label>
+                                        <input
+                                            type="tel"
+                                            value={billingAddress.phone || ""}
+                                            onChange={(e) => setBillingAddress({ ...billingAddress, phone: e.target.value })}
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm disabled:bg-gray-100"
+                                            disabled={isReadOnly}
+                                            placeholder="Phone"
+                                        />
+                                    </div>
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-medium text-gray-500 mb-1">GST Number</label>
+                                    <input
+                                        type="text"
+                                        value={billingAddress.gstNumber || ""}
+                                        onChange={(e) => setBillingAddress({ ...billingAddress, gstNumber: e.target.value })}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm disabled:bg-gray-100"
+                                        disabled={isReadOnly}
+                                        placeholder="GST Number"
+                                    />
+                                </div>
+
                                 <div>
                                     <label className="block text-xs font-medium text-gray-500 mb-1">Street Address</label>
                                     <textarea
@@ -894,6 +909,65 @@ export default function ProposalForm({
 
                                 {!isShippingSameAsBilling && (
                                     <div className="space-y-3 animate-in fade-in slide-in-from-top-2 duration-200">
+                                        <div className="grid grid-cols-2 gap-3">
+                                            <div>
+                                                <label className="block text-xs font-medium text-gray-500 mb-1">Name</label>
+                                                <input
+                                                    type="text"
+                                                    value={shippingAddress.name || ""}
+                                                    onChange={(e) => setShippingAddress({ ...shippingAddress, name: e.target.value })}
+                                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm disabled:bg-gray-100"
+                                                    disabled={isReadOnly}
+                                                    placeholder="Contact Name"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-medium text-gray-500 mb-1">Company</label>
+                                                <input
+                                                    type="text"
+                                                    value={shippingAddress.companyName || ""}
+                                                    onChange={(e) => setShippingAddress({ ...shippingAddress, companyName: e.target.value })}
+                                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm disabled:bg-gray-100"
+                                                    disabled={isReadOnly}
+                                                    placeholder="Company Name"
+                                                />
+                                            </div>
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-3">
+                                            <div>
+                                                <label className="block text-xs font-medium text-gray-500 mb-1">Email</label>
+                                                <input
+                                                    type="email"
+                                                    value={shippingAddress.email || ""}
+                                                    onChange={(e) => setShippingAddress({ ...shippingAddress, email: e.target.value })}
+                                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm disabled:bg-gray-100"
+                                                    disabled={isReadOnly}
+                                                    placeholder="Email"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-medium text-gray-500 mb-1">Phone</label>
+                                                <input
+                                                    type="tel"
+                                                    value={shippingAddress.phone || ""}
+                                                    onChange={(e) => setShippingAddress({ ...shippingAddress, phone: e.target.value })}
+                                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm disabled:bg-gray-100"
+                                                    disabled={isReadOnly}
+                                                    placeholder="Phone"
+                                                />
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-medium text-gray-500 mb-1">GST Number</label>
+                                            <input
+                                                type="text"
+                                                value={shippingAddress.gstNumber || ""}
+                                                onChange={(e) => setShippingAddress({ ...shippingAddress, gstNumber: e.target.value })}
+                                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm disabled:bg-gray-100"
+                                                disabled={isReadOnly}
+                                                placeholder="GST Number"
+                                            />
+                                        </div>
                                         <div>
                                             <label className="block text-xs font-medium text-gray-500 mb-1">Street Address</label>
                                             <textarea
