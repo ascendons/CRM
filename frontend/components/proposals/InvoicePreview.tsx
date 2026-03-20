@@ -169,10 +169,10 @@ const InvoicePreview = forwardRef<HTMLDivElement, InvoicePreviewProps>(({
                                     <span className="font-bold text-gray-900 tracking-wide">{proposal.billingAddress?.name}</span>
                                 </p>
                             )}
-                            {(proposal.billingAddress?.gstNumber || proposal.gstNumber) && (
+                            {(proposal.billingAddress?.phone || proposal.customerPhone) && (
                                 <p className="flex gap-2">
-                                    <span className="font-bold text-gray-400 uppercase w-10 underline decoration-blue-100 underline-offset-4">GSTIN</span>
-                                    <span className="font-bold text-gray-900 tracking-wide">{proposal.billingAddress?.gstNumber || proposal.gstNumber}</span>
+                                    <span className="font-bold text-gray-400 uppercase w-10 underline decoration-blue-100 underline-offset-4">Phone</span>
+                                    <span className="font-bold text-gray-900 truncate">{proposal.billingAddress?.phone || proposal.customerPhone}</span>
                                 </p>
                             )}
                             {(proposal.billingAddress?.email || proposal.customerEmail) && (
@@ -181,12 +181,14 @@ const InvoicePreview = forwardRef<HTMLDivElement, InvoicePreviewProps>(({
                                     <span className="font-bold text-gray-900 truncate">{proposal.billingAddress?.email || proposal.customerEmail}</span>
                                 </p>
                             )}
-                            {(proposal.billingAddress?.phone || proposal.customerPhone) && (
+                            {(proposal.billingAddress?.gstNumber || proposal.gstNumber) && (
                                 <p className="flex gap-2">
-                                    <span className="font-bold text-gray-400 uppercase w-10 underline decoration-blue-100 underline-offset-4">Phone</span>
-                                    <span className="font-bold text-gray-900 truncate">{proposal.billingAddress?.phone || proposal.customerPhone}</span>
+                                    <span className="font-bold text-gray-400 uppercase w-10 underline decoration-blue-100 underline-offset-4">GSTIN</span>
+                                    <span className="font-bold text-gray-900 tracking-wide">{proposal.billingAddress?.gstNumber || proposal.gstNumber}</span>
                                 </p>
                             )}
+
+
                         </div>
                     </div>
                 </div>
@@ -223,10 +225,10 @@ const InvoicePreview = forwardRef<HTMLDivElement, InvoicePreviewProps>(({
                                     <span className="font-bold text-gray-900 tracking-wide">{proposal.shippingAddress?.name}</span>
                                 </p>
                             )}
-                            {(proposal.shippingAddress?.gstNumber || proposal.billingAddress?.gstNumber || proposal.gstNumber) && (
+                            {(proposal.shippingAddress?.phone || proposal.billingAddress?.phone || proposal.customerPhone) && (
                                 <p className="flex gap-2">
-                                    <span className="font-bold text-gray-400 uppercase w-10 underline decoration-blue-100 underline-offset-4">GSTIN</span>
-                                    <span className="font-bold text-gray-900 tracking-wide">{proposal.shippingAddress?.gstNumber || proposal.billingAddress?.gstNumber || proposal.gstNumber}</span>
+                                    <span className="font-bold text-gray-400 uppercase w-10 underline decoration-blue-100 underline-offset-4">Phone</span>
+                                    <span className="font-bold text-gray-900 truncate">{proposal.shippingAddress?.phone || proposal.billingAddress?.phone || proposal.customerPhone}</span>
                                 </p>
                             )}
                             {(proposal.shippingAddress?.email || proposal.billingAddress?.email || proposal.customerEmail) && (
@@ -235,10 +237,10 @@ const InvoicePreview = forwardRef<HTMLDivElement, InvoicePreviewProps>(({
                                     <span className="font-bold text-gray-900 truncate">{proposal.shippingAddress?.email || proposal.billingAddress?.email || proposal.customerEmail}</span>
                                 </p>
                             )}
-                            {(proposal.shippingAddress?.phone || proposal.billingAddress?.phone || proposal.customerPhone) && (
+                            {(proposal.shippingAddress?.gstNumber || proposal.billingAddress?.gstNumber || proposal.gstNumber) && (
                                 <p className="flex gap-2">
-                                    <span className="font-bold text-gray-400 uppercase w-10 underline decoration-blue-100 underline-offset-4">Phone</span>
-                                    <span className="font-bold text-gray-900 truncate">{proposal.shippingAddress?.phone || proposal.billingAddress?.phone || proposal.customerPhone}</span>
+                                    <span className="font-bold text-gray-400 uppercase w-10 underline decoration-blue-100 underline-offset-4">GSTIN</span>
+                                    <span className="font-bold text-gray-900 tracking-wide">{proposal.shippingAddress?.gstNumber || proposal.billingAddress?.gstNumber || proposal.gstNumber}</span>
                                 </p>
                             )}
                         </div>
