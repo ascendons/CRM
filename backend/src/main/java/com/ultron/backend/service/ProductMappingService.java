@@ -82,6 +82,7 @@ public class ProductMappingService extends BaseTenantService {
             .structuredProductId(request.getStructuredProductId())
             .autoSyncEnabled(request.isAutoSyncEnabled())
             .inventoryTrackingEnabled(request.isInventoryTrackingEnabled())
+            .priceSyncEnabled(true)  // Enable bidirectional price sync by default
             .attributeMapping(request.getAttributeMapping() != null ?
                 request.getAttributeMapping() : createDefaultAttributeMapping())
             .syncStatus(ProductMapping.SyncStatus.NEVER_SYNCED)
@@ -164,33 +165,33 @@ public class ProductMappingService extends BaseTenantService {
 
         log.info("Created structured product {} (MongoDB _id) for catalog product {}", productId, dynamicProductId);
 
-        // Create initial stock entry if initialStock > 0
-        if (request.getInitialStock() != null && request.getInitialStock() > 0) {
-            try {
-                Stock stock = Stock.builder()
-                    .tenantId(tenantId)
-                    .productId(productId)
-                    .warehouseId(request.getWarehouseId())
-                    .quantityOnHand(request.getInitialStock())
-                    .quantityAvailable(request.getInitialStock())
-                    .quantityReserved(0)
-                    .unitCost(request.getBasePrice() != null ? request.getBasePrice() : BigDecimal.ZERO)
-                    .totalValue((request.getBasePrice() != null ? request.getBasePrice() : BigDecimal.ZERO)
-                        .multiply(BigDecimal.valueOf(request.getInitialStock())))
-                    .lastRestockedAt(LocalDateTime.now())
-                    .lastMovementAt(LocalDateTime.now())
-                    .createdAt(LocalDateTime.now())
-                    .createdBy(userId)
-                    .build();
+        // Create initial stock entry (even with 0 stock to record unit cost)
+        try {
+            int initialStock = request.getInitialStock() != null ? request.getInitialStock() : 0;
+            BigDecimal unitCost = request.getBasePrice() != null ? request.getBasePrice() : BigDecimal.ZERO;
 
-                stockRepository.save(stock);
+            Stock stock = Stock.builder()
+                .tenantId(tenantId)
+                .productId(productId)
+                .warehouseId(request.getWarehouseId())
+                .quantityOnHand(initialStock)
+                .quantityAvailable(initialStock)
+                .quantityReserved(0)
+                .unitCost(unitCost)
+                .totalValue(unitCost.multiply(BigDecimal.valueOf(initialStock)))
+                .lastRestockedAt(initialStock > 0 ? LocalDateTime.now() : null)
+                .lastMovementAt(initialStock > 0 ? LocalDateTime.now() : null)
+                .createdAt(LocalDateTime.now())
+                .createdBy(userId)
+                .build();
 
-                log.info("Created initial stock entry: {} units in warehouse {}",
-                    request.getInitialStock(), request.getWarehouseId());
-            } catch (Exception e) {
-                log.error("Failed to create initial stock entry: {}", e.getMessage());
-                // Don't fail the entire operation
-            }
+            stockRepository.save(stock);
+
+            log.info("Created stock entry for product {}: {} units, unit cost: {}, warehouse: {}",
+                productId, initialStock, unitCost, request.getWarehouseId());
+        } catch (Exception e) {
+            log.error("Failed to create stock entry: {}", e.getMessage());
+            // Don't fail the entire operation
         }
 
         // Create product mapping
@@ -200,6 +201,7 @@ public class ProductMappingService extends BaseTenantService {
             .structuredProductId(productId)
             .autoSyncEnabled(request.isAutoSyncEnabled())
             .inventoryTrackingEnabled(true)
+            .priceSyncEnabled(true)  // Enable bidirectional price sync by default
             .attributeMapping(request.getAttributeMapping() != null ?
                 request.getAttributeMapping() : createDefaultAttributeMapping())
             .syncStatus(ProductMapping.SyncStatus.IN_SYNC)
@@ -413,6 +415,122 @@ public class ProductMappingService extends BaseTenantService {
         } catch (Exception e) {
             log.warn("Failed to parse price: {}", priceStr);
             return BigDecimal.ZERO;
+        }
+    }
+
+    /**
+     * Sync price from Inventory (unitCost) to Catalog (UnitPrice attribute)
+     * Called when stock unitCost is updated
+     */
+    @Transactional
+    public void syncPriceToCatalog(String dynamicProductId, BigDecimal newPrice) {
+        String tenantId = getCurrentTenantId();
+
+        log.info("Syncing price from inventory to catalog: dynamicProductId={}, newPrice={}",
+                dynamicProductId, newPrice);
+
+        // Find mapping
+        Optional<ProductMapping> mappingOpt = mappingRepository
+                .findByTenantIdAndDynamicProductId(tenantId, dynamicProductId);
+
+        if (mappingOpt.isEmpty() || !mappingOpt.get().isPriceSyncEnabled()) {
+            log.debug("Price sync not enabled for product {}", dynamicProductId);
+            return;
+        }
+
+        ProductMapping mapping = mappingOpt.get();
+
+        try {
+            // Get dynamic product
+            DynamicProduct dynamicProduct = dynamicProductRepository.findById(mapping.getDynamicProductId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Catalog product not found"));
+
+            // Update UnitPrice attribute
+            boolean updated = false;
+            if (dynamicProduct.getAttributes() != null) {
+                for (DynamicProduct.ProductAttribute attr : dynamicProduct.getAttributes()) {
+                    String key = attr.getKey().toLowerCase();
+                    if (key.contains("price") || key.contains("unitprice")) {
+                        attr.setValue(newPrice.toString());
+                        updated = true;
+                        log.info("Updated catalog UnitPrice attribute: {} -> {}", attr.getKey(), newPrice);
+                        break;
+                    }
+                }
+            }
+
+            if (updated) {
+                dynamicProduct.setLastModifiedAt(LocalDateTime.now());
+                dynamicProductRepository.save(dynamicProduct);
+
+                // Update mapping sync info
+                mapping.setLastPriceSyncedAt(LocalDateTime.now());
+                mapping.setLastPriceSyncDirection(ProductMapping.PriceSyncDirection.INVENTORY_TO_CATALOG);
+                mappingRepository.save(mapping);
+
+                log.info("Successfully synced price to catalog for product {}", dynamicProductId);
+            } else {
+                log.warn("No price attribute found in catalog product {}", dynamicProductId);
+            }
+        } catch (Exception e) {
+            log.error("Failed to sync price to catalog for product {}: {}",
+                    dynamicProductId, e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Sync price from Catalog (UnitPrice attribute) to Inventory (unitCost)
+     * Called when catalog UnitPrice is updated
+     */
+    @Transactional
+    public void syncPriceToInventory(String dynamicProductId, BigDecimal newPrice) {
+        String tenantId = getCurrentTenantId();
+
+        log.info("Syncing price from catalog to inventory: dynamicProductId={}, newPrice={}",
+                dynamicProductId, newPrice);
+
+        // Find mapping
+        Optional<ProductMapping> mappingOpt = mappingRepository
+                .findByTenantIdAndDynamicProductId(tenantId, dynamicProductId);
+
+        if (mappingOpt.isEmpty() || !mappingOpt.get().isPriceSyncEnabled()) {
+            log.debug("Price sync not enabled for product {}", dynamicProductId);
+            return;
+        }
+
+        ProductMapping mapping = mappingOpt.get();
+
+        try {
+            // Get structured product
+            Product product = productRepository.findById(mapping.getStructuredProductId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Inventory product not found"));
+
+            // Update base price
+            product.setBasePrice(newPrice);
+            product.setLastModifiedAt(LocalDateTime.now());
+            productRepository.save(product);
+
+            // Update stock unitCost
+            List<Stock> stocks = stockRepository.findByTenantIdAndProductId(tenantId, product.getId());
+            for (Stock stock : stocks) {
+                stock.setUnitCost(newPrice);
+                // Recalculate total value
+                stock.setTotalValue(newPrice.multiply(BigDecimal.valueOf(stock.getQuantityOnHand())));
+            }
+            if (!stocks.isEmpty()) {
+                stockRepository.saveAll(stocks);
+                log.info("Updated unitCost in {} stock records", stocks.size());
+            }
+
+            // Update mapping sync info
+            mapping.setLastPriceSyncedAt(LocalDateTime.now());
+            mapping.setLastPriceSyncDirection(ProductMapping.PriceSyncDirection.CATALOG_TO_INVENTORY);
+            mappingRepository.save(mapping);
+
+            log.info("Successfully synced price to inventory for product {}", dynamicProductId);
+        } catch (Exception e) {
+            log.error("Failed to sync price to inventory for product {}: {}",
+                    dynamicProductId, e.getMessage(), e);
         }
     }
 }

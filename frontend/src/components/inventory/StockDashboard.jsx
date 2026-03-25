@@ -32,10 +32,12 @@ import {
   Remove as RemoveIcon,
   Search as SearchIcon,
   Refresh as RefreshIcon,
+  Edit as EditIcon,
 } from '@mui/icons-material';
 import inventoryApi from '../../services/inventoryApi';
 import StockAdjustDialog from './StockAdjustDialog';
 import StockTransferDialog from './StockTransferDialog';
+import EditStockDialog from './EditStockDialog';
 
 const StockDashboard = () => {
   const [stockData, setStockData] = useState([]);
@@ -53,6 +55,7 @@ const StockDashboard = () => {
   // Dialogs
   const [adjustDialogOpen, setAdjustDialogOpen] = useState(false);
   const [transferDialogOpen, setTransferDialogOpen] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [selectedStock, setSelectedStock] = useState(null);
 
   useEffect(() => {
@@ -109,9 +112,15 @@ const StockDashboard = () => {
     setTransferDialogOpen(true);
   };
 
+  const handleEditStock = (stock) => {
+    setSelectedStock(stock);
+    setEditDialogOpen(true);
+  };
+
   const handleDialogClose = (refresh) => {
     setAdjustDialogOpen(false);
     setTransferDialogOpen(false);
+    setEditDialogOpen(false);
     setSelectedStock(null);
     if (refresh) {
       fetchDashboardData();
@@ -313,6 +322,15 @@ const StockDashboard = () => {
                       />
                     </TableCell>
                     <TableCell align="right">
+                      <Tooltip title="Edit Unit Cost">
+                        <IconButton
+                          size="small"
+                          color="primary"
+                          onClick={() => handleEditStock(stock)}
+                        >
+                          <EditIcon />
+                        </IconButton>
+                      </Tooltip>
                       <Tooltip title="Adjust Stock">
                         <IconButton
                           size="small"
@@ -353,6 +371,12 @@ const StockDashboard = () => {
       {/* Dialogs */}
       {selectedStock && (
         <>
+          <EditStockDialog
+            open={editDialogOpen}
+            stock={selectedStock}
+            onClose={() => setEditDialogOpen(false)}
+            onSuccess={() => handleDialogClose(true)}
+          />
           <StockAdjustDialog
             open={adjustDialogOpen}
             stock={selectedStock}

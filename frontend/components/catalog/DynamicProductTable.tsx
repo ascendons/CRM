@@ -140,13 +140,16 @@ export default function DynamicProductTable({
                         status={inventoryStatuses[product.id]}
                         bulkLoading={loadingInventoryStatuses}
                       />
-                      <button
-                        onClick={() => handleEnableInventory(product)}
-                        className="text-xs text-blue-600 hover:text-blue-700 font-medium hover:underline"
-                        title="Enable inventory tracking"
-                      >
-                        Enable
-                      </button>
+                      {/* Only show Enable button if inventory is NOT tracked */}
+                      {!inventoryStatuses[product.id]?.inventoryTracked && !loadingInventoryStatuses && (
+                        <button
+                          onClick={() => handleEnableInventory(product)}
+                          className="text-xs text-blue-600 hover:text-blue-700 font-medium hover:underline"
+                          title="Enable inventory tracking"
+                        >
+                          Enable
+                        </button>
+                      )}
                     </div>
                   </td>
                   <td className="px-4 py-4">
@@ -196,6 +199,7 @@ export default function DynamicProductTable({
           }}
           productId={selectedProductForInventory.id}
           productName={selectedProductForInventory.displayName}
+          productAttributes={selectedProductForInventory.attributes}
           onSuccess={handleInventorySuccess}
         />
       )}

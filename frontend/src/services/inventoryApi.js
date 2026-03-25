@@ -85,6 +85,12 @@ const inventoryApi = {
 
     // Get total stock value
     getTotalValue: () => api.get('/inventory/stock/value/total'),
+
+    // Update unit cost directly
+    updateUnitCost: (productId, warehouseId, unitCost, reason) =>
+      api.put('/inventory/stock/unit-cost', null, {
+        params: { productId, warehouseId, unitCost, reason }
+      }),
   },
 
   // ==================== PURCHASE ORDER APIs ====================

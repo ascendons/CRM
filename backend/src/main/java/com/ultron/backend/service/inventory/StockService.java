@@ -1,16 +1,20 @@
 package com.ultron.backend.service.inventory;
 
 import com.ultron.backend.domain.entity.DynamicProduct;
+import com.ultron.backend.domain.entity.ProductMapping;
 import com.ultron.backend.domain.entity.Stock;
 import com.ultron.backend.domain.entity.StockTransaction;
 import com.ultron.backend.domain.entity.Warehouse;
 import com.ultron.backend.exception.BadRequestException;
 import com.ultron.backend.exception.ResourceNotFoundException;
 import com.ultron.backend.repository.DynamicProductRepository;
+import com.ultron.backend.repository.ProductRepository;
+import com.ultron.backend.repository.ProductMappingRepository;
 import com.ultron.backend.repository.StockRepository;
 import com.ultron.backend.repository.StockTransactionRepository;
 import com.ultron.backend.service.BaseTenantService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -19,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Service for stock management operations
@@ -29,22 +34,28 @@ public class StockService extends BaseTenantService {
 
     private final StockRepository stockRepository;
     private final StockTransactionRepository transactionRepository;
-    private final DynamicProductRepository productRepository;
+    private final DynamicProductRepository dynamicProductRepository;
+    private final ProductRepository structuredProductRepository;
     private final WarehouseService warehouseService;
     private final TransactionIdGeneratorService transactionIdGenerator;
+    private final ProductMappingRepository productMappingRepository;
 
     public StockService(
         StockRepository stockRepository,
         StockTransactionRepository transactionRepository,
-        DynamicProductRepository productRepository,
+        DynamicProductRepository dynamicProductRepository,
+        ProductRepository structuredProductRepository,
         WarehouseService warehouseService,
-        TransactionIdGeneratorService transactionIdGenerator
+        TransactionIdGeneratorService transactionIdGenerator,
+        ProductMappingRepository productMappingRepository
     ) {
         this.stockRepository = stockRepository;
         this.transactionRepository = transactionRepository;
-        this.productRepository = productRepository;
+        this.dynamicProductRepository = dynamicProductRepository;
+        this.structuredProductRepository = structuredProductRepository;
         this.warehouseService = warehouseService;
         this.transactionIdGenerator = transactionIdGenerator;
+        this.productMappingRepository = productMappingRepository;
     }
 
     /**
@@ -54,8 +65,8 @@ public class StockService extends BaseTenantService {
     public Stock getOrCreateStock(String productId, String warehouseId) {
         String tenantId = getCurrentTenantId();
 
-        // Validate product exists
-        productRepository.findByProductIdAndTenantId(productId, tenantId)
+        // Validate structured product exists (Stock.productId stores Product MongoDB _id)
+        structuredProductRepository.findById(productId)
             .orElseThrow(() -> new ResourceNotFoundException("Product not found: " + productId));
 
         // Validate warehouse exists
@@ -151,6 +162,11 @@ public class StockService extends BaseTenantService {
         }
 
         stockRepository.save(stock);
+
+        // Sync price to catalog if unitCost was updated
+        if (unitCost != null && direction == StockTransaction.Direction.IN) {
+            syncPriceToCatalogAsync(productId, stock.getUnitCost());
+        }
 
         // Create transaction record
         StockTransaction.TransactionType transactionType =
@@ -475,5 +491,130 @@ public class StockService extends BaseTenantService {
         stockRepository.save(stock);
 
         return transaction;
+    }
+
+    /**
+     * Sync price from Stock to Catalog when unitCost changes
+     * Finds the mapped DynamicProduct and updates its UnitPrice attribute
+     */
+    private void syncPriceToCatalogAsync(String productId, BigDecimal newUnitCost) {
+        try {
+            String tenantId = getCurrentTenantId();
+            log.info("Starting price sync to catalog for product {} with new unit cost {}",
+                    productId, newUnitCost);
+
+            // Find the ProductMapping by structured product ID
+            Optional<ProductMapping> mappingOpt = productMappingRepository
+                    .findByTenantIdAndStructuredProductId(tenantId, productId)
+                    .stream()
+                    .findFirst();
+
+            if (mappingOpt.isEmpty()) {
+                log.warn("❌ No product mapping found for product {} (tenant: {}), skipping price sync. " +
+                        "Make sure the product has inventory tracking enabled.", productId, tenantId);
+                return;
+            }
+
+            ProductMapping mapping = mappingOpt.get();
+            log.info("Found mapping: {} -> {} (priceSyncEnabled: {})",
+                    mapping.getStructuredProductId(), mapping.getDynamicProductId(), mapping.isPriceSyncEnabled());
+
+            if (!mapping.isPriceSyncEnabled()) {
+                log.warn("❌ Price sync disabled for product {}, skipping. Enable it in ProductMapping.", productId);
+                return;
+            }
+
+            // Find and update DynamicProduct UnitPrice attribute
+            DynamicProduct dynamicProduct = dynamicProductRepository.findById(mapping.getDynamicProductId())
+                    .orElse(null);
+
+            if (dynamicProduct == null) {
+                log.error("❌ DynamicProduct not found for mapping {} (dynamicProductId: {})",
+                        mapping.getId(), mapping.getDynamicProductId());
+                return;
+            }
+
+            log.info("Found DynamicProduct: {} with {} attributes",
+                    dynamicProduct.getDisplayName(),
+                    dynamicProduct.getAttributes() != null ? dynamicProduct.getAttributes().size() : 0);
+
+            boolean updated = false;
+            if (dynamicProduct.getAttributes() != null) {
+                for (DynamicProduct.ProductAttribute attr : dynamicProduct.getAttributes()) {
+                    String key = attr.getKey().toLowerCase();
+                    log.debug("Checking attribute: {} (key: {})", attr.getKey(), key);
+                    if ("UnitPrice".equalsIgnoreCase(key)) {
+                        String oldValue = attr.getValue();
+                        attr.setValue(newUnitCost.toString());
+                        updated = true;
+                        log.info("✅ Synced price to catalog: {} -> {} (was: {}) [Inventory → Catalog]",
+                                attr.getKey(), newUnitCost, oldValue);
+                        break;
+                    }
+                }
+            }
+
+            if (updated) {
+                dynamicProduct.setLastModifiedAt(LocalDateTime.now());
+                dynamicProductRepository.save(dynamicProduct);
+
+                // Update mapping sync metadata
+                mapping.setLastPriceSyncedAt(LocalDateTime.now());
+                mapping.setLastPriceSyncDirection(ProductMapping.PriceSyncDirection.INVENTORY_TO_CATALOG);
+                productMappingRepository.save(mapping);
+
+                log.info("✅ Price sync completed successfully for product {}", productId);
+            } else {
+                log.warn("❌ No price attribute found in catalog product {}. Attributes: {}",
+                        productId,
+                        dynamicProduct.getAttributes() != null
+                            ? dynamicProduct.getAttributes().stream()
+                                .map(DynamicProduct.ProductAttribute::getKey)
+                                .collect(java.util.stream.Collectors.joining(", "))
+                            : "none");
+            }
+        } catch (Exception e) {
+            log.error("❌ Failed to sync price to catalog for product {}: {}",
+                    productId, e.getMessage(), e);
+            // Don't fail the stock transaction if sync fails
+        }
+    }
+
+    /**
+     * Update unit cost directly without stock movement
+     * Useful for price adjustments or selling at different prices
+     */
+    @Transactional
+    public Stock updateUnitCost(String productId, String warehouseId, BigDecimal newUnitCost, String reason) {
+        String tenantId = getCurrentTenantId();
+        String userId = getCurrentUserId();
+
+        if (newUnitCost.compareTo(BigDecimal.ZERO) < 0) {
+            throw new BadRequestException("Unit cost cannot be negative");
+        }
+
+        Stock stock = stockRepository.findByTenantIdAndProductIdAndWarehouseId(tenantId, productId, warehouseId)
+            .orElseThrow(() -> new ResourceNotFoundException(
+                "Stock not found for product " + productId + " at warehouse " + warehouseId
+            ));
+
+        log.info("Updating unit cost for product {} at warehouse {} from {} to {}. Reason: {}",
+            productId, warehouseId, stock.getUnitCost(), newUnitCost, reason);
+
+        // Update unit cost and recalculate total value
+        stock.setUnitCost(newUnitCost);
+        stock.setTotalValue(newUnitCost.multiply(BigDecimal.valueOf(stock.getQuantityOnHand())));
+        stock.setUpdatedAt(LocalDateTime.now());
+        stock.setUpdatedBy(userId);
+
+        Stock updated = stockRepository.save(stock);
+
+        // Sync price to catalog (bidirectional)
+        syncPriceToCatalogAsync(productId, newUnitCost);
+
+        log.info("Successfully updated unit cost for product {} at warehouse {} to {}",
+            productId, warehouseId, newUnitCost);
+
+        return updated;
     }
 }

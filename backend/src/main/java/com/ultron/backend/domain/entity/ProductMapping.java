@@ -58,6 +58,11 @@ public class ProductMapping {
     private LocalDateTime lastSyncedAt;
     private String lastSyncError;
 
+    // Price sync tracking (bidirectional)
+    private boolean priceSyncEnabled;  // Enable bidirectional price sync
+    private LocalDateTime lastPriceSyncedAt;
+    private PriceSyncDirection lastPriceSyncDirection;
+
     // Audit fields
     private LocalDateTime createdAt;
     private String createdBy;
@@ -74,5 +79,13 @@ public class ProductMapping {
         OUT_OF_SYNC,    // Changes detected, needs sync
         SYNC_FAILED,    // Last sync attempt failed
         NEVER_SYNCED    // Created but never synced
+    }
+
+    /**
+     * Price sync direction enum
+     */
+    public enum PriceSyncDirection {
+        CATALOG_TO_INVENTORY,   // Catalog UnitPrice → Inventory unitCost
+        INVENTORY_TO_CATALOG    // Inventory unitCost → Catalog UnitPrice
     }
 }

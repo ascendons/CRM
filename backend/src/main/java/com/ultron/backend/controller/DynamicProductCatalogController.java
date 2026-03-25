@@ -27,6 +27,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.validation.Valid;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -249,6 +250,11 @@ public class DynamicProductCatalogController {
         DynamicProduct updated = searchService.update(id, displayName, attributes);
         DynamicProductResponse response = mapToResponse(updated);
 
+        // Check if price was updated and sync to inventory
+        if (attributes != null) {
+            syncPriceToInventoryIfChanged(id, attributes);
+        }
+
         return ResponseEntity.ok(
                 ApiResponse.<DynamicProductResponse>builder()
                         .success(true)
@@ -453,5 +459,39 @@ public class DynamicProductCatalogController {
         return java.util.Arrays.stream(key.split("_"))
                 .map(word -> word.substring(0, 1).toUpperCase() + word.substring(1))
                 .collect(Collectors.joining(" "));
+    }
+
+    /**
+     * Sync price from Catalog to Inventory when UnitPrice attribute is updated
+     */
+    private void syncPriceToInventoryIfChanged(String dynamicProductId, List<DynamicProduct.ProductAttribute> attributes) {
+        try {
+            // Look for price attribute in the updated attributes
+            for (DynamicProduct.ProductAttribute attr : attributes) {
+                String key = attr.getKey().toLowerCase();
+                if (key.equalsIgnoreCase("UnitPrice")) {
+                    try {
+                        // Parse the price value
+                        String value = attr.getValue();
+                        String cleaned = value.replaceAll("[^0-9.]", "").trim();
+
+                        if (!cleaned.isEmpty()) {
+                            BigDecimal newPrice = new BigDecimal(cleaned);
+                            log.info("Price attribute changed in catalog, syncing to inventory: {} -> {}",
+                                    attr.getKey(), newPrice);
+
+                            // Call ProductMappingService to sync
+                            productMappingService.syncPriceToInventory(dynamicProductId, newPrice);
+                        }
+                    } catch (Exception e) {
+                        log.warn("Failed to parse price value for sync: {}", attr.getValue());
+                    }
+                    break;
+                }
+            }
+        } catch (Exception e) {
+            log.error("Error syncing price to inventory: {}", e.getMessage());
+            // Don't fail the update if sync fails
+        }
     }
 }

@@ -206,4 +206,21 @@ public class StockController {
 
         return ResponseEntity.ok(mapper.toStockTransactionResponse(transaction));
     }
+
+    /**
+     * Update unit cost directly (for price adjustments without stock movement)
+     */
+    @PutMapping("/unit-cost")
+    public ResponseEntity<StockResponse> updateUnitCost(
+        @RequestParam String productId,
+        @RequestParam String warehouseId,
+        @RequestParam java.math.BigDecimal unitCost,
+        @RequestParam(required = false) String reason
+    ) {
+        log.info("Updating unit cost for product {} at warehouse {} to {}",
+            productId, warehouseId, unitCost);
+
+        Stock updated = stockService.updateUnitCost(productId, warehouseId, unitCost, reason);
+        return ResponseEntity.ok(mapper.toStockResponse(updated));
+    }
 }

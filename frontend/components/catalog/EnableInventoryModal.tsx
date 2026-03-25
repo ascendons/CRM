@@ -10,6 +10,7 @@ interface EnableInventoryModalProps {
   onClose: () => void;
   productId: string;
   productName: string;
+  productAttributes?: Array<{ key: string; value: string }>;
   onSuccess: () => void;
 }
 
@@ -25,6 +26,7 @@ export default function EnableInventoryModal({
   onClose,
   productId,
   productName,
+  productAttributes,
   onSuccess
 }: EnableInventoryModalProps) {
   const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
@@ -49,6 +51,14 @@ export default function EnableInventoryModal({
       // Lock body scroll
       document.body.style.overflow = 'hidden';
       fetchWarehouses();
+
+      // Auto-extract and populate price from UnitPrice attribute
+      if (productAttributes) {
+        const extractedPrice = extractPriceFromAttributes(productAttributes);
+        if (extractedPrice) {
+          setFormData(prev => ({ ...prev, basePrice: extractedPrice.toString() }));
+        }
+      }
     } else {
       // Explicitly unlock when closed
       document.body.style.overflow = 'unset';
@@ -58,7 +68,22 @@ export default function EnableInventoryModal({
       // Cleanup: always unlock body scroll
       document.body.style.overflow = 'unset';
     };
-  }, [isOpen]);
+  }, [isOpen, productAttributes]);
+
+  const extractPriceFromAttributes = (attributes: Array<{ key: string; value: string }>) => {
+    const priceAttr = attributes.find(attr =>
+      attr.key.toLowerCase().includes('price') ||
+      attr.key.toLowerCase().includes('unitprice')
+    );
+
+    if (priceAttr) {
+      const cleaned = priceAttr.value.replace(/[^0-9.]/g, '');
+      const price = parseFloat(cleaned);
+      return isNaN(price) ? null : price;
+    }
+
+    return null;
+  };
 
   const fetchWarehouses = async () => {
     try {
@@ -157,6 +182,16 @@ export default function EnableInventoryModal({
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
               {error}
+            </div>
+          )}
+
+          {/* Auto-mapped info */}
+          {formData.basePrice && (
+            <div className="bg-blue-50 border border-blue-200 text-blue-800 px-4 py-3 rounded flex items-start gap-2">
+              <DollarSign className="w-4 h-4 mt-0.5 flex-shrink-0" />
+              <div className="text-sm">
+                <strong>UnitPrice auto-mapped:</strong> Base Price has been automatically set to {formData.currency} {formData.basePrice}
+              </div>
             </div>
           )}
 
