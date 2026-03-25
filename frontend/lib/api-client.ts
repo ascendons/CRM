@@ -53,17 +53,11 @@ export async function apiRequest<T>(endpoint: string, options: RequestInit = {})
 
   try {
     const url = `${API_URL}${endpoint}`;
-    console.log(`[apiRequest] Fetching: ${options.method || 'GET'} ${url}`, { headers });
-    
     const response = await fetch(url, config);
-    console.log(`[apiRequest] Response status: ${response.status} ${response.statusText}`);
-
     const data: ApiResponse<T> = await response.json();
-    console.log(`[apiRequest] Response data:`, data);
 
     if (!response.ok) {
       if (response.status === 401) {
-        console.warn("[apiRequest] 401 Unauthorized - clearing auth");
         localStorage.removeItem("auth_token");
         localStorage.removeItem("user");
         if (typeof window !== "undefined") {
@@ -76,7 +70,6 @@ export async function apiRequest<T>(endpoint: string, options: RequestInit = {})
 
     return data.data as T;
   } catch (error) {
-    console.error("[apiRequest] Error:", error);
     if (error instanceof ApiError) {
       throw error;
     }

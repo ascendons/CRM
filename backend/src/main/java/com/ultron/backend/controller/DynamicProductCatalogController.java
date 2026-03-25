@@ -1,9 +1,15 @@
 package com.ultron.backend.controller;
 
 import com.ultron.backend.domain.entity.DynamicProduct;
+import com.ultron.backend.domain.entity.Product;
+import com.ultron.backend.domain.entity.ProductMapping;
+import com.ultron.backend.dto.request.EnableInventoryRequest;
+import com.ultron.backend.dto.request.LinkInventoryRequest;
 import com.ultron.backend.dto.request.ProductSearchRequest;
 import com.ultron.backend.dto.response.ApiResponse;
 import com.ultron.backend.dto.response.DynamicProductResponse;
+import com.ultron.backend.dto.response.InventoryStatusResponse;
+import com.ultron.backend.service.ProductMappingService;
 import com.ultron.backend.service.catalog.DynamicProductIngestionService;
 import com.ultron.backend.service.catalog.DynamicProductSearchService;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +25,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import jakarta.validation.Valid;
+
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -36,6 +45,7 @@ public class DynamicProductCatalogController {
 
     private final DynamicProductIngestionService ingestionService;
     private final DynamicProductSearchService searchService;
+    private final ProductMappingService productMappingService;
 
     /**
      * Preview headers from an uploaded file (no ingestion)
@@ -326,6 +336,95 @@ public class DynamicProductCatalogController {
                                 .max(e.getValue().getMax())
                                 .build()
                 ));
+    }
+
+    /**
+     * Get inventory status for a catalog product
+     * GET /api/v1/catalog/{id}/inventory/status
+     */
+    @GetMapping("/{id}/inventory/status")
+    public ResponseEntity<ApiResponse<InventoryStatusResponse>> getInventoryStatus(
+            @PathVariable String id) {
+
+        log.info("Getting inventory status for catalog product: {}", id);
+
+        InventoryStatusResponse status = productMappingService.getInventoryStatus(id);
+
+        return ResponseEntity.ok(ApiResponse.success("Inventory status retrieved successfully", status));
+    }
+
+    /**
+     * Get inventory status for multiple catalog products (bulk)
+     * POST /api/v1/catalog/inventory/status/bulk
+     */
+    @PostMapping("/inventory/status/bulk")
+    public ResponseEntity<ApiResponse<Map<String, InventoryStatusResponse>>> getBulkInventoryStatus(
+            @RequestBody List<String> productIds) {
+
+        log.info("Getting bulk inventory status for {} products", productIds.size());
+
+        Map<String, InventoryStatusResponse> statusMap = new HashMap<>();
+        for (String productId : productIds) {
+            try {
+                InventoryStatusResponse status = productMappingService.getInventoryStatus(productId);
+                statusMap.put(productId, status);
+            } catch (Exception e) {
+                log.warn("Failed to get status for product {}: {}", productId, e.getMessage());
+                statusMap.put(productId, InventoryStatusResponse.notTracked());
+            }
+        }
+
+        return ResponseEntity.ok(ApiResponse.success("Bulk inventory status retrieved successfully", statusMap));
+    }
+
+    /**
+     * Link catalog product to existing structured product
+     * POST /api/v1/catalog/{id}/inventory/link
+     */
+    @PostMapping("/{id}/inventory/link")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse<ProductMapping>> linkInventory(
+            @PathVariable String id,
+            @Valid @RequestBody LinkInventoryRequest request) {
+
+        log.info("Linking catalog product {} to structured product {}", id, request.getStructuredProductId());
+
+        ProductMapping mapping = productMappingService.linkProducts(id, request);
+
+        return ResponseEntity.ok(ApiResponse.success("Inventory tracking linked successfully", mapping));
+    }
+
+    /**
+     * Enable inventory tracking by creating new structured product
+     * POST /api/v1/catalog/{id}/inventory/enable
+     */
+    @PostMapping("/{id}/inventory/enable")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse<Product>> enableInventory(
+            @PathVariable String id,
+            @Valid @RequestBody EnableInventoryRequest request) {
+
+        log.info("Enabling inventory tracking for catalog product: {}", id);
+
+        Product product = productMappingService.enableInventory(id, request);
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.success("Inventory tracking enabled successfully", product));
+    }
+
+    /**
+     * Unlink catalog product from inventory
+     * DELETE /api/v1/catalog/{id}/inventory
+     */
+    @DeleteMapping("/{id}/inventory")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse<Void>> unlinkInventory(@PathVariable String id) {
+
+        log.info("Unlinking inventory for catalog product: {}", id);
+
+        productMappingService.unlinkInventory(id);
+
+        return ResponseEntity.ok(ApiResponse.success("Inventory tracking disabled successfully", null));
     }
 
     private DynamicProductResponse mapToResponse(DynamicProduct product) {

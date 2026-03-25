@@ -1,15 +1,16 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { Product, SearchRequest, FilterRequest } from '@/types/catalog';
+import { Product, SearchRequest } from '@/types/catalog';
 import { useDynamicCatalog } from '@/hooks/useDynamicCatalog';
-import DynamicFilterPanel from '@/components/catalog/DynamicFilterPanel';
+import TableFilterPanel, { TableFilters } from '@/components/catalog/TableFilterPanel';
 import DynamicProductTable from '@/components/catalog/DynamicProductTable';
 import DynamicProductModal from '@/components/catalog/DynamicProductModal';
-import { Pagination } from '@/components/common/Pagination'; // Using existing Pagination component
+import { Pagination } from '@/components/common/Pagination';
 import { usePermissionContext } from '@/providers/PermissionProvider';
 import { Search, Upload, Plus, Info, ShieldAlert, Trash2, X } from 'lucide-react';
+import { api } from '@/lib/api-client';
 
 export default function CatalogPage() {
     const router = useRouter();
@@ -19,7 +20,11 @@ export default function CatalogPage() {
     const [currentPage, setCurrentPage] = useState(1);
     const [pageSize, setPageSize] = useState(500);
     const [keyword, setKeyword] = useState('');
-    const [filters, setFilters] = useState<Record<string, FilterRequest>>({});
+    const [tableFilters, setTableFilters] = useState<TableFilters>({});
+
+    // Inventory status cache
+    const [inventoryStatuses, setInventoryStatuses] = useState<Record<string, any>>({});
+    const [loadingInventoryStatuses, setLoadingInventoryStatuses] = useState(false);
 
     // Modal state
     const [modalOpen, setModalOpen] = useState(false);
@@ -45,13 +50,12 @@ export default function CatalogPage() {
 
     useEffect(() => {
         performSearch();
-    }, [currentPage, pageSize, filters]);
+    }, [currentPage, pageSize]);
 
     const performSearch = async () => {
         try {
             const request: SearchRequest = {
                 keyword: keyword || undefined,
-                filters: Object.keys(filters).length > 0 ? filters : undefined,
                 page: currentPage - 1,
                 size: pageSize,
                 sortBy: 'createdAt',
@@ -62,11 +66,88 @@ export default function CatalogPage() {
             setProducts(result.content);
             setTotalElements(result.totalElements);
             setTotalPages(result.totalPages);
-            setSelectedIds(new Set()); // Clear selection on new data
+            setSelectedIds(new Set());
+
+            // Fetch inventory statuses in bulk
+            if (result.content.length > 0) {
+                fetchBulkInventoryStatus(result.content.map(p => p.id));
+            }
         } catch (error) {
             console.error('Search failed:', error);
         }
     };
+
+    const fetchBulkInventoryStatus = async (productIds: string[]) => {
+        try {
+            // Set loading flag to prevent individual badge fetches
+            setLoadingInventoryStatuses(true);
+
+            const statusMap = await api.post<Record<string, any>>('/catalog/inventory/status/bulk', productIds);
+            setInventoryStatuses(statusMap || {});
+        } catch (error) {
+            console.error('Failed to fetch bulk inventory status:', error);
+            setInventoryStatuses({});
+        } finally {
+            // Clear loading flag once bulk fetch is complete
+            setLoadingInventoryStatuses(false);
+        }
+    };
+
+    // Apply table-level filters
+    const filteredProducts = useMemo(() => {
+        let filtered = [...products];
+
+        // Product name filter
+        if (tableFilters.productName) {
+            const searchTerm = tableFilters.productName.toLowerCase();
+            filtered = filtered.filter(p =>
+                p.displayName?.toLowerCase().includes(searchTerm)
+            );
+        }
+
+        // Category filter
+        if (tableFilters.category) {
+            filtered = filtered.filter(p => p.category === tableFilters.category);
+        }
+
+        // Inventory status filter
+        if (tableFilters.inventoryStatus) {
+            filtered = filtered.filter(p => {
+                const status = inventoryStatuses[p.id];
+
+                switch (tableFilters.inventoryStatus) {
+                    case 'tracked':
+                        return status?.inventoryTracked === true;
+                    case 'not-tracked':
+                        return !status?.inventoryTracked;
+                    case 'in-stock':
+                        return status?.inventoryTracked && !status?.isOutOfStock && !status?.isLowStock;
+                    case 'low-stock':
+                        return status?.inventoryTracked && status?.isLowStock === true;
+                    case 'out-of-stock':
+                        return status?.inventoryTracked && status?.isOutOfStock === true;
+                    default:
+                        return true;
+                }
+            });
+        }
+
+        // Attribute filters
+        if (tableFilters.attributes && Object.keys(tableFilters.attributes).length > 0) {
+            filtered = filtered.filter(p => {
+                if (!p.attributes || !Array.isArray(p.attributes)) return false;
+
+                // Check if product has ALL the filtered attributes with matching values
+                return Object.entries(tableFilters.attributes!).every(([filterKey, filterValue]) => {
+                    return p.attributes.some((attr: any) =>
+                        attr.key === filterKey && attr.value === filterValue
+                    );
+                });
+            });
+        }
+
+        return filtered;
+    }, [products, tableFilters, inventoryStatuses]);
 
     const handleSearch = () => {
         setCurrentPage(1);
@@ -228,7 +309,11 @@ export default function CatalogPage() {
                 <div className="flex flex-col lg:flex-row gap-6 items-start">
                     {/* Filter Panel */}
                     <div className="w-full lg:w-64 flex-shrink-0">
-                        <DynamicFilterPanel onFiltersChange={setFilters} />
+                        <TableFilterPanel
+                            products={products}
+                            inventoryStatuses={inventoryStatuses}
+                            onFiltersChange={setTableFilters}
+                        />
                     </div>
 
                     {/* Results */}
@@ -239,13 +324,22 @@ export default function CatalogPage() {
                             </div>
                         )}
 
-                        <div className="mb-4 text-sm text-slate-500 font-medium">
-                            Found {totalElements} products
+                        <div className="mb-4 flex items-center justify-between">
+                            <div className="text-sm text-slate-500 font-medium">
+                                Showing {filteredProducts.length} of {totalElements} products
+                            </div>
+                            {Object.keys(tableFilters).length > 0 && (
+                                <div className="text-xs text-blue-600">
+                                    {Object.keys(tableFilters).length} filter{Object.keys(tableFilters).length > 1 ? 's' : ''} active
+                                </div>
+                            )}
                         </div>
 
                         <DynamicProductTable
-                            products={products}
+                            products={filteredProducts}
                             selectedIds={selectedIds}
+                            inventoryStatuses={inventoryStatuses}
+                            loadingInventoryStatuses={loadingInventoryStatuses}
                             onSelectionChange={setSelectedIds}
                             onView={handleView}
                             onEdit={handleEdit}

@@ -66,6 +66,18 @@ export default function Sidebar({ isMobileOpen, onMobileClose, isCollapsed, onTo
       ],
     },
     {
+      title: "Inventory",
+      items: [
+        { href: "/inventory", label: "Inventory Hub", icon: "warehouse", module: "ADMINISTRATION" },
+        { href: "/inventory/warehouses", label: "Warehouses", icon: "store", module: "ADMINISTRATION" },
+        { href: "/inventory/stock", label: "Stock", icon: "inventory", module: "ADMINISTRATION" },
+        { href: "/inventory/purchase-orders", label: "Purchase Orders", icon: "shopping_cart", module: "ADMINISTRATION" },
+        { href: "/inventory/batches", label: "Batches", icon: "qr_code_scanner", module: "ADMINISTRATION" },
+        { href: "/inventory/reservations", label: "Reservations", icon: "bookmark", module: "ADMINISTRATION" },
+        { href: "/inventory/reports", label: "Reports", icon: "analytics", module: "ADMINISTRATION" },
+      ],
+    },
+    {
       title: "HR Management",
       items: [
         { href: "/attendance", label: "Attendance", icon: "schedule", alwaysVisible: true },
