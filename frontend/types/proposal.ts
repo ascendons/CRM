@@ -116,6 +116,8 @@ export interface ProposalResponse {
   currentMilestoneIndex?: number;
   milestonePayableAmount?: number;
   parentProposalId?: string;
+  parentTaxAmount?: number;
+  milestoneIncludesGst?: boolean;
 
   // Totals
   subtotal: number;

@@ -35,8 +35,6 @@ export default function ProposalDetailPage() {
   const router = useRouter();
   const params = useParams();
   const id = params?.id as string;
-  console.log("[ProposalDetailPage] Rendered with id:", id);
-
   const [proposal, setProposal] = useState<ProposalResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -458,7 +456,7 @@ export default function ProposalDetailPage() {
             </div>
             <div className="flex gap-2">
               <Link
-                href="/proposals"
+                href={proposal.isProforma ? "/proposals?tab=proforma" : "/proposals"}
                 className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center gap-2"
               >
                 Back
@@ -1033,7 +1031,7 @@ export default function ProposalDetailPage() {
               <DetailSection title="Summary">
                 <dl className="space-y-3">
                   <div className="flex justify-between text-sm">
-                    <dt className="text-gray-500">Subtotal</dt>
+                    <dt className="text-gray-500">{proposal.isProforma ? "Total Taxable Amount" : "Subtotal"}</dt>
                     <dd className="text-gray-900 font-medium">
                       {formatCurrency(proposal.subtotal)}
                     </dd>
@@ -1068,20 +1066,102 @@ export default function ProposalDetailPage() {
                     </>
                   )}
                   <div className="flex justify-between text-sm">
-                    <dt className="text-gray-500">Tax</dt>
+                    <dt className="text-gray-500">{proposal.isProforma ? "Total GST Amount" : "Tax"}</dt>
                     <dd className="text-gray-900 font-medium">
-                      {formatCurrency(proposal.taxAmount)}
+                      {(() => {
+                        let displayTax = proposal.taxAmount || 0;
+                        if (proposal.isProforma) {
+                          displayTax = proposal.parentTaxAmount ?? 0;
+                          if (displayTax <= 0) {
+                            displayTax = proposal.lineItems?.reduce((sum, item) => {
+                              if (item.lineTaxAmount > 0) return sum + item.lineTaxAmount;
+                              if (item.taxRate > 0) {
+                                const base = item.lineDiscountAmount ? (item.unitPrice * item.quantity - item.lineDiscountAmount) : (item.unitPrice * item.quantity);
+                                return sum + (base * item.taxRate / 100);
+                              }
+                              return sum;
+                            }, 0) || proposal.taxAmount || 0;
+                          }
+                        }
+                        return formatCurrency(displayTax);
+                      })()}
                     </dd>
                   </div>
-                  <div className="flex justify-between text-lg font-bold border-t pt-3">
-                    <dt className="text-gray-900">Total</dt>
-                    <dd className="text-blue-600">
-                      {formatCurrency(proposal.totalAmount)}
-                    </dd>
-                  </div>
+                  
+                  {!proposal.isProforma && (
+                    <div className="flex justify-between text-lg font-bold border-t pt-3">
+                      <dt className="text-gray-900">Total</dt>
+                      <dd className="text-blue-600">
+                        {formatCurrency(proposal.totalAmount)}
+                      </dd>
+                    </div>
+                  )}
+
                   {proposal.milestonePayableAmount !== undefined && proposal.milestonePayableAmount !== null && (
                     <div className="flex justify-between text-xl font-extrabold border-t-2 border-blue-100 pt-3 mt-2 bg-blue-50 p-2 rounded-lg">
-                      <dt className="text-blue-900">Payable Amount</dt>
+                      <dt className="text-blue-900 flex flex-col">
+                        <span>Net Payable</span>
+                        {proposal.isProforma && (
+                          <span className="text-xs text-blue-700 font-semibold mt-1">
+                            {(() => {
+                              let milestonePercentage = proposal.paymentMilestones?.[0]?.percentage || 100;
+                              let includesGst = proposal.milestoneIncludesGst ?? false;
+                              
+                              if (proposal.paymentMilestones?.[0]?.percentage && proposal.paymentMilestones[0].percentage !== 100) {
+                                milestonePercentage = proposal.paymentMilestones[0].percentage;
+                              } else {
+                                // Fallback native logic just in case API didn't map it properly for old proformas
+                                let computedTax = proposal.parentTaxAmount ?? 0;
+                                if (computedTax <= 0) {
+                                  computedTax = proposal.lineItems?.reduce((sum, item) => {
+                                    if (item.lineTaxAmount > 0) return sum + item.lineTaxAmount;
+                                    if (item.taxRate > 0) {
+                                      const base = item.lineDiscountAmount ? (item.unitPrice * item.quantity - item.lineDiscountAmount) : (item.unitPrice * item.quantity);
+                                      return sum + (base * item.taxRate / 100);
+                                    }
+                                    return sum;
+                                  }, 0) || proposal.taxAmount || 0;
+                                }
+                                
+                                const subtotal = proposal.subtotal || 0;
+                                const tax = computedTax;
+                                const payable = proposal.milestonePayableAmount!;
+                                
+                                if (subtotal > 0) {
+                                  const ratioWithoutTax = (payable / subtotal) * 100;
+                                  const ratioWithTax = ((payable - tax) / subtotal) * 100;
+                                  
+                                  const isRoundWithoutTax = Math.abs(Math.round(ratioWithoutTax) - ratioWithoutTax) < 0.05;
+                                  const isRoundWithTax = Math.abs(Math.round(ratioWithTax) - ratioWithTax) < 0.05;
+                                  
+                                  if (tax > 0) {
+                                     if (isRoundWithoutTax && isRoundWithTax) {
+                                         if (Math.round(ratioWithoutTax) % 5 === 0) {
+                                             milestonePercentage = Math.round(ratioWithoutTax);
+                                             includesGst = false;
+                                         } else {
+                                             milestonePercentage = Math.round(ratioWithTax);
+                                             includesGst = true;
+                                         }
+                                     } else if (isRoundWithTax && ratioWithTax > 0) {
+                                         milestonePercentage = Math.round(ratioWithTax);
+                                         includesGst = true;
+                                     } else {
+                                         milestonePercentage = Math.round(ratioWithoutTax);
+                                         includesGst = false;
+                                     }
+                                  } else {
+                                     milestonePercentage = Math.round(ratioWithoutTax);
+                                     includesGst = false;
+                                  }
+                                }
+                              }
+                              return `Based on ${milestonePercentage}% Milestone${includesGst ? ' + GST' : ''}`;
+                            })()}
+
+                          </span>
+                        )}
+                      </dt>
                       <dd className="text-blue-700">
                         {formatCurrency(proposal.milestonePayableAmount)}
                       </dd>
@@ -1166,6 +1246,7 @@ export default function ProposalDetailPage() {
           proposalNumber={proposal.proposalNumber}
           onClose={() => setShowInvoicePreview(false)}
           proposal={proposal}
+          parentTaxAmount={proposal.parentTaxAmount}
         />
       )}
 

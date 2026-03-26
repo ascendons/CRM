@@ -14,13 +14,15 @@ interface InvoicePreviewModalProps {
   proposalNumber: string;
   onClose: () => void;
   proposal: any;
+  parentTaxAmount?: number;
 }
 
 export default function InvoicePreviewModal({
   proposalId,
   proposalNumber,
   onClose,
-  proposal
+  proposal,
+  parentTaxAmount
 }: InvoicePreviewModalProps) {
   const [selectedTemplate, setSelectedTemplate] = useState('PROFORMA');
   const [downloading, setDownloading] = useState(false);
@@ -147,6 +149,7 @@ export default function InvoicePreviewModal({
                 proposal={proposal}
                 organization={organization}
                 template={selectedTemplate}
+                parentTaxAmount={parentTaxAmount}
               />
             </div>
           )}

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { proposalsService } from "@/lib/proposals";
 import { authService } from "@/lib/auth";
 import {
@@ -39,13 +39,26 @@ import { PermissionGuard } from "@/components/common/PermissionGuard";
 
 export default function ProposalsPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [proposals, setProposals] = useState<ProposalResponse[]>([]);
   const [filteredProposals, setFilteredProposals] = useState<ProposalResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<ProposalStatus | "ALL">("ALL");
   const [error, setError] = useState("");
-  const [activeTab, setActiveTab] = useState<"QUOTATION" | "PROFORMA">("QUOTATION");
+  // Initialize from search params if available, otherwise default to QUOTATION
+  const [activeTab, setActiveTab] = useState<"QUOTATION" | "PROFORMA">(
+    searchParams.get("tab") === "proforma" ? "PROFORMA" : "QUOTATION"
+  );
+
+  // Sync tab from URL exactly once on mount or when search params meaningfully change
+  useEffect(() => {
+    if (searchParams.get("tab") === "proforma") {
+      setActiveTab("PROFORMA");
+      // Clean up the URL so it doesn't force the tab back on refresh
+      router.replace("/proposals", { scroll: false });
+    }
+  }, [searchParams, router]);
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -114,7 +127,6 @@ export default function ProposalsPage() {
       router.push("/login");
       return;
     }
-
     loadProposals();
   }, [router, loadProposals]);
 
@@ -481,6 +493,8 @@ export default function ProposalsPage() {
                     const firstChild = children[0];
                     const progress = getMilestoneProgress(children);
                     const groupTotal = children.reduce((sum, c) => sum + (c.milestonePayableAmount || c.totalAmount || 0), 0);
+                    const groupTax = children.reduce((sum, c) => sum + (c.taxAmount || 0), 0);
+                    const groupBase = Math.max(0, groupTotal - groupTax);
                     // Extract parent quotation title (strip milestone suffix)
                     const parentTitle = firstChild.title?.replace(/\s*-\s*[^-]+$/, '') || firstChild.title;
 
@@ -553,12 +567,21 @@ export default function ProposalsPage() {
                         </tr>
 
                         {/* Child Proforma Rows (expanded) */}
-                        {isExpanded && children.map((proposal, idx) => (
-                          <tr
-                            key={proposal.id}
-                            className="hover:bg-blue-50/50 transition-colors cursor-pointer bg-white"
-                            onClick={() => router.push(`/proposals/${proposal.id}`)}
-                          >
+                        {isExpanded && children.map((proposal, idx) => {
+                          const childTotal = proposal.milestonePayableAmount || proposal.totalAmount || 0;
+                          const childTax = proposal.taxAmount || 0;
+                          const childBase = Math.max(0, childTotal - childTax);
+
+                          const actualPercentage = groupBase > 0 
+                            ? Math.round((childBase / groupBase) * 100) 
+                            : (proposal.paymentMilestones?.[0]?.percentage || 0);
+
+                          return (
+                            <tr
+                              key={proposal.id}
+                              className="hover:bg-blue-50/50 transition-colors cursor-pointer bg-white"
+                              onClick={() => router.push(`/proposals/${proposal.id}`)}
+                            >
                             <td className="px-4 py-3 text-center">
                               <div className="flex flex-col items-center">
                                 <div className={`w-0.5 h-3 ${idx === 0 ? 'bg-transparent' : 'bg-slate-200'}`} />
@@ -574,9 +597,9 @@ export default function ProposalsPage() {
                                 <p className="text-sm font-medium text-slate-700">
                                   {proposal.paymentMilestones?.[0]?.name || proposal.title}
                                 </p>
-                                {proposal.paymentMilestones?.[0]?.percentage && (
+                                {(actualPercentage > 0 || proposal.paymentMilestones?.[0]?.percentage) && (
                                   <span className="text-[10px] font-medium bg-primary/10 text-primary px-1.5 py-0.5 rounded mt-0.5 inline-block">
-                                    {proposal.paymentMilestones[0].percentage}%
+                                    {actualPercentage}%{childTax > 0 ? ' + GST' : ''}
                                   </span>
                                 )}
                               </div>
@@ -656,7 +679,8 @@ export default function ProposalsPage() {
                               </div>
                             </td>
                           </tr>
-                        ))}
+                          );
+                        })}
                       </>
                     );
                   })}

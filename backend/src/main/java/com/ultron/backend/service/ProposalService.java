@@ -886,12 +886,14 @@ public class ProposalService extends BaseTenantService {
                     .discountAmount(originalDiscount)
                     .totalAmount(originalSubtotal.add(milestoneTax))
                     .milestonePayableAmount(milestonePayable)
+                    .parentTaxAmount(originalTax)
+                    .milestoneIncludesGst(isLast && originalTax != null && originalTax.compareTo(BigDecimal.ZERO) > 0)
                     .build();
 
-            // Set a single milestone reflecting 100% of this proforma
+            // Set a single milestone reflecting the percentage of this proforma from parent
             Proposal.PaymentMilestone singleMilestone = Proposal.PaymentMilestone.builder()
                     .name(milestone.getName())
-                    .percentage(new BigDecimal("100"))
+                    .percentage(milestone.getPercentage())
                     .build();
             proforma.setPaymentMilestones(List.of(singleMilestone));
             proforma.setCurrentMilestoneIndex(0);
@@ -1430,6 +1432,8 @@ public class ProposalService extends BaseTenantService {
                 .isProforma(Boolean.TRUE.equals(proposal.getIsProforma()))
                 .hasBeenConverted(Boolean.TRUE.equals(proposal.getHasBeenConverted()))
                 .parentProposalId(proposal.getParentProposalId())
+                .parentTaxAmount(proposal.getParentTaxAmount())
+                .milestoneIncludesGst(proposal.getMilestoneIncludesGst())
                 .approverIds(proposal.getApproverIds() != null ? proposal.getApproverIds() : List.of())
                 .approvedByIds(proposal.getApprovedByIds() != null ? proposal.getApprovedByIds() : List.of())
                 .approvedByNames(proposal.getApprovedByNames() != null ? proposal.getApprovedByNames() : List.of())
@@ -1549,6 +1553,8 @@ public class ProposalService extends BaseTenantService {
                 .accountId(previousProposal.getAccountId())
                 .accountName(previousProposal.getAccountName())
                 .contactId(previousProposal.getContactId())
+                .parentTaxAmount(previousProposal.getParentTaxAmount())
+                .milestoneIncludesGst(previousProposal.getMilestoneIncludesGst())
                 .contactName(previousProposal.getContactName())
                 .build();
                 

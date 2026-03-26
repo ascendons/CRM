@@ -8,12 +8,14 @@ interface InvoicePreviewProps {
     proposal: ProposalResponse;
     organization: Organization | null;
     template: string;
+    parentTaxAmount?: number;
 }
 
 const InvoicePreview = forwardRef<HTMLDivElement, InvoicePreviewProps>(({
     proposal,
     organization,
-    template
+    template,
+    parentTaxAmount
 }, ref) => {
     const invoiceConfig = organization?.invoiceConfig;
 
@@ -339,21 +341,104 @@ const InvoicePreview = forwardRef<HTMLDivElement, InvoicePreviewProps>(({
                                 <span className="font-black text-red-600">-{formatCurrency(proposal.discountAmount)}</span>
                             </div>
                         )}
-                        {proposal.taxAmount > 0 && (
-                            <div className="flex justify-between items-center text-sm">
-                                <span className="font-bold text-gray-400 uppercase tracking-widest text-[10px] flex flex-col">
-                                    Estimated Tax
-                                    {proposal.gstType && <span className="text-[8px] italic normal-case font-medium opacity-50 tracking-normal leading-tight">[{proposal.gstType}]</span>}
-                                </span>
-                                <span className="font-black text-gray-900">{formatCurrency(proposal.taxAmount)}</span>
-                            </div>
-                        )}
+                        {(() => {
+                            const computedTax = proposal.isProforma
+                                ? proposal.lineItems?.reduce((sum, item) => {
+                                      if (item.lineTaxAmount > 0) return sum + item.lineTaxAmount;
+                                      if (item.taxRate > 0) {
+                                          const base = item.lineDiscountAmount ? (item.unitPrice * item.quantity - item.lineDiscountAmount) : (item.unitPrice * item.quantity);
+                                          return sum + (base * item.taxRate / 100);
+                                      }
+                                      return sum;
+                                  }, 0) || parentTaxAmount || proposal.taxAmount || 0
+                                : proposal.taxAmount || 0;
+                            
+                            const finalComputedTax = computedTax > 0 ? computedTax : (parentTaxAmount ?? 0);
+                            if (finalComputedTax <= 0) return null;
+                            
+                            
+                            return (
+                                <div className="flex justify-between items-center text-sm">
+                                    <span className="font-bold text-gray-400 uppercase tracking-widest text-[10px] flex flex-col">
+                                        Total Tax/GST
+                                        {proposal.gstType && <span className="text-[8px] italic normal-case font-medium opacity-50 tracking-normal leading-tight">[{proposal.gstType}]</span>}
+                                    </span>
+                                    <span className="font-black text-gray-900">
+                                        {formatCurrency(computedTax > 0 ? computedTax : (parentTaxAmount ?? proposal.taxAmount))}
+                                    </span>
+                                </div>
+                            );
+                        })()}
                     </div>
 
                     <div className="bg-blue-900 rounded-2xl p-7 shadow-xl shadow-blue-900/10 print-break-inside-avoid">
                         <div className="flex justify-between items-center text-white mb-2">
-                            <span className="text-[10px] font-black uppercase tracking-[0.3em] opacity-60">Grand Total<br></br> Payable</span>
-                            <span className="text-2xl font-black tracking-tighter tabular-nums">{formatCurrency(proposal.totalAmount)}</span>
+                            <span className="text-[10px] font-black uppercase tracking-[0.3em] opacity-80">
+                                {isProforma ? 'Net Payable' : 'Grand Total Payable'}
+                                {isProforma && (
+                                    <span className="block text-[8px] mt-1 normal-case tracking-normal opacity-90 font-bold">
+                                        {(() => {
+                                            let milestonePercentage = proposal.paymentMilestones?.[0]?.percentage || 100;
+                                            let includesGst = false;
+                                            const subtotal = proposal.subtotal || 0;
+                                            const computedTax = proposal.isProforma
+                                                ? parentTaxAmount ?? proposal.parentTaxAmount ?? proposal.taxAmount ?? 0
+                                                : proposal.taxAmount || 0;
+                                            
+                                            let tax = computedTax > 0 ? computedTax : 0;
+                                            if (tax === 0 && proposal.isProforma) {
+                                                tax = proposal.lineItems?.reduce((sum, item) => {
+                                                  if (item.lineTaxAmount > 0) return sum + item.lineTaxAmount;
+                                                  if (item.taxRate > 0) {
+                                                      const base = item.lineDiscountAmount ? (item.unitPrice * item.quantity - item.lineDiscountAmount) : (item.unitPrice * item.quantity);
+                                                      return sum + (base * item.taxRate / 100);
+                                                  }
+                                                  return sum;
+                                                }, 0) || 0;
+                                            }
+                                            
+                                            includesGst = proposal.milestoneIncludesGst ?? false;
+                                            
+                                            if (proposal.paymentMilestones?.[0]?.percentage && proposal.paymentMilestones[0].percentage !== 100) {
+                                                milestonePercentage = proposal.paymentMilestones[0].percentage;
+                                            } else {
+                                                // Fallback native logic just in case API didn't map it properly for old proformas
+                                                const payable = proposal.milestonePayableAmount || proposal.totalAmount || 0;
+                                                if (subtotal > 0) {
+                                                    const ratioWithoutTax = (payable / subtotal) * 100;
+                                                    const ratioWithTax = ((payable - tax) / subtotal) * 100;
+                                                    
+                                                    const isRoundWithoutTax = Math.abs(Math.round(ratioWithoutTax) - ratioWithoutTax) < 0.05;
+                                                    const isRoundWithTax = Math.abs(Math.round(ratioWithTax) - ratioWithTax) < 0.05;
+                                                    
+                                                    if (tax > 0) {
+                                                       if (isRoundWithoutTax && isRoundWithTax) {
+                                                           if (Math.round(ratioWithoutTax) % 5 === 0) {
+                                                               milestonePercentage = Math.round(ratioWithoutTax);
+                                                               includesGst = false;
+                                                           } else {
+                                                               milestonePercentage = Math.round(ratioWithTax);
+                                                               includesGst = true;
+                                                           }
+                                                       } else if (isRoundWithTax && ratioWithTax > 0) {
+                                                           milestonePercentage = Math.round(ratioWithTax);
+                                                           includesGst = true;
+                                                       } else {
+                                                           milestonePercentage = Math.round(ratioWithoutTax);
+                                                           includesGst = false;
+                                                       }
+                                                    } else {
+                                                       milestonePercentage = Math.round(ratioWithoutTax);
+                                                       includesGst = false;
+                                                    }
+                                                }
+                                            }
+                                            return `(Based on ${milestonePercentage}% Milestone${includesGst ? ' + GST' : ''})`;
+                                        })()}
+                                    </span>
+                                )}
+                            </span>
+                            <span className="text-2xl font-black tracking-tighter tabular-nums">{formatCurrency(isProforma && proposal.milestonePayableAmount ? proposal.milestonePayableAmount : proposal.totalAmount)}</span>
                         </div>
                         <div className="h-[2px] bg-white/10 w-full mb-3"></div>
                         <p className="text-[9px] text-white/40 font-bold uppercase tracking-[0.1em] text-center italic">

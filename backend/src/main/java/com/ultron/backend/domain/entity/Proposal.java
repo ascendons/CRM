@@ -136,6 +136,8 @@ public class Proposal {
     @Builder.Default
     private Boolean hasBeenConverted = false;
     private String parentProposalId;
+    private BigDecimal parentTaxAmount;
+    private Boolean milestoneIncludesGst;
 
     // Approvals
     private List<String> approverIds;

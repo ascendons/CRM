@@ -68,6 +68,8 @@ public class ProposalResponse {
     private Boolean isProforma;
     private Boolean hasBeenConverted;
     private String parentProposalId;
+    private BigDecimal parentTaxAmount;
+    private Boolean milestoneIncludesGst;
 
     // Approvals
     private List<String> approverIds;
