@@ -148,32 +148,47 @@ const InvoicePreview = forwardRef<HTMLDivElement, InvoicePreviewProps>(({
                     </h2>
                     <div className="bg-white border-l-4 border-blue-900 pl-5 py-2">
                         <div className="font-black text-gray-900 text-base tracking-tight mb-1">
-                            {proposal.companyName || proposal.customerName}
+                            {proposal.billingAddress?.companyName || proposal.companyName || proposal.customerName}
                         </div>
-                        {proposal.billingAddress && (
-                            <div className="text-[10px] text-gray-500 font-medium leading-relaxed whitespace-pre-line mb-3">
-                                {proposal.billingAddress.street && `${proposal.billingAddress.street}`}
-                            </div>
-                        )}
+                        <div className="text-[10px] text-gray-500 font-medium leading-relaxed whitespace-pre-line mb-1">
+                            {(() => {
+                                const addr = proposal.billingAddress;
+                                if (!addr) return null;
+                                const parts = [
+                                    addr.street,
+                                    [addr.city, addr.state, addr.postalCode].filter(Boolean).join(', '),
+                                    addr.country
+                                ].filter(Boolean);
+                                return parts.join('\n');
+                            })()}
+                        </div>
                         <div className="grid grid-cols-1 gap-1 text-[10px]">
-                            {proposal.gstNumber && (
+                            {(proposal.billingAddress?.name) && (
                                 <p className="flex gap-2">
-                                    <span className="font-bold text-gray-400 uppercase w-10 underline decoration-blue-100 underline-offset-4">GSTIN</span>
-                                    <span className="font-bold text-gray-900 tracking-wide">{proposal.gstNumber}</span>
+                                    <span className="font-bold text-gray-400 uppercase w-10 underline decoration-blue-100 underline-offset-4">Name</span>
+                                    <span className="font-bold text-gray-900 tracking-wide">{proposal.billingAddress?.name}</span>
                                 </p>
                             )}
-                            {proposal.customerEmail && (
-                                <p className="flex gap-2">
-                                    <span className="font-bold text-gray-400 uppercase w-10 underline decoration-blue-100 underline-offset-4">Email</span>
-                                    <span className="font-bold text-gray-900 truncate">{proposal.customerEmail}</span>
-                                </p>
-                            )}
-                            {proposal.customerPhone && (
+                            {(proposal.billingAddress?.phone || proposal.customerPhone) && (
                                 <p className="flex gap-2">
                                     <span className="font-bold text-gray-400 uppercase w-10 underline decoration-blue-100 underline-offset-4">Phone</span>
-                                    <span className="font-bold text-gray-900 truncate">{proposal.customerPhone}</span>
+                                    <span className="font-bold text-gray-900 truncate">{proposal.billingAddress?.phone || proposal.customerPhone}</span>
                                 </p>
                             )}
+                            {(proposal.billingAddress?.email || proposal.customerEmail) && (
+                                <p className="flex gap-2">
+                                    <span className="font-bold text-gray-400 uppercase w-10 underline decoration-blue-100 underline-offset-4">Email</span>
+                                    <span className="font-bold text-gray-900 truncate">{proposal.billingAddress?.email || proposal.customerEmail}</span>
+                                </p>
+                            )}
+                            {(proposal.billingAddress?.gstNumber || proposal.gstNumber) && (
+                                <p className="flex gap-2">
+                                    <span className="font-bold text-gray-400 uppercase w-10 underline decoration-blue-100 underline-offset-4">GSTIN</span>
+                                    <span className="font-bold text-gray-900 tracking-wide">{proposal.billingAddress?.gstNumber || proposal.gstNumber}</span>
+                                </p>
+                            )}
+
+
                         </div>
                     </div>
                 </div>
@@ -185,34 +200,47 @@ const InvoicePreview = forwardRef<HTMLDivElement, InvoicePreviewProps>(({
                     </h2>
                     <div className="bg-white border-l-4 border-blue-900 pl-5 py-2">
                         <div className="font-black text-gray-900 text-base tracking-tight mb-1">
-                            {proposal.companyName || proposal.customerName}
+                            {proposal.shippingAddress?.companyName ||
+                                proposal.billingAddress?.name ||
+                                proposal.billingAddress?.companyName ||
+                                proposal.companyName ||
+                                proposal.customerName}
                         </div>
-                        {(() => {
-                            const address = proposal.shippingAddress || proposal.billingAddress;
-                            if (!address) return null;
-                            return (
-                                <div className="text-[10px] text-gray-500 font-medium leading-relaxed whitespace-pre-line mb-3">
-                                    {address.street && `${address.street}`}
-                                </div>
-                            );
-                        })()}
+                        <div className="text-[10px] text-gray-500 font-medium leading-relaxed whitespace-pre-line mb-1">
+                            {(() => {
+                                const addr = proposal.shippingAddress || proposal.billingAddress;
+                                if (!addr) return null;
+                                const parts = [
+                                    addr.street,
+                                    [addr.city, addr.state, addr.postalCode].filter(Boolean).join(', '),
+                                    addr.country
+                                ].filter(Boolean);
+                                return parts.join('\n');
+                            })()}
+                        </div>
                         <div className="grid grid-cols-1 gap-1 text-[10px]">
-                            {proposal.gstNumber && (
+                            {(proposal.shippingAddress?.name) && (
                                 <p className="flex gap-2">
-                                    <span className="font-bold text-gray-400 uppercase w-10 underline decoration-blue-100 underline-offset-4">GSTIN</span>
-                                    <span className="font-bold text-gray-900 tracking-wide">{proposal.gstNumber}</span>
+                                    <span className="font-bold text-gray-400 uppercase w-10 underline decoration-blue-100 underline-offset-4">Name</span>
+                                    <span className="font-bold text-gray-900 tracking-wide">{proposal.shippingAddress?.name}</span>
                                 </p>
                             )}
-                            {proposal.customerEmail && (
-                                <p className="flex gap-2">
-                                    <span className="font-bold text-gray-400 uppercase w-10 underline decoration-blue-100 underline-offset-4">Email</span>
-                                    <span className="font-bold text-gray-900 truncate">{proposal.customerEmail}</span>
-                                </p>
-                            )}
-                            {proposal.customerPhone && (
+                            {(proposal.shippingAddress?.phone || proposal.billingAddress?.phone || proposal.customerPhone) && (
                                 <p className="flex gap-2">
                                     <span className="font-bold text-gray-400 uppercase w-10 underline decoration-blue-100 underline-offset-4">Phone</span>
-                                    <span className="font-bold text-gray-900 truncate">{proposal.customerPhone}</span>
+                                    <span className="font-bold text-gray-900 truncate">{proposal.shippingAddress?.phone || proposal.billingAddress?.phone || proposal.customerPhone}</span>
+                                </p>
+                            )}
+                            {(proposal.shippingAddress?.email || proposal.billingAddress?.email || proposal.customerEmail) && (
+                                <p className="flex gap-2">
+                                    <span className="font-bold text-gray-400 uppercase w-10 underline decoration-blue-100 underline-offset-4">Email</span>
+                                    <span className="font-bold text-gray-900 truncate">{proposal.shippingAddress?.email || proposal.billingAddress?.email || proposal.customerEmail}</span>
+                                </p>
+                            )}
+                            {(proposal.shippingAddress?.gstNumber || proposal.billingAddress?.gstNumber || proposal.gstNumber) && (
+                                <p className="flex gap-2">
+                                    <span className="font-bold text-gray-400 uppercase w-10 underline decoration-blue-100 underline-offset-4">GSTIN</span>
+                                    <span className="font-bold text-gray-900 tracking-wide">{proposal.shippingAddress?.gstNumber || proposal.billingAddress?.gstNumber || proposal.gstNumber}</span>
                                 </p>
                             )}
                         </div>
@@ -243,12 +271,12 @@ const InvoicePreview = forwardRef<HTMLDivElement, InvoicePreviewProps>(({
                                         <div className="text-[10px] text-gray-400 font-medium leading-relaxed max-w-sm">{item.description}</div>
                                     )}
                                 </td>
-                                <td className="py-3 px-6 text-center text-gray-400 font-mono">{item.hsnCode || '-'}</td>
-                                <td className="py-3 px-6 text-center text-gray-600">
+                                <td className="py-3 px-6 text-center text-gray-900 font-mono">{item.hsnCode || '-'}</td>
+                                <td className="py-3 px-6 text-center text-gray-900">
                                     <span>{item.quantity}</span>
-                                    {item.unit && <span className="text-[9px] text-gray-300 uppercase ml-1">{item.unit}</span>}
+                                    {item.unit && <span className="text-[9px] text-gray-700 uppercase ml-1">{item.unit}</span>}
                                 </td>
-                                <td className="py-3 px-6 text-right tabular-nums text-gray-400">{formatNumber(item.unitPrice)}</td>
+                                <td className="py-3 px-6 text-right tabular-nums text-gray-900">{formatNumber(item.unitPrice)}</td>
                                 <td className="py-3 px-6 text-right tabular-nums font-black text-gray-900 text-sm">{formatNumber(item.lineSubtotal)}</td>
                             </tr>
                         ))}
@@ -271,7 +299,7 @@ const InvoicePreview = forwardRef<HTMLDivElement, InvoicePreviewProps>(({
                         <h3 className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-4">Bank Details</h3>
                         <div className="space-y-2">
                             {invoiceConfig?.bankName ? (
-                                <div className="grid grid-cols-2 gap-4 text-[10px]">
+                                <div className="grid grid-cols-2 gap-4 text-[12px]">
                                     <div>
                                         <p className="text-gray-400 font-bold uppercase tracking-tighter mb-0.5">Bank Name</p>
                                         <p className="font-black text-gray-900 tracking-tight">{invoiceConfig.bankName}</p>
@@ -324,7 +352,7 @@ const InvoicePreview = forwardRef<HTMLDivElement, InvoicePreviewProps>(({
 
                     <div className="bg-blue-900 rounded-2xl p-7 shadow-xl shadow-blue-900/10 print-break-inside-avoid">
                         <div className="flex justify-between items-center text-white mb-2">
-                            <span className="text-[10px] font-black uppercase tracking-[0.3em] opacity-60">Grand Total Payable</span>
+                            <span className="text-[10px] font-black uppercase tracking-[0.3em] opacity-60">Grand Total<br></br> Payable</span>
                             <span className="text-2xl font-black tracking-tighter tabular-nums">{formatCurrency(proposal.totalAmount)}</span>
                         </div>
                         <div className="h-[2px] bg-white/10 w-full mb-3"></div>

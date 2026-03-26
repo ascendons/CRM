@@ -869,21 +869,59 @@ export default function ProposalDetailPage() {
                       {proposal.billingAddress && (
                         <div>
                           <h3 className="text-sm font-semibold text-gray-800 uppercase tracking-wider mb-2">Billing Address</h3>
-                          <p className="text-sm text-gray-900 leading-relaxed whitespace-pre-line">
-                            {proposal.billingAddress.street && `${proposal.billingAddress.street}\n`}
-                            {proposal.billingAddress.city}{proposal.billingAddress.state && `, ${proposal.billingAddress.state}`}{proposal.billingAddress.postalCode && ` - ${proposal.billingAddress.postalCode}`}
-                            {proposal.billingAddress.country && `\n${proposal.billingAddress.country}`}
-                          </p>
+                          <div className="text-sm text-gray-900 leading-relaxed space-y-1">
+                            <p className="font-bold">
+                              {proposal.billingAddress.name || proposal.billingAddress.companyName || proposal.customerName}
+                            </p>
+                            {proposal.billingAddress.companyName && proposal.billingAddress.name && (
+                              <p className="text-gray-600">{proposal.billingAddress.companyName}</p>
+                            )}
+                            <p className="whitespace-pre-line text-gray-700">
+                              {proposal.billingAddress.street && `${proposal.billingAddress.street}\n`}
+                              {proposal.billingAddress.city}{proposal.billingAddress.state && `, ${proposal.billingAddress.state}`}{proposal.billingAddress.postalCode && ` - ${proposal.billingAddress.postalCode}`}
+                              {proposal.billingAddress.country && `\n${proposal.billingAddress.country}`}
+                            </p>
+                            <div className="pt-2 text-xs space-y-1">
+                              {(proposal.billingAddress.email || proposal.customerEmail) && (
+                                <p><span className="text-gray-500 uppercase font-medium w-12 inline-block">Email:</span> {proposal.billingAddress.email || proposal.customerEmail}</p>
+                              )}
+                              {(proposal.billingAddress.phone || proposal.customerPhone) && (
+                                <p><span className="text-gray-500 uppercase font-medium w-12 inline-block">Phone:</span> {proposal.billingAddress.phone || proposal.customerPhone}</p>
+                              )}
+                              {(proposal.billingAddress.gstNumber || proposal.gstNumber) && (
+                                <p><span className="text-gray-500 uppercase font-medium w-12 inline-block">GST:</span> {proposal.billingAddress.gstNumber || proposal.gstNumber}</p>
+                              )}
+                            </div>
+                          </div>
                         </div>
                       )}
                       {proposal.shippingAddress && (
                         <div>
                           <h3 className="text-sm font-semibold text-gray-800 uppercase tracking-wider mb-2">Shipping Address</h3>
-                          <p className="text-sm text-gray-900 leading-relaxed whitespace-pre-line">
-                            {proposal.shippingAddress.street && `${proposal.shippingAddress.street}\n`}
-                            {proposal.shippingAddress.city}{proposal.shippingAddress.state && `, ${proposal.shippingAddress.state}`}{proposal.shippingAddress.postalCode && ` - ${proposal.shippingAddress.postalCode}`}
-                            {proposal.shippingAddress.country && `\n${proposal.shippingAddress.country}`}
-                          </p>
+                          <div className="text-sm text-gray-900 leading-relaxed space-y-1">
+                            <p className="font-bold">
+                              {proposal.shippingAddress.name || proposal.shippingAddress.companyName || proposal.customerName}
+                            </p>
+                            {proposal.shippingAddress.companyName && proposal.shippingAddress.name && (
+                              <p className="text-gray-600">{proposal.shippingAddress.companyName}</p>
+                            )}
+                            <p className="whitespace-pre-line text-gray-700">
+                              {proposal.shippingAddress.street && `${proposal.shippingAddress.street}\n`}
+                              {proposal.shippingAddress.city}{proposal.shippingAddress.state && `, ${proposal.shippingAddress.state}`}{proposal.shippingAddress.postalCode && ` - ${proposal.shippingAddress.postalCode}`}
+                              {proposal.shippingAddress.country && `\n${proposal.shippingAddress.country}`}
+                            </p>
+                            <div className="pt-2 text-xs space-y-1">
+                              {(proposal.shippingAddress.email || proposal.customerEmail) && (
+                                <p><span className="text-gray-500 uppercase font-medium w-12 inline-block">Email:</span> {proposal.shippingAddress.email || proposal.customerEmail}</p>
+                              )}
+                              {(proposal.shippingAddress.phone || proposal.customerPhone) && (
+                                <p><span className="text-gray-500 uppercase font-medium w-12 inline-block">Phone:</span> {proposal.shippingAddress.phone || proposal.customerPhone}</p>
+                              )}
+                              {(proposal.shippingAddress.gstNumber || proposal.gstNumber) && (
+                                <p><span className="text-gray-500 uppercase font-medium w-12 inline-block">GST:</span> {proposal.shippingAddress.gstNumber || proposal.gstNumber}</p>
+                              )}
+                            </div>
+                          </div>
                         </div>
                       )}
                     </div>
@@ -1064,12 +1102,12 @@ export default function ProposalDetailPage() {
               </DetailSection>
 
               {/* Customer Information */}
-              {proposal.customerName && (
+              {(proposal.billingAddress?.name || proposal.customerName) && (
                 <DetailSection title="Customer Information">
                   <dl>
-                    <DetailRow label="Name" value={proposal.customerName} />
-                    <DetailRow label="Email" value={proposal.customerEmail} />
-                    <DetailRow label="Phone" value={proposal.customerPhone} />
+                    <DetailRow label="Name" value={proposal.billingAddress?.name || proposal.customerName} />
+                    <DetailRow label="Email" value={proposal.billingAddress?.email || proposal.customerEmail} />
+                    <DetailRow label="Phone" value={proposal.billingAddress?.phone || proposal.customerPhone} />
                   </dl>
                 </DetailSection>
               )}

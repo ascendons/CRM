@@ -1469,11 +1469,16 @@ public class ProposalService extends BaseTenantService {
     private Proposal.CustomerAddress mapToAddress(AddressDTO dto) {
         if (dto == null) return null;
         return Proposal.CustomerAddress.builder()
+                .name(dto.getName())
+                .companyName(dto.getCompanyName())
+                .email(dto.getEmail())
+                .phone(dto.getPhone())
                 .street(dto.getStreet())
                 .city(dto.getCity())
                 .state(dto.getState())
                 .postalCode(dto.getPostalCode())
                 .country(dto.getCountry())
+                .gstNumber(dto.getGstNumber())
                 .build();
     }
 
