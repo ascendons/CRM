@@ -9,6 +9,8 @@ import {
   ProposalStatus,
   ProposalSource,
   getProposalStatusLabel,
+  getProformaStatusLabel,
+  PROFORMA_STATUSES,
 } from "@/types/proposal";
 import { EmptyState } from "@/components/EmptyState";
 import ConfirmModal from "@/components/ConfirmModal";
@@ -28,6 +30,9 @@ import {
   Edit2,
   ChevronDown,
   ChevronRight,
+  CheckCircle,
+  XCircle,
+  Ban,
 } from "lucide-react";
 import { Pagination } from "@/components/common/Pagination";
 import { PermissionGuard } from "@/components/common/PermissionGuard";
@@ -180,6 +185,45 @@ export default function ProposalsPage() {
     }
   };
 
+  const handleAccept = async (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      await proposalsService.acceptProposal(id);
+      showToast.success("Proforma marked as Paid");
+      loadProposals();
+    } catch (err) {
+      showToast.error(
+        err instanceof Error ? err.message : "Failed to update status"
+      );
+    }
+  };
+
+  const handleReject = async (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      await proposalsService.rejectProposal(id, "Rejected from list view");
+      showToast.success("Proforma marked as Rejected");
+      loadProposals();
+    } catch (err) {
+      showToast.error(
+        err instanceof Error ? err.message : "Failed to reject proforma"
+      );
+    }
+  };
+
+  const handleVoid = async (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      await proposalsService.voidProposal(id);
+      showToast.success("Proforma voided successfully");
+      loadProposals();
+    } catch (err) {
+      showToast.error(
+        err instanceof Error ? err.message : "Failed to void proforma"
+      );
+    }
+  };
+
 
 
   const formatCurrency = (amount: number) => {
@@ -197,24 +241,27 @@ export default function ProposalsPage() {
     });
   };
 
-  const getStatusBadge = (status: ProposalStatus) => {
-    // Map existing colors to detailed tailwind classes if needed, or stick to simple mapping
-    // Here using a simple tailored mapping for demonstration
+  const getStatusBadge = (status: ProposalStatus, isProforma?: boolean) => {
     const statusStyles: Record<string, string> = {
-      [ProposalStatus.DRAFT]: "bg-slate-100 text-slate-700 border-slate-200   ",
-      [ProposalStatus.PENDING_APPROVAL]: "bg-amber-50 text-amber-700 border-amber-100   ",
-      [ProposalStatus.PENDING_ON_CUSTOMER]: "bg-cyan-50 text-cyan-700 border-cyan-100   ",
-      [ProposalStatus.SENT]: "bg-blue-50 text-blue-700 border-blue-100   ",
-      [ProposalStatus.ACCEPTED]: "bg-emerald-50 text-emerald-700 border-emerald-100   ",
-      [ProposalStatus.REJECTED]: "bg-rose-50 text-rose-700 border-rose-100   ",
-      [ProposalStatus.EXPIRED]: "bg-amber-50 text-amber-700 border-amber-100   ",
-      [ProposalStatus.NEGOTIATION]: "bg-purple-50 text-purple-700 border-purple-100   ",
+      [ProposalStatus.DRAFT]: "bg-slate-100 text-slate-700 border-slate-200",
+      [ProposalStatus.PENDING_APPROVAL]: "bg-amber-50 text-amber-700 border-amber-100",
+      [ProposalStatus.PENDING_ON_CUSTOMER]: "bg-cyan-50 text-cyan-700 border-cyan-100",
+      [ProposalStatus.SENT]: "bg-blue-50 text-blue-700 border-blue-100",
+      [ProposalStatus.ACCEPTED]: "bg-emerald-50 text-emerald-700 border-emerald-100",
+      [ProposalStatus.REJECTED]: "bg-rose-50 text-rose-700 border-rose-100",
+      [ProposalStatus.EXPIRED]: "bg-amber-50 text-amber-700 border-amber-100",
+      [ProposalStatus.NEGOTIATION]: "bg-purple-50 text-purple-700 border-purple-100",
+      [ProposalStatus.VOIDED]: "bg-orange-50 text-orange-700 border-orange-100",
     };
+
+    const label = isProforma || activeTab === "PROFORMA"
+      ? getProformaStatusLabel(status)
+      : getProposalStatusLabel(status);
 
     const style = statusStyles[status] || "bg-gray-100 text-gray-800";
     return (
       <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border ${style}`}>
-        {getProposalStatusLabel(status)}
+        {label}
       </span>
     );
   };
@@ -305,7 +352,7 @@ export default function ProposalsPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex space-x-8">
             <button
-              onClick={() => { setActiveTab("QUOTATION"); setCurrentPage(1); }}
+              onClick={() => { setActiveTab("QUOTATION"); setCurrentPage(1); setStatusFilter("ALL"); }}
               className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
                 activeTab === "QUOTATION"
                   ? "border-primary text-primary"
@@ -315,7 +362,7 @@ export default function ProposalsPage() {
               Quotations
             </button>
             <button
-              onClick={() => { setActiveTab("PROFORMA"); setCurrentPage(1); }}
+              onClick={() => { setActiveTab("PROFORMA"); setCurrentPage(1); setStatusFilter("ALL"); }}
               className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
                 activeTab === "PROFORMA"
                   ? "border-primary text-primary"
@@ -350,13 +397,21 @@ export default function ProposalsPage() {
                   className="w-full appearance-none pl-10 pr-10 py-2.5 bg-slate-50  border border-slate-200  rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all cursor-pointer"
                 >
                   <option value="ALL">All Status</option>
-                  <option value={ProposalStatus.DRAFT}>Draft</option>
-                  <option value={ProposalStatus.PENDING_APPROVAL}>Pending Approval</option>
-                  <option value={ProposalStatus.PENDING_ON_CUSTOMER}>Pending On Customer</option>
-                  <option value={ProposalStatus.SENT}>Sent</option>
-                  <option value={ProposalStatus.ACCEPTED}>Accepted</option>
-                  <option value={ProposalStatus.REJECTED}>Rejected</option>
-                  <option value={ProposalStatus.EXPIRED}>Expired</option>
+                  {activeTab === "PROFORMA" ? (
+                    PROFORMA_STATUSES.map((s) => (
+                      <option key={s} value={s}>{getProformaStatusLabel(s)}</option>
+                    ))
+                  ) : (
+                    <>
+                      <option value={ProposalStatus.DRAFT}>Draft</option>
+                      <option value={ProposalStatus.PENDING_APPROVAL}>Pending Approval</option>
+                      <option value={ProposalStatus.PENDING_ON_CUSTOMER}>Pending On Customer</option>
+                      <option value={ProposalStatus.SENT}>Sent</option>
+                      <option value={ProposalStatus.ACCEPTED}>Accepted</option>
+                      <option value={ProposalStatus.REJECTED}>Rejected</option>
+                      <option value={ProposalStatus.EXPIRED}>Expired</option>
+                    </>
+                  )}
                 </select>
                 <Filter className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
                 <ArrowUpDown className="absolute right-3 top-1/2 -translate-y-1/2 h-3 w-3 text-slate-400 pointer-events-none" />
@@ -542,6 +597,39 @@ export default function ProposalsPage() {
                             </td>
                             <td className="px-6 py-3 text-right">
                               <div className="flex items-center justify-end gap-2">
+                                {/* Quick Actions for Proforma */}
+                                {proposal.status === ProposalStatus.DRAFT && (
+                                  <button
+                                    onClick={(e) => handleSend(proposal.id, e)}
+                                    className="p-2 text-blue-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                    title="Send to Customer"
+                                  >
+                                    <Send className="h-4 w-4" />
+                                  </button>
+                                )}
+                                {proposal.status === ProposalStatus.SENT && (
+                                  <>
+                                    <button
+                                      onClick={(e) => handleAccept(proposal.id, e)}
+                                      className="p-2 text-emerald-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
+                                      title="Mark as Paid"
+                                    >
+                                      <CheckCircle className="h-4 w-4" />
+                                    </button>
+                                  </>
+                                )}
+                                {proposal.status !== ProposalStatus.VOIDED && proposal.status !== ProposalStatus.ACCEPTED && (
+                                  <button
+                                    onClick={(e) => handleVoid(proposal.id, e)}
+                                    className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+                                    title="Void / Cancel"
+                                  >
+                                    <Ban className="h-4 w-4" />
+                                  </button>
+                                )}
+
+                                <div className="w-px h-4 bg-slate-200 mx-1" />
+
                                 <button
                                   onClick={(e) => { e.stopPropagation(); router.push(`/proposals/${proposal.id}`); }}
                                   className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
@@ -609,6 +697,39 @@ export default function ProposalsPage() {
                       </td>
                       <td className="px-6 py-4 text-right">
                         <div className="flex items-center justify-end gap-2">
+                          {/* Quick Actions for Standalone Proforma */}
+                          {proposal.status === ProposalStatus.DRAFT && (
+                            <button
+                              onClick={(e) => handleSend(proposal.id, e)}
+                              className="p-2 text-blue-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                              title="Send to Customer"
+                            >
+                              <Send className="h-4 w-4" />
+                            </button>
+                          )}
+                          {proposal.status === ProposalStatus.SENT && (
+                            <>
+                              <button
+                                onClick={(e) => handleAccept(proposal.id, e)}
+                                className="p-2 text-emerald-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
+                                title="Mark as Paid"
+                              >
+                                <CheckCircle className="h-4 w-4" />
+                              </button>
+                            </>
+                          )}
+                          {proposal.status !== ProposalStatus.VOIDED && proposal.status !== ProposalStatus.ACCEPTED && (
+                            <button
+                              onClick={(e) => handleVoid(proposal.id, e)}
+                              className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+                              title="Void / Cancel"
+                            >
+                              <Ban className="h-4 w-4" />
+                            </button>
+                          )}
+
+                          <div className="w-px h-4 bg-slate-200 mx-1" />
+
                           <button
                             onClick={(e) => { e.stopPropagation(); router.push(`/proposals/${proposal.id}`); }}
                             className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
@@ -720,6 +841,37 @@ export default function ProposalsPage() {
                       </td>
                       <td className="px-6 py-4 text-right">
                         <div className="flex items-center justify-end gap-2">
+                          {/* Quick Actions for Quotation */}
+                          {proposal.status === ProposalStatus.DRAFT && (
+                            <button
+                              onClick={(e) => handleSend(proposal.id, e)}
+                              className="p-2 text-blue-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                              title="Send to Customer"
+                            >
+                              <Send className="h-4 w-4" />
+                            </button>
+                          )}
+                          {proposal.status === ProposalStatus.SENT && (
+                            <>
+                              <button
+                                onClick={(e) => handleAccept(proposal.id, e)}
+                                className="p-2 text-emerald-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
+                                title="Accept"
+                              >
+                                <CheckCircle className="h-4 w-4" />
+                              </button>
+                              <button
+                                onClick={(e) => handleReject(proposal.id, e)}
+                                className="p-2 text-rose-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                                title="Reject"
+                              >
+                                <XCircle className="h-4 w-4" />
+                              </button>
+                            </>
+                          )}
+
+                          <div className="w-px h-4 bg-slate-200 mx-1" />
+
                           <button
                             onClick={(e) => { e.stopPropagation(); router.push(`/proposals/${proposal.id}`); }}
                             className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
