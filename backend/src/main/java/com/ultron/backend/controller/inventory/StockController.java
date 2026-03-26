@@ -75,7 +75,9 @@ public class StockController {
     @GetMapping("/all")
     public ResponseEntity<Page<StockResponse>> getAllStock(Pageable pageable) {
         Page<Stock> stocks = stockService.getAllStock(pageable);
-        return ResponseEntity.ok(stocks.map(mapper::toStockResponse));
+        return ResponseEntity.ok(stocks.map(stock ->
+            stockService.enrichStockResponse(mapper.toStockResponse(stock))
+        ));
     }
 
     /**

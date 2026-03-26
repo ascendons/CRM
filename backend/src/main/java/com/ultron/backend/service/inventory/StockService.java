@@ -617,4 +617,42 @@ public class StockService extends BaseTenantService {
 
         return updated;
     }
+
+    /**
+     * Enrich StockResponse with product and warehouse details
+     * Adds product name, catalog product ID, and warehouse name
+     */
+    public com.ultron.backend.dto.response.inventory.StockResponse enrichStockResponse(
+            com.ultron.backend.dto.response.inventory.StockResponse response) {
+        try {
+            String tenantId = getCurrentTenantId();
+
+            // Get structured product details
+            structuredProductRepository.findById(response.getProductId())
+                .ifPresent(product -> {
+                    response.setProductName(product.getProductName());
+
+                    // Find product mapping to get catalog product ID
+                    productMappingRepository
+                        .findByTenantIdAndStructuredProductId(tenantId, product.getId())
+                        .stream()
+                        .findFirst()
+                        .ifPresent(mapping -> response.setCatalogProductId(mapping.getDynamicProductId()));
+                });
+
+            // Get warehouse details
+            try {
+                Warehouse warehouse = warehouseService.getWarehouseById(response.getWarehouseId());
+                response.setWarehouseName(warehouse.getName());
+                response.setWarehouseCode(warehouse.getCode());
+            } catch (Exception e) {
+                log.debug("Could not fetch warehouse details for {}: {}",
+                    response.getWarehouseId(), e.getMessage());
+            }
+        } catch (Exception e) {
+            log.warn("Failed to enrich stock response for product {}: {}",
+                response.getProductId(), e.getMessage());
+        }
+        return response;
+    }
 }

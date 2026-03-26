@@ -14,6 +14,14 @@ public class StockResponse {
     private String productId;
     private String warehouseId;
 
+    // Product details
+    private String productName;      // From Product.productName
+    private String catalogProductId; // DynamicProduct.id for viewing in catalog
+
+    // Warehouse details
+    private String warehouseName;    // From Warehouse.name
+    private String warehouseCode;    // From Warehouse.code
+
     private Integer quantityOnHand;
     private Integer quantityReserved;
     private Integer quantityAvailable;

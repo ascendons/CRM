@@ -77,10 +77,18 @@ const StockMovementChart = () => {
   return (
     <Card>
       <CardContent>
-        <Typography variant="h6" gutterBottom>
-          Stock Movement Analysis
+        <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+          <Typography variant="h6">
+            Stock Movement Analysis
+          </Typography>
+          <Typography variant="caption" color="warning.main" sx={{ bgcolor: 'warning.lighter', px: 1.5, py: 0.5, borderRadius: 1 }}>
+            Sample Data
+          </Typography>
+        </Box>
+        <Typography variant="caption" color="text.secondary" display="block" mb={2}>
+          Movement tracking requires transaction logging backend
         </Typography>
-        <Box sx={{ height: 350, position: 'relative' }}>
+        <Box sx={{ height: 300, position: 'relative' }}>
           <Bar data={chartData} options={options} />
         </Box>
       </CardContent>

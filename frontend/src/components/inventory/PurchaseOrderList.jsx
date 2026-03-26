@@ -35,6 +35,9 @@ import {
 } from '@mui/icons-material';
 import inventoryApi from '../../services/inventoryApi';
 import { format } from 'date-fns';
+import PurchaseOrderForm from './PurchaseOrderForm';
+import PurchaseOrderDetails from './PurchaseOrderDetails';
+import ReceiveGoodsDialog from './ReceiveGoodsDialog';
 
 const PurchaseOrderList = () => {
   const [purchaseOrders, setPurchaseOrders] = useState([]);
@@ -49,6 +52,9 @@ const PurchaseOrderList = () => {
   const [selectedPO, setSelectedPO] = useState(null);
 
   // Dialog states
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
+  const [receiveDialogOpen, setReceiveDialogOpen] = useState(false);
   const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
   const [reason, setReason] = useState('');
@@ -162,7 +168,7 @@ const PurchaseOrderList = () => {
         <Button
           variant="contained"
           startIcon={<AddIcon />}
-          onClick={() => console.log('Create PO')}
+          onClick={() => setCreateDialogOpen(true)}
         >
           Create PO
         </Button>
@@ -267,7 +273,10 @@ const PurchaseOrderList = () => {
 
       {/* Context Menu */}
       <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
-        <MenuItem onClick={() => console.log('View PO')}>
+        <MenuItem onClick={() => {
+          setDetailsDialogOpen(true);
+          handleMenuClose();
+        }}>
           <ViewIcon sx={{ mr: 1 }} fontSize="small" />
           View Details
         </MenuItem>
@@ -296,7 +305,10 @@ const PurchaseOrderList = () => {
         )}
 
         {(selectedPO?.status === 'APPROVED' || selectedPO?.status === 'RECEIVING') && (
-          <MenuItem onClick={() => console.log('Receive goods')}>
+          <MenuItem onClick={() => {
+            setReceiveDialogOpen(true);
+            handleMenuClose();
+          }}>
             <ReceiveIcon sx={{ mr: 1 }} fontSize="small" />
             Receive Goods
           </MenuItem>
@@ -366,6 +378,28 @@ const PurchaseOrderList = () => {
           </Button>
         </DialogActions>
       </Dialog>
+
+      {/* Create PO Dialog */}
+      <PurchaseOrderForm
+        open={createDialogOpen}
+        onClose={() => setCreateDialogOpen(false)}
+        onSuccess={fetchPurchaseOrders}
+      />
+
+      {/* View PO Details Dialog */}
+      <PurchaseOrderDetails
+        open={detailsDialogOpen}
+        onClose={() => setDetailsDialogOpen(false)}
+        poId={selectedPO?.id}
+      />
+
+      {/* Receive Goods Dialog */}
+      <ReceiveGoodsDialog
+        open={receiveDialogOpen}
+        onClose={() => setReceiveDialogOpen(false)}
+        po={selectedPO}
+        onSuccess={fetchPurchaseOrders}
+      />
     </Box>
   );
 };

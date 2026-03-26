@@ -190,10 +190,9 @@ public class DynamicProductCatalogController {
     /**
      * Get a single catalog product by ID
      * GET /api/v1/catalog/{id}
-     * ADMIN ONLY
+     * Available to all authenticated users (for stock page product details)
      */
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<DynamicProductResponse>> getProductById(
             @PathVariable String id,
             Authentication authentication) {

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState, Fragment } from "react";
+import { useState, Fragment, useEffect } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { usePermissionContext } from "@/providers/PermissionProvider";
 import { useOrganization } from "@/providers/OrganizationProvider";
@@ -18,8 +18,9 @@ interface NavItem {
   href: string;
   label: string;
   icon: string;
-  module?: string; // Permission module (e.g., "CRM", "ANALYTICS")
-  alwaysVisible?: boolean; // Show without permission check
+  module?: string;
+  alwaysVisible?: boolean;
+  badge?: number | string;
 }
 
 interface NavSection {
@@ -31,18 +32,74 @@ export default function Sidebar({ isMobileOpen, onMobileClose, isCollapsed, onTo
   const pathname = usePathname();
   const { canAccessModule } = usePermissionContext();
   const { organization } = useOrganization();
+  const [user, setUser] = useState<{ name: string; initials: string } | null>(null);
+  const [expandedSections, setExpandedSections] = useState<string[]>([]);
 
-  const isActive = (path: string) => {
-    if (path === "/dashboard") {
-      return pathname === "/dashboard";
+  // Auto-expand section based on current path
+  useEffect(() => {
+    if (pathname) {
+      const allSections = navSections;
+      const activeSection = allSections.find(section =>
+        section.items.some(item => pathname.startsWith(item.href))
+      );
+
+      if (activeSection && activeSection.title && !expandedSections.includes(activeSection.title)) {
+        setExpandedSections([...expandedSections, activeSection.title]);
+      }
     }
-    return pathname.startsWith(path);
+  }, [pathname, expandedSections]);
+
+  // Toggle section expansion
+  const toggleSection = (sectionTitle: string) => {
+    if (expandedSections.includes(sectionTitle)) {
+      setExpandedSections(expandedSections.filter(s => s !== sectionTitle));
+    } else {
+      setExpandedSections([...expandedSections, sectionTitle]); // Allow multiple sections open
+    }
   };
 
-  // Navigation structure with icons and grouping
+  // Load user info from localStorage
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const token = localStorage.getItem('auth_token');
+      if (token) {
+        try {
+          const parts = token.split('.');
+          if (parts.length === 3) {
+            const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
+            const email = payload.sub || payload.email || '';
+            const name = payload.name || email.split('@')[0] || 'User';
+            const initials = name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2);
+            setUser({ name, initials });
+          }
+        } catch (e) {
+          console.error('Failed to parse token:', e);
+        }
+      }
+    }
+  }, []);
+
+  const isActive = (path: string) => {
+    // Special case: base routes that have sub-routes should only match exactly
+    // This prevents /inventory from being active when on /inventory/stock
+    if (path === "/inventory" || path === "/admin") {
+      return pathname === path;
+    }
+
+    // Exact match
+    if (pathname === path) {
+      return true;
+    }
+
+    // Check if pathname starts with path + slash (sub-route)
+    // This allows /inventory/stock to be active when on /inventory/stock/edit/123
+    return pathname.startsWith(path + "/");
+  };
+
+  // Navigation structure
   const navSections: NavSection[] = [
     {
-      title: "", // No title for top-level items
+      title: "",
       items: [
         { href: "/dashboard", label: "Dashboard", icon: "dashboard", alwaysVisible: true },
         { href: "/analytics", label: "Analytics", icon: "analytics", module: "ANALYTICS" },
@@ -54,7 +111,7 @@ export default function Sidebar({ isMobileOpen, onMobileClose, isCollapsed, onTo
         { href: "/leads", label: "Leads", icon: "person_search", module: "CRM" },
         { href: "/opportunities", label: "Deals", icon: "monetization_on", module: "CRM" },
         { href: "/contacts", label: "Contacts", icon: "contacts", module: "CRM" },
-        { href: "/accounts", label: "business", icon: "business", module: "CRM" },
+        { href: "/accounts", label: "Accounts", icon: "business", module: "CRM" },
       ],
     },
     {
@@ -68,13 +125,11 @@ export default function Sidebar({ isMobileOpen, onMobileClose, isCollapsed, onTo
     {
       title: "Inventory",
       items: [
-        { href: "/inventory", label: "Inventory Hub", icon: "warehouse", module: "ADMINISTRATION" },
+        { href: "/inventory", label: "Overview", icon: "dashboard", module: "ADMINISTRATION" },
+        { href: "/inventory/stock", label: "Stock Management", icon: "inventory", module: "ADMINISTRATION" },
         { href: "/inventory/warehouses", label: "Warehouses", icon: "store", module: "ADMINISTRATION" },
-        { href: "/inventory/stock", label: "Stock", icon: "inventory", module: "ADMINISTRATION" },
         { href: "/inventory/purchase-orders", label: "Purchase Orders", icon: "shopping_cart", module: "ADMINISTRATION" },
-        { href: "/inventory/batches", label: "Batches", icon: "qr_code_scanner", module: "ADMINISTRATION" },
-        { href: "/inventory/reservations", label: "Reservations", icon: "bookmark", module: "ADMINISTRATION" },
-        { href: "/inventory/reports", label: "Reports", icon: "analytics", module: "ADMINISTRATION" },
+        { href: "/inventory/reports", label: "Reports & Analytics", icon: "analytics", module: "ADMINISTRATION" },
       ],
     },
     {
@@ -156,29 +211,18 @@ export default function Sidebar({ isMobileOpen, onMobileClose, isCollapsed, onTo
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-6">
+      <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-2">
         {navSections.map((section, sectionIndex) => {
           const visibleItems = filterItems(section.items);
           if (visibleItems.length === 0) return null;
 
-          return (
-            <div key={sectionIndex}>
-              {/* Section Title */}
-              {section.title && (!isCollapsed || mobile) && (
-                <div className="px-3 mb-2">
-                  <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                    {section.title}
-                  </h3>
-                </div>
-              )}
+          const isExpanded = expandedSections.includes(section.title);
+          const hasActiveItem = section.items.some(item => isActive(item.href));
 
-              {/* Section Divider (when collapsed) */}
-              {section.title && isCollapsed && !mobile && (
-                <div className="mx-2 mb-3 border-t border-slate-800"></div>
-              )}
-
-              {/* Navigation Items */}
-              <div className="space-y-1">
+          // For top-level items (no title), show them directly without collapsing
+          if (!section.title) {
+            return (
+              <div key={sectionIndex} className="space-y-1">
                 {visibleItems.map((item) => {
                   const active = isActive(item.href);
                   return (
@@ -187,7 +231,7 @@ export default function Sidebar({ isMobileOpen, onMobileClose, isCollapsed, onTo
                       href={item.href}
                       onClick={mobile ? onMobileClose : undefined}
                       className={`
-                        flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all group
+                        flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all group relative
                         ${active
                           ? "bg-primary text-white shadow-lg shadow-primary/20"
                           : "text-slate-300 hover:bg-slate-800 hover:text-white"
@@ -200,23 +244,130 @@ export default function Sidebar({ isMobileOpen, onMobileClose, isCollapsed, onTo
                         {item.icon}
                       </span>
                       {(!isCollapsed || mobile) && (
-                        <span className="text-sm font-medium flex-1">{item.label}</span>
-                      )}
-                      {(!isCollapsed || mobile) && active && (
-                        <span className="material-symbols-outlined text-sm">chevron_right</span>
+                        <>
+                          <span className="text-sm font-medium flex-1">{item.label}</span>
+                          {item.badge && (
+                            <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-red-500 text-white">
+                              {item.badge}
+                            </span>
+                          )}
+                          {active && (
+                            <span className="material-symbols-outlined text-sm">chevron_right</span>
+                          )}
+                        </>
                       )}
                     </Link>
                   );
                 })}
               </div>
+            );
+          }
+
+          // For sections with titles, make them collapsible
+          return (
+            <div key={sectionIndex}>
+              {/* Section Header - Clickable to expand/collapse */}
+              {(!isCollapsed || mobile) && (
+                <button
+                  onClick={() => toggleSection(section.title)}
+                  className={`
+                    w-full flex items-center justify-between px-3 py-2 rounded-lg
+                    transition-all group
+                    ${hasActiveItem || isExpanded
+                      ? "bg-slate-800/50 text-white"
+                      : "text-slate-400 hover:bg-slate-800/30 hover:text-slate-300"
+                    }
+                  `}
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="material-symbols-outlined text-base">
+                      {isExpanded ? "folder_open" : "folder"}
+                    </span>
+                    <span className="text-xs font-semibold uppercase tracking-wider">
+                      {section.title}
+                    </span>
+                  </div>
+                  <span className={`material-symbols-outlined text-sm transition-transform ${isExpanded ? "rotate-90" : ""}`}>
+                    chevron_right
+                  </span>
+                </button>
+              )}
+
+              {/* Section Divider (when sidebar collapsed) */}
+              {section.title && isCollapsed && !mobile && (
+                <div className="mx-2 my-2 border-t border-slate-800"></div>
+              )}
+
+              {/* Navigation Items - Show only when expanded or sidebar is collapsed */}
+              {(isExpanded || (isCollapsed && !mobile)) && (
+                <div className={`space-y-1 ${(!isCollapsed || mobile) ? "mt-1 ml-2" : ""}`}>
+                  {visibleItems.map((item) => {
+                    const active = isActive(item.href);
+                    return (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        onClick={mobile ? onMobileClose : undefined}
+                        className={`
+                          flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all group relative
+                          ${active
+                            ? "bg-primary text-white shadow-lg shadow-primary/20"
+                            : "text-slate-300 hover:bg-slate-800 hover:text-white"
+                          }
+                          ${isCollapsed && !mobile ? "justify-center" : ""}
+                        `}
+                        title={isCollapsed && !mobile ? item.label : undefined}
+                      >
+                        <span className={`material-symbols-outlined text-base ${active ? "text-white" : "text-slate-400 group-hover:text-white"}`}>
+                          {item.icon}
+                        </span>
+                        {(!isCollapsed || mobile) && (
+                          <>
+                            <span className="text-sm font-medium flex-1">{item.label}</span>
+                            {item.badge && (
+                              <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-red-500 text-white">
+                                {item.badge}
+                              </span>
+                            )}
+                            {active && (
+                              <span className="material-symbols-outlined text-sm">chevron_right</span>
+                            )}
+                          </>
+                        )}
+                      </Link>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           );
         })}
       </nav>
 
-      {/* Footer - Collapse Toggle (Desktop) */}
+      {/* Footer - User Profile & Collapse (Desktop) */}
       {!mobile && (
-        <div className="border-t border-slate-800 p-3">
+        <div className="border-t border-slate-800 p-3 space-y-2">
+          {/* User Profile */}
+          {user && !isCollapsed && (
+            <div className="flex items-center gap-3 px-3 py-2">
+              <div className="size-8 rounded-full bg-primary flex items-center justify-center text-xs font-bold text-white flex-shrink-0">
+                {user.initials}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium truncate">{user.name}</p>
+              </div>
+            </div>
+          )}
+
+          {user && isCollapsed && (
+            <div className="flex justify-center">
+              <div className="size-8 rounded-full bg-primary flex items-center justify-center text-xs font-bold text-white">
+                {user.initials}
+              </div>
+            </div>
+          )}
+
+          {/* Collapse Toggle */}
           <button
             onClick={onToggleCollapse}
             className={`

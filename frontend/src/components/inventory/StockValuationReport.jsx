@@ -32,7 +32,7 @@ const StockValuationReport = () => {
       setLoading(true);
       setError(null);
 
-      const response = await inventoryApi.stock.getAll({ size: 100 });
+      const response = await inventoryApi.stock.getAll({ size: 1000 });
       setStockData(response.data.content || []);
     } catch (err) {
       setError('Failed to load stock valuation: ' + err.message);
@@ -44,7 +44,9 @@ const StockValuationReport = () => {
   const filteredStock = stockData.filter(
     (stock) =>
       stock.productId?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      stock.warehouseId?.toLowerCase().includes(searchTerm.toLowerCase())
+      stock.productName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      stock.warehouseId?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      stock.warehouseName?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const totalValuation = filteredStock.reduce(
@@ -103,8 +105,8 @@ const StockValuationReport = () => {
         <Table size="small">
           <TableHead>
             <TableRow>
-              <TableCell>Product ID</TableCell>
-              <TableCell>Warehouse ID</TableCell>
+              <TableCell>Product</TableCell>
+              <TableCell>Warehouse</TableCell>
               <TableCell align="right">Quantity On Hand</TableCell>
               <TableCell align="right">Unit Cost</TableCell>
               <TableCell align="right">Total Value</TableCell>
@@ -116,10 +118,22 @@ const StockValuationReport = () => {
               <TableRow key={stock.id} hover>
                 <TableCell>
                   <Typography variant="body2" fontWeight="medium">
-                    {stock.productId}
+                    {stock.productName || 'Unknown Product'}
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    ID: {stock.productId}
                   </Typography>
                 </TableCell>
-                <TableCell>{stock.warehouseId}</TableCell>
+                <TableCell>
+                  <Typography variant="body2">
+                    {stock.warehouseName || 'Unknown Warehouse'}
+                  </Typography>
+                  {stock.warehouseCode && (
+                    <Typography variant="caption" color="text.secondary">
+                      {stock.warehouseCode}
+                    </Typography>
+                  )}
+                </TableCell>
                 <TableCell align="right">{stock.quantityOnHand}</TableCell>
                 <TableCell align="right">
                   ${stock.unitCost?.toFixed(2) || '0.00'}
@@ -130,7 +144,12 @@ const StockValuationReport = () => {
                   </Typography>
                 </TableCell>
                 <TableCell>
-                  <Chip label={stock.costingMethod} size="small" variant="outlined" />
+                  <Chip
+                    label={stock.costingMethod || 'Not Set'}
+                    size="small"
+                    variant="outlined"
+                    color={stock.costingMethod ? 'default' : 'warning'}
+                  />
                 </TableCell>
               </TableRow>
             ))}

@@ -37,8 +37,8 @@ const LowStockReport = () => {
         inventoryApi.stock.getOutOfStock(),
       ]);
 
-      setLowStockItems(lowStockRes.data || []);
-      setOutOfStockItems(outOfStockRes.data || []);
+      setLowStockItems(lowStockRes.data.data || []);
+      setOutOfStockItems(outOfStockRes.data.data || []);
     } catch (err) {
       setError('Failed to load low stock data: ' + err.message);
     } finally {
@@ -124,8 +124,8 @@ const LowStockReport = () => {
             <Table size="small">
               <TableHead>
                 <TableRow>
-                  <TableCell>Product ID</TableCell>
-                  <TableCell>Warehouse ID</TableCell>
+                  <TableCell>Product</TableCell>
+                  <TableCell>Warehouse</TableCell>
                   <TableCell align="right">Available</TableCell>
                   <TableCell align="right">Reserved</TableCell>
                   <TableCell align="right">Reorder Point</TableCell>
@@ -138,10 +138,17 @@ const LowStockReport = () => {
                   <TableRow key={stock.id} sx={{ bgcolor: 'error.lighter' }}>
                     <TableCell>
                       <Typography variant="body2" fontWeight="medium">
+                        {stock.productName || 'Unknown Product'}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
                         {stock.productId}
                       </Typography>
                     </TableCell>
-                    <TableCell>{stock.warehouseId}</TableCell>
+                    <TableCell>
+                      <Typography variant="body2">
+                        {stock.warehouseName || 'Unknown'}
+                      </Typography>
+                    </TableCell>
                     <TableCell align="right">
                       <Chip label="0" color="error" size="small" />
                     </TableCell>
@@ -180,8 +187,8 @@ const LowStockReport = () => {
             <Table size="small">
               <TableHead>
                 <TableRow>
-                  <TableCell>Product ID</TableCell>
-                  <TableCell>Warehouse ID</TableCell>
+                  <TableCell>Product</TableCell>
+                  <TableCell>Warehouse</TableCell>
                   <TableCell align="right">Available</TableCell>
                   <TableCell align="right">Reorder Point</TableCell>
                   <TableCell>Stock Level</TableCell>
@@ -196,10 +203,17 @@ const LowStockReport = () => {
                     <TableRow key={stock.id} hover>
                       <TableCell>
                         <Typography variant="body2" fontWeight="medium">
+                          {stock.productName || 'Unknown Product'}
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary">
                           {stock.productId}
                         </Typography>
                       </TableCell>
-                      <TableCell>{stock.warehouseId}</TableCell>
+                      <TableCell>
+                        <Typography variant="body2">
+                          {stock.warehouseName || 'Unknown'}
+                        </Typography>
+                      </TableCell>
                       <TableCell align="right">
                         <Typography variant="body2" fontWeight="bold" color="warning.main">
                           {stock.quantityAvailable}

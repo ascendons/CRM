@@ -23,12 +23,8 @@ import inventoryApi from '../../services/inventoryApi';
 import StockValuationReport from './StockValuationReport';
 import LowStockReport from './LowStockReport';
 import StockMovementSummary from './StockMovementSummary';
-import {
-  StockValueChart,
-  StockMovementChart,
-  StockTrendChart,
-  CategoryDistributionChart,
-} from './charts';
+import WarehousePerformanceReport from './WarehousePerformanceReport';
+import BatchExpiryReport from './BatchExpiryReport';
 
 const InventoryReports = () => {
   const [activeTab, setActiveTab] = useState(0);
@@ -44,6 +40,9 @@ const InventoryReports = () => {
     totalWarehouses: 0,
     activeReservations: 0,
   });
+
+  // Chart data
+  const [stockData, setStockData] = useState([]);
 
   useEffect(() => {
     fetchDashboardStats();
@@ -71,13 +70,17 @@ const InventoryReports = () => {
       ]);
 
       setStats({
-        totalStockValue: stockValueRes.data || 0,
-        totalProducts: productCountRes.data || 0,
-        lowStockCount: lowStockRes.data?.length || 0,
-        outOfStockCount: outOfStockRes.data?.length || 0,
-        totalWarehouses: warehouseCountRes.data || 0,
-        activeReservations: reservationsRes.data?.length || 0,
+        totalStockValue: stockValueRes.data.data || 0,
+        totalProducts: productCountRes.data.data || 0,
+        lowStockCount: lowStockRes.data.data?.length || 0,
+        outOfStockCount: outOfStockRes.data.data?.length || 0,
+        totalWarehouses: warehouseCountRes.data.data || 0,
+        activeReservations: reservationsRes.data.data?.length || 0,
       });
+
+      // Fetch stock data for charts
+      const allStockRes = await inventoryApi.stock.getAll({ size: 1000 });
+      setStockData(allStockRes.data.content || []);
     } catch (err) {
       setError('Failed to load dashboard stats: ' + err.message);
     } finally {
@@ -86,8 +89,43 @@ const InventoryReports = () => {
   };
 
   const handleExportReport = () => {
-    // TODO: Implement export functionality
-    console.log('Export report for tab:', activeTab);
+    const reportNames = [
+      'Stock-Valuation',
+      'Low-Stock-Alerts',
+      'Stock-Movement-Summary',
+      'Warehouse-Performance',
+      'Batch-Expiry',
+    ];
+
+    const filename = `${reportNames[activeTab]}-Report-${new Date().toISOString().split('T')[0]}.csv`;
+
+    // Simple CSV export for stock valuation
+    if (activeTab === 0 && stockData.length > 0) {
+      const headers = ['Product', 'Warehouse', 'Quantity On Hand', 'Unit Cost', 'Total Value', 'Costing Method'];
+      const csvRows = [
+        headers.join(','),
+        ...stockData.map(stock => [
+          `"${stock.productName || stock.productId}"`,
+          `"${stock.warehouseName || stock.warehouseId}"`,
+          stock.quantityOnHand || 0,
+          stock.unitCost?.toFixed(2) || '0.00',
+          stock.totalValue?.toFixed(2) || '0.00',
+          stock.costingMethod || 'FIFO',
+        ].join(','))
+      ];
+
+      const csvContent = csvRows.join('\n');
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+
+      link.setAttribute('href', url);
+      link.setAttribute('download', filename);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
   };
 
   if (loading) {
@@ -260,28 +298,35 @@ const InventoryReports = () => {
 
       <Divider sx={{ my: 3 }} />
 
-      {/* Visual Analytics Charts */}
-      <Box mb={4}>
-        <Typography variant="h6" gutterBottom>
-          Visual Analytics
-        </Typography>
-        <Grid container spacing={3}>
-          <Grid item xs={12} lg={6}>
-            <StockTrendChart />
-          </Grid>
-          <Grid item xs={12} lg={6}>
-            <StockMovementChart />
-          </Grid>
-          <Grid item xs={12} lg={6}>
-            <StockValueChart stockData={[]} />
-          </Grid>
-          <Grid item xs={12} lg={6}>
-            <CategoryDistributionChart />
-          </Grid>
-        </Grid>
-      </Box>
-
-      <Divider sx={{ my: 3 }} />
+      {/* Visual Analytics - Coming Soon */}
+      <Card sx={{ mb: 4 }}>
+        <CardContent>
+          <Box display="flex" alignItems="center" gap={2} mb={2}>
+            <ReportIcon color="primary" sx={{ fontSize: 32 }} />
+            <Typography variant="h6">
+              Visual Analytics
+            </Typography>
+          </Box>
+          <Box
+            sx={{
+              py: 8,
+              textAlign: 'center',
+              bgcolor: 'grey.50',
+              borderRadius: 2,
+              border: '2px dashed',
+              borderColor: 'grey.300'
+            }}
+          >
+            <TrendingIcon sx={{ fontSize: 64, color: 'grey.400', mb: 2 }} />
+            <Typography variant="h6" color="text.secondary" gutterBottom>
+              Coming Soon
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              Advanced charts and visualizations for stock trends, movement analysis, and distribution insights
+            </Typography>
+          </Box>
+        </CardContent>
+      </Card>
 
       {/* Report Tabs */}
       <Card>
@@ -302,16 +347,8 @@ const InventoryReports = () => {
           {activeTab === 0 && <StockValuationReport />}
           {activeTab === 1 && <LowStockReport />}
           {activeTab === 2 && <StockMovementSummary />}
-          {activeTab === 3 && (
-            <Typography variant="body2" color="text.secondary">
-              Warehouse Performance Report - Coming Soon
-            </Typography>
-          )}
-          {activeTab === 4 && (
-            <Typography variant="body2" color="text.secondary">
-              Batch Expiry Report - Coming Soon
-            </Typography>
-          )}
+          {activeTab === 3 && <WarehousePerformanceReport />}
+          {activeTab === 4 && <BatchExpiryReport />}
         </Box>
       </Card>
     </Box>

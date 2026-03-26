@@ -72,10 +72,18 @@ const CategoryDistributionChart = ({ categoryData }) => {
   return (
     <Card>
       <CardContent>
-        <Typography variant="h6" gutterBottom>
-          Product Distribution by Category
+        <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+          <Typography variant="h6">
+            Product Distribution by Category
+          </Typography>
+          <Typography variant="caption" color="warning.main" sx={{ bgcolor: 'warning.lighter', px: 1.5, py: 0.5, borderRadius: 1 }}>
+            Sample Data
+          </Typography>
+        </Box>
+        <Typography variant="caption" color="text.secondary" display="block" mb={2}>
+          Category distribution requires product categorization backend
         </Typography>
-        <Box sx={{ height: 300, position: 'relative' }}>
+        <Box sx={{ height: 250, position: 'relative' }}>
           <Doughnut data={chartData} options={options} />
         </Box>
       </CardContent>

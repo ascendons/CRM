@@ -12,15 +12,15 @@ import { Box, Card, CardContent, Typography } from '@mui/material';
 
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale);
 
-const StockValueChart = ({ stockData }) => {
+const StockValueChart = ({ stockData = [] }) => {
   // Group stock by warehouse and calculate total value
   const warehouseData = stockData.reduce((acc, stock) => {
-    const warehouseId = stock.warehouseId || 'Unknown';
-    if (!acc[warehouseId]) {
-      acc[warehouseId] = { value: 0, count: 0 };
+    const warehouseName = stock.warehouseName || stock.warehouseId || 'Unknown';
+    if (!acc[warehouseName]) {
+      acc[warehouseName] = { value: 0, count: 0 };
     }
-    acc[warehouseId].value += stock.totalValue || 0;
-    acc[warehouseId].count += 1;
+    acc[warehouseName].value += stock.totalValue || 0;
+    acc[warehouseName].count += 1;
     return acc;
   }, {});
 
