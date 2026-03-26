@@ -484,17 +484,6 @@ export default function ProposalDetailPage() {
                       Request Approval
                     </button>
                   )}
-                  {proposal.isProforma && (
-                    <PermissionGuard resource="PROPOSAL" action="SEND">
-                      <button
-                        onClick={handleSend}
-                        disabled={actionLoading}
-                        className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
-                      >
-                        Send to Customer
-                      </button>
-                    </PermissionGuard>
-                  )}
                 </>
               )}
 
