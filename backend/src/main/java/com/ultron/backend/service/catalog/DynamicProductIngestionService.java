@@ -5,9 +5,12 @@ import com.opencsv.exceptions.CsvValidationException;
 import com.ultron.backend.domain.entity.DynamicProduct;
 import com.ultron.backend.domain.entity.DynamicProduct.ProductAttribute;
 import com.ultron.backend.domain.entity.DynamicProduct.SourceMetadata;
+import com.ultron.backend.domain.entity.Warehouse;
+import com.ultron.backend.dto.request.EnableInventoryRequest;
 import com.ultron.backend.exception.BadRequestException;
 import com.ultron.backend.repository.DynamicProductRepository;
 import com.ultron.backend.service.BaseTenantService;
+import com.ultron.backend.service.ProductMappingService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.*;
@@ -17,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -35,6 +39,8 @@ public class DynamicProductIngestionService extends BaseTenantService {
     private final HeaderNormalizer headerNormalizer;
     private final AttributeTypeDetector typeDetector;
     private final DynamicProductIdGeneratorService idGeneratorService;
+    private final ProductMappingService productMappingService;
+    private final com.ultron.backend.service.inventory.WarehouseService warehouseService;
 
     /**
      * Preview headers from an uploaded file (no ingestion)
@@ -110,12 +116,37 @@ public class DynamicProductIngestionService extends BaseTenantService {
 
         log.info("Ingestion complete: {} products saved from {}", saved.size(), filename);
 
+        // Check if inventory columns are present and auto-enable inventory
+        int inventoryEnabled = 0;
+        if (!products.isEmpty()) {
+            boolean hasInventoryColumns = detectInventoryColumns(products.get(0).getAttributes());
+
+            if (hasInventoryColumns) {
+                log.info("[Tenant: {}] Detected inventory columns, auto-enabling inventory for {} products", tenantId, saved.size());
+
+                for (DynamicProduct product : saved) {
+                    try {
+                        EnableInventoryRequest request = buildInventoryRequest(product);
+                        productMappingService.enableInventory(product.getId(), request);
+                        inventoryEnabled++;
+                    } catch (Exception e) {
+                        log.error("Failed to auto-enable inventory for product {}: {}", product.getId(), e.getMessage());
+                        // Continue with next product
+                    }
+                }
+
+                log.info("[Tenant: {}] Auto-enabled inventory for {}/{} products", tenantId, inventoryEnabled, saved.size());
+            }
+        }
+
         return IngestionResult.builder()
                 .totalProducts(saved.size())
                 .fileName(filename)
                 .uploadedBy(userId)
                 .uploadedAt(LocalDateTime.now())
                 .productIds(saved.stream().map(DynamicProduct::getProductId).collect(Collectors.toList()))
+                .inventoryEnabled(inventoryEnabled)
+                .autoInventoryEnabled(inventoryEnabled > 0)
                 .build();
     }
 
@@ -378,6 +409,150 @@ public class DynamicProductIngestionService extends BaseTenantService {
     }
 
     /**
+     * Detect if inventory-related columns are present
+     */
+    private boolean detectInventoryColumns(List<ProductAttribute> attributes) {
+        Set<String> attributeKeys = attributes.stream()
+                .map(ProductAttribute::getKey)
+                .map(String::toLowerCase)
+                .collect(Collectors.toSet());
+
+        // Check for any inventory-related column
+        return attributeKeys.contains("sku") ||
+                attributeKeys.contains("initialstock") ||
+                attributeKeys.contains("warehouse") ||
+                attributeKeys.contains("minstocklevel") ||
+                attributeKeys.contains("reorderlevel");
+    }
+
+    /**
+     * Build EnableInventoryRequest from product attributes
+     */
+    private EnableInventoryRequest buildInventoryRequest(DynamicProduct product) {
+        Map<String, String> attrMap = product.getAttributes().stream()
+                .collect(Collectors.toMap(
+                        attr -> attr.getKey().toLowerCase(),
+                        ProductAttribute::getValue,
+                        (v1, v2) -> v1
+                ));
+
+        // Extract values from attributes
+        String sku = attrMap.getOrDefault("sku", "");
+        String warehouseCode = attrMap.getOrDefault("warehouse", "");
+        Integer initialStock = parseIntOrDefault(attrMap.get("initialstock"), 0);
+        Integer minStockLevel = parseIntOrDefault(attrMap.get("minstocklevel"), 10);
+        Integer reorderLevel = parseIntOrDefault(attrMap.get("reorderlevel"), 20);
+
+        // Auto-generate SKU if not provided
+        if (sku == null || sku.trim().isEmpty()) {
+            String prefix = product.getDisplayName().substring(0, Math.min(3, product.getDisplayName().length()))
+                    .toUpperCase().replaceAll("[^A-Z]", "X");
+            sku = prefix + "-" + System.currentTimeMillis() + "-" + product.getId().substring(0, 3);
+        }
+
+        // Get default warehouse if not specified
+        String warehouseId;
+        if (warehouseCode == null || warehouseCode.trim().isEmpty()) {
+            Warehouse defaultWarehouse = warehouseService.getDefaultWarehouse();
+            warehouseId = defaultWarehouse.getId();
+            log.debug("Using default warehouse: {}", defaultWarehouse.getName());
+        } else {
+            // Try to find warehouse by code or name
+            warehouseId = findWarehouseByCodeOrName(warehouseCode);
+        }
+
+        // Extract price from attributes
+        BigDecimal basePrice = extractPrice(product.getAttributes());
+        log.info("Building inventory request for product {}: basePrice={}, sku={}, warehouse={}",
+                product.getId(), basePrice, sku, warehouseId);
+
+        return EnableInventoryRequest.builder()
+                .sku(sku)
+                .warehouseId(warehouseId)
+                .initialStock(initialStock)
+                .minStockLevel(minStockLevel)
+                .reorderLevel(reorderLevel)
+                .basePrice(basePrice)
+                .currency("INR")
+                .taxRate(BigDecimal.valueOf(18.0))
+                .taxType("GST")
+                .autoSyncEnabled(true)
+                .build();
+    }
+
+    /**
+     * Parse integer or return default
+     */
+    private Integer parseIntOrDefault(String value, Integer defaultValue) {
+        if (value == null || value.trim().isEmpty()) {
+            return defaultValue;
+        }
+        try {
+            return Integer.parseInt(value.trim());
+        } catch (NumberFormatException e) {
+            return defaultValue;
+        }
+    }
+
+    /**
+     * Extract price from attributes
+     */
+    private BigDecimal extractPrice(List<ProductAttribute> attributes) {
+        for (ProductAttribute attr : attributes) {
+            String key = attr.getKey().toLowerCase();
+            if ("UnitPrice".equalsIgnoreCase(key)) {
+                try {
+                    String value = attr.getValue();
+                    log.debug("Found price attribute: key={}, value={}", attr.getKey(), value);
+
+                    // Clean the value - remove currency symbols, commas, spaces
+                    String cleaned = value.replaceAll("[^0-9.]", "").trim();
+
+                    if (cleaned.isEmpty()) {
+                        log.warn("Price value is empty after cleaning: original={}", value);
+                        continue;
+                    }
+
+                    BigDecimal price = new BigDecimal(cleaned);
+                    log.info("Successfully extracted price: {} from attribute key: {}", price, attr.getKey());
+                    return price;
+                } catch (Exception e) {
+                    log.warn("Failed to parse price from attribute key={}, value={}: {}",
+                            attr.getKey(), attr.getValue(), e.getMessage());
+                }
+            }
+        }
+
+        log.warn("No valid price found in attributes, defaulting to 0");
+        return BigDecimal.ZERO;
+    }
+
+    /**
+     * Find warehouse by code or name
+     */
+    private String findWarehouseByCodeOrName(String codeOrName) {
+        try {
+            // Try to find by code first
+            List<com.ultron.backend.domain.entity.Warehouse> warehouses = warehouseService.getAllWarehouses();
+            Optional<com.ultron.backend.domain.entity.Warehouse> warehouse = warehouses.stream()
+                    .filter(w -> w.getCode().equalsIgnoreCase(codeOrName) ||
+                            w.getName().equalsIgnoreCase(codeOrName))
+                    .findFirst();
+
+            if (warehouse.isPresent()) {
+                return warehouse.get().getId();
+            }
+
+            // Fallback to default warehouse
+            log.warn("Warehouse not found by code/name: {}, using default", codeOrName);
+            return warehouseService.getDefaultWarehouse().getId();
+        } catch (Exception e) {
+            log.error("Error finding warehouse: {}", e.getMessage());
+            return warehouseService.getDefaultWarehouse().getId();
+        }
+    }
+
+    /**
      * Header information
      */
     private static class HeaderInfo {
@@ -401,5 +576,7 @@ public class DynamicProductIngestionService extends BaseTenantService {
         private String uploadedBy;
         private LocalDateTime uploadedAt;
         private List<String> productIds;
+        private int inventoryEnabled;
+        private boolean autoInventoryEnabled;
     }
 }

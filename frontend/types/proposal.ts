@@ -290,3 +290,35 @@ export function getDiscountTypeLabel(type: DiscountType): string {
       return type;
   }
 }
+
+/**
+ * Proforma-specific status labels.
+ * "Accepted" → "Paid", "Rejected" is hidden (use Voided instead).
+ */
+export function getProformaStatusLabel(status: ProposalStatus): string {
+  switch (status) {
+    case ProposalStatus.DRAFT:
+      return "Draft";
+    case ProposalStatus.SENT:
+      return "Sent";
+    case ProposalStatus.ACCEPTED:
+      return "Paid";
+    case ProposalStatus.EXPIRED:
+      return "Expired";
+    case ProposalStatus.VOIDED:
+      return "Voided";
+    default:
+      return getProposalStatusLabel(status);
+  }
+}
+
+/**
+ * Statuses relevant to proforma invoices (for filter dropdowns).
+ */
+export const PROFORMA_STATUSES: ProposalStatus[] = [
+  ProposalStatus.DRAFT,
+  ProposalStatus.SENT,
+  ProposalStatus.ACCEPTED,
+  ProposalStatus.EXPIRED,
+  ProposalStatus.VOIDED,
+];

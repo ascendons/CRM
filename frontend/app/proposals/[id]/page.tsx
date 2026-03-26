@@ -548,10 +548,11 @@ export default function ProposalDetailPage() {
                   </Link>
                 </PermissionGuard>
               )}
+              {/* Quotation Specific Actions */}
               {(proposal.status === ProposalStatus.SENT || 
                 proposal.status === ProposalStatus.PENDING_ON_CUSTOMER ||
                 proposal.status === ProposalStatus.NEGOTIATION) && !proposal.isProforma && (
-                <>
+                <div className="flex gap-2">
                   <PermissionGuard resource="PROPOSAL" action="APPROVE">
                     <button
                       onClick={handleAccept}
@@ -583,7 +584,39 @@ export default function ProposalDetailPage() {
                       Reject
                     </button>
                   </PermissionGuard>
-                </>
+                </div>
+              )}
+
+              {/* Proforma Specific Actions */}
+              {proposal.isProforma && (
+                <div className="flex gap-2">
+                  {proposal.status === ProposalStatus.DRAFT && (
+                    <PermissionGuard resource="PROPOSAL" action="SEND">
+                      <button
+                        onClick={handleSend}
+                        disabled={actionLoading}
+                        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 flex items-center gap-2 shadow-sm"
+                      >
+                        <Send className="h-4 w-4" />
+                        Send to Customer
+                      </button>
+                    </PermissionGuard>
+                  )}
+                  {proposal.status === ProposalStatus.SENT && (
+                    <>
+                      <PermissionGuard resource="PROPOSAL" action="APPROVE">
+                        <button
+                          onClick={handleAccept}
+                          disabled={actionLoading}
+                          className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 disabled:opacity-50 flex items-center gap-2 shadow-sm"
+                        >
+                          <CheckCircle className="h-4 w-4" />
+                          Mark as Paid
+                        </button>
+                      </PermissionGuard>
+                    </>
+                  )}
+                </div>
               )}
               {proposal.status === ProposalStatus.ACCEPTED && !proposal.isProforma && currentUser?.role === 'ADMIN' && (
                 <PermissionGuard resource="PROPOSAL" action="UPDATE">
@@ -601,7 +634,10 @@ export default function ProposalDetailPage() {
                 </PermissionGuard>
               )}
               <PermissionGuard resource="PROPOSAL" action="DELETE">
-                {proposal.isProforma && proposal.status !== ProposalStatus.VOIDED && currentUser?.role === 'ADMIN' && (
+                {proposal.isProforma && 
+                 proposal.status !== ProposalStatus.VOIDED && 
+                 proposal.status !== ProposalStatus.ACCEPTED && 
+                 currentUser?.role === 'ADMIN' && (
                   <button
                       onClick={async () => {
                         if (!confirm("Are you sure you want to void this Proforma Invoice? This action cannot be undone.")) return;
@@ -1437,6 +1473,6 @@ export default function ProposalDetailPage() {
         </div>
       )}
 
-    </div >
+    </div>
   );
 }

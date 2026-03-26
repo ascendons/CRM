@@ -73,7 +73,7 @@ class CrmIntegrationTest {
                 .fullName("Test User")
                 .build();
 
-        MvcResult result = mockMvc.perform(post("/api/v1/auth/register")
+        MvcResult result = mockMvc.perform(post("/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
@@ -94,7 +94,7 @@ class CrmIntegrationTest {
                 .password("Test@1234")
                 .build();
 
-        MvcResult result = mockMvc.perform(post("/api/v1/auth/login")
+        MvcResult result = mockMvc.perform(post("/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
@@ -117,7 +117,7 @@ class CrmIntegrationTest {
     @Order(3)
     @DisplayName("3. Get Current User - Should return user info with role and profile")
     void testGetCurrentUser() throws Exception {
-        mockMvc.perform(get("/api/v1/me")
+        mockMvc.perform(get("/me")
                         .header("Authorization", "Bearer " + authToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
@@ -145,7 +145,7 @@ class CrmIntegrationTest {
                 .description("Interested in enterprise solution")
                 .build();
 
-        MvcResult result = mockMvc.perform(post("/api/v1/leads")
+        MvcResult result = mockMvc.perform(post("/leads")
                         .header("Authorization", "Bearer " + authToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
@@ -179,7 +179,7 @@ class CrmIntegrationTest {
                 .expectedPurchaseDate(LocalDate.now().plusMonths(2))
                 .build();
 
-        mockMvc.perform(put("/api/v1/leads/" + leadId)
+        mockMvc.perform(put("/leads/" + leadId)
                         .header("Authorization", "Bearer " + authToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
@@ -193,7 +193,7 @@ class CrmIntegrationTest {
     @Order(6)
     @DisplayName("6. Convert Lead - Should create Contact and Account from Lead")
     void testConvertLead() throws Exception {
-        MvcResult result = mockMvc.perform(post("/api/v1/leads/" + leadId + "/convert")
+        MvcResult result = mockMvc.perform(post("/leads/" + leadId + "/convert")
                         .header("Authorization", "Bearer " + authToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
@@ -234,7 +234,7 @@ class CrmIntegrationTest {
                 .description("Enterprise CRM implementation")
                 .build();
 
-        MvcResult result = mockMvc.perform(post("/api/v1/opportunities")
+        MvcResult result = mockMvc.perform(post("/opportunities")
                         .header("Authorization", "Bearer " + authToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
@@ -274,7 +274,7 @@ class CrmIntegrationTest {
                 .description("Discussed project requirements and timeline")
                 .build();
 
-        MvcResult result = mockMvc.perform(post("/api/v1/activities")
+        MvcResult result = mockMvc.perform(post("/activities")
                         .header("Authorization", "Bearer " + authToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
@@ -299,7 +299,7 @@ class CrmIntegrationTest {
     @Order(9)
     @DisplayName("9. Get Lead Statistics - Should return lead metrics")
     void testGetLeadStatistics() throws Exception {
-        mockMvc.perform(get("/api/v1/leads/statistics")
+        mockMvc.perform(get("/leads/statistics")
                         .header("Authorization", "Bearer " + authToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
@@ -311,7 +311,7 @@ class CrmIntegrationTest {
     @Order(10)
     @DisplayName("10. Get Opportunity Statistics - Should return pipeline metrics")
     void testGetOpportunityStatistics() throws Exception {
-        mockMvc.perform(get("/api/v1/opportunities/statistics")
+        mockMvc.perform(get("/opportunities/statistics")
                         .header("Authorization", "Bearer " + authToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
@@ -323,7 +323,7 @@ class CrmIntegrationTest {
     @Order(11)
     @DisplayName("11. Get Activities by Opportunity - Should return linked activities")
     void testGetActivitiesByOpportunity() throws Exception {
-        mockMvc.perform(get("/api/v1/activities/opportunity/" + opportunityId)
+        mockMvc.perform(get("/activities/opportunity/" + opportunityId)
                         .header("Authorization", "Bearer " + authToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
@@ -335,7 +335,7 @@ class CrmIntegrationTest {
     @Order(12)
     @DisplayName("12. Search Leads - Should find leads by search term")
     void testSearchLeads() throws Exception {
-        mockMvc.perform(get("/api/v1/leads/search?searchTerm=John")
+        mockMvc.perform(get("/leads/search?searchTerm=John")
                         .header("Authorization", "Bearer " + authToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
