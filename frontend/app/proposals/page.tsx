@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { proposalsService } from "@/lib/proposals";
 import { authService } from "@/lib/auth";
@@ -26,6 +26,8 @@ import {
   AlertCircle,
   Eye,
   Edit2,
+  ChevronDown,
+  ChevronRight,
 } from "lucide-react";
 import { Pagination } from "@/components/common/Pagination";
 import { PermissionGuard } from "@/components/common/PermissionGuard";
@@ -53,6 +55,9 @@ export default function ProposalsPage() {
   // Delete modal state
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [proposalToDelete, setProposalToDelete] = useState<string | null>(null);
+
+  // Accordion state for proforma grouped view
+  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
   const [deleteLoading, setDeleteLoading] = useState(false);
 
   const loadProposals = useCallback(async () => {
@@ -215,6 +220,49 @@ export default function ProposalsPage() {
   };
 
 
+  // Group proformas by parentProposalId for the accordion view
+  const groupedProformas = useMemo(() => {
+    if (activeTab !== "PROFORMA") return null;
+
+    const groups = new Map<string, ProposalResponse[]>();
+    const standalone: ProposalResponse[] = [];
+
+    filteredProposals.forEach((p) => {
+      const parentId = p.parentProposalId;
+      if (parentId) {
+        if (!groups.has(parentId)) {
+          groups.set(parentId, []);
+        }
+        groups.get(parentId)!.push(p);
+      } else {
+        standalone.push(p);
+      }
+    });
+
+    return { groups, standalone };
+  }, [filteredProposals, activeTab]);
+
+  const toggleGroup = (parentId: string) => {
+    setExpandedGroups((prev) => {
+      const next = new Set(prev);
+      if (next.has(parentId)) {
+        next.delete(parentId);
+      } else {
+        next.add(parentId);
+      }
+      return next;
+    });
+  };
+
+  // Helper: summarize milestone progress for a group
+  const getMilestoneProgress = (children: ProposalResponse[]) => {
+    const total = children.length;
+    const completed = children.filter(
+      (c) => c.status === ProposalStatus.ACCEPTED || c.status === ProposalStatus.SENT
+    ).length;
+    return { total, completed };
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center bg-slate-50 min-h-[calc(100vh-4rem)] ">
@@ -343,10 +391,259 @@ export default function ProposalsPage() {
                 />
               )}
             </div>
-          ) : (
+          ) : activeTab === "PROFORMA" && groupedProformas ? (
+            /* ===== GROUPED ACCORDION VIEW FOR PROFORMA TAB ===== */
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
-                <thead className="bg-slate-50/50  border-b border-slate-200 ">
+                <thead className="bg-slate-50/50 border-b border-slate-200">
+                  <tr>
+                    <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider w-8"></th>
+                    {[
+                      { key: 'proposalNumber', label: 'Proposal #' },
+                      { key: 'title', label: 'Title / Customer' },
+                      { key: 'totalAmount', label: 'Amount' },
+                      { key: 'status', label: 'Status' },
+                      { key: 'validUntil', label: 'Valid Until' },
+                    ].map((col) => (
+                      <th
+                        key={col.key}
+                        className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors group"
+                        onClick={() => handleSort(col.key)}
+                      >
+                        <div className="flex items-center gap-2">
+                          {col.label}
+                          <ArrowUpDown className={`h-3 w-3 ${sortColumn === col.key ? 'text-primary' : 'text-slate-300 group-hover:text-slate-500'}`} />
+                        </div>
+                      </th>
+                    ))}
+                    <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {/* Grouped proformas */}
+                  {Array.from(groupedProformas.groups.entries()).map(([parentId, children]) => {
+                    const isExpanded = expandedGroups.has(parentId);
+                    const firstChild = children[0];
+                    const progress = getMilestoneProgress(children);
+                    const groupTotal = children.reduce((sum, c) => sum + (c.milestonePayableAmount || c.totalAmount || 0), 0);
+                    // Extract parent quotation title (strip milestone suffix)
+                    const parentTitle = firstChild.title?.replace(/\s*-\s*[^-]+$/, '') || firstChild.title;
+
+                    return (
+                      <>
+                        {/* Group Header Row */}
+                        <tr
+                          key={`group-${parentId}`}
+                          className="bg-slate-50/80 hover:bg-slate-100 transition-colors cursor-pointer border-b border-slate-200"
+                          onClick={() => toggleGroup(parentId)}
+                        >
+                          <td className="px-4 py-4 text-center">
+                            {isExpanded ? (
+                              <ChevronDown className="h-4 w-4 text-slate-500 transition-transform" />
+                            ) : (
+                              <ChevronRight className="h-4 w-4 text-slate-400 transition-transform" />
+                            )}
+                          </td>
+                          <td className="px-6 py-4 text-sm font-medium text-slate-900">
+                            <span className="font-mono text-primary/70 text-xs">Parent Quotation</span>
+                          </td>
+                          <td className="px-6 py-4">
+                            <div>
+                              <p className="text-sm font-bold text-slate-900">{parentTitle}</p>
+                              <div className="flex items-center gap-1.5 text-xs text-slate-500 mt-0.5">
+                                <User className="h-3 w-3" />
+                                {firstChild.customerName || firstChild.companyName || "No customer"}
+                                <span className="mx-1">•</span>
+                                <Clock className="h-3 w-3" />
+                                {formatDate(firstChild.createdAt)}
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="text-sm font-bold text-slate-900">
+                              {formatCurrency(groupTotal)}
+                            </div>
+                            <span className="text-[10px] font-semibold bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-full mt-1 inline-block">
+                              {children.length} milestone{children.length > 1 ? 's' : ''}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4">
+                            {/* Progress indicator */}
+                            <div className="flex items-center gap-2">
+                              <div className="flex-1 max-w-[100px] bg-slate-200 rounded-full h-1.5">
+                                <div
+                                  className="bg-emerald-500 h-1.5 rounded-full transition-all"
+                                  style={{ width: `${progress.total > 0 ? (progress.completed / progress.total) * 100 : 0}%` }}
+                                />
+                              </div>
+                              <span className="text-xs text-slate-500 font-medium whitespace-nowrap">
+                                {progress.completed}/{progress.total}
+                              </span>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 text-sm text-slate-500">
+                            <div className="flex items-center gap-1.5">
+                              <Clock className="h-3.5 w-3.5 text-slate-400" />
+                              {formatDate(firstChild.validUntil)}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 text-right">
+                            <button
+                              onClick={(e) => { e.stopPropagation(); toggleGroup(parentId); }}
+                              className="text-xs text-primary hover:text-primary-hover font-medium"
+                            >
+                              {isExpanded ? 'Collapse' : 'Expand'}
+                            </button>
+                          </td>
+                        </tr>
+
+                        {/* Child Proforma Rows (expanded) */}
+                        {isExpanded && children.map((proposal, idx) => (
+                          <tr
+                            key={proposal.id}
+                            className="hover:bg-blue-50/50 transition-colors cursor-pointer bg-white"
+                            onClick={() => router.push(`/proposals/${proposal.id}`)}
+                          >
+                            <td className="px-4 py-3 text-center">
+                              <div className="flex flex-col items-center">
+                                <div className={`w-0.5 h-3 ${idx === 0 ? 'bg-transparent' : 'bg-slate-200'}`} />
+                                <div className="w-2 h-2 rounded-full border-2 border-slate-300 bg-white" />
+                                <div className={`w-0.5 h-3 ${idx === children.length - 1 ? 'bg-transparent' : 'bg-slate-200'}`} />
+                              </div>
+                            </td>
+                            <td className="px-6 py-3 text-sm font-medium text-slate-900">
+                              <span className="font-mono text-primary">{proposal.proposalNumber}</span>
+                            </td>
+                            <td className="px-6 py-3">
+                              <div>
+                                <p className="text-sm font-medium text-slate-700">
+                                  {proposal.paymentMilestones?.[0]?.name || proposal.title}
+                                </p>
+                                {proposal.paymentMilestones?.[0]?.percentage && (
+                                  <span className="text-[10px] font-medium bg-primary/10 text-primary px-1.5 py-0.5 rounded mt-0.5 inline-block">
+                                    {proposal.paymentMilestones[0].percentage}%
+                                  </span>
+                                )}
+                              </div>
+                            </td>
+                            <td className="px-6 py-3">
+                              <div className="text-sm font-bold text-slate-900">
+                                {formatCurrency(proposal.milestonePayableAmount || proposal.totalAmount)}
+                              </div>
+                            </td>
+                            <td className="px-6 py-3">
+                              {getStatusBadge(proposal.status)}
+                            </td>
+                            <td className="px-6 py-3 text-sm text-slate-600">
+                              <div className="flex items-center gap-1.5">
+                                <Clock className="h-3.5 w-3.5 text-slate-400" />
+                                {formatDate(proposal.validUntil)}
+                              </div>
+                            </td>
+                            <td className="px-6 py-3 text-right">
+                              <div className="flex items-center justify-end gap-2">
+                                <button
+                                  onClick={(e) => { e.stopPropagation(); router.push(`/proposals/${proposal.id}`); }}
+                                  className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                  title="View"
+                                >
+                                  <Eye className="h-4 w-4" />
+                                </button>
+                                {proposal.status !== ProposalStatus.ACCEPTED && proposal.status !== ProposalStatus.REJECTED && (
+                                  <button
+                                    onClick={(e) => { e.stopPropagation(); router.push(`/proposals/${proposal.id}/edit`); }}
+                                    className="p-2 text-slate-400 hover:text-primary hover:bg-slate-100 rounded-lg transition-colors"
+                                    title="Edit"
+                                  >
+                                    <Edit2 className="h-4 w-4" />
+                                  </button>
+                                )}
+                                <button
+                                  onClick={(e) => { e.stopPropagation(); handleDelete(proposal.id); }}
+                                  className="p-2 text-rose-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                                  title="Delete"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </>
+                    );
+                  })}
+
+                  {/* Standalone proformas (no parentProposalId) */}
+                  {groupedProformas.standalone.map((proposal) => (
+                    <tr
+                      key={proposal.id}
+                      className="hover:bg-slate-50 transition-colors group cursor-pointer"
+                      onClick={() => router.push(`/proposals/${proposal.id}`)}
+                    >
+                      <td className="px-4 py-4"></td>
+                      <td className="px-6 py-4 text-sm font-medium text-slate-900">
+                        <span className="font-mono text-primary">{proposal.proposalNumber}</span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div>
+                          <p className="text-sm font-semibold text-slate-900">{proposal.title}</p>
+                          <div className="flex items-center gap-1 text-xs text-slate-500 mt-0.5">
+                            <User className="h-3 w-3" />
+                            {proposal.customerName || "No customer"}
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="text-sm font-bold text-slate-900">
+                          {formatCurrency(proposal.milestonePayableAmount || proposal.totalAmount)}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        {getStatusBadge(proposal.status)}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-slate-600">
+                        <div className="flex items-center gap-1.5">
+                          <Clock className="h-3.5 w-3.5 text-slate-400" />
+                          {formatDate(proposal.validUntil)}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <div className="flex items-center justify-end gap-2">
+                          <button
+                            onClick={(e) => { e.stopPropagation(); router.push(`/proposals/${proposal.id}`); }}
+                            className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                            title="View"
+                          >
+                            <Eye className="h-4 w-4" />
+                          </button>
+                          {proposal.status !== ProposalStatus.ACCEPTED && proposal.status !== ProposalStatus.REJECTED && (
+                            <button
+                              onClick={(e) => { e.stopPropagation(); router.push(`/proposals/${proposal.id}/edit`); }}
+                              className="p-2 text-slate-400 hover:text-primary hover:bg-slate-100 rounded-lg transition-colors"
+                              title="Edit"
+                            >
+                              <Edit2 className="h-4 w-4" />
+                            </button>
+                          )}
+                          <button
+                            onClick={(e) => { e.stopPropagation(); handleDelete(proposal.id); }}
+                            className="p-2 text-rose-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                            title="Delete"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            /* ===== FLAT TABLE VIEW FOR QUOTATIONS TAB ===== */
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead className="bg-slate-50/50 border-b border-slate-200">
                   <tr>
                     {[
                       { key: 'proposalNumber', label: 'Proposal #' },
@@ -357,7 +654,7 @@ export default function ProposalsPage() {
                     ].map((col) => (
                       <th
                         key={col.key}
-                        className="px-6 py-4 text-xs font-semibold text-slate-500  uppercase tracking-wider cursor-pointer hover:bg-slate-100  transition-colors group"
+                        className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors group"
                         onClick={() => handleSort(col.key)}
                       >
                         <div className="flex items-center gap-2">
@@ -366,29 +663,29 @@ export default function ProposalsPage() {
                         </div>
                       </th>
                     ))}
-                    <th className="px-6 py-4 text-xs font-semibold text-slate-500  uppercase tracking-wider text-right">Actions</th>
+                    <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 ">
+                <tbody className="divide-y divide-slate-100">
                   {proposals.map((proposal) => (
                     <tr
                       key={proposal.id}
-                      className="hover:bg-slate-50  transition-colors group cursor-pointer"
+                      className="hover:bg-slate-50 transition-colors group cursor-pointer"
                       onClick={() => router.push(`/proposals/${proposal.id}`)}
                     >
-                      <td className="px-6 py-4 text-sm font-medium text-slate-900 ">
+                      <td className="px-6 py-4 text-sm font-medium text-slate-900">
                         <span className="font-mono text-primary">{proposal.proposalNumber}</span>
                       </td>
                       <td className="px-6 py-4">
                         <div>
-                          <p className="text-sm font-semibold text-slate-900 ">{proposal.title}</p>
-                          <div className="flex items-center gap-1 text-xs text-slate-500  mt-0.5">
+                          <p className="text-sm font-semibold text-slate-900">{proposal.title}</p>
+                          <div className="flex items-center gap-1 text-xs text-slate-500 mt-0.5">
                             <User className="h-3 w-3" />
                             {proposal.customerName || "No customer"}
                             {proposal.source && (
                               <>
                                 <span className="mx-1">•</span>
-                                <span className="text-xs bg-slate-100  px-1.5 py-0.5 rounded text-slate-500 lowercase">
+                                <span className="text-xs bg-slate-100 px-1.5 py-0.5 rounded text-slate-500 lowercase">
                                   {proposal.source === ProposalSource.LEAD ? "Lead" : "Opp."}
                                 </span>
                               </>
@@ -412,7 +709,7 @@ export default function ProposalsPage() {
                       <td className="px-6 py-4">
                         {getStatusBadge(proposal.status)}
                       </td>
-                      <td className="px-6 py-4 text-sm text-slate-600 ">
+                      <td className="px-6 py-4 text-sm text-slate-600">
                         <div className="flex items-center gap-1.5">
                           <Clock className="h-3.5 w-3.5 text-slate-400" />
                           {formatDate(proposal.validUntil)}
@@ -425,7 +722,7 @@ export default function ProposalsPage() {
                         <div className="flex items-center justify-end gap-2">
                           <button
                             onClick={(e) => { e.stopPropagation(); router.push(`/proposals/${proposal.id}`); }}
-                            className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50  rounded-lg transition-colors"
+                            className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                             title="View"
                           >
                             <Eye className="h-4 w-4" />
@@ -433,7 +730,7 @@ export default function ProposalsPage() {
                           {proposal.status !== ProposalStatus.ACCEPTED && proposal.status !== ProposalStatus.REJECTED && (
                             <button
                               onClick={(e) => { e.stopPropagation(); router.push(`/proposals/${proposal.id}/edit`); }}
-                              className="p-2 text-slate-400 hover:text-primary hover:bg-slate-100  rounded-lg transition-colors"
+                              className="p-2 text-slate-400 hover:text-primary hover:bg-slate-100 rounded-lg transition-colors"
                               title="Edit"
                             >
                               <Edit2 className="h-4 w-4" />
@@ -441,7 +738,7 @@ export default function ProposalsPage() {
                           )}
                           <button
                             onClick={(e) => { e.stopPropagation(); handleDelete(proposal.id); }}
-                            className="p-2 text-rose-400 hover:text-rose-600 hover:bg-rose-50  rounded-lg transition-colors"
+                            className="p-2 text-rose-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
                             title="Delete"
                           >
                             <Trash2 className="h-4 w-4" />
