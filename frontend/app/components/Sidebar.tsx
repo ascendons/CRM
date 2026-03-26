@@ -347,26 +347,6 @@ export default function Sidebar({ isMobileOpen, onMobileClose, isCollapsed, onTo
       {/* Footer - User Profile & Collapse (Desktop) */}
       {!mobile && (
         <div className="border-t border-slate-800 p-3 space-y-2">
-          {/* User Profile */}
-          {user && !isCollapsed && (
-            <div className="flex items-center gap-3 px-3 py-2">
-              <div className="size-8 rounded-full bg-primary flex items-center justify-center text-xs font-bold text-white flex-shrink-0">
-                {user.initials}
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium truncate">{user.name}</p>
-              </div>
-            </div>
-          )}
-
-          {user && isCollapsed && (
-            <div className="flex justify-center">
-              <div className="size-8 rounded-full bg-primary flex items-center justify-center text-xs font-bold text-white">
-                {user.initials}
-              </div>
-            </div>
-          )}
-
           {/* Collapse Toggle */}
           <button
             onClick={onToggleCollapse}
