@@ -68,7 +68,7 @@ export default function TableFilterPanel({
     setAttributeFilters(attributes);
   }, [products]);
 
-  const handleFilterChange = (key: keyof TableFilters, value: string) => {
+  const handleFilterChange = (key: Exclude<keyof TableFilters, 'attributes'>, value: string) => {
     const newFilters = { ...activeFilters };
     if (value === '') {
       delete newFilters[key];
