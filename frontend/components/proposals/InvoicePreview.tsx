@@ -11,12 +11,15 @@ interface InvoicePreviewProps {
     parentTaxAmount?: number;
 }
 
-const InvoicePreview = forwardRef<HTMLDivElement, InvoicePreviewProps>(({
-    proposal,
-    organization,
-    template,
-    parentTaxAmount
-}, ref) => {
+const InvoicePreview = forwardRef<HTMLDivElement, InvoicePreviewProps>((
+    {
+        proposal,
+        organization,
+        template,
+        parentTaxAmount
+    }: InvoicePreviewProps,
+    ref: React.Ref<HTMLDivElement>
+) => {
     const invoiceConfig = organization?.invoiceConfig;
 
     const formatCurrency = (amount: number) => {
@@ -375,68 +378,6 @@ const InvoicePreview = forwardRef<HTMLDivElement, InvoicePreviewProps>(({
                         <div className="flex justify-between items-center text-white mb-2">
                             <span className="text-[10px] font-black uppercase tracking-[0.3em] opacity-80">
                                 {isProforma ? 'Net Payable' : 'Grand Total Payable'}
-                                {isProforma && (
-                                    <span className="block text-[8px] mt-1 normal-case tracking-normal opacity-90 font-bold">
-                                        {(() => {
-                                            let milestonePercentage = proposal.paymentMilestones?.[0]?.percentage || 100;
-                                            let includesGst = false;
-                                            const subtotal = proposal.subtotal || 0;
-                                            const computedTax = proposal.isProforma
-                                                ? parentTaxAmount ?? proposal.parentTaxAmount ?? proposal.taxAmount ?? 0
-                                                : proposal.taxAmount || 0;
-                                            
-                                            let tax = computedTax > 0 ? computedTax : 0;
-                                            if (tax === 0 && proposal.isProforma) {
-                                                tax = proposal.lineItems?.reduce((sum, item) => {
-                                                  if (item.lineTaxAmount > 0) return sum + item.lineTaxAmount;
-                                                  if (item.taxRate > 0) {
-                                                      const base = item.lineDiscountAmount ? (item.unitPrice * item.quantity - item.lineDiscountAmount) : (item.unitPrice * item.quantity);
-                                                      return sum + (base * item.taxRate / 100);
-                                                  }
-                                                  return sum;
-                                                }, 0) || 0;
-                                            }
-                                            
-                                            includesGst = proposal.milestoneIncludesGst ?? false;
-                                            
-                                            if (proposal.paymentMilestones?.[0]?.percentage && proposal.paymentMilestones[0].percentage !== 100) {
-                                                milestonePercentage = proposal.paymentMilestones[0].percentage;
-                                            } else {
-                                                // Fallback native logic just in case API didn't map it properly for old proformas
-                                                const payable = proposal.milestonePayableAmount || proposal.totalAmount || 0;
-                                                if (subtotal > 0) {
-                                                    const ratioWithoutTax = (payable / subtotal) * 100;
-                                                    const ratioWithTax = ((payable - tax) / subtotal) * 100;
-                                                    
-                                                    const isRoundWithoutTax = Math.abs(Math.round(ratioWithoutTax) - ratioWithoutTax) < 0.05;
-                                                    const isRoundWithTax = Math.abs(Math.round(ratioWithTax) - ratioWithTax) < 0.05;
-                                                    
-                                                    if (tax > 0) {
-                                                       if (isRoundWithoutTax && isRoundWithTax) {
-                                                           if (Math.round(ratioWithoutTax) % 5 === 0) {
-                                                               milestonePercentage = Math.round(ratioWithoutTax);
-                                                               includesGst = false;
-                                                           } else {
-                                                               milestonePercentage = Math.round(ratioWithTax);
-                                                               includesGst = true;
-                                                           }
-                                                       } else if (isRoundWithTax && ratioWithTax > 0) {
-                                                           milestonePercentage = Math.round(ratioWithTax);
-                                                           includesGst = true;
-                                                       } else {
-                                                           milestonePercentage = Math.round(ratioWithoutTax);
-                                                           includesGst = false;
-                                                       }
-                                                    } else {
-                                                       milestonePercentage = Math.round(ratioWithoutTax);
-                                                       includesGst = false;
-                                                    }
-                                                }
-                                            }
-                                            return `(Based on ${milestonePercentage}% Milestone${includesGst ? ' + GST' : ''})`;
-                                        })()}
-                                    </span>
-                                )}
                             </span>
                             <span className="text-2xl font-black tracking-tighter tabular-nums">{formatCurrency(isProforma && proposal.milestonePayableAmount ? proposal.milestonePayableAmount : proposal.totalAmount)}</span>
                         </div>
