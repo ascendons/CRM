@@ -918,7 +918,7 @@ public class ProposalService extends BaseTenantService {
                             .build();
 
                     // Recalculate line totals
-                    BigDecimal lineSubtotal = newItem.getUnitPrice().multiply(new BigDecimal(newItem.getQuantity()));
+                    BigDecimal lineSubtotal = newItem.getUnitPrice().multiply(newItem.getQuantity());
                     newItem.setLineSubtotal(lineSubtotal);
                     
                     BigDecimal lineDiscountAmount = BigDecimal.ZERO;

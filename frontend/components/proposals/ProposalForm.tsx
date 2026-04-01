@@ -1125,8 +1125,8 @@ export default function ProposalForm({
                                     <input
                                         value={item.quantity ?? ""}
                                         onChange={(e) => {
-                                            const val = e.target.value.replace(/[^0-9]/g, '');
-                                            updateLineItem(index, "quantity", val === "" ? undefined : parseInt(val));
+                                            const val = e.target.value.replace(/[^0-9.]/g, '');
+                                            updateLineItem(index, "quantity", val === "" ? undefined : parseFloat(val));
                                             e.target.style.height = 'auto';
                                             e.target.style.height = e.target.scrollHeight + 'px';
                                         }}
@@ -1135,6 +1135,7 @@ export default function ProposalForm({
                                             e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px';
                                         }}
                                         type="number"
+                                        step="any"
                                         min={0}
                                         placeholder="Qty"
                                         className={`${inputCls} resize-none overflow-hidden min-h-[40px]`}
@@ -1195,6 +1196,8 @@ export default function ProposalForm({
                                             e.currentTarget.style.height = 'auto';
                                             e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px';
                                         }}
+                                        type="number"
+                                        step="any"
                                         placeholder="₹ Price"
                                         className={`${inputCls} resize-none overflow-hidden min-h-[40px]`}
                                         disabled={isReadOnly}

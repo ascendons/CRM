@@ -97,7 +97,7 @@ public class ProposalCalculationService {
     private void calculateLineItem(Proposal.ProposalLineItem item, com.ultron.backend.domain.enums.GstType gstType) {
         // Line subtotal = quantity * unitPrice
         BigDecimal lineSubtotal = item.getUnitPrice()
-            .multiply(BigDecimal.valueOf(item.getQuantity()))
+            .multiply(item.getQuantity())
             .setScale(2, RoundingMode.HALF_UP);
         item.setLineSubtotal(lineSubtotal);
 

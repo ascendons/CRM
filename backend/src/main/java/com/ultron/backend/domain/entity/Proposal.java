@@ -167,7 +167,7 @@ public class Proposal {
         private String sku;  // Denormalized
         private String description;
 
-        private Integer quantity;
+        private BigDecimal quantity;
         private String unit;
         private String hsnCode;
         private BigDecimal unitPrice;  // Price per unit

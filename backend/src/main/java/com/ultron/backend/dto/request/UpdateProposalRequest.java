@@ -98,8 +98,8 @@ public class UpdateProposalRequest {
         private String hsnCode;
 
         @NotNull(message = "Quantity is required")
-        @Min(value = 1, message = "Quantity must be at least 1")
-        private Integer quantity;
+        @DecimalMin(value = "0.000001", message = "Quantity must be positive")
+        private BigDecimal quantity;
 
         // Optional: Override product's base price
         @Positive(message = "Unit price must be positive")

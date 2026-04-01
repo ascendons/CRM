@@ -150,7 +150,8 @@ export default function CommercialNegotiation({ proposal, onUpdate }: Commercial
                                 <td className="px-4 py-3">
                                     <input
                                         type="number"
-                                        min="1"
+                                        min="0"
+                                        step="any"
                                         value={item.quantity}
                                         onChange={(e) => handleItemChange(index, 'quantity', e.target.value)}
                                         className="w-full text-right p-1 border rounded focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
@@ -160,7 +161,7 @@ export default function CommercialNegotiation({ proposal, onUpdate }: Commercial
                                     <input
                                         type="number"
                                         min="0"
-                                        step="0.01"
+                                        step="any"
                                         value={item.unitPrice}
                                         onChange={(e) => handleItemChange(index, 'unitPrice', e.target.value)}
                                         className="w-full text-right p-1 border rounded focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
@@ -171,6 +172,7 @@ export default function CommercialNegotiation({ proposal, onUpdate }: Commercial
                                         <input
                                             type="number"
                                             min="0"
+                                            step="any"
                                             value={item.discountValue || ""}
                                             onChange={(e) => handleItemChange(index, 'discountValue', e.target.value)}
                                             placeholder="0"
@@ -225,6 +227,7 @@ export default function CommercialNegotiation({ proposal, onUpdate }: Commercial
                             <label className="block text-xs font-medium text-gray-500 mb-1">Value</label>
                             <input
                                 type="number"
+                                step="any"
                                 value={discount.value}
                                 onChange={(e) => setDiscount(prev => ({ ...prev, value: parseFloat(e.target.value) || 0 }))}
                                 className="block w-full text-sm border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
