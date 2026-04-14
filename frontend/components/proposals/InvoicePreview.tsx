@@ -263,7 +263,7 @@ const InvoicePreview = forwardRef<HTMLDivElement, InvoicePreviewProps>((
                             <th className="py-2.5 px-6 text-center w-24">HSN/SAC</th>
                             <th className="py-2.5 px-6 text-center w-20">QTY</th>
                             <th className="py-2.5 px-6 text-right w-28">Rate</th>
-                            <th className="py-2.5 px-6 text-right w-32 underline decoration-blue-400">Amount</th>
+                            <th className="py-2.5 px-6 text-right w-32">Amount</th>
                         </tr>
                     </thead>
                     <tbody className="text-[11px]">
