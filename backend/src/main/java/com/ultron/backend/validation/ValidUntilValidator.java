@@ -27,8 +27,9 @@ public class ValidUntilValidator implements ConstraintValidator<ValidUntilConstr
         LocalDate today = LocalDate.now();
         LocalDate maxDate = today.plusMonths(maxMonths);
 
-        // Check if date is in the future
-        if (!value.isAfter(today)) {
+        // Check if date is today or in the future
+        LocalDate yesterday = today.minusDays(1);
+        if (!value.isAfter(yesterday)) {
             context.disableDefaultConstraintViolation();
             context.buildConstraintViolationWithTemplate("Valid until date must be in the future")
                     .addConstraintViolation();
