@@ -99,6 +99,19 @@ public class PurchaseOrder {
     private LocalDateTime rejectedAt;
     private String rejectionReason;
 
+    // Multi-level approval workflow (< 50k → L1, 50k-5L → L2, > 5L → L3)
+    @Builder.Default
+    private List<ApprovalStep> approvalWorkflow = new ArrayList<>();
+
+    // 3-way invoice match
+    private String invoiceMatchStatus;      // Pending / Matched / Discrepancy
+    private String grnId;
+    private String vendorInvoiceNumber;
+    private LocalDate vendorInvoiceDate;
+    private BigDecimal vendorInvoiceAmount;
+    private String paymentStatus;           // Unpaid / PartiallyPaid / Paid
+    private LocalDate paymentDueDate;
+
     // Audit
     private LocalDateTime createdAt;
     private String createdBy;
@@ -133,6 +146,18 @@ public class PurchaseOrder {
 
         private String uom;                 // Unit of measure
         private String notes;               // Line item specific notes
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ApprovalStep {
+        private String level;           // L1 / L2 / L3
+        private String approverId;
+        private String status;          // Pending / Approved / Rejected
+        private LocalDateTime approvedAt;
+        private String comments;
     }
 
     /**

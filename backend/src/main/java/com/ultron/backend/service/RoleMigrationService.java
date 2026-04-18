@@ -260,6 +260,100 @@ public class RoleMigrationService {
         log.info("Created system role: Read-Only User ({})", roleId);
     }
 
+    /**
+     * Patch existing roles in the database with missing Field Service module
+     */
+    public void patchMissingModules() {
+        log.info("Starting Patch: Missing Field Service Module");
+        List<Role> allRoles = roleRepository.findByIsDeletedFalse();
+        int patchCount = 0;
+
+        for (Role role : allRoles) {
+            boolean modified = false;
+            List<Role.ModulePermission> modules = role.getModulePermissions();
+            if (modules == null) {
+                modules = new ArrayList<>();
+                role.setModulePermissions(modules);
+            }
+
+            boolean fieldServiceExists = modules.stream()
+                    .anyMatch(m -> m.getModuleName().equalsIgnoreCase("FIELD_SERVICE"));
+            if (!fieldServiceExists) {
+                modules.add(Role.ModulePermission.builder()
+                        .moduleName("FIELD_SERVICE")
+                        .displayName("Field Service")
+                        .canAccess(true)
+                        .includedPaths(Arrays.asList(
+                                "/assets/**", "/contracts/**", "/service-requests/**",
+                                "/work-orders/**", "/dispatch/**", "/geo/**",
+                                "/skill-matrix/**", "/parts-requests/**"))
+                        .description("Manage assets, contracts, work orders, dispatch, and field operations")
+                        .build());
+                modified = true;
+            }
+
+            boolean procurementExists = modules.stream()
+                    .anyMatch(m -> m.getModuleName().equalsIgnoreCase("PROCUREMENT"));
+            if (!procurementExists) {
+                modules.add(Role.ModulePermission.builder()
+                        .moduleName("PROCUREMENT")
+                        .displayName("Procurement")
+                        .canAccess(true)
+                        .includedPaths(Arrays.asList(
+                                "/vendors/**", "/procurement/**"))
+                        .description("Vendor management, RFQ, GRN, rate contracts, purchase orders")
+                        .build());
+                modified = true;
+            }
+
+            boolean dealerExists = modules.stream()
+                    .anyMatch(m -> m.getModuleName().equalsIgnoreCase("DEALER_MANAGEMENT"));
+            if (!dealerExists) {
+                modules.add(Role.ModulePermission.builder()
+                        .moduleName("DEALER_MANAGEMENT")
+                        .displayName("Dealer Management")
+                        .canAccess(true)
+                        .includedPaths(Arrays.asList("/dealers/**"))
+                        .description("Dealer and distributor management")
+                        .build());
+                modified = true;
+            }
+
+            boolean analyticsExists = modules.stream()
+                    .anyMatch(m -> m.getModuleName().equalsIgnoreCase("SERVICE_ANALYTICS"));
+            if (!analyticsExists) {
+                modules.add(Role.ModulePermission.builder()
+                        .moduleName("SERVICE_ANALYTICS")
+                        .displayName("Service Analytics")
+                        .canAccess(true)
+                        .includedPaths(Arrays.asList("/analytics/service/**"))
+                        .description("Service KPIs and inventory analytics dashboards")
+                        .build());
+                modified = true;
+            }
+
+            boolean escalationExists = modules.stream()
+                    .anyMatch(m -> m.getModuleName().equalsIgnoreCase("ESCALATION"));
+            if (!escalationExists) {
+                modules.add(Role.ModulePermission.builder()
+                        .moduleName("ESCALATION")
+                        .displayName("Escalation Management")
+                        .canAccess(true)
+                        .includedPaths(Arrays.asList("/admin/settings/escalation/**"))
+                        .description("Escalation rules and log management")
+                        .build());
+                modified = true;
+            }
+
+            if (modified) {
+                roleRepository.save(role);
+                patchCount++;
+                log.info("Patched module permissions for role: {}", role.getRoleName());
+            }
+        }
+        log.info("Completed Patch: Updated {} roles", patchCount);
+    }
+
     // ===== MODULE PERMISSION BUILDERS =====
 
     private List<Role.ModulePermission> createAdminModulePermissions() {
@@ -298,6 +392,13 @@ public class RoleMigrationService {
                         .canAccess(true)
                         .includedPaths(Arrays.asList("/activities", "/user-activities"))
                         .description("Track and manage activities")
+                        .build(),
+                Role.ModulePermission.builder()
+                        .moduleName("FIELD_SERVICE")
+                        .displayName("Field Service")
+                        .canAccess(true)
+                        .includedPaths(Arrays.asList("/assets/**", "/contracts/**", "/service-requests/**", "/work-orders/**"))
+                        .description("Manage assets, contracts, and field operations")
                         .build()
         );
     }
@@ -338,6 +439,13 @@ public class RoleMigrationService {
                         .canAccess(true)
                         .includedPaths(Arrays.asList("/activities", "/user-activities"))
                         .description("Track and manage activities")
+                        .build(),
+                Role.ModulePermission.builder()
+                        .moduleName("FIELD_SERVICE")
+                        .displayName("Field Service")
+                        .canAccess(true)
+                        .includedPaths(Arrays.asList("/assets/**", "/contracts/**", "/service-requests/**", "/work-orders/**"))
+                        .description("Manage assets, contracts, and field operations")
                         .build()
         );
     }
@@ -378,6 +486,13 @@ public class RoleMigrationService {
                         .canAccess(true)
                         .includedPaths(Arrays.asList("/activities", "/user-activities"))
                         .description("Track and manage activities")
+                        .build(),
+                Role.ModulePermission.builder()
+                        .moduleName("FIELD_SERVICE")
+                        .displayName("Field Service")
+                        .canAccess(true)
+                        .includedPaths(Arrays.asList("/assets/**", "/contracts/**", "/service-requests/**", "/work-orders/**"))
+                        .description("Manage assets, contracts, and field operations")
                         .build()
         );
     }
@@ -418,6 +533,13 @@ public class RoleMigrationService {
                         .canAccess(true)
                         .includedPaths(Arrays.asList("/activities", "/user-activities"))
                         .description("Track and manage activities")
+                        .build(),
+                Role.ModulePermission.builder()
+                        .moduleName("FIELD_SERVICE")
+                        .displayName("Field Service")
+                        .canAccess(true)
+                        .includedPaths(Arrays.asList("/assets/**", "/contracts/**", "/service-requests/**", "/work-orders/**"))
+                        .description("Manage assets, contracts, and field operations")
                         .build()
         );
     }

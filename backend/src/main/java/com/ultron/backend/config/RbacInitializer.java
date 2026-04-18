@@ -32,6 +32,10 @@ public class RbacInitializer implements CommandLineRunner {
             // Migrate profiles
             profileMigrationService.migratePredefinedProfilesToDatabase();
 
+            // Patch existing for Field Service
+            profileMigrationService.patchMissingPermissions();
+            roleMigrationService.patchMissingModules();
+
             log.info("===================================================");
             log.info("RBAC INITIALIZATION: Completed Successfully");
             log.info("System roles and profiles are ready for use");

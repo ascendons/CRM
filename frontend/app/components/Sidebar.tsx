@@ -103,6 +103,8 @@ export default function Sidebar({ isMobileOpen, onMobileClose, isCollapsed, onTo
       items: [
         { href: "/dashboard", label: "Dashboard", icon: "dashboard", alwaysVisible: true },
         { href: "/analytics", label: "Analytics", icon: "analytics", module: "ANALYTICS" },
+        { href: "/analytics/service", label: "Service Analytics", icon: "monitoring", module: "SERVICE_ANALYTICS" },
+        { href: "/analytics/inventory", label: "Inventory Analytics", icon: "inventory_2", module: "SERVICE_ANALYTICS" },
       ],
     },
     {
@@ -141,10 +143,38 @@ export default function Sidebar({ isMobileOpen, onMobileClose, isCollapsed, onTo
       ],
     },
     {
+      title: "Field Service",
+      items: [
+        { href: "/assets", label: "Asset Registry", icon: "inventory", module: "FIELD_SERVICE" },
+        { href: "/contracts", label: "Contracts", icon: "history_edu", module: "FIELD_SERVICE" },
+        { href: "/service-requests", label: "Service Requests", icon: "support_agent", module: "FIELD_SERVICE" },
+        { href: "/work-orders", label: "Work Orders", icon: "engineering", module: "FIELD_SERVICE" },
+        { href: "/dispatch", label: "Dispatch Board", icon: "route", module: "FIELD_SERVICE" },
+        { href: "/skill-matrix", label: "Skill Matrix", icon: "psychology", module: "FIELD_SERVICE" },
+        { href: "/parts-requests", label: "Parts Requests", icon: "category", module: "FIELD_SERVICE" },
+      ],
+    },
+    {
+      title: "Procurement",
+      items: [
+        { href: "/vendors", label: "Vendors", icon: "store", module: "PROCUREMENT" },
+        { href: "/procurement/rfq", label: "RFQ", icon: "request_quote", module: "PROCUREMENT" },
+        { href: "/procurement/grn", label: "GRN", icon: "receipt_long", module: "PROCUREMENT" },
+        { href: "/procurement/rate-contracts", label: "Rate Contracts", icon: "handshake", module: "PROCUREMENT" },
+      ],
+    },
+    {
+      title: "Channel Partners",
+      items: [
+        { href: "/dealers", label: "Dealers", icon: "storefront", module: "DEALER_MANAGEMENT" },
+      ],
+    },
+    {
       title: "Administration",
       items: [
         { href: "/admin", label: "Admin Panel", icon: "admin_panel_settings", module: "ADMINISTRATION" },
         { href: "/admin/settings", label: "Settings", icon: "settings", module: "ADMINISTRATION" },
+        { href: "/admin/settings/escalation", label: "Escalation Rules", icon: "warning", module: "ADMINISTRATION" },
       ],
     },
   ];

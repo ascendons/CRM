@@ -42,15 +42,20 @@ public class ProfileMigrationService {
         }
 
         try {
-            // Create 4 system profiles
+            // Create system profiles
             createSystemAdministratorProfile();
             createSalesManagerProfile();
             createSalesRepresentativeProfile();
             createReadOnlyUserProfile();
+            // Field Service profiles
+            createFieldEngineerProfile();
+            createDispatchManagerProfile();
+            createWarehouseManagerProfile();
+            createServiceManagerProfile();
 
             log.info("========================================");
             log.info("Profile Migration Completed Successfully");
-            log.info("Created 4 system profiles as templates");
+            log.info("Created 8 system profiles as templates");
             log.info("========================================");
         } catch (Exception e) {
             log.error("Profile migration failed: {}", e.getMessage(), e);
@@ -137,7 +142,12 @@ public class ProfileMigrationService {
                         createFullAccessPermission("LEAVE"),
                         createFullAccessPermission("HOLIDAY"),
                         // Settings
-                        createFullAccessPermission("LOCATION")
+                        createFullAccessPermission("LOCATION"),
+                        // Field Service
+                        createFullAccessPermission("ASSETS"),
+                        createFullAccessPermission("CONTRACTS"),
+                        createFullAccessPermission("SERVICE_REQUESTS"),
+                        createFullAccessPermission("WORK_ORDERS")
                 ))
                 .fieldPermissions(new ArrayList<>())  // No restrictions
                 .systemPermissions(Profile.SystemPermissions.builder()
@@ -191,7 +201,12 @@ public class ProfileMigrationService {
                         createFullAccessPermission("LEAVE"),
                         createFullAccessPermission("HOLIDAY"),
                         // Settings (Read Only)
-                        createReadOnlyPermission("LOCATION")
+                        createReadOnlyPermission("LOCATION"),
+                        // Field Service (Full Access)
+                        createFullAccessPermission("ASSETS"),
+                        createFullAccessPermission("CONTRACTS"),
+                        createFullAccessPermission("SERVICE_REQUESTS"),
+                        createFullAccessPermission("WORK_ORDERS")
                 ))
                 .fieldPermissions(new ArrayList<>())
                 .systemPermissions(Profile.SystemPermissions.builder()
@@ -245,7 +260,12 @@ public class ProfileMigrationService {
                         createStandardPermission("LEAVE"),
                         createReadOnlyPermission("HOLIDAY"),
                         // Settings
-                        createReadOnlyPermission("LOCATION")
+                        createReadOnlyPermission("LOCATION"),
+                        // Field Service (Standard Access)
+                        createStandardPermission("ASSETS"),
+                        createStandardPermission("CONTRACTS"),
+                        createStandardPermission("SERVICE_REQUESTS"),
+                        createStandardPermission("WORK_ORDERS")
                 ))
                 .fieldPermissions(new ArrayList<>())
                 .systemPermissions(Profile.SystemPermissions.builder()
@@ -299,7 +319,12 @@ public class ProfileMigrationService {
                         createReadOnlyPermission("LEAVE"),
                         createReadOnlyPermission("HOLIDAY"),
                         // Settings
-                        createReadOnlyPermission("LOCATION")
+                        createReadOnlyPermission("LOCATION"),
+                        // Field Service (Read Only)
+                        createReadOnlyPermission("ASSETS"),
+                        createReadOnlyPermission("CONTRACTS"),
+                        createReadOnlyPermission("SERVICE_REQUESTS"),
+                        createReadOnlyPermission("WORK_ORDERS")
                 ))
                 .fieldPermissions(new ArrayList<>())
                 .systemPermissions(Profile.SystemPermissions.builder()
@@ -323,6 +348,213 @@ public class ProfileMigrationService {
 
         profileRepository.save(profile);
         log.info("Created system profile: Read Only User ({})", profileId);
+    }
+
+    private void createFieldEngineerProfile() {
+        String profileId = "PROFILE-00005";
+        Profile profile = Profile.builder()
+                .profileId(profileId).tenantId(null).isSystemProfile(true)
+                .profileName("Field Engineer")
+                .description("Mobile field technician: WO execution, checklist, parts request")
+                .objectPermissions(Arrays.asList(
+                        createReadOnlyPermission("USER"),
+                        createNoAccessPermission("ROLE"),
+                        createNoAccessPermission("PROFILE"),
+                        createReadOnlyPermission("ACCOUNT"),
+                        createReadOnlyPermission("CONTACT"),
+                        createReadOnlyPermission("ASSETS"),
+                        createReadOnlyPermission("CONTRACTS"),
+                        createStandardPermission("SERVICE_REQUESTS"),
+                        createStandardPermission("WORK_ORDERS"),
+                        createStandardPermission("DISPATCH"),
+                        createStandardPermission("SKILL_MATRIX"),
+                        createStandardPermission("PARTS_REQUEST"),
+                        createReadOnlyPermission("VENDORS"),
+                        createReadOnlyPermission("PROCUREMENT"),
+                        createNoAccessPermission("DEALERS"),
+                        createReadOnlyPermission("SERVICE_ANALYTICS"),
+                        createNoAccessPermission("ESCALATION"),
+                        createNoAccessPermission("PURCHASE_ORDER")
+                ))
+                .fieldPermissions(new ArrayList<>())
+                .systemPermissions(Profile.SystemPermissions.builder()
+                        .canAccessAPI(true).apiRateLimit(500).canAccessMobileApp(true)
+                        .canAccessReports(false).canAccessDashboards(false)
+                        .canBulkUpdate(false).canBulkDelete(false).canMassEmail(false)
+                        .canBypassValidation(false).canRunApex(false).build())
+                .isActive(true).isDeleted(false)
+                .createdAt(LocalDateTime.now()).createdBy("SYSTEM").createdByName("System Migration")
+                .build();
+        profileRepository.save(profile);
+        log.info("Created system profile: Field Engineer ({})", profileId);
+    }
+
+    private void createDispatchManagerProfile() {
+        String profileId = "PROFILE-00006";
+        Profile profile = Profile.builder()
+                .profileId(profileId).tenantId(null).isSystemProfile(true)
+                .profileName("Dispatch Manager")
+                .description("Assign and dispatch engineers, manage schedules")
+                .objectPermissions(Arrays.asList(
+                        createReadOnlyPermission("USER"),
+                        createNoAccessPermission("ROLE"),
+                        createNoAccessPermission("PROFILE"),
+                        createReadOnlyPermission("ACCOUNT"),
+                        createReadOnlyPermission("CONTACT"),
+                        createFullAccessPermission("ASSETS"),
+                        createFullAccessPermission("CONTRACTS"),
+                        createFullAccessPermission("SERVICE_REQUESTS"),
+                        createFullAccessPermission("WORK_ORDERS"),
+                        createFullAccessPermission("DISPATCH"),
+                        createReadOnlyPermission("SKILL_MATRIX"),
+                        createReadOnlyPermission("PARTS_REQUEST"),
+                        createReadOnlyPermission("VENDORS"),
+                        createReadOnlyPermission("PROCUREMENT"),
+                        createNoAccessPermission("DEALERS"),
+                        createReadOnlyPermission("SERVICE_ANALYTICS"),
+                        createReadOnlyPermission("ESCALATION"),
+                        createNoAccessPermission("PURCHASE_ORDER")
+                ))
+                .fieldPermissions(new ArrayList<>())
+                .systemPermissions(Profile.SystemPermissions.builder()
+                        .canAccessAPI(true).apiRateLimit(2000).canAccessMobileApp(true)
+                        .canAccessReports(true).canAccessDashboards(true)
+                        .canBulkUpdate(true).canBulkDelete(false).canMassEmail(false)
+                        .canBypassValidation(false).canRunApex(false).build())
+                .isActive(true).isDeleted(false)
+                .createdAt(LocalDateTime.now()).createdBy("SYSTEM").createdByName("System Migration")
+                .build();
+        profileRepository.save(profile);
+        log.info("Created system profile: Dispatch Manager ({})", profileId);
+    }
+
+    private void createWarehouseManagerProfile() {
+        String profileId = "PROFILE-00007";
+        Profile profile = Profile.builder()
+                .profileId(profileId).tenantId(null).isSystemProfile(true)
+                .profileName("Warehouse Manager")
+                .description("Manage stock, approve parts requests, create GRNs")
+                .objectPermissions(Arrays.asList(
+                        createReadOnlyPermission("USER"),
+                        createNoAccessPermission("ROLE"),
+                        createNoAccessPermission("PROFILE"),
+                        createReadOnlyPermission("ACCOUNT"),
+                        createNoAccessPermission("CONTACT"),
+                        createReadOnlyPermission("ASSETS"),
+                        createReadOnlyPermission("CONTRACTS"),
+                        createReadOnlyPermission("SERVICE_REQUESTS"),
+                        createReadOnlyPermission("WORK_ORDERS"),
+                        createNoAccessPermission("DISPATCH"),
+                        createReadOnlyPermission("SKILL_MATRIX"),
+                        createFullAccessPermission("PARTS_REQUEST"),
+                        createFullAccessPermission("VENDORS"),
+                        createFullAccessPermission("PROCUREMENT"),
+                        createNoAccessPermission("DEALERS"),
+                        createReadOnlyPermission("SERVICE_ANALYTICS"),
+                        createNoAccessPermission("ESCALATION"),
+                        createStandardPermission("PURCHASE_ORDER")
+                ))
+                .fieldPermissions(new ArrayList<>())
+                .systemPermissions(Profile.SystemPermissions.builder()
+                        .canAccessAPI(true).apiRateLimit(2000).canAccessMobileApp(true)
+                        .canAccessReports(true).canAccessDashboards(true)
+                        .canBulkUpdate(true).canBulkDelete(false).canMassEmail(false)
+                        .canBypassValidation(false).canRunApex(false).build())
+                .isActive(true).isDeleted(false)
+                .createdAt(LocalDateTime.now()).createdBy("SYSTEM").createdByName("System Migration")
+                .build();
+        profileRepository.save(profile);
+        log.info("Created system profile: Warehouse Manager ({})", profileId);
+    }
+
+    private void createServiceManagerProfile() {
+        String profileId = "PROFILE-00008";
+        Profile profile = Profile.builder()
+                .profileId(profileId).tenantId(null).isSystemProfile(true)
+                .profileName("Service Manager")
+                .description("Full field service operations, SLA monitoring, analytics")
+                .objectPermissions(Arrays.asList(
+                        createReadOnlyPermission("USER"),
+                        createNoAccessPermission("ROLE"),
+                        createNoAccessPermission("PROFILE"),
+                        createReadOnlyPermission("ACCOUNT"),
+                        createReadOnlyPermission("CONTACT"),
+                        createFullAccessPermission("ASSETS"),
+                        createFullAccessPermission("CONTRACTS"),
+                        createFullAccessPermission("SERVICE_REQUESTS"),
+                        createFullAccessPermission("WORK_ORDERS"),
+                        createFullAccessPermission("DISPATCH"),
+                        createFullAccessPermission("SKILL_MATRIX"),
+                        createFullAccessPermission("PARTS_REQUEST"),
+                        createFullAccessPermission("VENDORS"),
+                        createFullAccessPermission("PROCUREMENT"),
+                        createReadOnlyPermission("DEALERS"),
+                        createFullAccessPermission("SERVICE_ANALYTICS"),
+                        createFullAccessPermission("ESCALATION"),
+                        createStandardPermission("PURCHASE_ORDER")
+                ))
+                .fieldPermissions(new ArrayList<>())
+                .systemPermissions(Profile.SystemPermissions.builder()
+                        .canAccessAPI(true).apiRateLimit(5000).canAccessMobileApp(true)
+                        .canAccessReports(true).canAccessDashboards(true)
+                        .canBulkUpdate(true).canBulkDelete(false).canMassEmail(true)
+                        .canBypassValidation(false).canRunApex(false).build())
+                .isActive(true).isDeleted(false)
+                .createdAt(LocalDateTime.now()).createdBy("SYSTEM").createdByName("System Migration")
+                .build();
+        profileRepository.save(profile);
+        log.info("Created system profile: Service Manager ({})", profileId);
+    }
+
+    /**
+     * Patch existing profiles in the database with missing Field Service permissions
+     */
+    public void patchMissingPermissions() {
+        log.info("Starting Patch: Missing Field Service Permissions");
+        List<Profile> allProfiles = profileRepository.findByIsDeletedFalse();
+        int patchCount = 0;
+
+        List<String> fieldServiceObjects = Arrays.asList(
+                "ASSETS", "CONTRACTS", "SERVICE_REQUESTS", "WORK_ORDERS",
+                "DISPATCH", "SKILL_MATRIX", "PARTS_REQUEST",
+                "VENDORS", "PROCUREMENT", "DEALERS",
+                "SERVICE_ANALYTICS", "ESCALATION", "PURCHASE_ORDER"
+        );
+
+        for (Profile profile : allProfiles) {
+            boolean modified = false;
+            List<Profile.ObjectPermission> permissions = profile.getObjectPermissions();
+            if (permissions == null) {
+                permissions = new ArrayList<>();
+                profile.setObjectPermissions(permissions);
+            }
+
+            for (String objName : fieldServiceObjects) {
+                boolean exists = permissions.stream()
+                        .anyMatch(p -> p.getObjectName().equalsIgnoreCase(objName));
+                
+                if (!exists) {
+                    // Admins and Managers get Full Access, others get Standard or Read Only based on name
+                    Profile.ObjectPermission newPerm;
+                    if (profile.getProfileName().contains("Administrator") || profile.getProfileName().contains("Manager")) {
+                        newPerm = createFullAccessPermission(objName);
+                    } else if (profile.getProfileName().contains("Read Only")) {
+                        newPerm = createReadOnlyPermission(objName);
+                    } else {
+                        newPerm = createStandardPermission(objName);
+                    }
+                    permissions.add(newPerm);
+                    modified = true;
+                }
+            }
+
+            if (modified) {
+                profileRepository.save(profile);
+                patchCount++;
+                log.info("Patched permissions for profile: {}", profile.getProfileName());
+            }
+        }
+        log.info("Completed Patch: Updated {} profiles", patchCount);
     }
 
     // ===== HELPER METHODS =====
