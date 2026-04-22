@@ -18,7 +18,7 @@ import {
   ArrowUpDown,
   Users,
   XCircle,
-  Briefcase
+  Briefcase,
 } from "lucide-react";
 
 export default function AccountsPage() {
@@ -77,9 +77,10 @@ export default function AccountsPage() {
     try {
       // Optimistic filtering
       const term = query.toLowerCase();
-      const localFiltered = accounts.filter(a =>
-        a.accountName.toLowerCase().includes(term) ||
-        (a.website && a.website.toLowerCase().includes(term))
+      const localFiltered = accounts.filter(
+        (a) =>
+          a.accountName.toLowerCase().includes(term) ||
+          (a.website && a.website.toLowerCase().includes(term))
       );
       setFilteredAccounts(localFiltered);
     } catch (err) {
@@ -99,8 +100,8 @@ export default function AccountsPage() {
 
   const getSortedAccounts = (accountsToSort: Account[]) => {
     return [...accountsToSort].sort((a, b) => {
-      let aValue: string | number = '';
-      let bValue: string | number = '';
+      let aValue: string | number = "";
+      let bValue: string | number = "";
 
       switch (sortColumn) {
         case "name":
@@ -108,16 +109,16 @@ export default function AccountsPage() {
           bValue = b.accountName.toLowerCase();
           break;
         case "industry":
-          aValue = (a.industry || '').toLowerCase();
-          bValue = (b.industry || '').toLowerCase();
+          aValue = (a.industry || "").toLowerCase();
+          bValue = (b.industry || "").toLowerCase();
           break;
         case "revenue":
           aValue = a.totalRevenue || 0;
           bValue = b.totalRevenue || 0;
           break;
         case "status":
-          aValue = (a.accountStatus || '').toLowerCase();
-          bValue = (b.accountStatus || '').toLowerCase();
+          aValue = (a.accountStatus || "").toLowerCase();
+          bValue = (b.accountStatus || "").toLowerCase();
           break;
         default:
           return 0;
@@ -184,8 +185,10 @@ export default function AccountsPage() {
     return new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR" }).format(value);
   };
 
-  const isAllSelected = paginatedAccounts.length > 0 && selectedAccounts.length === paginatedAccounts.length;
-  const isSomeSelected = selectedAccounts.length > 0 && selectedAccounts.length < paginatedAccounts.length;
+  const isAllSelected =
+    paginatedAccounts.length > 0 && selectedAccounts.length === paginatedAccounts.length;
+  const isSomeSelected =
+    selectedAccounts.length > 0 && selectedAccounts.length < paginatedAccounts.length;
 
   if (loading) {
     return (
@@ -208,8 +211,12 @@ export default function AccountsPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between py-4 gap-4">
             <div>
-              <h1 className="text-2xl font-bold text-slate-900  tracking-tight">Account Management</h1>
-              <p className="text-sm text-slate-500 ">Manage your company accounts and relationships.</p>
+              <h1 className="text-2xl font-bold text-slate-900  tracking-tight">
+                Account Management
+              </h1>
+              <p className="text-sm text-slate-500 ">
+                Manage your company accounts and relationships.
+              </p>
             </div>
             <div className="flex items-center gap-3">
               <button className="flex items-center gap-2 px-4 py-2 bg-white  border border-slate-200  text-slate-700  rounded-xl text-sm font-semibold hover:bg-slate-50  transition-colors shadow-sm">
@@ -246,7 +253,9 @@ export default function AccountsPage() {
               <div className="flex items-center gap-3 bg-blue-50  text-blue-700  px-4 py-2 rounded-xl text-sm font-medium animate-fade-in">
                 <span>{selectedAccounts.length} selected</span>
                 <div className="h-4 w-px bg-blue-200  mx-1"></div>
-                <button onClick={() => setSelectedAccounts([])} className="hover:underline">Clear</button>
+                <button onClick={() => setSelectedAccounts([])} className="hover:underline">
+                  Clear
+                </button>
               </div>
             )}
           </div>
@@ -270,18 +279,20 @@ export default function AccountsPage() {
                       <input
                         type="checkbox"
                         checked={isAllSelected}
-                        ref={(el) => { if (el) el.indeterminate = isSomeSelected; }}
+                        ref={(el) => {
+                          if (el) el.indeterminate = isSomeSelected;
+                        }}
                         onChange={(e) => handleSelectAll(e.target.checked)}
                         className="w-4 h-4 text-primary bg-white border-slate-300 rounded focus:ring-primary focus:ring-2 cursor-pointer"
                       />
                     </div>
                   </th>
                   {[
-                    { key: 'name', label: 'Account' },
-                    { key: 'industry', label: 'Industry' },
-                    { key: 'revenue', label: 'Revenue' },
-                    { key: 'contacts', label: 'Contacts' },
-                    { key: 'status', label: 'Status' },
+                    { key: "name", label: "Account" },
+                    { key: "industry", label: "Industry" },
+                    { key: "revenue", label: "Revenue" },
+                    { key: "contacts", label: "Contacts" },
+                    { key: "status", label: "Status" },
                   ].map((col) => (
                     <th
                       key={col.key}
@@ -290,11 +301,17 @@ export default function AccountsPage() {
                     >
                       <div className="flex items-center gap-2">
                         {col.label}
-                        {col.key !== 'contacts' && <ArrowUpDown className={`h-3 w-3 ${sortColumn === col.key ? 'text-primary' : 'text-slate-300 group-hover:text-slate-500'}`} />}
+                        {col.key !== "contacts" && (
+                          <ArrowUpDown
+                            className={`h-3 w-3 ${sortColumn === col.key ? "text-primary" : "text-slate-300 group-hover:text-slate-500"}`}
+                          />
+                        )}
                       </div>
                     </th>
                   ))}
-                  <th className="px-6 py-4 text-xs font-semibold text-slate-500  uppercase tracking-wider">Actions</th>
+                  <th className="px-6 py-4 text-xs font-semibold text-slate-500  uppercase tracking-wider">
+                    Actions
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 ">
@@ -364,10 +381,11 @@ export default function AccountsPage() {
                       </td>
                       <td className="px-6 py-4">
                         <span
-                          className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold ${account.accountStatus === "Active"
-                            ? "bg-emerald-50 text-emerald-700 border border-emerald-100   "
-                            : "bg-slate-100 text-slate-700 border border-slate-200   "
-                            }`}
+                          className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold ${
+                            account.accountStatus === "Active"
+                              ? "bg-emerald-50 text-emerald-700 border border-emerald-100   "
+                              : "bg-slate-100 text-slate-700 border border-slate-200   "
+                          }`}
                         >
                           {account.accountStatus || "Inactive"}
                         </span>
@@ -375,13 +393,19 @@ export default function AccountsPage() {
                       <td className="px-6 py-4 text-right">
                         <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                           <button
-                            onClick={(e) => { e.stopPropagation(); router.push(`/accounts/${account.id}/edit`); }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              router.push(`/accounts/${account.id}/edit`);
+                            }}
                             className="p-2 text-slate-400 hover:text-primary hover:bg-slate-100  rounded-lg transition-colors"
                           >
                             Edit
                           </button>
                           <button
-                            onClick={(e) => { e.stopPropagation(); confirmDelete(account.id); }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              confirmDelete(account.id);
+                            }}
                             className="p-2 text-rose-400 hover:text-rose-600 hover:bg-rose-50  rounded-lg transition-colors"
                           >
                             <Trash2 className="h-4 w-4" />
@@ -400,7 +424,16 @@ export default function AccountsPage() {
         {sortedAccounts.length > 0 && (
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white px-4 sm:px-6 py-4 rounded-2xl border border-slate-200 shadow-sm">
             <p className="text-sm text-slate-600 ">
-              Showing <span className="font-semibold text-slate-900 ">{(currentPage - 1) * itemsPerPage + 1}</span> to <span className="font-semibold text-slate-900 ">{Math.min(currentPage * itemsPerPage, sortedAccounts.length)}</span> of <span className="font-semibold text-slate-900 ">{sortedAccounts.length}</span> results
+              Showing{" "}
+              <span className="font-semibold text-slate-900 ">
+                {(currentPage - 1) * itemsPerPage + 1}
+              </span>{" "}
+              to{" "}
+              <span className="font-semibold text-slate-900 ">
+                {Math.min(currentPage * itemsPerPage, sortedAccounts.length)}
+              </span>{" "}
+              of <span className="font-semibold text-slate-900 ">{sortedAccounts.length}</span>{" "}
+              results
             </p>
             <div className="flex items-center gap-2">
               <button
@@ -420,7 +453,6 @@ export default function AccountsPage() {
             </div>
           </div>
         )}
-
       </main>
 
       <ConfirmModal

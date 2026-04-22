@@ -5,7 +5,17 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { authService } from "@/lib/auth";
 import { ApiError } from "@/lib/api-client";
-import { User, Mail, Lock, Eye, EyeOff, Loader2, ArrowRight, Check, ShieldCheck } from "lucide-react";
+import {
+  User,
+  Mail,
+  Lock,
+  Eye,
+  EyeOff,
+  Loader2,
+  ArrowRight,
+  Check,
+  ShieldCheck,
+} from "lucide-react";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -34,13 +44,20 @@ export default function RegisterPage() {
 
   const getStrengthInfo = (strength: number) => {
     switch (strength) {
-      case 0: return { label: 'Very Weak', color: 'bg-slate-200', text: 'text-slate-500' };
-      case 1: return { label: 'Weak', color: 'bg-red-500', text: 'text-red-500' };
-      case 2: return { label: 'Fair', color: 'bg-orange-500', text: 'text-orange-500' };
-      case 3: return { label: 'Good', color: 'bg-yellow-500', text: 'text-yellow-600' };
-      case 4: return { label: 'Strong', color: 'bg-lime-500', text: 'text-lime-600' };
-      case 5: return { label: 'Excellent', color: 'bg-green-500', text: 'text-green-600' };
-      default: return { label: 'Very Weak', color: 'bg-slate-200', text: 'text-slate-500' };
+      case 0:
+        return { label: "Very Weak", color: "bg-slate-200", text: "text-slate-500" };
+      case 1:
+        return { label: "Weak", color: "bg-red-500", text: "text-red-500" };
+      case 2:
+        return { label: "Fair", color: "bg-orange-500", text: "text-orange-500" };
+      case 3:
+        return { label: "Good", color: "bg-yellow-500", text: "text-yellow-600" };
+      case 4:
+        return { label: "Strong", color: "bg-lime-500", text: "text-lime-600" };
+      case 5:
+        return { label: "Excellent", color: "bg-green-500", text: "text-green-600" };
+      default:
+        return { label: "Very Weak", color: "bg-slate-200", text: "text-slate-500" };
     }
   };
 
@@ -48,7 +65,10 @@ export default function RegisterPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("[RegisterPage] Form submitted", { email: formData.email, fullName: formData.fullName });
+    console.log("[RegisterPage] Form submitted", {
+      email: formData.email,
+      fullName: formData.fullName,
+    });
     setError("");
     setFieldErrors({});
     setIsLoading(true);
@@ -91,7 +111,10 @@ export default function RegisterPage() {
       {/* Background decorative elements */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0 pointer-events-none">
         <div className="absolute bottom-1/4 left-1/4 w-96 h-96 bg-purple-400/10 rounded-full blur-3xl mix-blend-multiply filter animate-pulse-slow"></div>
-        <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-indigo-400/10 rounded-full blur-3xl mix-blend-multiply filter animate-pulse-slow" style={{ animationDelay: '1.5s' }}></div>
+        <div
+          className="absolute top-1/4 right-1/4 w-96 h-96 bg-indigo-400/10 rounded-full blur-3xl mix-blend-multiply filter animate-pulse-slow"
+          style={{ animationDelay: "1.5s" }}
+        ></div>
       </div>
 
       <div className="max-w-md w-full space-y-8 relative z-10 animate-fade-in-up">
@@ -104,13 +127,19 @@ export default function RegisterPage() {
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
             Already have an account?{" "}
-            <Link href="/login" className="font-semibold text-primary hover:text-primary/80 transition-colors">
+            <Link
+              href="/login"
+              className="font-semibold text-primary hover:text-primary/80 transition-colors"
+            >
               Sign in
             </Link>
           </p>
           <p className="mt-1 text-center text-sm text-gray-600">
             Want to create an organization?{" "}
-            <Link href="/register-organization" className="font-semibold text-indigo-600 hover:text-indigo-500 transition-colors">
+            <Link
+              href="/register-organization"
+              className="font-semibold text-indigo-600 hover:text-indigo-500 transition-colors"
+            >
               Register Organization →
             </Link>
           </p>
@@ -129,12 +158,17 @@ export default function RegisterPage() {
 
             <div className="space-y-5">
               <div>
-                <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-1.5">
+                <label
+                  htmlFor="fullName"
+                  className="block text-sm font-medium text-gray-700 mb-1.5"
+                >
                   Full Name
                 </label>
                 <div className="relative group">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <User className={`h-5 w-5 ${fieldErrors.fullName ? 'text-red-400' : 'text-gray-400 group-focus-within:text-primary'} transition-colors`} />
+                    <User
+                      className={`h-5 w-5 ${fieldErrors.fullName ? "text-red-400" : "text-gray-400 group-focus-within:text-primary"} transition-colors`}
+                    />
                   </div>
                   <input
                     id="fullName"
@@ -144,15 +178,18 @@ export default function RegisterPage() {
                     required
                     value={formData.fullName}
                     onChange={handleChange}
-                    className={`block w-full pl-10 pr-3 py-2.5 border ${fieldErrors.fullName
-                      ? "border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500"
-                      : "border-gray-200 text-gray-900 placeholder-gray-400 focus:ring-primary focus:border-primary"
-                      } rounded-xl focus:outline-none focus:ring-2 sm:text-sm transition-all bg-gray-50 hover:bg-white`}
+                    className={`block w-full pl-10 pr-3 py-2.5 border ${
+                      fieldErrors.fullName
+                        ? "border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500"
+                        : "border-gray-200 text-gray-900 placeholder-gray-400 focus:ring-primary focus:border-primary"
+                    } rounded-xl focus:outline-none focus:ring-2 sm:text-sm transition-all bg-gray-50 hover:bg-white`}
                     placeholder="John Doe"
                   />
                 </div>
                 {fieldErrors.fullName && (
-                  <p className="mt-1 text-sm text-red-600 animate-fade-in-up">{fieldErrors.fullName}</p>
+                  <p className="mt-1 text-sm text-red-600 animate-fade-in-up">
+                    {fieldErrors.fullName}
+                  </p>
                 )}
               </div>
 
@@ -162,7 +199,9 @@ export default function RegisterPage() {
                 </label>
                 <div className="relative group">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Mail className={`h-5 w-5 ${fieldErrors.email ? 'text-red-400' : 'text-gray-400 group-focus-within:text-primary'} transition-colors`} />
+                    <Mail
+                      className={`h-5 w-5 ${fieldErrors.email ? "text-red-400" : "text-gray-400 group-focus-within:text-primary"} transition-colors`}
+                    />
                   </div>
                   <input
                     id="email"
@@ -172,25 +211,33 @@ export default function RegisterPage() {
                     required
                     value={formData.email}
                     onChange={handleChange}
-                    className={`block w-full pl-10 pr-3 py-2.5 border ${fieldErrors.email
-                      ? "border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500"
-                      : "border-gray-200 text-gray-900 placeholder-gray-400 focus:ring-primary focus:border-primary"
-                      } rounded-xl focus:outline-none focus:ring-2 sm:text-sm transition-all bg-gray-50 hover:bg-white`}
+                    className={`block w-full pl-10 pr-3 py-2.5 border ${
+                      fieldErrors.email
+                        ? "border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500"
+                        : "border-gray-200 text-gray-900 placeholder-gray-400 focus:ring-primary focus:border-primary"
+                    } rounded-xl focus:outline-none focus:ring-2 sm:text-sm transition-all bg-gray-50 hover:bg-white`}
                     placeholder="you@example.com"
                   />
                 </div>
                 {fieldErrors.email && (
-                  <p className="mt-1 text-sm text-red-600 animate-fade-in-up">{fieldErrors.email}</p>
+                  <p className="mt-1 text-sm text-red-600 animate-fade-in-up">
+                    {fieldErrors.email}
+                  </p>
                 )}
               </div>
 
               <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1.5">
+                <label
+                  htmlFor="password"
+                  className="block text-sm font-medium text-gray-700 mb-1.5"
+                >
                   Password
                 </label>
                 <div className="relative group">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Lock className={`h-5 w-5 ${fieldErrors.password ? 'text-red-400' : 'text-gray-400 group-focus-within:text-primary'} transition-colors`} />
+                    <Lock
+                      className={`h-5 w-5 ${fieldErrors.password ? "text-red-400" : "text-gray-400 group-focus-within:text-primary"} transition-colors`}
+                    />
                   </div>
                   <input
                     id="password"
@@ -200,10 +247,11 @@ export default function RegisterPage() {
                     required
                     value={formData.password}
                     onChange={handleChange}
-                    className={`block w-full pl-10 pr-10 py-2.5 border ${fieldErrors.password
-                      ? "border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500"
-                      : "border-gray-200 text-gray-900 placeholder-gray-400 focus:ring-primary focus:border-primary"
-                      } rounded-xl focus:outline-none focus:ring-2 sm:text-sm transition-all bg-gray-50 hover:bg-white`}
+                    className={`block w-full pl-10 pr-10 py-2.5 border ${
+                      fieldErrors.password
+                        ? "border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500"
+                        : "border-gray-200 text-gray-900 placeholder-gray-400 focus:ring-primary focus:border-primary"
+                    } rounded-xl focus:outline-none focus:ring-2 sm:text-sm transition-all bg-gray-50 hover:bg-white`}
                     placeholder="Min. 8 chars with upper, lower, number & special"
                   />
                   <button
@@ -211,15 +259,13 @@ export default function RegisterPage() {
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none transition-colors"
                   >
-                    {showPassword ? (
-                      <EyeOff className="h-5 w-5" />
-                    ) : (
-                      <Eye className="h-5 w-5" />
-                    )}
+                    {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                   </button>
                 </div>
                 {fieldErrors.password && (
-                  <p className="mt-1 text-sm text-red-600 animate-fade-in-up">{fieldErrors.password}</p>
+                  <p className="mt-1 text-sm text-red-600 animate-fade-in-up">
+                    {fieldErrors.password}
+                  </p>
                 )}
 
                 {/* Password Strength Indicator */}
@@ -232,7 +278,9 @@ export default function RegisterPage() {
                           style={{ width: `${Math.max(5, (passwordStrength / 5) * 100)}%` }}
                         />
                       </div>
-                      <span className={`text-xs font-semibold min-w-[70px] text-right ${strengthInfo.text}`}>
+                      <span
+                        className={`text-xs font-semibold min-w-[70px] text-right ${strengthInfo.text}`}
+                      >
                         {strengthInfo.label}
                       </span>
                     </div>
@@ -245,10 +293,18 @@ export default function RegisterPage() {
                         { re: /[@$!%*?&]/, label: "Contains special character" },
                       ].map((req, i) => (
                         <li key={i} className="flex items-center gap-2 text-xs text-gray-500">
-                          <span className={`h-3 w-3 rounded-full flex items-center justify-center ${req.re.test(formData.password) ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-400'}`}>
+                          <span
+                            className={`h-3 w-3 rounded-full flex items-center justify-center ${req.re.test(formData.password) ? "bg-green-100 text-green-600" : "bg-gray-100 text-gray-400"}`}
+                          >
                             <Check className="h-2 w-2" />
                           </span>
-                          <span className={req.re.test(formData.password) ? 'text-green-600 font-medium' : ''}>{req.label}</span>
+                          <span
+                            className={
+                              req.re.test(formData.password) ? "text-green-600 font-medium" : ""
+                            }
+                          >
+                            {req.label}
+                          </span>
                         </li>
                       ))}
                     </ul>

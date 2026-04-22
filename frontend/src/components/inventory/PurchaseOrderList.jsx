@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Button,
@@ -23,7 +23,7 @@ import {
   DialogContent,
   DialogActions,
   TextField,
-} from '@mui/material';
+} from "@mui/material";
 import {
   Add as AddIcon,
   Visibility as ViewIcon,
@@ -32,12 +32,12 @@ import {
   Cancel as RejectIcon,
   Inventory as ReceiveIcon,
   Description as POIcon,
-} from '@mui/icons-material';
-import inventoryApi from '../../services/inventoryApi';
-import { format } from 'date-fns';
-import PurchaseOrderForm from './PurchaseOrderForm';
-import PurchaseOrderDetails from './PurchaseOrderDetails';
-import ReceiveGoodsDialog from './ReceiveGoodsDialog';
+} from "@mui/icons-material";
+import inventoryApi from "../../services/inventoryApi";
+import { format } from "date-fns";
+import PurchaseOrderForm from "./PurchaseOrderForm";
+import PurchaseOrderDetails from "./PurchaseOrderDetails";
+import ReceiveGoodsDialog from "./ReceiveGoodsDialog";
 
 const PurchaseOrderList = () => {
   const [purchaseOrders, setPurchaseOrders] = useState([]);
@@ -57,7 +57,7 @@ const PurchaseOrderList = () => {
   const [receiveDialogOpen, setReceiveDialogOpen] = useState(false);
   const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
-  const [reason, setReason] = useState('');
+  const [reason, setReason] = useState("");
 
   useEffect(() => {
     fetchPurchaseOrders();
@@ -70,13 +70,13 @@ const PurchaseOrderList = () => {
       const response = await inventoryApi.purchaseOrders.getAll({
         page,
         size: rowsPerPage,
-        sort: 'createdAt,desc',
+        sort: "createdAt,desc",
       });
 
       setPurchaseOrders(response.data.content || []);
       setTotalCount(response.data.totalElements || 0);
     } catch (err) {
-      setError('Failed to load purchase orders: ' + err.message);
+      setError("Failed to load purchase orders: " + err.message);
     } finally {
       setLoading(false);
     }
@@ -97,7 +97,7 @@ const PurchaseOrderList = () => {
       handleMenuClose();
       fetchPurchaseOrders();
     } catch (err) {
-      setError('Failed to submit PO: ' + err.message);
+      setError("Failed to submit PO: " + err.message);
     }
   };
 
@@ -107,7 +107,7 @@ const PurchaseOrderList = () => {
       handleMenuClose();
       fetchPurchaseOrders();
     } catch (err) {
-      setError('Failed to approve PO: ' + err.message);
+      setError("Failed to approve PO: " + err.message);
     }
   };
 
@@ -115,11 +115,11 @@ const PurchaseOrderList = () => {
     try {
       await inventoryApi.purchaseOrders.reject(selectedPO.id, reason);
       setRejectDialogOpen(false);
-      setReason('');
+      setReason("");
       handleMenuClose();
       fetchPurchaseOrders();
     } catch (err) {
-      setError('Failed to reject PO: ' + err.message);
+      setError("Failed to reject PO: " + err.message);
     }
   };
 
@@ -127,24 +127,24 @@ const PurchaseOrderList = () => {
     try {
       await inventoryApi.purchaseOrders.cancel(selectedPO.id, reason);
       setCancelDialogOpen(false);
-      setReason('');
+      setReason("");
       handleMenuClose();
       fetchPurchaseOrders();
     } catch (err) {
-      setError('Failed to cancel PO: ' + err.message);
+      setError("Failed to cancel PO: " + err.message);
     }
   };
 
   const getStatusColor = (status) => {
     const colors = {
-      DRAFT: 'default',
-      SUBMITTED: 'info',
-      APPROVED: 'success',
-      RECEIVING: 'warning',
-      RECEIVED: 'success',
-      CANCELLED: 'error',
+      DRAFT: "default",
+      SUBMITTED: "info",
+      APPROVED: "success",
+      RECEIVING: "warning",
+      RECEIVED: "success",
+      CANCELLED: "error",
     };
-    return colors[status] || 'default';
+    return colors[status] || "default";
   };
 
   if (loading && purchaseOrders.length === 0) {
@@ -214,30 +214,23 @@ const PurchaseOrderList = () => {
                     <Typography variant="body2">{po.warehouseName}</Typography>
                   </TableCell>
                   <TableCell>
-                    {po.orderDate ? format(new Date(po.orderDate), 'MMM dd, yyyy') : '-'}
+                    {po.orderDate ? format(new Date(po.orderDate), "MMM dd, yyyy") : "-"}
                   </TableCell>
                   <TableCell>
                     {po.expectedDeliveryDate
-                      ? format(new Date(po.expectedDeliveryDate), 'MMM dd, yyyy')
-                      : '-'}
+                      ? format(new Date(po.expectedDeliveryDate), "MMM dd, yyyy")
+                      : "-"}
                   </TableCell>
                   <TableCell align="right">
                     <Typography variant="body2" fontWeight="medium">
-                      ${po.totalAmount?.toFixed(2) || '0.00'}
+                      ${po.totalAmount?.toFixed(2) || "0.00"}
                     </Typography>
                   </TableCell>
                   <TableCell>
-                    <Chip
-                      label={po.status}
-                      color={getStatusColor(po.status)}
-                      size="small"
-                    />
+                    <Chip label={po.status} color={getStatusColor(po.status)} size="small" />
                   </TableCell>
                   <TableCell align="right">
-                    <IconButton
-                      size="small"
-                      onClick={(e) => handleMenuOpen(e, po)}
-                    >
+                    <IconButton size="small" onClick={(e) => handleMenuOpen(e, po)}>
                       <MoreIcon />
                     </IconButton>
                   </TableCell>
@@ -273,52 +266,60 @@ const PurchaseOrderList = () => {
 
       {/* Context Menu */}
       <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
-        <MenuItem onClick={() => {
-          setDetailsDialogOpen(true);
-          handleMenuClose();
-        }}>
+        <MenuItem
+          onClick={() => {
+            setDetailsDialogOpen(true);
+            handleMenuClose();
+          }}
+        >
           <ViewIcon sx={{ mr: 1 }} fontSize="small" />
           View Details
         </MenuItem>
 
-        {selectedPO?.status === 'DRAFT' && (
+        {selectedPO?.status === "DRAFT" && (
           <MenuItem onClick={handleSubmitForApproval}>
             <ApproveIcon sx={{ mr: 1 }} fontSize="small" />
             Submit for Approval
           </MenuItem>
         )}
 
-        {selectedPO?.status === 'SUBMITTED' && (
+        {selectedPO?.status === "SUBMITTED" && (
           <>
             <MenuItem onClick={handleApprovePO}>
               <ApproveIcon sx={{ mr: 1 }} fontSize="small" />
               Approve
             </MenuItem>
-            <MenuItem onClick={() => {
-              setRejectDialogOpen(true);
-              handleMenuClose();
-            }}>
+            <MenuItem
+              onClick={() => {
+                setRejectDialogOpen(true);
+                handleMenuClose();
+              }}
+            >
               <RejectIcon sx={{ mr: 1 }} fontSize="small" />
               Reject
             </MenuItem>
           </>
         )}
 
-        {(selectedPO?.status === 'APPROVED' || selectedPO?.status === 'RECEIVING') && (
-          <MenuItem onClick={() => {
-            setReceiveDialogOpen(true);
-            handleMenuClose();
-          }}>
+        {(selectedPO?.status === "APPROVED" || selectedPO?.status === "RECEIVING") && (
+          <MenuItem
+            onClick={() => {
+              setReceiveDialogOpen(true);
+              handleMenuClose();
+            }}
+          >
             <ReceiveIcon sx={{ mr: 1 }} fontSize="small" />
             Receive Goods
           </MenuItem>
         )}
 
-        {selectedPO?.status !== 'RECEIVED' && selectedPO?.status !== 'CANCELLED' && (
-          <MenuItem onClick={() => {
-            setCancelDialogOpen(true);
-            handleMenuClose();
-          }}>
+        {selectedPO?.status !== "RECEIVED" && selectedPO?.status !== "CANCELLED" && (
+          <MenuItem
+            onClick={() => {
+              setCancelDialogOpen(true);
+              handleMenuClose();
+            }}
+          >
             <RejectIcon sx={{ mr: 1 }} fontSize="small" color="error" />
             Cancel PO
           </MenuItem>
@@ -341,12 +342,7 @@ const PurchaseOrderList = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setRejectDialogOpen(false)}>Cancel</Button>
-          <Button
-            onClick={handleRejectPO}
-            color="error"
-            variant="contained"
-            disabled={!reason}
-          >
+          <Button onClick={handleRejectPO} color="error" variant="contained" disabled={!reason}>
             Reject
           </Button>
         </DialogActions>
@@ -368,12 +364,7 @@ const PurchaseOrderList = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setCancelDialogOpen(false)}>Close</Button>
-          <Button
-            onClick={handleCancelPO}
-            color="error"
-            variant="contained"
-            disabled={!reason}
-          >
+          <Button onClick={handleCancelPO} color="error" variant="contained" disabled={!reason}>
             Cancel PO
           </Button>
         </DialogActions>

@@ -356,7 +356,9 @@ export default function EditAccountPage({ params }: { params: Promise<{ id: stri
                 <CountryStateSelector
                   countryValue={formData.billingCountry || ""}
                   stateValue={formData.billingState || ""}
-                  onCountryChange={(val) => setFormData((prev) => ({ ...prev, billingCountry: val }))}
+                  onCountryChange={(val) =>
+                    setFormData((prev) => ({ ...prev, billingCountry: val }))
+                  }
                   onStateChange={(val) => setFormData((prev) => ({ ...prev, billingState: val }))}
                 />
               </div>
@@ -404,7 +406,9 @@ export default function EditAccountPage({ params }: { params: Promise<{ id: stri
                 <CountryStateSelector
                   countryValue={formData.shippingCountry || ""}
                   stateValue={formData.shippingState || ""}
-                  onCountryChange={(val) => setFormData((prev) => ({ ...prev, shippingCountry: val }))}
+                  onCountryChange={(val) =>
+                    setFormData((prev) => ({ ...prev, shippingCountry: val }))
+                  }
                   onStateChange={(val) => setFormData((prev) => ({ ...prev, shippingState: val }))}
                 />
               </div>

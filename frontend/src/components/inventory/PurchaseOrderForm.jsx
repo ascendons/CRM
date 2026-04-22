@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -18,12 +18,9 @@ import {
   TableHead,
   TableRow,
   Alert,
-} from '@mui/material';
-import {
-  Add as AddIcon,
-  Delete as DeleteIcon,
-} from '@mui/icons-material';
-import inventoryApi from '../../services/inventoryApi';
+} from "@mui/material";
+import { Add as AddIcon, Delete as DeleteIcon } from "@mui/icons-material";
+import inventoryApi from "../../services/inventoryApi";
 
 const PurchaseOrderForm = ({ open, onClose, onSuccess }) => {
   const [loading, setLoading] = useState(false);
@@ -33,14 +30,14 @@ const PurchaseOrderForm = ({ open, onClose, onSuccess }) => {
 
   // Form state
   const [formData, setFormData] = useState({
-    supplierName: '',
-    supplierContact: '',
-    supplierEmail: '',
+    supplierName: "",
+    supplierContact: "",
+    supplierEmail: "",
     warehouseId: null,
-    orderDate: new Date().toISOString().split('T')[0],
-    expectedDeliveryDate: '',
-    paymentTerms: 'NET_30',
-    notes: '',
+    orderDate: new Date().toISOString().split("T")[0],
+    expectedDeliveryDate: "",
+    paymentTerms: "NET_30",
+    notes: "",
     items: [],
   });
 
@@ -55,14 +52,14 @@ const PurchaseOrderForm = ({ open, onClose, onSuccess }) => {
       const [warehousesRes, productsRes] = await Promise.all([
         inventoryApi.warehouses.getActive(),
         // Assuming there's a products API - adjust if needed
-        fetch('/api/products/list').catch(() => ({ data: { data: [] } })),
+        fetch("/api/products/list").catch(() => ({ data: { data: [] } })),
       ]);
 
       setWarehouses(warehousesRes.data.data || []);
       // For products, you may need to adjust based on your API
       setProducts([]);
     } catch (err) {
-      console.error('Failed to load data:', err);
+      console.error("Failed to load data:", err);
     }
   };
 
@@ -72,8 +69,8 @@ const PurchaseOrderForm = ({ open, onClose, onSuccess }) => {
       items: [
         ...formData.items,
         {
-          productId: '',
-          productName: '',
+          productId: "",
+          productName: "",
           quantity: 0,
           unitCost: 0,
           discount: 0,
@@ -112,17 +109,17 @@ const PurchaseOrderForm = ({ open, onClose, onSuccess }) => {
 
       // Validate
       if (!formData.supplierName.trim()) {
-        setError('Supplier name is required');
+        setError("Supplier name is required");
         return;
       }
 
       if (!formData.warehouseId) {
-        setError('Please select a warehouse');
+        setError("Please select a warehouse");
         return;
       }
 
       if (formData.items.length === 0) {
-        setError('Please add at least one item');
+        setError("Please add at least one item");
         return;
       }
 
@@ -136,7 +133,7 @@ const PurchaseOrderForm = ({ open, onClose, onSuccess }) => {
       onSuccess();
       handleClose();
     } catch (err) {
-      setError('Failed to create purchase order: ' + err.message);
+      setError("Failed to create purchase order: " + err.message);
     } finally {
       setLoading(false);
     }
@@ -144,14 +141,14 @@ const PurchaseOrderForm = ({ open, onClose, onSuccess }) => {
 
   const handleClose = () => {
     setFormData({
-      supplierName: '',
-      supplierContact: '',
-      supplierEmail: '',
+      supplierName: "",
+      supplierContact: "",
+      supplierEmail: "",
       warehouseId: null,
-      orderDate: new Date().toISOString().split('T')[0],
-      expectedDeliveryDate: '',
-      paymentTerms: 'NET_30',
-      notes: '',
+      orderDate: new Date().toISOString().split("T")[0],
+      expectedDeliveryDate: "",
+      paymentTerms: "NET_30",
+      notes: "",
       items: [],
     });
     setError(null);
@@ -215,12 +212,10 @@ const PurchaseOrderForm = ({ open, onClose, onSuccess }) => {
           <Grid item xs={12} md={4}>
             <Autocomplete
               options={warehouses}
-              getOptionLabel={(option) => option.name || ''}
+              getOptionLabel={(option) => option.name || ""}
               value={warehouses.find((w) => w.id === formData.warehouseId) || null}
               onChange={(e, value) => setFormData({ ...formData, warehouseId: value?.id || null })}
-              renderInput={(params) => (
-                <TextField {...params} label="Warehouse" required />
-              )}
+              renderInput={(params) => <TextField {...params} label="Warehouse" required />}
             />
           </Grid>
 
@@ -242,9 +237,7 @@ const PurchaseOrderForm = ({ open, onClose, onSuccess }) => {
               label="Expected Delivery"
               type="date"
               value={formData.expectedDeliveryDate}
-              onChange={(e) =>
-                setFormData({ ...formData, expectedDeliveryDate: e.target.value })
-              }
+              onChange={(e) => setFormData({ ...formData, expectedDeliveryDate: e.target.value })}
               InputLabelProps={{ shrink: true }}
             />
           </Grid>
@@ -278,7 +271,12 @@ const PurchaseOrderForm = ({ open, onClose, onSuccess }) => {
 
           {/* Items */}
           <Grid item xs={12}>
-            <Box display="flex" justifyContent="space-between" alignItems="center" sx={{ mt: 2, mb: 1 }}>
+            <Box
+              display="flex"
+              justifyContent="space-between"
+              alignItems="center"
+              sx={{ mt: 2, mb: 1 }}
+            >
               <Typography variant="subtitle2" fontWeight="bold">
                 Items
               </Typography>
@@ -313,7 +311,7 @@ const PurchaseOrderForm = ({ open, onClose, onSuccess }) => {
                         <TextField
                           size="small"
                           value={item.productId}
-                          onChange={(e) => handleItemChange(index, 'productId', e.target.value)}
+                          onChange={(e) => handleItemChange(index, "productId", e.target.value)}
                           placeholder="Product ID"
                         />
                       </TableCell>
@@ -321,7 +319,7 @@ const PurchaseOrderForm = ({ open, onClose, onSuccess }) => {
                         <TextField
                           size="small"
                           value={item.productName}
-                          onChange={(e) => handleItemChange(index, 'productName', e.target.value)}
+                          onChange={(e) => handleItemChange(index, "productName", e.target.value)}
                           placeholder="Product Name"
                           fullWidth
                         />
@@ -332,7 +330,7 @@ const PurchaseOrderForm = ({ open, onClose, onSuccess }) => {
                           type="number"
                           value={item.quantity}
                           onChange={(e) =>
-                            handleItemChange(index, 'quantity', parseFloat(e.target.value) || 0)
+                            handleItemChange(index, "quantity", parseFloat(e.target.value) || 0)
                           }
                           sx={{ width: 80 }}
                         />
@@ -343,7 +341,7 @@ const PurchaseOrderForm = ({ open, onClose, onSuccess }) => {
                           type="number"
                           value={item.unitCost}
                           onChange={(e) =>
-                            handleItemChange(index, 'unitCost', parseFloat(e.target.value) || 0)
+                            handleItemChange(index, "unitCost", parseFloat(e.target.value) || 0)
                           }
                           sx={{ width: 100 }}
                         />
@@ -354,7 +352,7 @@ const PurchaseOrderForm = ({ open, onClose, onSuccess }) => {
                           type="number"
                           value={item.discount}
                           onChange={(e) =>
-                            handleItemChange(index, 'discount', parseFloat(e.target.value) || 0)
+                            handleItemChange(index, "discount", parseFloat(e.target.value) || 0)
                           }
                           sx={{ width: 70 }}
                         />
@@ -365,7 +363,7 @@ const PurchaseOrderForm = ({ open, onClose, onSuccess }) => {
                           type="number"
                           value={item.tax}
                           onChange={(e) =>
-                            handleItemChange(index, 'tax', parseFloat(e.target.value) || 0)
+                            handleItemChange(index, "tax", parseFloat(e.target.value) || 0)
                           }
                           sx={{ width: 70 }}
                         />
@@ -420,12 +418,8 @@ const PurchaseOrderForm = ({ open, onClose, onSuccess }) => {
         <Button onClick={handleClose} disabled={loading}>
           Cancel
         </Button>
-        <Button
-          onClick={handleSubmit}
-          variant="contained"
-          disabled={loading}
-        >
-          {loading ? 'Creating...' : 'Create Purchase Order'}
+        <Button onClick={handleSubmit} variant="contained" disabled={loading}>
+          {loading ? "Creating..." : "Create Purchase Order"}
         </Button>
       </DialogActions>
     </Dialog>

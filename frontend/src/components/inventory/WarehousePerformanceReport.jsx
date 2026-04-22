@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Card,
@@ -15,13 +15,13 @@ import {
   Alert,
   Chip,
   LinearProgress,
-} from '@mui/material';
+} from "@mui/material";
 import {
   Warehouse as WarehouseIcon,
   Inventory as StockIcon,
   TrendingUp as TrendingIcon,
-} from '@mui/icons-material';
-import inventoryApi from '../../services/inventoryApi';
+} from "@mui/icons-material";
+import inventoryApi from "../../services/inventoryApi";
 
 const WarehousePerformanceReport = () => {
   const [warehouses, setWarehouses] = useState([]);
@@ -50,9 +50,12 @@ const WarehousePerformanceReport = () => {
           const stockItems = stockRes.data.data || [];
 
           const totalValue = stockItems.reduce((sum, item) => sum + (item.totalValue || 0), 0);
-          const totalQuantity = stockItems.reduce((sum, item) => sum + (item.quantityOnHand || 0), 0);
-          const lowStockItems = stockItems.filter(item =>
-            item.reorderPoint && item.quantityAvailable <= item.reorderPoint
+          const totalQuantity = stockItems.reduce(
+            (sum, item) => sum + (item.quantityOnHand || 0),
+            0
+          );
+          const lowStockItems = stockItems.filter(
+            (item) => item.reorderPoint && item.quantityAvailable <= item.reorderPoint
           ).length;
 
           return {
@@ -86,16 +89,16 @@ const WarehousePerformanceReport = () => {
       });
       setWarehouseStats(statsMap);
     } catch (err) {
-      setError('Failed to load warehouse performance: ' + err.message);
+      setError("Failed to load warehouse performance: " + err.message);
     } finally {
       setLoading(false);
     }
   };
 
   const getUtilizationColor = (rate) => {
-    if (rate >= 90) return 'error';
-    if (rate >= 70) return 'warning';
-    return 'success';
+    if (rate >= 90) return "error";
+    if (rate >= 70) return "warning";
+    return "success";
   };
 
   const getTotalStats = () => {
@@ -245,9 +248,7 @@ const WarehousePerformanceReport = () => {
                         </Typography>
                       </TableCell>
                       <TableCell>
-                        <Typography variant="body2">
-                          {warehouse.address || '-'}
-                        </Typography>
+                        <Typography variant="body2">{warehouse.address || "-"}</Typography>
                       </TableCell>
                       <TableCell align="right">
                         <Typography variant="body2" fontWeight="medium">
@@ -264,13 +265,9 @@ const WarehousePerformanceReport = () => {
                       </TableCell>
                       <TableCell align="right">
                         {stats.lowStockItems > 0 ? (
-                          <Chip
-                            label={stats.lowStockItems}
-                            color="warning"
-                            size="small"
-                          />
+                          <Chip label={stats.lowStockItems} color="warning" size="small" />
                         ) : (
-                          '-'
+                          "-"
                         )}
                       </TableCell>
                       <TableCell>
@@ -290,8 +287,8 @@ const WarehousePerformanceReport = () => {
                       </TableCell>
                       <TableCell>
                         <Chip
-                          label={warehouse.active ? 'Active' : 'Inactive'}
-                          color={warehouse.active ? 'success' : 'default'}
+                          label={warehouse.active ? "Active" : "Inactive"}
+                          color={warehouse.active ? "success" : "default"}
                           size="small"
                         />
                       </TableCell>

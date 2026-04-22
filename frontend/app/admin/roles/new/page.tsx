@@ -124,9 +124,7 @@ function NewRolePageContent() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Description
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
               <textarea
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
@@ -170,7 +168,11 @@ function NewRolePageContent() {
             <div className="space-y-2">
               {[
                 { value: "OWN", label: "Own Records Only", desc: "Can only see records they own" },
-                { value: "SUBORDINATES", label: "Own + Subordinates", desc: "Can see their own records and those of their subordinates" },
+                {
+                  value: "SUBORDINATES",
+                  label: "Own + Subordinates",
+                  desc: "Can see their own records and those of their subordinates",
+                },
                 { value: "ALL_USERS", label: "All Users", desc: "Can see all users' records" },
                 { value: "ALL", label: "All Records", desc: "Can see all records in the system" },
               ].map((option) => (
@@ -187,7 +189,9 @@ function NewRolePageContent() {
                     name="dataVisibility"
                     value={option.value}
                     checked={formData.dataVisibility === option.value}
-                    onChange={(e) => setFormData({ ...formData, dataVisibility: e.target.value as any })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, dataVisibility: e.target.value as any })
+                    }
                     className="mt-1"
                   />
                   <div className="ml-3">
@@ -206,13 +210,41 @@ function NewRolePageContent() {
 
           <div className="space-y-3">
             {[
-              { key: "canManageUsers", label: "Manage Users", desc: "Create, edit, and deactivate users" },
-              { key: "canManageRoles", label: "Manage Roles", desc: "Create and modify role definitions" },
-              { key: "canManageProfiles", label: "Manage Profiles", desc: "Configure user profiles and permissions" },
-              { key: "canViewSetup", label: "View Setup", desc: "Access system setup and configuration" },
-              { key: "canManageSharing", label: "Manage Sharing", desc: "Configure sharing rules and settings" },
-              { key: "canViewAllData", label: "View All Data", desc: "Bypass sharing rules to view all data" },
-              { key: "canModifyAllData", label: "Modify All Data", desc: "Edit all records regardless of ownership" },
+              {
+                key: "canManageUsers",
+                label: "Manage Users",
+                desc: "Create, edit, and deactivate users",
+              },
+              {
+                key: "canManageRoles",
+                label: "Manage Roles",
+                desc: "Create and modify role definitions",
+              },
+              {
+                key: "canManageProfiles",
+                label: "Manage Profiles",
+                desc: "Configure user profiles and permissions",
+              },
+              {
+                key: "canViewSetup",
+                label: "View Setup",
+                desc: "Access system setup and configuration",
+              },
+              {
+                key: "canManageSharing",
+                label: "Manage Sharing",
+                desc: "Configure sharing rules and settings",
+              },
+              {
+                key: "canViewAllData",
+                label: "View All Data",
+                desc: "Bypass sharing rules to view all data",
+              },
+              {
+                key: "canModifyAllData",
+                label: "Modify All Data",
+                desc: "Edit all records regardless of ownership",
+              },
               { key: "canViewAuditLog", label: "View Audit Log", desc: "Access system audit logs" },
               { key: "canExportData", label: "Export Data", desc: "Export data to CSV/Excel" },
               { key: "canImportData", label: "Import Data", desc: "Import data from files" },
@@ -237,19 +269,16 @@ function NewRolePageContent() {
 
           <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
             <p className="text-sm text-blue-800">
-              <strong>Note:</strong> After creating the role, you'll be able to configure module permissions
-              (which pages users can access) and object permissions (CRUD operations on specific objects).
+              <strong>Note:</strong> After creating the role, you'll be able to configure module
+              permissions (which pages users can access) and object permissions (CRUD operations on
+              specific objects).
             </p>
           </div>
         </div>
 
         {/* Actions */}
         <div className="flex justify-end gap-3">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => router.back()}
-          >
+          <Button type="button" variant="outline" onClick={() => router.back()}>
             Cancel
           </Button>
           <Button

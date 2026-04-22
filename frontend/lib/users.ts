@@ -1,9 +1,5 @@
 import { api } from "./api-client";
-import type {
-  UserResponse,
-  CreateUserRequest,
-  UpdateUserRequest,
-} from "@/types/user";
+import type { UserResponse, CreateUserRequest, UpdateUserRequest } from "@/types/user";
 
 export const usersService = {
   /**
@@ -67,10 +63,7 @@ export const usersService = {
   /**
    * Update user
    */
-  async updateUser(
-    id: string,
-    data: UpdateUserRequest
-  ): Promise<UserResponse> {
+  async updateUser(id: string, data: UpdateUserRequest): Promise<UserResponse> {
     return api.put(`/users/${id}`, data);
   },
 
@@ -84,6 +77,14 @@ export const usersService = {
       ? `/users/${id}/deactivate?reason=${encodeURIComponent(reason)}`
       : `/users/${id}/deactivate`;
     return api.post(url, {});
+  },
+
+  /**
+   * Delete user (soft delete — sets isDeleted=true, isActive=false)
+   * @param id - User MongoDB ID
+   */
+  async deleteUser(id: string): Promise<void> {
+    return api.delete(`/users/${id}`);
   },
 
   /**

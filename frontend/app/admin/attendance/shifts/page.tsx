@@ -154,9 +154,7 @@ export default function ShiftsPage() {
                       <td className="px-6 py-4">
                         <div>
                           <div className="flex items-center gap-2">
-                            <div className="text-sm font-medium text-gray-900">
-                              {shift.name}
-                            </div>
+                            <div className="text-sm font-medium text-gray-900">{shift.name}</div>
                             {shift.isDefault && (
                               <span className="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
                                 Default
@@ -164,14 +162,10 @@ export default function ShiftsPage() {
                             )}
                           </div>
                           {shift.code && (
-                            <div className="text-xs text-gray-400 mt-1">
-                              Code: {shift.code}
-                            </div>
+                            <div className="text-xs text-gray-400 mt-1">Code: {shift.code}</div>
                           )}
                           {shift.description && (
-                            <div className="text-sm text-gray-500 mt-1">
-                              {shift.description}
-                            </div>
+                            <div className="text-sm text-gray-500 mt-1">{shift.description}</div>
                           )}
                         </div>
                       </td>
@@ -186,11 +180,15 @@ export default function ShiftsPage() {
                         )}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                          shift.type === "FIXED" ? "bg-gray-100 text-gray-800" :
-                          shift.type === "FLEXIBLE" ? "bg-green-100 text-green-800" :
-                          "bg-purple-100 text-purple-800"
-                        }`}>
+                        <span
+                          className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                            shift.type === "FIXED"
+                              ? "bg-gray-100 text-gray-800"
+                              : shift.type === "FLEXIBLE"
+                                ? "bg-green-100 text-green-800"
+                                : "bg-purple-100 text-purple-800"
+                          }`}
+                        >
                           {shift.type}
                         </span>
                       </td>
@@ -198,9 +196,13 @@ export default function ShiftsPage() {
                         {formatMinutesToHours(shift.workHoursMinutes)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                          shift.isActive ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"
-                        }`}>
+                        <span
+                          className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                            shift.isActive
+                              ? "bg-green-100 text-green-800"
+                              : "bg-gray-100 text-gray-800"
+                          }`}
+                        >
                           {shift.isActive ? "Active" : "Inactive"}
                         </span>
                       </td>
@@ -233,9 +235,7 @@ export default function ShiftsPage() {
               </table>
             </div>
 
-            <div className="mt-4 text-sm text-gray-600">
-              Total shifts: {shifts.length}
-            </div>
+            <div className="mt-4 text-sm text-gray-600">Total shifts: {shifts.length}</div>
           </>
         )}
 

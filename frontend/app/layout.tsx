@@ -39,9 +39,7 @@ export default function RootLayout({
             <OrganizationProvider>
               <WebSocketProvider>
                 <ToastProvider />
-                <AppLayout>
-                  {children}
-                </AppLayout>
+                <AppLayout>{children}</AppLayout>
               </WebSocketProvider>
             </OrganizationProvider>
           </PermissionProvider>

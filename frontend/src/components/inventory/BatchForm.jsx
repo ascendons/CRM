@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -12,24 +12,24 @@ import {
   Box,
   Typography,
   Divider,
-} from '@mui/material';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import inventoryApi from '../../services/inventoryApi';
+} from "@mui/material";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import inventoryApi from "../../services/inventoryApi";
 
 const BatchForm = ({ open, batch, onClose }) => {
   const [formData, setFormData] = useState({
-    productId: '',
-    warehouseId: '',
-    batchNumber: '',
+    productId: "",
+    warehouseId: "",
+    batchNumber: "",
     manufacturingDate: null,
     expiryDate: null,
-    quantity: '',
-    supplierId: '',
-    supplierName: '',
-    qcStatus: '',
-    qcNotes: '',
+    quantity: "",
+    supplierId: "",
+    supplierName: "",
+    qcStatus: "",
+    qcNotes: "",
   });
 
   const [loading, setLoading] = useState(false);
@@ -38,30 +38,30 @@ const BatchForm = ({ open, batch, onClose }) => {
   useEffect(() => {
     if (batch) {
       setFormData({
-        productId: batch.productId || '',
-        warehouseId: batch.warehouseId || '',
-        batchNumber: batch.batchNumber || '',
+        productId: batch.productId || "",
+        warehouseId: batch.warehouseId || "",
+        batchNumber: batch.batchNumber || "",
         manufacturingDate: batch.manufacturingDate ? new Date(batch.manufacturingDate) : null,
         expiryDate: batch.expiryDate ? new Date(batch.expiryDate) : null,
-        quantity: batch.quantity || '',
-        supplierId: batch.supplierId || '',
-        supplierName: batch.supplierName || '',
-        qcStatus: batch.qcStatus || '',
-        qcNotes: batch.qcNotes || '',
+        quantity: batch.quantity || "",
+        supplierId: batch.supplierId || "",
+        supplierName: batch.supplierName || "",
+        qcStatus: batch.qcStatus || "",
+        qcNotes: batch.qcNotes || "",
       });
     } else {
       // Reset for new batch
       setFormData({
-        productId: '',
-        warehouseId: '',
-        batchNumber: '',
+        productId: "",
+        warehouseId: "",
+        batchNumber: "",
         manufacturingDate: null,
         expiryDate: null,
-        quantity: '',
-        supplierId: '',
-        supplierName: '',
-        qcStatus: '',
-        qcNotes: '',
+        quantity: "",
+        supplierId: "",
+        supplierName: "",
+        qcStatus: "",
+        qcNotes: "",
       });
     }
     setError(null);
@@ -76,17 +76,15 @@ const BatchForm = ({ open, batch, onClose }) => {
         ...formData,
         quantity: formData.quantity ? parseInt(formData.quantity) : null,
         manufacturingDate: formData.manufacturingDate
-          ? formData.manufacturingDate.toISOString().split('T')[0]
+          ? formData.manufacturingDate.toISOString().split("T")[0]
           : null,
-        expiryDate: formData.expiryDate
-          ? formData.expiryDate.toISOString().split('T')[0]
-          : null,
+        expiryDate: formData.expiryDate ? formData.expiryDate.toISOString().split("T")[0] : null,
       };
 
       if (batch) {
         // Update existing batch (if update endpoint exists)
         // await inventoryApi.batches.update(batch.id, payload);
-        console.log('Update not implemented yet');
+        console.log("Update not implemented yet");
       } else {
         // Create new batch
         await inventoryApi.batches.create(payload);
@@ -94,7 +92,7 @@ const BatchForm = ({ open, batch, onClose }) => {
 
       onClose(true);
     } catch (err) {
-      setError(err.response?.data?.message || err.message || 'Failed to save batch');
+      setError(err.response?.data?.message || err.message || "Failed to save batch");
     } finally {
       setLoading(false);
     }
@@ -102,10 +100,7 @@ const BatchForm = ({ open, batch, onClose }) => {
 
   const isFormValid = () => {
     return (
-      formData.productId &&
-      formData.warehouseId &&
-      formData.batchNumber &&
-      formData.expiryDate
+      formData.productId && formData.warehouseId && formData.batchNumber && formData.expiryDate
     );
   };
 
@@ -115,7 +110,7 @@ const BatchForm = ({ open, batch, onClose }) => {
 
   return (
     <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
-      <DialogTitle>{batch ? 'Batch Details' : 'Create New Batch'}</DialogTitle>
+      <DialogTitle>{batch ? "Batch Details" : "Create New Batch"}</DialogTitle>
 
       <DialogContent>
         {error && (
@@ -125,7 +120,7 @@ const BatchForm = ({ open, batch, onClose }) => {
         )}
 
         {batch && (
-          <Box sx={{ bgcolor: 'grey.50', p: 2, borderRadius: 1, mb: 3 }}>
+          <Box sx={{ bgcolor: "grey.50", p: 2, borderRadius: 1, mb: 3 }}>
             <Grid container spacing={1}>
               <Grid item xs={4}>
                 <Typography variant="caption" color="text.secondary">
@@ -207,9 +202,7 @@ const BatchForm = ({ open, batch, onClose }) => {
               <DatePicker
                 label="Manufacturing Date"
                 value={formData.manufacturingDate}
-                onChange={(newValue) =>
-                  setFormData({ ...formData, manufacturingDate: newValue })
-                }
+                onChange={(newValue) => setFormData({ ...formData, manufacturingDate: newValue })}
                 renderInput={(params) => <TextField {...params} fullWidth />}
                 disabled={!!batch}
               />
@@ -275,15 +268,11 @@ const BatchForm = ({ open, batch, onClose }) => {
 
       <DialogActions>
         <Button onClick={handleClose} disabled={loading}>
-          {batch ? 'Close' : 'Cancel'}
+          {batch ? "Close" : "Cancel"}
         </Button>
         {!batch && (
-          <Button
-            onClick={handleSubmit}
-            variant="contained"
-            disabled={!isFormValid() || loading}
-          >
-            {loading ? <CircularProgress size={24} /> : 'Create Batch'}
+          <Button onClick={handleSubmit} variant="contained" disabled={!isFormValid() || loading}>
+            {loading ? <CircularProgress size={24} /> : "Create Batch"}
           </Button>
         )}
       </DialogActions>

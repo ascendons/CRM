@@ -192,9 +192,7 @@ function RolesPageContent() {
                     <div className="text-sm text-gray-900">
                       Level {role.level}
                       {role.parentRoleName && (
-                        <div className="text-xs text-gray-500">
-                          Parent: {role.parentRoleName}
-                        </div>
+                        <div className="text-xs text-gray-500">Parent: {role.parentRoleName}</div>
                       )}
                       {role.childRoleIds && role.childRoleIds.length > 0 && (
                         <div className="text-xs text-gray-500">
@@ -210,10 +208,9 @@ function RolesPageContent() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span
-                      className={`px-2 py-1 text-xs font-medium rounded-full ${role.isActive
-                        ? "bg-green-100 text-green-800"
-                        : "bg-gray-100 text-gray-800"
-                        }`}
+                      className={`px-2 py-1 text-xs font-medium rounded-full ${
+                        role.isActive ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"
+                      }`}
                     >
                       {role.isActive ? "Active" : "Inactive"}
                     </span>

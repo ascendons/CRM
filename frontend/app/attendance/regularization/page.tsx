@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { regularizationApi, RegularizationResponse } from '@/lib/api/regularization';
-import { toast } from 'react-hot-toast';
-import Link from 'next/link';
+import { useEffect, useState } from "react";
+import { regularizationApi, RegularizationResponse } from "@/lib/api/regularization";
+import { toast } from "react-hot-toast";
+import Link from "next/link";
 
 export default function RegularizationPage() {
   const [regularizations, setRegularizations] = useState<RegularizationResponse[]>([]);
@@ -14,8 +14,8 @@ export default function RegularizationPage() {
       const data = await regularizationApi.getMyRegularizations();
       setRegularizations(data || []);
     } catch (error) {
-      console.error('Failed to load regularizations:', error);
-      toast.error('Failed to load regularizations');
+      console.error("Failed to load regularizations:", error);
+      toast.error("Failed to load regularizations");
     } finally {
       setLoading(false);
     }
@@ -27,16 +27,16 @@ export default function RegularizationPage() {
 
   const getStatusBadge = (status: string) => {
     const colors = {
-      'PENDING': 'bg-yellow-100 text-yellow-800',
-      'APPROVED': 'bg-green-100 text-green-800',
-      'REJECTED': 'bg-red-100 text-red-800',
-      'AUTO_APPROVED': 'bg-blue-100 text-blue-800'
+      PENDING: "bg-yellow-100 text-yellow-800",
+      APPROVED: "bg-green-100 text-green-800",
+      REJECTED: "bg-red-100 text-red-800",
+      AUTO_APPROVED: "bg-blue-100 text-blue-800",
     };
-    return colors[status as keyof typeof colors] || 'bg-gray-100 text-gray-800';
+    return colors[status as keyof typeof colors] || "bg-gray-100 text-gray-800";
   };
 
   const getTypeName = (type: string) => {
-    return type.replace(/_/g, ' ');
+    return type.replace(/_/g, " ");
   };
 
   if (loading) {
@@ -53,7 +53,9 @@ export default function RegularizationPage() {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Attendance Regularization</h1>
-          <p className="text-gray-600 mt-1">Request corrections for missed or incorrect attendance records</p>
+          <p className="text-gray-600 mt-1">
+            Request corrections for missed or incorrect attendance records
+          </p>
         </div>
         <Link
           href="/attendance/regularization/new"
@@ -70,7 +72,9 @@ export default function RegularizationPage() {
             <span className="text-4xl">📋</span>
           </div>
           <h3 className="text-lg font-semibold text-gray-900 mb-2">No Regularization Requests</h3>
-          <p className="text-gray-600 mb-6">You haven't submitted any regularization requests yet.</p>
+          <p className="text-gray-600 mb-6">
+            You haven't submitted any regularization requests yet.
+          </p>
           <Link
             href="/attendance/regularization/new"
             className="inline-block px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors"
@@ -86,15 +90,17 @@ export default function RegularizationPage() {
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900">{reg.regularizationId}</h3>
                   <p className="text-sm text-gray-600 mt-1">
-                    {new Date(reg.attendanceDate).toLocaleDateString('en-US', {
-                      weekday: 'long',
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric'
+                    {new Date(reg.attendanceDate).toLocaleDateString("en-US", {
+                      weekday: "long",
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
                     })}
                   </p>
                 </div>
-                <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusBadge(reg.status)}`}>
+                <span
+                  className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusBadge(reg.status)}`}
+                >
                   {reg.status}
                 </span>
               </div>
@@ -117,7 +123,7 @@ export default function RegularizationPage() {
                 <p className="text-sm text-gray-900 bg-gray-50 rounded-lg p-3">{reg.reason}</p>
               </div>
 
-              {reg.status === 'APPROVED' && reg.approverName && (
+              {reg.status === "APPROVED" && reg.approverName && (
                 <div className="bg-green-50 border border-green-200 rounded-lg p-3">
                   <p className="text-sm font-medium text-green-900">
                     Approved by {reg.approverName}
@@ -128,7 +134,7 @@ export default function RegularizationPage() {
                 </div>
               )}
 
-              {reg.status === 'REJECTED' && (
+              {reg.status === "REJECTED" && (
                 <div className="bg-red-50 border border-red-200 rounded-lg p-3">
                   <p className="text-sm font-medium text-red-900">Rejected</p>
                   {reg.rejectionReason && (

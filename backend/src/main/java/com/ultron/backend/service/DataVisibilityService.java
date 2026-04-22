@@ -48,9 +48,23 @@ public class DataVisibilityService extends BaseTenantService {
         // Validate tenant ownership
         validateResourceTenantOwnership(user.getTenantId());
 
+        // If user has no roleId configured, fall back to OWN visibility
+        if (user.getRoleId() == null || user.getRoleId().trim().isEmpty()) {
+            log.warn("[Tenant: {}] User {} has no roleId, defaulting to OWN visibility", tenantId, userId);
+            return Collections.singletonList(userId);
+        }
+
         // Get user's role
         Role role = roleRepository.findByRoleIdAndTenantId(user.getRoleId(), tenantId)
-            .orElseThrow(() -> new ResourceNotFoundException("Role not found: " + user.getRoleId()));
+            .orElseGet(() -> {
+                log.warn("[Tenant: {}] Role {} not found for user {}, defaulting to OWN visibility",
+                    tenantId, user.getRoleId(), userId);
+                return null;
+            });
+
+        if (role == null) {
+            return Collections.singletonList(userId);
+        }
 
         if (role.getPermissions() == null || role.getPermissions().getDataVisibility() == null) {
             log.warn("[Tenant: {}] Role {} has no dataVisibility setting, defaulting to OWN",

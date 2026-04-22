@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from 'react';
+import { useEffect } from "react";
 
 interface ConfirmModalProps {
   isOpen: boolean;
@@ -9,7 +9,7 @@ interface ConfirmModalProps {
   confirmLabel?: string;
   cancelLabel?: string;
   confirmButtonClass?: string;
-  variant?: 'danger' | 'warning' | 'primary';
+  variant?: "danger" | "warning" | "primary";
   onConfirm: () => void;
   onCancel: () => void;
   isLoading?: boolean;
@@ -20,10 +20,10 @@ export default function ConfirmModal({
   isOpen,
   title,
   message,
-  confirmLabel = 'Confirm',
-  cancelLabel = 'Cancel',
+  confirmLabel = "Confirm",
+  cancelLabel = "Cancel",
   confirmButtonClass,
-  variant = 'danger',
+  variant = "danger",
   onConfirm,
   onCancel,
   isLoading = false,
@@ -38,59 +38,59 @@ export default function ConfirmModal({
   const getButtonClass = () => {
     if (confirmButtonClass) return confirmButtonClass;
     switch (variant) {
-      case 'danger':
-        return 'bg-red-600 hover:bg-red-700 focus:ring-red-500';
-      case 'warning':
-        return 'bg-amber-600 hover:bg-amber-700 focus:ring-amber-500';
-      case 'primary':
-        return 'bg-blue-600 hover:bg-blue-700 focus:ring-blue-500';
+      case "danger":
+        return "bg-red-600 hover:bg-red-700 focus:ring-red-500";
+      case "warning":
+        return "bg-amber-600 hover:bg-amber-700 focus:ring-amber-500";
+      case "primary":
+        return "bg-blue-600 hover:bg-blue-700 focus:ring-blue-500";
       default:
-        return 'bg-blue-600 hover:bg-blue-700 focus:ring-blue-500';
+        return "bg-blue-600 hover:bg-blue-700 focus:ring-blue-500";
     }
   };
 
   const getIconClass = () => {
     switch (variant) {
-      case 'danger':
-        return 'bg-red-100 text-red-600';
-      case 'warning':
-        return 'bg-amber-100 text-amber-600';
-      case 'primary':
-        return 'bg-blue-100 text-blue-600';
+      case "danger":
+        return "bg-red-100 text-red-600";
+      case "warning":
+        return "bg-amber-100 text-amber-600";
+      case "primary":
+        return "bg-blue-100 text-blue-600";
       default:
-        return 'bg-blue-100 text-blue-600';
+        return "bg-blue-100 text-blue-600";
     }
   };
 
   const getIconName = () => {
     switch (variant) {
-      case 'danger':
-        return 'warning';
-      case 'warning':
-        return 'error'; // warning icon
-      case 'primary':
-        return 'info';
+      case "danger":
+        return "warning";
+      case "warning":
+        return "error"; // warning icon
+      case "primary":
+        return "info";
       default:
-        return 'info';
+        return "info";
     }
   };
   // Handle ESC key press
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isOpen) {
+      if (e.key === "Escape" && isOpen) {
         onCancel();
       }
     };
 
     if (isOpen) {
-      document.addEventListener('keydown', handleEscape);
+      document.addEventListener("keydown", handleEscape);
       // Prevent body scroll when modal is open
-      document.body.style.overflow = 'hidden';
+      document.body.style.overflow = "hidden";
     }
 
     return () => {
-      document.removeEventListener('keydown', handleEscape);
-      document.body.style.overflow = 'unset';
+      document.removeEventListener("keydown", handleEscape);
+      document.body.style.overflow = "unset";
     };
   }, [isOpen, onCancel]);
 
@@ -113,7 +113,9 @@ export default function ConfirmModal({
           <div className="bg-white px-6 py-5">
             {/* Icon */}
             <div className="flex items-center gap-4">
-              <div className={`flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full ${getIconClass()}`}>
+              <div
+                className={`flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full ${getIconClass()}`}
+              >
                 <span className="material-symbols-outlined">{getIconName()}</span>
               </div>
               <div className="flex-1">

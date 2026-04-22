@@ -159,9 +159,7 @@ export default function UsersPage() {
         <div className="flex justify-between items-center mb-8">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">User Management</h1>
-            <p className="mt-2 text-gray-600">
-              Manage user accounts, roles, and permissions
-            </p>
+            <p className="mt-2 text-gray-600">Manage user accounts, roles, and permissions</p>
           </div>
           <button
             onClick={() => router.push("/admin/users/new")}
@@ -217,16 +215,16 @@ export default function UsersPage() {
             action={
               searchTerm || statusFilter !== "all"
                 ? {
-                  label: "Clear filters",
-                  onClick: () => {
-                    setSearchTerm("");
-                    setStatusFilter("all");
-                  },
-                }
+                    label: "Clear filters",
+                    onClick: () => {
+                      setSearchTerm("");
+                      setStatusFilter("all");
+                    },
+                  }
                 : {
-                  label: "Create user",
-                  onClick: () => router.push("/admin/users/new"),
-                }
+                    label: "Create user",
+                    onClick: () => router.push("/admin/users/new"),
+                  }
             }
           />
         ) : (
@@ -262,7 +260,8 @@ export default function UsersPage() {
                         <div className="flex items-center">
                           <div className="h-10 w-10 flex-shrink-0">
                             <div className="h-10 w-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-semibold">
-                              {user.profile.firstName?.[0]}{user.profile.lastName?.[0]}
+                              {user.profile.firstName?.[0]}
+                              {user.profile.lastName?.[0]}
                             </div>
                           </div>
                           <div className="ml-4">
@@ -275,14 +274,10 @@ export default function UsersPage() {
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">
-                          {user.roleName || "-"}
-                        </div>
+                        <div className="text-sm text-gray-900">{user.roleName || "-"}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">
-                          {user.managerName || "-"}
-                        </div>
+                        <div className="text-sm text-gray-900">{user.managerName || "-"}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span
@@ -316,7 +311,9 @@ export default function UsersPage() {
                           className="text-purple-600 hover:text-purple-900 mr-4"
                           title="Manage permissions"
                         >
-                          <span className="material-symbols-outlined text-lg">admin_panel_settings</span>
+                          <span className="material-symbols-outlined text-lg">
+                            admin_panel_settings
+                          </span>
                         </button>
                         {user.isActive ? (
                           <button
@@ -324,9 +321,7 @@ export default function UsersPage() {
                             className="text-red-600 hover:text-red-900"
                             title="Deactivate user"
                           >
-                            <span className="material-symbols-outlined text-lg">
-                              person_off
-                            </span>
+                            <span className="material-symbols-outlined text-lg">person_off</span>
                           </button>
                         ) : (
                           <button
@@ -334,9 +329,7 @@ export default function UsersPage() {
                             className="text-green-600 hover:text-green-900"
                             title="Activate user"
                           >
-                            <span className="material-symbols-outlined text-lg">
-                              person_add
-                            </span>
+                            <span className="material-symbols-outlined text-lg">person_add</span>
                           </button>
                         )}
                       </td>

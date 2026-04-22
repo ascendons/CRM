@@ -40,6 +40,7 @@ public class CreateProposalRequest {
     private LocalDate validUntil;
 
     private Boolean isProforma;
+    private Boolean isTechnicalQuotation;
     private List<String> approverIds;
 
     // Customer Information
@@ -123,6 +124,10 @@ public class CreateProposalRequest {
         @NotNull(message = "Quantity is required")
         @DecimalMin(value = "0.000001", message = "Quantity must be positive")
         private BigDecimal quantity;
+
+        // Optional: MRP / catalogue price (list price)
+        @PositiveOrZero(message = "List price must be positive or zero")
+        private BigDecimal listPrice;
 
         // Optional: Override product's base price
         @Positive(message = "Unit price must be positive")

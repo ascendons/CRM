@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { shiftsApi, ShiftResponse } from '@/lib/api/shifts';
-import { locationsApi, LocationResponse } from '@/lib/api/locations';
-import { api } from '@/lib/api-client';
-import { toast } from 'react-hot-toast';
-import { ArrowLeft, Users, Calendar, MapPin, Building2 } from 'lucide-react';
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { shiftsApi, ShiftResponse } from "@/lib/api/shifts";
+import { locationsApi, LocationResponse } from "@/lib/api/locations";
+import { api } from "@/lib/api-client";
+import { toast } from "react-hot-toast";
+import { ArrowLeft, Users, Calendar, MapPin, Building2 } from "lucide-react";
 
 interface User {
   id: string;
@@ -36,16 +36,16 @@ export default function BulkShiftAssignmentPage() {
 
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
   const [formData, setFormData] = useState({
-    shiftId: '',
-    officeLocationId: '',
-    effectiveDate: new Date().toISOString().split('T')[0],
+    shiftId: "",
+    officeLocationId: "",
+    effectiveDate: new Date().toISOString().split("T")[0],
     isTemporary: false,
-    endDate: '',
-    reason: '',
+    endDate: "",
+    reason: "",
   });
 
-  const [searchQuery, setSearchQuery] = useState('');
-  const [filterDepartment, setFilterDepartment] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterDepartment, setFilterDepartment] = useState("");
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
@@ -57,7 +57,7 @@ export default function BulkShiftAssignmentPage() {
     try {
       setLoading(true);
       const [usersData, shiftsData, locationsData] = await Promise.all([
-        api.get<User[]>('/users/active'),
+        api.get<User[]>("/users/active"),
         shiftsApi.getActiveShifts(),
         locationsApi.getActiveLocations(),
       ]);
@@ -66,8 +66,8 @@ export default function BulkShiftAssignmentPage() {
       setShifts(Array.isArray(shiftsData) ? shiftsData : []);
       setLocations(Array.isArray(locationsData) ? locationsData : []);
     } catch (error) {
-      console.error('Failed to load data:', error);
-      toast.error('Failed to load data');
+      console.error("Failed to load data:", error);
+      toast.error("Failed to load data");
     } finally {
       setLoading(false);
     }
@@ -92,22 +92,22 @@ export default function BulkShiftAssignmentPage() {
     e.preventDefault();
 
     if (selectedUsers.length === 0) {
-      toast.error('Please select at least one user');
+      toast.error("Please select at least one user");
       return;
     }
 
     if (!formData.shiftId) {
-      toast.error('Please select a shift');
+      toast.error("Please select a shift");
       return;
     }
 
     if (!formData.officeLocationId) {
-      toast.error('Please select an office location');
+      toast.error("Please select an office location");
       return;
     }
 
     if (formData.isTemporary && !formData.endDate) {
-      toast.error('Please provide an end date for temporary assignment');
+      toast.error("Please provide an end date for temporary assignment");
       return;
     }
 
@@ -123,12 +123,12 @@ export default function BulkShiftAssignmentPage() {
 
     try {
       setSubmitting(true);
-      await api.post('/bulk-operations/assign-shifts', payload);
+      await api.post("/bulk-operations/assign-shifts", payload);
       toast.success(`Shift assigned to ${selectedUsers.length} user(s) successfully!`);
-      router.push('/admin/settings/shifts');
+      router.push("/admin/settings/shifts");
     } catch (error: any) {
-      console.error('Failed to assign shifts:', error);
-      toast.error(error.message || 'Failed to assign shifts');
+      console.error("Failed to assign shifts:", error);
+      toast.error(error.message || "Failed to assign shifts");
     } finally {
       setSubmitting(false);
     }
@@ -163,7 +163,7 @@ export default function BulkShiftAssignmentPage() {
       {/* Header */}
       <div className="flex items-center gap-4">
         <button
-          onClick={() => router.push('/admin/settings/shifts')}
+          onClick={() => router.push("/admin/settings/shifts")}
           className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
         >
           <ArrowLeft className="h-5 w-5 text-slate-600" />
@@ -222,7 +222,7 @@ export default function BulkShiftAssignmentPage() {
                 onClick={handleSelectAll}
                 className="text-sm text-blue-600 hover:text-blue-700 font-medium"
               >
-                {selectedUsers.length === filteredUsers.length ? 'Deselect All' : 'Select All'}
+                {selectedUsers.length === filteredUsers.length ? "Deselect All" : "Select All"}
               </button>
             </div>
 
@@ -316,14 +316,16 @@ export default function BulkShiftAssignmentPage() {
                 <option value="">Select Location</option>
                 {locations.map((location) => (
                   <option key={location.id} value={location.id}>
-                    {location.name} {location.city ? `- ${location.city}` : ''}
+                    {location.name} {location.city ? `- ${location.city}` : ""}
                   </option>
                 ))}
               </select>
               {selectedLocation && (
                 <div className="mt-2 text-sm text-gray-600 bg-green-50 rounded-lg p-3">
                   <p className="font-medium text-green-900">{selectedLocation.name}</p>
-                  {selectedLocation.city && <p className="text-green-800">{selectedLocation.city}</p>}
+                  {selectedLocation.city && (
+                    <p className="text-green-800">{selectedLocation.city}</p>
+                  )}
                   <p className="text-green-700 text-xs mt-1">{selectedLocation.code}</p>
                 </div>
               )}
@@ -350,7 +352,7 @@ export default function BulkShiftAssignmentPage() {
                   type="checkbox"
                   checked={formData.isTemporary}
                   onChange={(e) =>
-                    setFormData({ ...formData, isTemporary: e.target.checked, endDate: '' })
+                    setFormData({ ...formData, isTemporary: e.target.checked, endDate: "" })
                   }
                   className="w-5 h-5 text-blue-600 rounded border-gray-300 focus:ring-2 focus:ring-blue-500"
                 />
@@ -377,7 +379,9 @@ export default function BulkShiftAssignmentPage() {
 
             {/* Reason */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Reason (Optional)</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Reason (Optional)
+              </label>
               <textarea
                 value={formData.reason}
                 onChange={(e) => setFormData({ ...formData, reason: e.target.value })}
@@ -401,7 +405,7 @@ export default function BulkShiftAssignmentPage() {
               ) : (
                 <>
                   <Users className="h-5 w-5" />
-                  Assign to {selectedUsers.length} User{selectedUsers.length !== 1 ? 's' : ''}
+                  Assign to {selectedUsers.length} User{selectedUsers.length !== 1 ? "s" : ""}
                 </>
               )}
             </button>
@@ -424,15 +428,17 @@ export default function BulkShiftAssignmentPage() {
                 </div>
                 <div className="flex justify-between">
                   <span>Shift:</span>
-                  <span className="font-bold">{selectedShift?.name || 'Not selected'}</span>
+                  <span className="font-bold">{selectedShift?.name || "Not selected"}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Location:</span>
-                  <span className="font-bold">{selectedLocation?.name || 'Not selected'}</span>
+                  <span className="font-bold">{selectedLocation?.name || "Not selected"}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Type:</span>
-                  <span className="font-bold">{formData.isTemporary ? 'Temporary' : 'Permanent'}</span>
+                  <span className="font-bold">
+                    {formData.isTemporary ? "Temporary" : "Permanent"}
+                  </span>
                 </div>
               </div>
             </div>

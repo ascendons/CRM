@@ -1,9 +1,18 @@
-import { api } from '../api-client';
+import { api } from "../api-client";
 
 export interface CreateRegularizationRequest {
   attendanceId?: string;
   attendanceDate: string;
-  type: 'MISSED_CHECKIN' | 'MISSED_CHECKOUT' | 'WRONG_LOCATION' | 'LATE_ARRIVAL' | 'EARLY_LEAVE' | 'FORGOT_CHECKOUT' | 'SYSTEM_ERROR' | 'WRONG_TIME' | 'OTHER';
+  type:
+    | "MISSED_CHECKIN"
+    | "MISSED_CHECKOUT"
+    | "WRONG_LOCATION"
+    | "LATE_ARRIVAL"
+    | "EARLY_LEAVE"
+    | "FORGOT_CHECKOUT"
+    | "SYSTEM_ERROR"
+    | "WRONG_TIME"
+    | "OTHER";
   requestedCheckInTime?: string;
   requestedCheckOutTime?: string;
   requestedLatitude?: number;
@@ -39,7 +48,7 @@ export interface RegularizationResponse {
   requestedAddress?: string;
   reason: string;
   supportingDocuments: string[];
-  status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'AUTO_APPROVED';
+  status: "PENDING" | "APPROVED" | "REJECTED" | "AUTO_APPROVED";
   approverId?: string;
   approverName?: string;
   approvedAt?: string;
@@ -63,13 +72,13 @@ export const regularizationApi = {
    * Request attendance regularization
    */
   requestRegularization: (data: CreateRegularizationRequest): Promise<RegularizationResponse> =>
-    api.post('/attendance/regularizations', data),
+    api.post("/attendance/regularizations", data),
 
   /**
    * Get my regularizations
    */
   getMyRegularizations: (): Promise<RegularizationResponse[]> =>
-    api.get('/attendance/regularizations/my'),
+    api.get("/attendance/regularizations/my"),
 
   /**
    * Get regularization by ID
@@ -81,17 +90,17 @@ export const regularizationApi = {
    * Get pending approvals (Manager)
    */
   getPendingApprovals: (): Promise<RegularizationResponse[]> =>
-    api.get('/attendance/regularizations/admin/pending'),
+    api.get("/attendance/regularizations/admin/pending"),
 
   /**
    * Get all pending regularizations (Admin)
    */
   getAllPendingRegularizations: (): Promise<RegularizationResponse[]> =>
-    api.get('/attendance/regularizations/admin/all-pending'),
+    api.get("/attendance/regularizations/admin/all-pending"),
 
   /**
    * Approve or reject regularization (Manager)
    */
   approveRegularization: (data: ApproveRegularizationRequest): Promise<RegularizationResponse> =>
-    api.post('/attendance/regularizations/admin/approve', data)
+    api.post("/attendance/regularizations/admin/approve", data),
 };

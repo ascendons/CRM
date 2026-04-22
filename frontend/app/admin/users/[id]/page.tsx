@@ -113,7 +113,13 @@ export default function UserDetailPage({ params }: { params: Promise<{ id: strin
     </div>
   );
 
-  const DetailRow = ({ label, value }: { label: string; value: string | number | boolean | undefined | null }) => (
+  const DetailRow = ({
+    label,
+    value,
+  }: {
+    label: string;
+    value: string | number | boolean | undefined | null;
+  }) => (
     <div className="py-3 border-b border-gray-200 last:border-0">
       <dt className="text-sm font-medium text-gray-500 mb-1">{label}</dt>
       <dd className="text-sm text-gray-900">
@@ -141,13 +147,16 @@ export default function UserDetailPage({ params }: { params: Promise<{ id: strin
           <div>
             <div className="flex items-center gap-4 mb-2">
               <div className="h-16 w-16 rounded-full bg-blue-500 flex items-center justify-center text-white text-2xl font-bold">
-                {user.profile.firstName?.[0]}{user.profile.lastName?.[0]}
+                {user.profile.firstName?.[0]}
+                {user.profile.lastName?.[0]}
               </div>
               <div>
                 <h1 className="text-3xl font-bold text-gray-900">{getUserDisplayName(user)}</h1>
                 <p className="text-gray-600">@{user.username}</p>
               </div>
-              <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getUserStatusBadge(user.isActive)}`}>
+              <span
+                className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getUserStatusBadge(user.isActive)}`}
+              >
                 {user.isActive ? "Active" : "Inactive"}
               </span>
             </div>
@@ -237,26 +246,41 @@ export default function UserDetailPage({ params }: { params: Promise<{ id: strin
           {/* Settings */}
           <DetailSection title="Settings">
             <dl className="divide-y divide-gray-200">
-              <DetailRow label="Time Zone" value={user.settings.timeZone} />
-              <DetailRow label="Language" value={user.settings.language} />
-              <DetailRow label="Date Format" value={user.settings.dateFormat} />
-              <DetailRow label="Currency" value={user.settings.currency} />
-              <DetailRow label="Email Notifications" value={user.settings.emailNotifications ? "Enabled" : "Disabled"} />
-              <DetailRow label="Desktop Notifications" value={user.settings.desktopNotifications ? "Enabled" : "Disabled"} />
+              <DetailRow label="Time Zone" value={user.settings?.timeZone} />
+              <DetailRow label="Language" value={user.settings?.language} />
+              <DetailRow label="Date Format" value={user.settings?.dateFormat} />
+              <DetailRow label="Currency" value={user.settings?.currency} />
+              <DetailRow
+                label="Email Notifications"
+                value={user.settings?.emailNotifications ? "Enabled" : "Disabled"}
+              />
+              <DetailRow
+                label="Desktop Notifications"
+                value={user.settings?.desktopNotifications ? "Enabled" : "Disabled"}
+              />
             </dl>
           </DetailSection>
 
           {/* Security & Activity */}
           <DetailSection title="Security & Activity">
             <dl className="divide-y divide-gray-200">
-              <DetailRow label="Two-Factor Authentication" value={user.security.twoFactorEnabled ? "Enabled" : "Disabled"} />
+              <DetailRow
+                label="Two-Factor Authentication"
+                value={user.security.twoFactorEnabled ? "Enabled" : "Disabled"}
+              />
               <DetailRow label="Last Login" value={formatDate(user.security.lastLoginAt)} />
               <DetailRow label="Last Login IP" value={user.security.lastLoginIP} />
               <DetailRow label="Failed Login Attempts" value={user.security.failedLoginAttempts} />
-              <DetailRow label="Password Last Changed" value={formatDate(user.passwordLastChanged)} />
+              <DetailRow
+                label="Password Last Changed"
+                value={formatDate(user.passwordLastChanged)}
+              />
               <DetailRow label="Password Expires" value={formatDate(user.passwordExpiresAt)} />
               {user.security.lockedUntil && (
-                <DetailRow label="Account Locked Until" value={formatDate(user.security.lockedUntil)} />
+                <DetailRow
+                  label="Account Locked Until"
+                  value={formatDate(user.security.lockedUntil)}
+                />
               )}
             </dl>
           </DetailSection>
@@ -266,7 +290,10 @@ export default function UserDetailPage({ params }: { params: Promise<{ id: strin
             <dl className="divide-y divide-gray-200">
               <DetailRow label="Created By" value={user.createdByName || user.createdBy} />
               <DetailRow label="Created At" value={formatDate(user.createdAt)} />
-              <DetailRow label="Last Modified By" value={user.lastModifiedByName || user.lastModifiedBy} />
+              <DetailRow
+                label="Last Modified By"
+                value={user.lastModifiedByName || user.lastModifiedBy}
+              />
               <DetailRow label="Last Modified At" value={formatDate(user.lastModifiedAt)} />
               {user.deletedAt && (
                 <>

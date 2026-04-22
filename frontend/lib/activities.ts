@@ -1,13 +1,21 @@
-import { api } from './api-client';
-import { Activity, CreateActivityRequest, UpdateActivityRequest, ActivityStatistics, ActivityType, ActivityStatus, ActivityPriority } from '@/types/activity';
+import { api } from "./api-client";
+import {
+  Activity,
+  CreateActivityRequest,
+  UpdateActivityRequest,
+  ActivityStatistics,
+  ActivityType,
+  ActivityStatus,
+  ActivityPriority,
+} from "@/types/activity";
 
 export const activitiesService = {
   async createActivity(request: CreateActivityRequest): Promise<Activity> {
-    return await api.post<Activity>('/activities', request);
+    return await api.post<Activity>("/activities", request);
   },
 
   async getAllActivities(): Promise<Activity[]> {
-    const response = await api.get<any>('/activities');
+    const response = await api.get<any>("/activities");
     return response?.content || response || [];
   },
 
@@ -52,11 +60,11 @@ export const activitiesService = {
   },
 
   async getActiveActivities(): Promise<Activity[]> {
-    return await api.get<Activity[]>('/activities/active');
+    return await api.get<Activity[]>("/activities/active");
   },
 
   async getOverdueActivities(): Promise<Activity[]> {
-    return await api.get<Activity[]>('/activities/overdue');
+    return await api.get<Activity[]>("/activities/overdue");
   },
 
   async searchActivities(query: string): Promise<Activity[]> {
@@ -72,10 +80,10 @@ export const activitiesService = {
   },
 
   async getActivityCount(): Promise<number> {
-    return await api.get<number>('/activities/statistics/count');
+    return await api.get<number>("/activities/statistics/count");
   },
 
   async getStatistics(): Promise<ActivityStatistics> {
-    return await api.get<ActivityStatistics>('/activities/statistics');
+    return await api.get<ActivityStatistics>("/activities/statistics");
   },
 };

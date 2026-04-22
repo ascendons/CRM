@@ -29,7 +29,10 @@ export const proposalsService = {
   /**
    * Get all proposals
    */
-  async getAllProposals(pagination?: PaginationParams, isProforma?: boolean): Promise<Page<ProposalResponse> | ProposalResponse[]> {
+  async getAllProposals(
+    pagination?: PaginationParams,
+    isProforma?: boolean
+  ): Promise<Page<ProposalResponse> | ProposalResponse[]> {
     const params = new URLSearchParams();
     if (pagination) {
       if (pagination.page !== undefined) params.append("page", String(pagination.page - 1));
@@ -69,7 +72,10 @@ export const proposalsService = {
   /**
    * Get proposals by status
    */
-  async getProposalsByStatus(status: ProposalStatus, pagination?: PaginationParams): Promise<Page<ProposalResponse> | ProposalResponse[]> {
+  async getProposalsByStatus(
+    status: ProposalStatus,
+    pagination?: PaginationParams
+  ): Promise<Page<ProposalResponse> | ProposalResponse[]> {
     const params = new URLSearchParams();
     if (pagination) {
       if (pagination.page !== undefined) params.append("page", String(pagination.page - 1));
@@ -82,7 +88,10 @@ export const proposalsService = {
   /**
    * Search proposals
    */
-  async searchProposals(query: string, pagination?: PaginationParams): Promise<Page<ProposalResponse> | ProposalResponse[]> {
+  async searchProposals(
+    query: string,
+    pagination?: PaginationParams
+  ): Promise<Page<ProposalResponse> | ProposalResponse[]> {
     const params = new URLSearchParams();
     params.append("q", query);
     if (pagination) {
@@ -96,7 +105,10 @@ export const proposalsService = {
   /**
    * Get proposals by owner
    */
-  async getProposalsByOwner(ownerId: string, pagination?: PaginationParams): Promise<Page<ProposalResponse> | ProposalResponse[]> {
+  async getProposalsByOwner(
+    ownerId: string,
+    pagination?: PaginationParams
+  ): Promise<Page<ProposalResponse> | ProposalResponse[]> {
     const params = new URLSearchParams();
     if (pagination) {
       if (pagination.page !== undefined) params.append("page", String(pagination.page - 1));
@@ -144,12 +156,14 @@ export const proposalsService = {
   /**
    * Get available invoice templates
    */
-  async getAvailableTemplates(id: string): Promise<Array<{
-    type: string;
-    displayName: string;
-    description: string;
-    available: boolean;
-  }>> {
+  async getAvailableTemplates(id: string): Promise<
+    Array<{
+      type: string;
+      displayName: string;
+      description: string;
+      available: boolean;
+    }>
+  > {
     return api.get(`/proposals/${id}/invoice/templates`);
   },
 
@@ -170,21 +184,29 @@ export const proposalsService = {
   /**
    * Get version history for a proposal
    */
-  async getVersionHistory(id: string): Promise<import("@/types/proposal-version").ProposalVersionResponse[]> {
+  async getVersionHistory(
+    id: string
+  ): Promise<import("@/types/proposal-version").ProposalVersionResponse[]> {
     return api.get(`/proposals/${id}/versions`);
   },
 
   /**
    * Get a specific version of a proposal
    */
-  async getVersion(id: string, version: number): Promise<import("@/types/proposal-version").ProposalVersionResponse> {
+  async getVersion(
+    id: string,
+    version: number
+  ): Promise<import("@/types/proposal-version").ProposalVersionResponse> {
     return api.get(`/proposals/${id}/versions/${version}`);
   },
 
   /**
    * Convert proposal to Proforma Invoice (ACCEPTED only)
    */
-  async convertToProforma(id: string, paymentMilestones: import("@/types/proposal").PaymentMilestoneDTO[]): Promise<ProposalResponse[]> {
+  async convertToProforma(
+    id: string,
+    paymentMilestones: import("@/types/proposal").PaymentMilestoneDTO[]
+  ): Promise<ProposalResponse[]> {
     return api.post(`/proposals/${id}/convert-to-proforma`, paymentMilestones);
   },
 

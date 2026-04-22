@@ -1,21 +1,21 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { leavePolicyApi, LeavePolicy, LeaveTypePolicy } from '@/lib/api/leave-policy';
-import { toast } from 'react-hot-toast';
-import Link from 'next/link';
+import { useEffect, useState } from "react";
+import { leavePolicyApi, LeavePolicy, LeaveTypePolicy } from "@/lib/api/leave-policy";
+import { toast } from "react-hot-toast";
+import Link from "next/link";
 
 const LEAVE_TYPES = [
-  { key: 'CASUAL', name: 'Casual Leave', color: 'bg-blue-100 text-blue-800' },
-  { key: 'SICK', name: 'Sick Leave', color: 'bg-red-100 text-red-800' },
-  { key: 'EARNED', name: 'Earned Leave', color: 'bg-green-100 text-green-800' },
-  { key: 'PAID', name: 'Paid Leave', color: 'bg-purple-100 text-purple-800' },
-  { key: 'UNPAID', name: 'Unpaid Leave', color: 'bg-gray-100 text-gray-800' },
-  { key: 'COMPENSATORY', name: 'Comp Off', color: 'bg-yellow-100 text-yellow-800' },
-  { key: 'MATERNITY', name: 'Maternity Leave', color: 'bg-pink-100 text-pink-800' },
-  { key: 'PATERNITY', name: 'Paternity Leave', color: 'bg-indigo-100 text-indigo-800' },
-  { key: 'BEREAVEMENT', name: 'Bereavement Leave', color: 'bg-gray-100 text-gray-800' },
-  { key: 'MARRIAGE', name: 'Marriage Leave', color: 'bg-orange-100 text-orange-800' }
+  { key: "CASUAL", name: "Casual Leave", color: "bg-blue-100 text-blue-800" },
+  { key: "SICK", name: "Sick Leave", color: "bg-red-100 text-red-800" },
+  { key: "EARNED", name: "Earned Leave", color: "bg-green-100 text-green-800" },
+  { key: "PAID", name: "Paid Leave", color: "bg-purple-100 text-purple-800" },
+  { key: "UNPAID", name: "Unpaid Leave", color: "bg-gray-100 text-gray-800" },
+  { key: "COMPENSATORY", name: "Comp Off", color: "bg-yellow-100 text-yellow-800" },
+  { key: "MATERNITY", name: "Maternity Leave", color: "bg-pink-100 text-pink-800" },
+  { key: "PATERNITY", name: "Paternity Leave", color: "bg-indigo-100 text-indigo-800" },
+  { key: "BEREAVEMENT", name: "Bereavement Leave", color: "bg-gray-100 text-gray-800" },
+  { key: "MARRIAGE", name: "Marriage Leave", color: "bg-orange-100 text-orange-800" },
 ];
 
 export default function LeavePolicyPage() {
@@ -33,14 +33,18 @@ export default function LeavePolicyPage() {
       const data = await leavePolicyApi.getPolicy();
       setPolicy(data);
     } catch (error: any) {
-      console.error('Failed to load policy:', error);
-      toast.error('Failed to load leave policy');
+      console.error("Failed to load policy:", error);
+      toast.error("Failed to load leave policy");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleUpdateLeaveType = (leaveTypeKey: string, field: keyof LeaveTypePolicy, value: any) => {
+  const handleUpdateLeaveType = (
+    leaveTypeKey: string,
+    field: keyof LeaveTypePolicy,
+    value: any
+  ) => {
     if (!policy) return;
 
     const updatedPolicy = { ...policy };
@@ -53,13 +57,13 @@ export default function LeavePolicyPage() {
         minNoticeRequired: 0,
         maxConsecutiveDays: null,
         requiresApproval: true,
-        requiresDocuments: false
+        requiresDocuments: false,
       };
     }
 
     updatedPolicy.leaveTypes[leaveTypeKey] = {
       ...updatedPolicy.leaveTypes[leaveTypeKey],
-      [field]: value
+      [field]: value,
     };
 
     setPolicy(updatedPolicy);
@@ -71,11 +75,11 @@ export default function LeavePolicyPage() {
     setSaving(true);
     try {
       await leavePolicyApi.updatePolicy(policy);
-      toast.success('Leave policy updated successfully!');
+      toast.success("Leave policy updated successfully!");
       loadPolicy(); // Reload to get updated timestamps
     } catch (error: any) {
-      console.error('Failed to save policy:', error);
-      toast.error(error.message || 'Failed to save leave policy');
+      console.error("Failed to save policy:", error);
+      toast.error(error.message || "Failed to save leave policy");
     } finally {
       setSaving(false);
     }
@@ -141,7 +145,9 @@ export default function LeavePolicyPage() {
           <div className="flex items-center justify-between">
             <div>
               <label className="font-medium text-gray-900">Allow Carry Forward</label>
-              <p className="text-sm text-gray-600">Enable carrying forward unused leaves to next year</p>
+              <p className="text-sm text-gray-600">
+                Enable carrying forward unused leaves to next year
+              </p>
             </div>
             <label className="relative inline-flex items-center cursor-pointer">
               <input
@@ -157,7 +163,9 @@ export default function LeavePolicyPage() {
           <div className="flex items-center justify-between">
             <div>
               <label className="font-medium text-gray-900">Pro-rate for New Joiners</label>
-              <p className="text-sm text-gray-600">Automatically calculate proportional leaves for mid-year joiners</p>
+              <p className="text-sm text-gray-600">
+                Automatically calculate proportional leaves for mid-year joiners
+              </p>
             </div>
             <label className="relative inline-flex items-center cursor-pointer">
               <input
@@ -176,7 +184,9 @@ export default function LeavePolicyPage() {
       <div className="bg-white rounded-xl shadow overflow-hidden">
         <div className="p-6 border-b border-gray-200">
           <h2 className="text-xl font-bold text-gray-900">Leave Types Configuration</h2>
-          <p className="text-sm text-gray-600 mt-1">Configure allocation and rules for each leave type</p>
+          <p className="text-sm text-gray-600 mt-1">
+            Configure allocation and rules for each leave type
+          </p>
         </div>
 
         <div className="divide-y divide-gray-200">
@@ -188,14 +198,16 @@ export default function LeavePolicyPage() {
               minNoticeRequired: 0,
               maxConsecutiveDays: null,
               requiresApproval: true,
-              requiresDocuments: false
+              requiresDocuments: false,
             };
 
             return (
               <div key={leaveType.key} className="p-6 hover:bg-gray-50 transition-colors">
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center gap-3">
-                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${leaveType.color}`}>
+                    <span
+                      className={`px-3 py-1 rounded-full text-sm font-medium ${leaveType.color}`}
+                    >
                       {leaveType.name}
                     </span>
                     {typePolicy.defaultAllocation === 0 && (
@@ -215,7 +227,13 @@ export default function LeavePolicyPage() {
                       min="0"
                       step="0.5"
                       value={typePolicy.defaultAllocation}
-                      onChange={(e) => handleUpdateLeaveType(leaveType.key, 'defaultAllocation', parseFloat(e.target.value) || 0)}
+                      onChange={(e) =>
+                        handleUpdateLeaveType(
+                          leaveType.key,
+                          "defaultAllocation",
+                          parseFloat(e.target.value) || 0
+                        )
+                      }
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
                   </div>
@@ -229,7 +247,13 @@ export default function LeavePolicyPage() {
                       type="number"
                       min="0"
                       value={typePolicy.minNoticeRequired}
-                      onChange={(e) => handleUpdateLeaveType(leaveType.key, 'minNoticeRequired', parseInt(e.target.value) || 0)}
+                      onChange={(e) =>
+                        handleUpdateLeaveType(
+                          leaveType.key,
+                          "minNoticeRequired",
+                          parseInt(e.target.value) || 0
+                        )
+                      }
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
                   </div>
@@ -243,8 +267,14 @@ export default function LeavePolicyPage() {
                       type="number"
                       min="0"
                       placeholder="No limit"
-                      value={typePolicy.maxConsecutiveDays || ''}
-                      onChange={(e) => handleUpdateLeaveType(leaveType.key, 'maxConsecutiveDays', e.target.value ? parseInt(e.target.value) : null)}
+                      value={typePolicy.maxConsecutiveDays || ""}
+                      onChange={(e) =>
+                        handleUpdateLeaveType(
+                          leaveType.key,
+                          "maxConsecutiveDays",
+                          e.target.value ? parseInt(e.target.value) : null
+                        )
+                      }
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
                   </div>
@@ -259,7 +289,13 @@ export default function LeavePolicyPage() {
                       min="0"
                       step="0.5"
                       value={typePolicy.maxCarryForward}
-                      onChange={(e) => handleUpdateLeaveType(leaveType.key, 'maxCarryForward', parseFloat(e.target.value) || 0)}
+                      onChange={(e) =>
+                        handleUpdateLeaveType(
+                          leaveType.key,
+                          "maxCarryForward",
+                          parseFloat(e.target.value) || 0
+                        )
+                      }
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       disabled={!typePolicy.isCarryForward}
                     />
@@ -272,7 +308,9 @@ export default function LeavePolicyPage() {
                     <input
                       type="checkbox"
                       checked={typePolicy.isCarryForward}
-                      onChange={(e) => handleUpdateLeaveType(leaveType.key, 'isCarryForward', e.target.checked)}
+                      onChange={(e) =>
+                        handleUpdateLeaveType(leaveType.key, "isCarryForward", e.target.checked)
+                      }
                       className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                     />
                     <span className="text-sm text-gray-700">Allow Carry Forward</span>
@@ -282,7 +320,9 @@ export default function LeavePolicyPage() {
                     <input
                       type="checkbox"
                       checked={typePolicy.requiresApproval}
-                      onChange={(e) => handleUpdateLeaveType(leaveType.key, 'requiresApproval', e.target.checked)}
+                      onChange={(e) =>
+                        handleUpdateLeaveType(leaveType.key, "requiresApproval", e.target.checked)
+                      }
                       className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                     />
                     <span className="text-sm text-gray-700">Requires Approval</span>
@@ -292,7 +332,9 @@ export default function LeavePolicyPage() {
                     <input
                       type="checkbox"
                       checked={typePolicy.requiresDocuments}
-                      onChange={(e) => handleUpdateLeaveType(leaveType.key, 'requiresDocuments', e.target.checked)}
+                      onChange={(e) =>
+                        handleUpdateLeaveType(leaveType.key, "requiresDocuments", e.target.checked)
+                      }
                       className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                     />
                     <span className="text-sm text-gray-700">Requires Documents</span>
@@ -318,7 +360,7 @@ export default function LeavePolicyPage() {
           disabled={saving}
           className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
-          {saving ? 'Saving...' : 'Save Policy'}
+          {saving ? "Saving..." : "Save Policy"}
         </button>
       </div>
 

@@ -1,6 +1,6 @@
 "use client";
 
-import InventoryStatusBadge from '@/components/catalog/InventoryStatusBadge';
+import InventoryStatusBadge from "@/components/catalog/InventoryStatusBadge";
 
 export default function TestPage() {
   return (
@@ -19,15 +19,15 @@ export default function TestPage() {
           />
           <button
             onClick={() => {
-              const id = (document.getElementById('productId') as HTMLInputElement).value;
+              const id = (document.getElementById("productId") as HTMLInputElement).value;
               if (id) {
-                const container = document.getElementById('badge-container');
+                const container = document.getElementById("badge-container");
                 if (container) {
-                  container.innerHTML = '';
-                  const div = document.createElement('div');
+                  container.innerHTML = "";
+                  const div = document.createElement("div");
                   container.appendChild(div);
                   // Render badge here
-                  alert('Badge component loaded. Check console for errors.');
+                  alert("Badge component loaded. Check console for errors.");
                 }
               }
             }}
@@ -48,8 +48,8 @@ export default function TestPage() {
 
         <div className="bg-blue-50 border border-blue-200 p-4 rounded">
           <p className="text-sm">
-            <strong>If you see this page without errors,</strong> the components are loading correctly.
-            The issue might be in the catalog page itself.
+            <strong>If you see this page without errors,</strong> the components are loading
+            correctly. The issue might be in the catalog page itself.
           </p>
         </div>
       </div>

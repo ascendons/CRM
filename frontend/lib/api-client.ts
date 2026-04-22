@@ -33,9 +33,9 @@ export async function apiRequest<T>(endpoint: string, options: RequestInit = {})
       // Best approach: Parse token or separate storage
 
       // Simple parse of token to get tenantId
-      const parts = token.split('.');
+      const parts = token.split(".");
       if (parts.length === 3) {
-        const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
+        const payload = JSON.parse(atob(parts[1].replace(/-/g, "+").replace(/_/g, "/")));
         if (payload.tenantId) {
           headers["X-Tenant-ID"] = payload.tenantId;
         }
@@ -129,9 +129,9 @@ export const api = {
 
       // Add Tenant ID from token
       try {
-        const parts = token.split('.');
+        const parts = token.split(".");
         if (parts.length === 3) {
-          const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
+          const payload = JSON.parse(atob(parts[1].replace(/-/g, "+").replace(/_/g, "/")));
           if (payload.tenantId) {
             headers["X-Tenant-ID"] = payload.tenantId;
           }
@@ -156,7 +156,7 @@ export const api = {
   fetchHtml: async (endpoint: string): Promise<string> => {
     const token = localStorage.getItem("auth_token");
     const headers: Record<string, string> = {
-      "Accept": "text/html",
+      Accept: "text/html",
     };
 
     if (token) {
@@ -164,9 +164,9 @@ export const api = {
 
       // Add Tenant ID from token
       try {
-        const parts = token.split('.');
+        const parts = token.split(".");
         if (parts.length === 3) {
-          const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
+          const payload = JSON.parse(atob(parts[1].replace(/-/g, "+").replace(/_/g, "/")));
           if (payload.tenantId) {
             headers["X-Tenant-ID"] = payload.tenantId;
           }

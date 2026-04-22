@@ -66,6 +66,7 @@ public class ProposalResponse {
     private Integer currentMilestoneIndex;
     private BigDecimal milestonePayableAmount;
     private Boolean isProforma;
+    private Boolean isTechnicalQuotation;
     private Boolean hasBeenConverted;
     private String parentProposalId;
     private BigDecimal parentTaxAmount;

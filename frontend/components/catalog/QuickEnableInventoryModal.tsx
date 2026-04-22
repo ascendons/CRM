@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import { createPortal } from 'react-dom';
-import { X, Package, Zap, Settings } from 'lucide-react';
-import { api } from '@/lib/api-client';
+import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
+import { X, Package, Zap, Settings } from "lucide-react";
+import { api } from "@/lib/api-client";
 
 interface QuickEnableInventoryModalProps {
   isOpen: boolean;
@@ -27,7 +27,7 @@ export default function QuickEnableInventoryModal({
   isOpen,
   onClose,
   products,
-  onSuccess
+  onSuccess,
 }: QuickEnableInventoryModalProps) {
   const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
   const [loading, setLoading] = useState(false);
@@ -35,61 +35,62 @@ export default function QuickEnableInventoryModal({
   const [showAdvanced, setShowAdvanced] = useState(false);
 
   const [formData, setFormData] = useState({
-    warehouseId: '',
+    warehouseId: "",
     initialStock: 0,
     minStockLevel: 10,
     reorderLevel: 20,
-    currency: 'INR',
+    currency: "INR",
     taxRate: 18,
     autoSyncEnabled: true,
-    autoGenerateSKU: true
+    autoGenerateSKU: true,
   });
 
   useEffect(() => {
     if (isOpen) {
-      document.body.style.overflow = 'hidden';
+      document.body.style.overflow = "hidden";
       fetchWarehouses();
     } else {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = "unset";
     }
 
     return () => {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = "unset";
     };
   }, [isOpen]);
 
   const fetchWarehouses = async () => {
     try {
-      const data = await api.get<Warehouse[]>('/inventory/warehouses/list');
+      const data = await api.get<Warehouse[]>("/inventory/warehouses/list");
       const warehouseList = Array.isArray(data) ? data : [];
       setWarehouses(warehouseList);
 
       // Auto-select default warehouse
-      const defaultWarehouse = warehouseList.find((w: any) => w.isDefault === true) || warehouseList[0];
+      const defaultWarehouse =
+        warehouseList.find((w: any) => w.isDefault === true) || warehouseList[0];
       if (defaultWarehouse) {
-        setFormData(prev => ({ ...prev, warehouseId: defaultWarehouse.id }));
+        setFormData((prev) => ({ ...prev, warehouseId: defaultWarehouse.id }));
       }
 
       if (warehouseList.length === 0) {
-        setError('No warehouses found. Please create a warehouse first.');
+        setError("No warehouses found. Please create a warehouse first.");
       }
     } catch (err) {
-      console.error('Failed to fetch warehouses:', err);
+      console.error("Failed to fetch warehouses:", err);
       setWarehouses([]);
-      setError('Failed to load warehouses. Please try again.');
+      setError("Failed to load warehouses. Please try again.");
     }
   };
 
   const extractPriceFromAttributes = (attributes?: Array<{ key: string; value: string }>) => {
     if (!attributes) return null;
 
-    const priceAttr = attributes.find(attr =>
-      attr.key.toLowerCase().includes('price') ||
-      attr.key.toLowerCase().includes('unitprice')
+    const priceAttr = attributes.find(
+      (attr) =>
+        attr.key.toLowerCase().includes("price") || attr.key.toLowerCase().includes("unitprice")
     );
 
     if (priceAttr) {
-      const cleaned = priceAttr.value.replace(/[^0-9.]/g, '');
+      const cleaned = priceAttr.value.replace(/[^0-9.]/g, "");
       const price = parseFloat(cleaned);
       return isNaN(price) ? null : price;
     }
@@ -98,9 +99,12 @@ export default function QuickEnableInventoryModal({
   };
 
   const generateSKU = (productName: string, index: number) => {
-    const prefix = productName.substring(0, 3).toUpperCase().replace(/[^A-Z]/g, 'X');
+    const prefix = productName
+      .substring(0, 3)
+      .toUpperCase()
+      .replace(/[^A-Z]/g, "X");
     const timestamp = Date.now().toString().slice(-6);
-    const seq = (index + 1).toString().padStart(3, '0');
+    const seq = (index + 1).toString().padStart(3, "0");
     return `${prefix}-${timestamp}-${seq}`;
   };
 
@@ -118,7 +122,9 @@ export default function QuickEnableInventoryModal({
         const extractedPrice = extractPriceFromAttributes(product.attributes);
 
         const payload = {
-          sku: formData.autoGenerateSKU ? generateSKU(product.displayName, i) : `SKU-${Date.now()}-${i}`,
+          sku: formData.autoGenerateSKU
+            ? generateSKU(product.displayName, i)
+            : `SKU-${Date.now()}-${i}`,
           warehouseId: formData.warehouseId,
           initialStock: formData.initialStock,
           minStockLevel: formData.minStockLevel,
@@ -126,8 +132,8 @@ export default function QuickEnableInventoryModal({
           basePrice: extractedPrice, // Use extracted price from UnitPrice attribute
           currency: formData.currency,
           taxRate: formData.taxRate,
-          taxType: 'GST',
-          autoSyncEnabled: formData.autoSyncEnabled
+          taxType: "GST",
+          autoSyncEnabled: formData.autoSyncEnabled,
         };
 
         try {
@@ -139,8 +145,8 @@ export default function QuickEnableInventoryModal({
         }
       }
 
-      const successCount = results.filter(r => r.success).length;
-      const failCount = results.filter(r => !r.success).length;
+      const successCount = results.filter((r) => r.success).length;
+      const failCount = results.filter((r) => !r.success).length;
 
       if (successCount > 0) {
         onSuccess();
@@ -152,8 +158,8 @@ export default function QuickEnableInventoryModal({
         setError(`Successfully enabled ${successCount} products. Failed: ${failCount}`);
       }
     } catch (err: any) {
-      console.error('Bulk enable failed:', err);
-      setError(err.message || 'Failed to enable inventory tracking');
+      console.error("Bulk enable failed:", err);
+      setError(err.message || "Failed to enable inventory tracking");
     } finally {
       setLoading(false);
     }
@@ -161,14 +167,14 @@ export default function QuickEnableInventoryModal({
 
   const resetForm = () => {
     setFormData({
-      warehouseId: '',
+      warehouseId: "",
       initialStock: 0,
       minStockLevel: 10,
       reorderLevel: 20,
-      currency: 'INR',
+      currency: "INR",
       taxRate: 18,
       autoSyncEnabled: true,
-      autoGenerateSKU: true
+      autoGenerateSKU: true,
     });
     setError(null);
     setShowAdvanced(false);
@@ -195,14 +201,11 @@ export default function QuickEnableInventoryModal({
             <div>
               <h2 className="text-xl font-semibold text-gray-900">Quick Enable Inventory</h2>
               <p className="text-sm text-gray-600 mt-0.5">
-                {products.length} product{products.length > 1 ? 's' : ''} selected
+                {products.length} product{products.length > 1 ? "s" : ""} selected
               </p>
             </div>
           </div>
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
-          >
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -223,7 +226,9 @@ export default function QuickEnableInventoryModal({
                 <p className="font-medium mb-1">✨ Smart Defaults Applied</p>
                 <ul className="space-y-1 text-xs">
                   <li>• SKU auto-generated for each product</li>
-                  <li>• <strong>UnitPrice automatically mapped to Base Price</strong></li>
+                  <li>
+                    • <strong>UnitPrice automatically mapped to Base Price</strong>
+                  </li>
                   <li>• Default warehouse selected automatically</li>
                   <li>• Currency & Tax set to INR/GST 18%</li>
                 </ul>
@@ -234,9 +239,7 @@ export default function QuickEnableInventoryModal({
           {/* Essential Fields */}
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Warehouse *
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Warehouse *</label>
               <select
                 required
                 value={formData.warehouseId}
@@ -246,8 +249,7 @@ export default function QuickEnableInventoryModal({
                 <option value="">Select Warehouse</option>
                 {warehouses.map((warehouse) => (
                   <option key={warehouse.id} value={warehouse.id}>
-                    {warehouse.name} ({warehouse.code})
-                    {warehouse.isDefault && ' - Default'}
+                    {warehouse.name} ({warehouse.code}){warehouse.isDefault && " - Default"}
                   </option>
                 ))}
               </select>
@@ -261,7 +263,9 @@ export default function QuickEnableInventoryModal({
                 type="number"
                 min="0"
                 value={formData.initialStock}
-                onChange={(e) => setFormData({ ...formData, initialStock: parseInt(e.target.value) || 0 })}
+                onChange={(e) =>
+                  setFormData({ ...formData, initialStock: parseInt(e.target.value) || 0 })
+                }
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="0"
               />
@@ -275,7 +279,7 @@ export default function QuickEnableInventoryModal({
             className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700 font-medium"
           >
             <Settings className="w-4 h-4" />
-            {showAdvanced ? 'Hide' : 'Show'} Advanced Settings
+            {showAdvanced ? "Hide" : "Show"} Advanced Settings
           </button>
 
           {/* Advanced Settings */}
@@ -290,7 +294,9 @@ export default function QuickEnableInventoryModal({
                     type="number"
                     min="0"
                     value={formData.minStockLevel}
-                    onChange={(e) => setFormData({ ...formData, minStockLevel: parseInt(e.target.value) || 0 })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, minStockLevel: parseInt(e.target.value) || 0 })
+                    }
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
@@ -303,7 +309,9 @@ export default function QuickEnableInventoryModal({
                     type="number"
                     min="0"
                     value={formData.reorderLevel}
-                    onChange={(e) => setFormData({ ...formData, reorderLevel: parseInt(e.target.value) || 0 })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, reorderLevel: parseInt(e.target.value) || 0 })
+                    }
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
@@ -311,9 +319,7 @@ export default function QuickEnableInventoryModal({
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Currency
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Currency</label>
                   <select
                     value={formData.currency}
                     onChange={(e) => setFormData({ ...formData, currency: e.target.value })}
@@ -335,7 +341,9 @@ export default function QuickEnableInventoryModal({
                     min="0"
                     max="100"
                     value={formData.taxRate}
-                    onChange={(e) => setFormData({ ...formData, taxRate: parseFloat(e.target.value) || 0 })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, taxRate: parseFloat(e.target.value) || 0 })
+                    }
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
@@ -373,16 +381,32 @@ export default function QuickEnableInventoryModal({
             >
               {loading ? (
                 <>
-                  <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  <svg
+                    className="animate-spin h-4 w-4 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
                   </svg>
                   Enabling...
                 </>
               ) : (
                 <>
                   <Zap className="w-4 h-4" />
-                  Enable for {products.length} Product{products.length > 1 ? 's' : ''}
+                  Enable for {products.length} Product{products.length > 1 ? "s" : ""}
                 </>
               )}
             </button>
@@ -392,7 +416,5 @@ export default function QuickEnableInventoryModal({
     </div>
   );
 
-  return typeof document !== 'undefined'
-    ? createPortal(modalContent, document.body)
-    : null;
+  return typeof document !== "undefined" ? createPortal(modalContent, document.body) : null;
 }

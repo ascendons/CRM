@@ -1,14 +1,14 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
-import { profilesService } from '@/lib/profiles';
-import { usersService } from '@/lib/users';
-import type { ProfileResponse } from '@/types/profile';
-import type { UserResponse } from '@/types/user';
-import { AdminRoute } from '@/components/AdminRoute';
-import { ArrowLeft, Edit, Shield, Users, Lock, Database, Eye } from 'lucide-react';
-import { toast } from 'react-hot-toast';
+import { useEffect, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { profilesService } from "@/lib/profiles";
+import { usersService } from "@/lib/users";
+import type { ProfileResponse } from "@/types/profile";
+import type { UserResponse } from "@/types/user";
+import { AdminRoute } from "@/components/AdminRoute";
+import { ArrowLeft, Edit, Shield, Users, Lock, Database, Eye } from "lucide-react";
+import { toast } from "react-hot-toast";
 
 export default function ProfileDetailPage() {
   return (
@@ -39,8 +39,8 @@ function ProfileDetailContent() {
       const data = await profilesService.getProfileById(profileId);
       setProfile(data);
     } catch (error: any) {
-      console.error('Failed to load profile:', error);
-      toast.error(error.message || 'Failed to load profile');
+      console.error("Failed to load profile:", error);
+      toast.error(error.message || "Failed to load profile");
     } finally {
       setLoading(false);
     }
@@ -51,10 +51,10 @@ function ProfileDetailContent() {
       setLoadingUsers(true);
       const allUsers = await usersService.getAllUsers();
       // Filter users assigned to this profile
-      const assignedUsers = allUsers.filter(u => u.profileId === profile?.profileId);
+      const assignedUsers = allUsers.filter((u) => u.profileId === profile?.profileId);
       setUsers(assignedUsers);
     } catch (error) {
-      console.error('Failed to load users:', error);
+      console.error("Failed to load users:", error);
     } finally {
       setLoadingUsers(false);
     }
@@ -74,7 +74,7 @@ function ProfileDetailContent() {
         <div className="text-center">
           <p className="text-gray-600">Profile not found</p>
           <button
-            onClick={() => router.push('/admin/profiles')}
+            onClick={() => router.push("/admin/profiles")}
             className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
           >
             Back to Profiles
@@ -97,7 +97,7 @@ function ProfileDetailContent() {
           </button>
           <div>
             <h1 className="text-2xl font-bold text-gray-900">{profile.profileName}</h1>
-            <p className="text-gray-600 mt-1">{profile.description || 'No description'}</p>
+            <p className="text-gray-600 mt-1">{profile.description || "No description"}</p>
           </div>
         </div>
         <button
@@ -132,12 +132,10 @@ function ProfileDetailContent() {
             </div>
             <span
               className={`px-2 py-1 text-xs font-medium rounded-full ${
-                profile.isActive
-                  ? 'bg-green-100 text-green-800'
-                  : 'bg-gray-100 text-gray-800'
+                profile.isActive ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"
               }`}
             >
-              {profile.isActive ? 'Active' : 'Inactive'}
+              {profile.isActive ? "Active" : "Inactive"}
             </span>
           </div>
         </div>
@@ -153,13 +151,27 @@ function ProfileDetailContent() {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Object</th>
-                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Create</th>
-                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Read</th>
-                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Edit</th>
-                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Delete</th>
-                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">View All</th>
-                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Modify All</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  Object
+                </th>
+                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">
+                  Create
+                </th>
+                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">
+                  Read
+                </th>
+                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">
+                  Edit
+                </th>
+                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">
+                  Delete
+                </th>
+                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">
+                  View All
+                </th>
+                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">
+                  Modify All
+                </th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
@@ -224,10 +236,8 @@ function ProfileDetailContent() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {Object.entries(profile.systemPermissions).map(([key, value]) => (
             <div key={key} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-              <span className="text-sm text-gray-700">
-                {key.replace(/([A-Z])/g, ' $1').trim()}
-              </span>
-              {typeof value === 'boolean' ? (
+              <span className="text-sm text-gray-700">{key.replace(/([A-Z])/g, " $1").trim()}</span>
+              {typeof value === "boolean" ? (
                 value ? (
                   <span className="text-green-600 font-semibold">✓</span>
                 ) : (
@@ -262,7 +272,8 @@ function ProfileDetailContent() {
               >
                 <div className="flex items-center gap-3">
                   <div className="h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center text-white text-sm font-semibold">
-                    {user.profile.firstName?.[0]}{user.profile.lastName?.[0]}
+                    {user.profile.firstName?.[0]}
+                    {user.profile.lastName?.[0]}
                   </div>
                   <div>
                     <p className="text-sm font-medium text-gray-900">

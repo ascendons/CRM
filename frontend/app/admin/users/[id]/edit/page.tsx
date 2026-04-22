@@ -86,11 +86,11 @@ export default function EditUserPage({ params }: { params: Promise<{ id: string 
         managerId: data.managerId || "",
         teamId: data.teamId || "",
         territoryId: data.territoryId || "",
-        timeZone: data.settings.timeZone,
-        language: data.settings.language,
-        dateFormat: data.settings.dateFormat,
-        currency: data.settings.currency,
-        emailNotifications: data.settings.emailNotifications,
+        timeZone: data.settings?.timeZone ?? "Asia/Kolkata",
+        language: data.settings?.language ?? "en",
+        dateFormat: data.settings?.dateFormat ?? "DD/MM/YYYY",
+        currency: data.settings?.currency ?? "INR",
+        emailNotifications: data.settings?.emailNotifications ?? true,
         desktopNotifications: data.settings.desktopNotifications,
       });
     } catch (err) {
@@ -223,8 +223,9 @@ export default function EditUserPage({ params }: { params: Promise<{ id: string 
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
-                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.email ? "border-red-500" : "border-gray-300"
-                    }`}
+                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                    errors.email ? "border-red-500" : "border-gray-300"
+                  }`}
                 />
                 {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
               </div>
@@ -242,10 +243,13 @@ export default function EditUserPage({ params }: { params: Promise<{ id: string 
                   name="firstName"
                   value={formData.firstName}
                   onChange={handleChange}
-                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.firstName ? "border-red-500" : "border-gray-300"
-                    }`}
+                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                    errors.firstName ? "border-red-500" : "border-gray-300"
+                  }`}
                 />
-                {errors.firstName && <p className="mt-1 text-sm text-red-600">{errors.firstName}</p>}
+                {errors.firstName && (
+                  <p className="mt-1 text-sm text-red-600">{errors.firstName}</p>
+                )}
               </div>
 
               <div>
@@ -255,8 +259,9 @@ export default function EditUserPage({ params }: { params: Promise<{ id: string 
                   name="lastName"
                   value={formData.lastName}
                   onChange={handleChange}
-                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.lastName ? "border-red-500" : "border-gray-300"
-                    }`}
+                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                    errors.lastName ? "border-red-500" : "border-gray-300"
+                  }`}
                 />
                 {errors.lastName && <p className="mt-1 text-sm text-red-600">{errors.lastName}</p>}
               </div>
@@ -322,8 +327,9 @@ export default function EditUserPage({ params }: { params: Promise<{ id: string 
                   value={formData.roleId || ""}
                   onChange={handleChange}
                   disabled={loadingData}
-                  className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${loadingData ? "bg-gray-100 cursor-not-allowed" : ""
-                    }`}
+                  className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                    loadingData ? "bg-gray-100 cursor-not-allowed" : ""
+                  }`}
                 >
                   <option value="">Select a role...</option>
                   {roles.map((role) => (
@@ -342,8 +348,9 @@ export default function EditUserPage({ params }: { params: Promise<{ id: string 
                   value={formData.profileId || ""}
                   onChange={handleChange}
                   disabled={loadingData}
-                  className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${loadingData ? "bg-gray-100 cursor-not-allowed" : ""
-                    }`}
+                  className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                    loadingData ? "bg-gray-100 cursor-not-allowed" : ""
+                  }`}
                 >
                   <option value="">Select a profile...</option>
                   {profiles.map((profile) => (
@@ -362,8 +369,9 @@ export default function EditUserPage({ params }: { params: Promise<{ id: string 
                   value={formData.managerId || ""}
                   onChange={handleChange}
                   disabled={loadingUsers}
-                  className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${loadingUsers ? "bg-gray-100 cursor-not-allowed" : ""
-                    }`}
+                  className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                    loadingUsers ? "bg-gray-100 cursor-not-allowed" : ""
+                  }`}
                 >
                   <option value="">No Manager (Administrator)</option>
                   {allUsers

@@ -147,7 +147,9 @@ function EditRolePageContent() {
           Back to Roles
         </button>
         <h1 className="text-2xl font-bold text-gray-900">Edit Role</h1>
-        <p className="text-gray-600 mt-1">{role.roleId} - {role.roleName}</p>
+        <p className="text-gray-600 mt-1">
+          {role.roleId} - {role.roleName}
+        </p>
       </div>
 
       {/* Form */}
@@ -172,9 +174,7 @@ function EditRolePageContent() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Description
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
               <textarea
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
@@ -218,7 +218,11 @@ function EditRolePageContent() {
             <div className="space-y-2">
               {[
                 { value: "OWN", label: "Own Records Only", desc: "Can only see records they own" },
-                { value: "SUBORDINATES", label: "Own + Subordinates", desc: "Can see their own records and those of their subordinates" },
+                {
+                  value: "SUBORDINATES",
+                  label: "Own + Subordinates",
+                  desc: "Can see their own records and those of their subordinates",
+                },
                 { value: "ALL_USERS", label: "All Users", desc: "Can see all users' records" },
                 { value: "ALL", label: "All Records", desc: "Can see all records in the system" },
               ].map((option) => (
@@ -235,7 +239,9 @@ function EditRolePageContent() {
                     name="dataVisibility"
                     value={option.value}
                     checked={formData.dataVisibility === option.value}
-                    onChange={(e) => setFormData({ ...formData, dataVisibility: e.target.value as any })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, dataVisibility: e.target.value as any })
+                    }
                     className="mt-1"
                   />
                   <div className="ml-3">
@@ -254,13 +260,41 @@ function EditRolePageContent() {
 
           <div className="space-y-3">
             {[
-              { key: "canManageUsers", label: "Manage Users", desc: "Create, edit, and deactivate users" },
-              { key: "canManageRoles", label: "Manage Roles", desc: "Create and modify role definitions" },
-              { key: "canManageProfiles", label: "Manage Profiles", desc: "Configure user profiles and permissions" },
-              { key: "canViewSetup", label: "View Setup", desc: "Access system setup and configuration" },
-              { key: "canManageSharing", label: "Manage Sharing", desc: "Configure sharing rules and settings" },
-              { key: "canViewAllData", label: "View All Data", desc: "Bypass sharing rules to view all data" },
-              { key: "canModifyAllData", label: "Modify All Data", desc: "Edit all records regardless of ownership" },
+              {
+                key: "canManageUsers",
+                label: "Manage Users",
+                desc: "Create, edit, and deactivate users",
+              },
+              {
+                key: "canManageRoles",
+                label: "Manage Roles",
+                desc: "Create and modify role definitions",
+              },
+              {
+                key: "canManageProfiles",
+                label: "Manage Profiles",
+                desc: "Configure user profiles and permissions",
+              },
+              {
+                key: "canViewSetup",
+                label: "View Setup",
+                desc: "Access system setup and configuration",
+              },
+              {
+                key: "canManageSharing",
+                label: "Manage Sharing",
+                desc: "Configure sharing rules and settings",
+              },
+              {
+                key: "canViewAllData",
+                label: "View All Data",
+                desc: "Bypass sharing rules to view all data",
+              },
+              {
+                key: "canModifyAllData",
+                label: "Modify All Data",
+                desc: "Edit all records regardless of ownership",
+              },
               { key: "canViewAuditLog", label: "View Audit Log", desc: "Access system audit logs" },
               { key: "canExportData", label: "Export Data", desc: "Export data to CSV/Excel" },
               { key: "canImportData", label: "Import Data", desc: "Import data from files" },
@@ -294,11 +328,7 @@ function EditRolePageContent() {
             Manage Module Permissions →
           </Button>
           <div className="flex gap-3">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => router.back()}
-            >
+            <Button type="button" variant="outline" onClick={() => router.back()}>
               Cancel
             </Button>
             <Button

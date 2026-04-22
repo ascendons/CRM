@@ -1,8 +1,8 @@
 "use client";
 
-import Link from 'next/link';
+import Link from "next/link";
 import { cn } from "@/lib/utils/cn";
-import React from 'react';
+import React from "react";
 
 export interface EmptyStateProps {
   icon?: string | React.ElementType;

@@ -93,7 +93,9 @@ export const productsService = {
       // Try to find existing custom product
       const response = await this.searchProducts(customSku);
       const products = Array.isArray(response) ? response : response.content;
-      const existing = products.find(p => p.sku === customSku || p.productName === "Custom Product");
+      const existing = products.find(
+        (p) => p.sku === customSku || p.productName === "Custom Product"
+      );
 
       if (existing) {
         return existing;
@@ -109,7 +111,6 @@ export const productsService = {
         taxRate: 0,
         taxType: "EXCLUSIVE",
         category: "Uncategorized", // Assuming this category exists or is allowed
-
       };
 
       return await this.createProduct(newProduct);

@@ -1,37 +1,37 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { shiftsApi, CreateShiftRequest } from '@/lib/api/shifts';
-import { toast } from 'react-hot-toast';
-import { ArrowLeft, Save } from 'lucide-react';
-import Link from 'next/link';
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { shiftsApi, CreateShiftRequest } from "@/lib/api/shifts";
+import { toast } from "react-hot-toast";
+import { ArrowLeft, Save } from "lucide-react";
+import Link from "next/link";
 
-const SHIFT_TYPES = ['FIXED', 'FLEXIBLE', 'ROTATIONAL'] as const;
-const DAYS_OF_WEEK = ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY'];
+const SHIFT_TYPES = ["FIXED", "FLEXIBLE", "ROTATIONAL"] as const;
+const DAYS_OF_WEEK = ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"];
 
 export default function NewShiftPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<CreateShiftRequest>({
-    name: '',
-    code: '',
-    description: '',
-    startTime: '09:00',
-    endTime: '18:00',
+    name: "",
+    code: "",
+    description: "",
+    startTime: "09:00",
+    endTime: "18:00",
     workHoursMinutes: 540, // 9 hours
-    type: 'FIXED',
+    type: "FIXED",
     graceMinutes: 15,
     flexibleStartMinutes: 0,
     flexibleEndMinutes: 0,
     mandatoryBreakMinutes: 60,
     maxBreakMinutes: 90,
-    workingDays: ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY'],
-    weekendDays: ['SATURDAY', 'SUNDAY'],
+    workingDays: ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY"],
+    weekendDays: ["SATURDAY", "SUNDAY"],
     allowOvertime: true,
     maxOvertimeMinutesPerDay: 180,
     minOvertimeMinutes: 30,
-    isDefault: false
+    isDefault: false,
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -40,24 +40,24 @@ export default function NewShiftPage() {
     try {
       setLoading(true);
       await shiftsApi.createShift(formData);
-      toast.success('Shift created successfully!');
-      router.push('/admin/settings/shifts');
+      toast.success("Shift created successfully!");
+      router.push("/admin/settings/shifts");
     } catch (error: any) {
-      console.error('Failed to create shift:', error);
-      toast.error(error.message || 'Failed to create shift');
+      console.error("Failed to create shift:", error);
+      toast.error(error.message || "Failed to create shift");
     } finally {
       setLoading(false);
     }
   };
 
   const toggleWorkingDay = (day: string) => {
-    setFormData(prev => {
+    setFormData((prev) => {
       const currentDays = prev.workingDays || [];
       return {
         ...prev,
         workingDays: currentDays.includes(day)
-          ? currentDays.filter(d => d !== day)
-          : [...currentDays, day]
+          ? currentDays.filter((d) => d !== day)
+          : [...currentDays, day],
       };
     });
   };
@@ -98,9 +98,7 @@ export default function NewShiftPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">
-                  Shift Code
-                </label>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Shift Code</label>
                 <input
                   type="text"
                   value={formData.code}
@@ -110,9 +108,7 @@ export default function NewShiftPage() {
                 />
               </div>
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-slate-700 mb-2">
-                  Description
-                </label>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Description</label>
                 <textarea
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
@@ -141,9 +137,7 @@ export default function NewShiftPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">
-                  End Time *
-                </label>
+                <label className="block text-sm font-medium text-slate-700 mb-2">End Time *</label>
                 <input
                   type="time"
                   required
@@ -153,16 +147,18 @@ export default function NewShiftPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">
-                  Type *
-                </label>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Type *</label>
                 <select
                   value={formData.type}
-                  onChange={(e) => setFormData({ ...formData, type: e.target.value as CreateShiftRequest['type'] })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, type: e.target.value as CreateShiftRequest["type"] })
+                  }
                   className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
-                  {SHIFT_TYPES.map(type => (
-                    <option key={type} value={type}>{type}</option>
+                  {SHIFT_TYPES.map((type) => (
+                    <option key={type} value={type}>
+                      {type}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -174,7 +170,9 @@ export default function NewShiftPage() {
                   type="number"
                   min="0"
                   value={formData.graceMinutes}
-                  onChange={(e) => setFormData({ ...formData, graceMinutes: parseInt(e.target.value) })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, graceMinutes: parseInt(e.target.value) })
+                  }
                   className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
@@ -186,7 +184,9 @@ export default function NewShiftPage() {
                   type="number"
                   min="0"
                   value={formData.mandatoryBreakMinutes}
-                  onChange={(e) => setFormData({ ...formData, mandatoryBreakMinutes: parseInt(e.target.value) })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, mandatoryBreakMinutes: parseInt(e.target.value) })
+                  }
                   className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
@@ -198,7 +198,9 @@ export default function NewShiftPage() {
                   type="number"
                   min="0"
                   value={formData.maxBreakMinutes}
-                  onChange={(e) => setFormData({ ...formData, maxBreakMinutes: parseInt(e.target.value) })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, maxBreakMinutes: parseInt(e.target.value) })
+                  }
                   className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
@@ -209,15 +211,15 @@ export default function NewShiftPage() {
           <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
             <h2 className="text-lg font-semibold text-slate-900 mb-4">Working Days</h2>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              {DAYS_OF_WEEK.map(day => (
+              {DAYS_OF_WEEK.map((day) => (
                 <button
                   key={day}
                   type="button"
                   onClick={() => toggleWorkingDay(day)}
                   className={`px-4 py-3 rounded-lg font-semibold text-sm transition-colors ${
                     formData.workingDays?.includes(day)
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                      ? "bg-blue-600 text-white"
+                      : "bg-slate-100 text-slate-600 hover:bg-slate-200"
                   }`}
                 >
                   {day.substring(0, 3)}
@@ -250,7 +252,12 @@ export default function NewShiftPage() {
                     type="number"
                     min="0"
                     value={formData.maxOvertimeMinutesPerDay}
-                    onChange={(e) => setFormData({ ...formData, maxOvertimeMinutesPerDay: parseInt(e.target.value) })}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        maxOvertimeMinutesPerDay: parseInt(e.target.value),
+                      })
+                    }
                     className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
@@ -262,7 +269,9 @@ export default function NewShiftPage() {
                     type="number"
                     min="0"
                     value={formData.minOvertimeMinutes}
-                    onChange={(e) => setFormData({ ...formData, minOvertimeMinutes: parseInt(e.target.value) })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, minOvertimeMinutes: parseInt(e.target.value) })
+                    }
                     className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>

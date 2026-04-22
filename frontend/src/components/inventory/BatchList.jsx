@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Button,
@@ -24,7 +24,7 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-} from '@mui/material';
+} from "@mui/material";
 import {
   Add as AddIcon,
   Warning as WarningIcon,
@@ -34,18 +34,18 @@ import {
   MoreVert as MoreIcon,
   Search as SearchIcon,
   LocalShipping as BatchIcon,
-} from '@mui/icons-material';
-import inventoryApi from '../../services/inventoryApi';
-import { format, differenceInDays } from 'date-fns';
-import BatchForm from './BatchForm';
+} from "@mui/icons-material";
+import inventoryApi from "../../services/inventoryApi";
+import { format, differenceInDays } from "date-fns";
+import BatchForm from "./BatchForm";
 
 const BatchList = () => {
   const [batches, setBatches] = useState([]);
   const [filteredBatches, setFilteredBatches] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filterType, setFilterType] = useState('all'); // all, expiring, expired, recalled
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterType, setFilterType] = useState("all"); // all, expiring, expired, recalled
 
   // Dialog states
   const [formOpen, setFormOpen] = useState(false);
@@ -53,7 +53,7 @@ const BatchList = () => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [quarantineDialogOpen, setQuarantineDialogOpen] = useState(false);
   const [recallDialogOpen, setRecallDialogOpen] = useState(false);
-  const [reason, setReason] = useState('');
+  const [reason, setReason] = useState("");
 
   // Stats
   const [expiringSoonCount, setExpiringSoonCount] = useState(0);
@@ -81,11 +81,7 @@ const BatchList = () => {
         inventoryApi.batches.getRecalled(),
       ]);
 
-      const allBatches = [
-        ...expiringRes.data,
-        ...expiredRes.data,
-        ...recalledRes.data,
-      ];
+      const allBatches = [...expiringRes.data, ...expiredRes.data, ...recalledRes.data];
 
       // Remove duplicates
       const uniqueBatches = allBatches.filter(
@@ -97,7 +93,7 @@ const BatchList = () => {
       setExpiredCount(expiredRes.data?.length || 0);
       setRecalledCount(recalledRes.data?.length || 0);
     } catch (err) {
-      setError('Failed to load batches: ' + err.message);
+      setError("Failed to load batches: " + err.message);
     } finally {
       setLoading(false);
     }
@@ -117,19 +113,18 @@ const BatchList = () => {
 
     // Apply type filter
     const today = new Date();
-    if (filterType === 'expiring') {
+    if (filterType === "expiring") {
       filtered = filtered.filter((batch) => {
         if (!batch.expiryDate) return false;
         const daysUntilExpiry = differenceInDays(new Date(batch.expiryDate), today);
         return daysUntilExpiry > 0 && daysUntilExpiry <= 30;
       });
-    } else if (filterType === 'expired') {
+    } else if (filterType === "expired") {
       filtered = filtered.filter(
         (batch) =>
-          batch.status === 'EXPIRED' ||
-          (batch.expiryDate && new Date(batch.expiryDate) < today)
+          batch.status === "EXPIRED" || (batch.expiryDate && new Date(batch.expiryDate) < today)
       );
-    } else if (filterType === 'recalled') {
+    } else if (filterType === "recalled") {
       filtered = filtered.filter((batch) => batch.isRecalled);
     }
 
@@ -149,11 +144,11 @@ const BatchList = () => {
     try {
       await inventoryApi.batches.quarantine(selectedBatch.id, reason);
       setQuarantineDialogOpen(false);
-      setReason('');
+      setReason("");
       handleMenuClose();
       fetchBatches();
     } catch (err) {
-      setError('Failed to quarantine batch: ' + err.message);
+      setError("Failed to quarantine batch: " + err.message);
     }
   };
 
@@ -163,7 +158,7 @@ const BatchList = () => {
       handleMenuClose();
       fetchBatches();
     } catch (err) {
-      setError('Failed to release batch: ' + err.message);
+      setError("Failed to release batch: " + err.message);
     }
   };
 
@@ -171,11 +166,11 @@ const BatchList = () => {
     try {
       await inventoryApi.batches.recall(selectedBatch.id, reason);
       setRecallDialogOpen(false);
-      setReason('');
+      setReason("");
       handleMenuClose();
       fetchBatches();
     } catch (err) {
-      setError('Failed to recall batch: ' + err.message);
+      setError("Failed to recall batch: " + err.message);
     }
   };
 
@@ -185,7 +180,7 @@ const BatchList = () => {
       handleMenuClose();
       fetchBatches();
     } catch (err) {
-      setError('Failed to mark batch as expired: ' + err.message);
+      setError("Failed to mark batch as expired: " + err.message);
     }
   };
 
@@ -193,10 +188,10 @@ const BatchList = () => {
     if (batch.isRecalled) {
       return <Chip label="RECALLED" color="error" size="small" icon={<BlockIcon />} />;
     }
-    if (batch.status === 'QUARANTINE') {
+    if (batch.status === "QUARANTINE") {
       return <Chip label="QUARANTINE" color="warning" size="small" icon={<WarningIcon />} />;
     }
-    if (batch.status === 'EXPIRED') {
+    if (batch.status === "EXPIRED") {
       return <Chip label="EXPIRED" color="error" size="small" />;
     }
 
@@ -247,7 +242,7 @@ const BatchList = () => {
       {/* Stats */}
       <Grid container spacing={2} mb={3}>
         <Grid item xs={12} sm={4}>
-          <Card sx={{ p: 2, cursor: 'pointer' }} onClick={() => setFilterType('expiring')}>
+          <Card sx={{ p: 2, cursor: "pointer" }} onClick={() => setFilterType("expiring")}>
             <Box display="flex" alignItems="center" gap={1}>
               <WarningIcon color="warning" />
               <Box>
@@ -262,7 +257,7 @@ const BatchList = () => {
           </Card>
         </Grid>
         <Grid item xs={12} sm={4}>
-          <Card sx={{ p: 2, cursor: 'pointer' }} onClick={() => setFilterType('expired')}>
+          <Card sx={{ p: 2, cursor: "pointer" }} onClick={() => setFilterType("expired")}>
             <Box display="flex" alignItems="center" gap={1}>
               <BlockIcon color="error" />
               <Box>
@@ -277,7 +272,7 @@ const BatchList = () => {
           </Card>
         </Grid>
         <Grid item xs={12} sm={4}>
-          <Card sx={{ p: 2, cursor: 'pointer' }} onClick={() => setFilterType('recalled')}>
+          <Card sx={{ p: 2, cursor: "pointer" }} onClick={() => setFilterType("recalled")}>
             <Box display="flex" alignItems="center" gap={1}>
               <BlockIcon color="error" />
               <Box>
@@ -322,32 +317,32 @@ const BatchList = () => {
             <Box display="flex" gap={1}>
               <Button
                 size="small"
-                variant={filterType === 'all' ? 'contained' : 'outlined'}
-                onClick={() => setFilterType('all')}
+                variant={filterType === "all" ? "contained" : "outlined"}
+                onClick={() => setFilterType("all")}
               >
                 All
               </Button>
               <Button
                 size="small"
-                variant={filterType === 'expiring' ? 'contained' : 'outlined'}
+                variant={filterType === "expiring" ? "contained" : "outlined"}
                 color="warning"
-                onClick={() => setFilterType('expiring')}
+                onClick={() => setFilterType("expiring")}
               >
                 Expiring Soon
               </Button>
               <Button
                 size="small"
-                variant={filterType === 'expired' ? 'contained' : 'outlined'}
+                variant={filterType === "expired" ? "contained" : "outlined"}
                 color="error"
-                onClick={() => setFilterType('expired')}
+                onClick={() => setFilterType("expired")}
               >
                 Expired
               </Button>
               <Button
                 size="small"
-                variant={filterType === 'recalled' ? 'contained' : 'outlined'}
+                variant={filterType === "recalled" ? "contained" : "outlined"}
                 color="error"
-                onClick={() => setFilterType('recalled')}
+                onClick={() => setFilterType("recalled")}
               >
                 Recalled
               </Button>
@@ -385,13 +380,11 @@ const BatchList = () => {
                   <TableCell>{batch.warehouseId}</TableCell>
                   <TableCell>
                     {batch.manufacturingDate
-                      ? format(new Date(batch.manufacturingDate), 'MMM dd, yyyy')
-                      : '-'}
+                      ? format(new Date(batch.manufacturingDate), "MMM dd, yyyy")
+                      : "-"}
                   </TableCell>
                   <TableCell>
-                    {batch.expiryDate
-                      ? format(new Date(batch.expiryDate), 'MMM dd, yyyy')
-                      : '-'}
+                    {batch.expiryDate ? format(new Date(batch.expiryDate), "MMM dd, yyyy") : "-"}
                   </TableCell>
                   <TableCell align="right">{batch.quantity}</TableCell>
                   <TableCell align="right">{batch.quantityAvailable}</TableCell>
@@ -431,7 +424,7 @@ const BatchList = () => {
           View Details
         </MenuItem>
 
-        {selectedBatch?.status !== 'QUARANTINE' && !selectedBatch?.isRecalled && (
+        {selectedBatch?.status !== "QUARANTINE" && !selectedBatch?.isRecalled && (
           <MenuItem
             onClick={() => {
               setQuarantineDialogOpen(true);
@@ -443,14 +436,14 @@ const BatchList = () => {
           </MenuItem>
         )}
 
-        {selectedBatch?.status === 'QUARANTINE' && (
+        {selectedBatch?.status === "QUARANTINE" && (
           <MenuItem onClick={handleReleaseQuarantine}>
             <CheckIcon sx={{ mr: 1 }} fontSize="small" />
             Release from Quarantine
           </MenuItem>
         )}
 
-        {!selectedBatch?.isRecalled && selectedBatch?.status !== 'EXPIRED' && (
+        {!selectedBatch?.isRecalled && selectedBatch?.status !== "EXPIRED" && (
           <MenuItem onClick={handleMarkExpired}>
             <BlockIcon sx={{ mr: 1 }} fontSize="small" />
             Mark as Expired
@@ -471,11 +464,15 @@ const BatchList = () => {
       </Menu>
 
       {/* Batch Form Dialog */}
-      <BatchForm open={formOpen} batch={selectedBatch} onClose={(saved) => {
-        setFormOpen(false);
-        setSelectedBatch(null);
-        if (saved) fetchBatches();
-      }} />
+      <BatchForm
+        open={formOpen}
+        batch={selectedBatch}
+        onClose={(saved) => {
+          setFormOpen(false);
+          setSelectedBatch(null);
+          if (saved) fetchBatches();
+        }}
+      />
 
       {/* Quarantine Dialog */}
       <Dialog open={quarantineDialogOpen} onClose={() => setQuarantineDialogOpen(false)}>

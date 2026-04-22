@@ -1,89 +1,89 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import { usePermissionContext } from '@/providers/PermissionProvider';
+import Link from "next/link";
+import { usePermissionContext } from "@/providers/PermissionProvider";
 
 const SETTINGS_SECTIONS = [
   {
-    title: 'Leave Management',
-    description: 'Configure leave policies and allocations',
+    title: "Leave Management",
+    description: "Configure leave policies and allocations",
     items: [
       {
-        name: 'Leave Policy',
-        description: 'Configure default leave allocations for all users',
-        href: '/admin/settings/leave-policy',
-        icon: '📋',
-        permission: 'canManageUsers'
-      }
-    ]
+        name: "Leave Policy",
+        description: "Configure default leave allocations for all users",
+        href: "/admin/settings/leave-policy",
+        icon: "📋",
+        permission: "canManageUsers",
+      },
+    ],
   },
   {
-    title: 'Attendance & Time Tracking',
-    description: 'Manage attendance and time tracking settings',
+    title: "Attendance & Time Tracking",
+    description: "Manage attendance and time tracking settings",
     items: [
       {
-        name: 'Office Locations',
-        description: 'Manage office locations and geofencing',
-        href: '/admin/settings/locations',
-        icon: '📍',
-        permission: 'canManageUsers'
+        name: "Office Locations",
+        description: "Manage office locations and geofencing",
+        href: "/admin/settings/locations",
+        icon: "📍",
+        permission: "canManageUsers",
       },
       {
-        name: 'Work Shifts',
-        description: 'Configure work shifts and schedules',
-        href: '/admin/settings/shifts',
-        icon: '🕒',
-        permission: 'canManageUsers'
+        name: "Work Shifts",
+        description: "Configure work shifts and schedules",
+        href: "/admin/settings/shifts",
+        icon: "🕒",
+        permission: "canManageUsers",
       },
       {
-        name: 'Holidays',
-        description: 'Manage holiday calendar',
-        href: '/admin/settings/holidays',
-        icon: '🎉',
-        permission: 'canManageUsers'
-      }
-    ]
+        name: "Holidays",
+        description: "Manage holiday calendar",
+        href: "/admin/settings/holidays",
+        icon: "🎉",
+        permission: "canManageUsers",
+      },
+    ],
   },
   {
-    title: 'User Management',
-    description: 'Manage users, roles, and permissions',
+    title: "User Management",
+    description: "Manage users, roles, and permissions",
     items: [
       {
-        name: 'Users',
-        description: 'Manage user accounts and profiles',
-        href: '/admin/users',
-        icon: '👥',
-        permission: 'canManageUsers'
+        name: "Users",
+        description: "Manage user accounts and profiles",
+        href: "/admin/users",
+        icon: "👥",
+        permission: "canManageUsers",
       },
       {
-        name: 'Roles & Permissions',
-        description: 'Configure roles and access control',
-        href: '/admin/roles',
-        icon: '🔐',
-        permission: 'canManageRoles'
+        name: "Roles & Permissions",
+        description: "Configure roles and access control",
+        href: "/admin/roles",
+        icon: "🔐",
+        permission: "canManageRoles",
       },
       {
-        name: 'Profiles',
-        description: 'Manage user profiles and field permissions',
-        href: '/admin/profiles',
-        icon: '👤',
-        permission: 'canManageProfiles'
-      }
-    ]
+        name: "Profiles",
+        description: "Manage user profiles and field permissions",
+        href: "/admin/profiles",
+        icon: "👤",
+        permission: "canManageProfiles",
+      },
+    ],
   },
   {
-    title: 'System Configuration',
-    description: 'System-wide settings and automation',
+    title: "System Configuration",
+    description: "System-wide settings and automation",
     items: [
       {
-        name: 'Lead Assignment',
-        description: 'Configure automatic lead assignment rules',
-        href: '/admin/lead-assignment',
-        icon: '🎯',
-        permission: 'canManageUsers'
-      }
-    ]
-  }
+        name: "Lead Assignment",
+        description: "Configure automatic lead assignment rules",
+        href: "/admin/lead-assignment",
+        icon: "🎯",
+        permission: "canManageUsers",
+      },
+    ],
+  },
 ];
 
 export default function AdminSettingsPage() {
@@ -94,17 +94,13 @@ export default function AdminSettingsPage() {
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold text-gray-900">Settings</h1>
-        <p className="text-gray-600 mt-1">
-          Manage system configurations and policies
-        </p>
+        <p className="text-gray-600 mt-1">Manage system configurations and policies</p>
       </div>
 
       {/* Settings Sections */}
       {SETTINGS_SECTIONS.map((section) => {
         // Filter items based on permissions
-        const visibleItems = section.items.filter(item =>
-          hasSystemPermission(item.permission)
-        );
+        const visibleItems = section.items.filter((item) => hasSystemPermission(item.permission));
 
         if (visibleItems.length === 0) return null;
 
@@ -148,15 +144,14 @@ export default function AdminSettingsPage() {
       })}
 
       {/* No Permissions Message */}
-      {SETTINGS_SECTIONS.every(section =>
-        section.items.every(item => !hasSystemPermission(item.permission))
+      {SETTINGS_SECTIONS.every((section) =>
+        section.items.every((item) => !hasSystemPermission(item.permission))
       ) && (
         <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-6 text-center">
           <span className="text-4xl mb-2 block">🔒</span>
           <h3 className="text-lg font-semibold text-yellow-900 mb-2">No Access</h3>
           <p className="text-yellow-700">
-            You don't have permission to access any settings.
-            Contact your administrator for access.
+            You don't have permission to access any settings. Contact your administrator for access.
           </p>
         </div>
       )}

@@ -1,12 +1,17 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { reportsApi, MonthlyReportResponse } from '@/lib/api/reports';
-import { AttendanceStatusBadge } from '@/components/attendance/AttendanceStatusBadge';
-import { BarChart, PieChart, ProgressRing } from '@/components/attendance/AttendanceCharts';
-import { toast } from 'react-hot-toast';
-import { Download, FileSpreadsheet, FileText } from 'lucide-react';
-import { exportToExcel, exportToPDF, formatAttendanceForExport, formatMonthlyReportForExport } from '@/lib/utils/exportUtils';
+import { useEffect, useState } from "react";
+import { reportsApi, MonthlyReportResponse } from "@/lib/api/reports";
+import { AttendanceStatusBadge } from "@/components/attendance/AttendanceStatusBadge";
+import { BarChart, PieChart, ProgressRing } from "@/components/attendance/AttendanceCharts";
+import { toast } from "react-hot-toast";
+import { Download, FileSpreadsheet, FileText } from "lucide-react";
+import {
+  exportToExcel,
+  exportToPDF,
+  formatAttendanceForExport,
+  formatMonthlyReportForExport,
+} from "@/lib/utils/exportUtils";
 
 export default function AttendanceReportsPage() {
   const [report, setReport] = useState<MonthlyReportResponse | null>(null);
@@ -20,8 +25,8 @@ export default function AttendanceReportsPage() {
       const data = await reportsApi.getMyMonthlyReport(year, month);
       setReport(data);
     } catch (error) {
-      console.error('Failed to load report:', error);
-      toast.error('Failed to load report');
+      console.error("Failed to load report:", error);
+      toast.error("Failed to load report");
     } finally {
       setLoading(false);
     }
@@ -39,11 +44,11 @@ export default function AttendanceReportsPage() {
       exportToExcel({
         headers,
         rows,
-        filename: `Attendance_${year}_${String(month).padStart(2, '0')}`
+        filename: `Attendance_${year}_${String(month).padStart(2, "0")}`,
       });
-      toast.success('Exported to Excel successfully!');
+      toast.success("Exported to Excel successfully!");
     } else {
-      toast.error('No data to export');
+      toast.error("No data to export");
     }
   };
 
@@ -55,12 +60,12 @@ export default function AttendanceReportsPage() {
       exportToPDF({
         headers,
         rows,
-        filename: `Attendance_${year}_${String(month).padStart(2, '0')}`,
-        title: `Attendance Report - ${month}/${year}`
+        filename: `Attendance_${year}_${String(month).padStart(2, "0")}`,
+        title: `Attendance Report - ${month}/${year}`,
       });
-      toast.success('Opening print dialog...');
+      toast.success("Opening print dialog...");
     } else {
-      toast.error('No data to export');
+      toast.error("No data to export");
     }
   };
 
@@ -71,22 +76,26 @@ export default function AttendanceReportsPage() {
     exportToExcel({
       headers,
       rows,
-      filename: `Attendance_Summary_${year}_${String(month).padStart(2, '0')}`
+      filename: `Attendance_Summary_${year}_${String(month).padStart(2, "0")}`,
     });
-    toast.success('Summary exported successfully!');
+    toast.success("Summary exported successfully!");
   };
 
   const formatTime = (time?: string) => {
-    if (!time) return '-';
+    if (!time) return "-";
     return time;
   };
 
   const getRatingColor = (rating: string) => {
     switch (rating) {
-      case 'EXCELLENT': return 'text-green-600';
-      case 'GOOD': return 'text-blue-600';
-      case 'AVERAGE': return 'text-yellow-600';
-      default: return 'text-red-600';
+      case "EXCELLENT":
+        return "text-green-600";
+      case "GOOD":
+        return "text-blue-600";
+      case "AVERAGE":
+        return "text-yellow-600";
+      default:
+        return "text-red-600";
     }
   };
 
@@ -118,7 +127,7 @@ export default function AttendanceReportsPage() {
           >
             {Array.from({ length: 12 }, (_, i) => (
               <option key={i + 1} value={i + 1}>
-                {new Date(2000, i).toLocaleString('default', { month: 'long' })}
+                {new Date(2000, i).toLocaleString("default", { month: "long" })}
               </option>
             ))}
           </select>
@@ -127,8 +136,10 @@ export default function AttendanceReportsPage() {
             onChange={(e) => setYear(Number(e.target.value))}
             className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
           >
-            {[year - 1, year, year + 1].map(y => (
-              <option key={y} value={y}>{y}</option>
+            {[year - 1, year, year + 1].map((y) => (
+              <option key={y} value={y}>
+                {y}
+              </option>
             ))}
           </select>
           <div className="flex gap-2">
@@ -187,7 +198,7 @@ export default function AttendanceReportsPage() {
         <div className="bg-white rounded-xl shadow p-6">
           <p className="text-sm text-gray-600 mb-2">Performance</p>
           <p className={`text-2xl font-bold ${getRatingColor(report.performanceRating)}`}>
-            {report.performanceRating.replace('_', ' ')}
+            {report.performanceRating.replace("_", " ")}
           </p>
           <p className="text-xs text-gray-500 mt-2">Overall rating</p>
         </div>
@@ -199,12 +210,12 @@ export default function AttendanceReportsPage() {
         <PieChart
           title="Attendance Distribution"
           data={[
-            { label: 'Present', value: report.presentDays, color: '#10b981' },
-            { label: 'Late', value: report.lateDays, color: '#f59e0b' },
-            { label: 'Absent', value: report.absentDays, color: '#ef4444' },
-            { label: 'On Leave', value: report.leaveDays, color: '#8b5cf6' },
-            { label: 'Half Day', value: report.halfDays, color: '#3b82f6' }
-          ].filter(item => item.value > 0)}
+            { label: "Present", value: report.presentDays, color: "#10b981" },
+            { label: "Late", value: report.lateDays, color: "#f59e0b" },
+            { label: "Absent", value: report.absentDays, color: "#ef4444" },
+            { label: "On Leave", value: report.leaveDays, color: "#8b5cf6" },
+            { label: "Half Day", value: report.halfDays, color: "#3b82f6" },
+          ].filter((item) => item.value > 0)}
         />
 
         {/* Work Hours Bar Chart */}
@@ -212,20 +223,20 @@ export default function AttendanceReportsPage() {
           title="Time Analysis"
           data={[
             {
-              label: 'Work Hours',
+              label: "Work Hours",
               value: Math.floor(report.totalWorkMinutes / 60),
-              color: '#3b82f6'
+              color: "#3b82f6",
             },
             {
-              label: 'Overtime',
+              label: "Overtime",
               value: Math.floor(report.totalOvertimeMinutes / 60),
-              color: '#10b981'
+              color: "#10b981",
             },
             {
-              label: 'Late (min)',
+              label: "Late (min)",
               value: report.totalLateMinutes,
-              color: '#f59e0b'
-            }
+              color: "#f59e0b",
+            },
           ]}
           height={250}
         />
@@ -314,7 +325,7 @@ export default function AttendanceReportsPage() {
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
             {Object.entries(report.leaveTypeBreakdown).map(([type, days]) => (
               <div key={type} className="bg-gray-50 rounded-lg p-4">
-                <p className="text-xs text-gray-600 mb-1">{type.replace('_', ' ')}</p>
+                <p className="text-xs text-gray-600 mb-1">{type.replace("_", " ")}</p>
                 <p className="text-2xl font-bold text-gray-900">{days}</p>
                 <p className="text-xs text-gray-500">days</p>
               </div>
@@ -347,21 +358,40 @@ export default function AttendanceReportsPage() {
           <table className="w-full">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Day</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Check In</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Check Out</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Work Hours</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Late</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Overtime</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  Date
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  Day
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  Status
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  Check In
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  Check Out
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  Work Hours
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  Late
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  Overtime
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
               {report.dailyAttendance.map((day) => (
                 <tr key={day.date} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {new Date(day.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                    {new Date(day.date).toLocaleDateString("en-US", {
+                      month: "short",
+                      day: "numeric",
+                    })}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                     {day.dayOfWeek.substring(0, 3)}
@@ -376,13 +406,15 @@ export default function AttendanceReportsPage() {
                     {formatTime(day.checkOutTime)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {day.workMinutes ? `${Math.floor(day.workMinutes / 60)}h ${day.workMinutes % 60}m` : '-'}
+                    {day.workMinutes
+                      ? `${Math.floor(day.workMinutes / 60)}h ${day.workMinutes % 60}m`
+                      : "-"}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-yellow-600">
-                    {day.lateMinutes ? `${day.lateMinutes}m` : '-'}
+                    {day.lateMinutes ? `${day.lateMinutes}m` : "-"}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-purple-600">
-                    {day.overtimeMinutes ? `${day.overtimeMinutes}m` : '-'}
+                    {day.overtimeMinutes ? `${day.overtimeMinutes}m` : "-"}
                   </td>
                 </tr>
               ))}

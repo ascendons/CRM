@@ -1,4 +1,4 @@
-import { api } from '../api-client';
+import { api } from "../api-client";
 
 export interface CreateLocationRequest {
   name: string;
@@ -11,7 +11,7 @@ export interface CreateLocationRequest {
   latitude: number;
   longitude: number;
   radiusMeters: number;
-  type?: 'HEAD_OFFICE' | 'BRANCH' | 'CLIENT_SITE' | 'COWORKING';
+  type?: "HEAD_OFFICE" | "BRANCH" | "CLIENT_SITE" | "COWORKING";
   enforceGeofence?: boolean;
   allowManualOverride?: boolean;
   allowRemoteCheckIn?: boolean;
@@ -59,14 +59,12 @@ export const locationsApi = {
   /**
    * Get all locations
    */
-  getAllLocations: (): Promise<LocationResponse[]> =>
-    api.get('/office-locations'),
+  getAllLocations: (): Promise<LocationResponse[]> => api.get("/office-locations"),
 
   /**
    * Get active locations only
    */
-  getActiveLocations: (): Promise<LocationResponse[]> =>
-    api.get('/office-locations/active'),
+  getActiveLocations: (): Promise<LocationResponse[]> => api.get("/office-locations/active"),
 
   /**
    * Get location by ID
@@ -78,7 +76,7 @@ export const locationsApi = {
    * Create new location
    */
   createLocation: (data: CreateLocationRequest): Promise<LocationResponse> =>
-    api.post('/office-locations', data),
+    api.post("/office-locations", data),
 
   /**
    * Update location
@@ -90,5 +88,5 @@ export const locationsApi = {
    * Delete location
    */
   deleteLocation: (locationId: string): Promise<void> =>
-    api.delete(`/office-locations/${locationId}`)
+    api.delete(`/office-locations/${locationId}`),
 };

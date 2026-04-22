@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { attendanceApi, CheckInRequest } from '@/lib/api/attendance';
-import { locationsApi } from '@/lib/api/locations';
-import { getCurrentPosition, getDeviceInfo } from '@/lib/utils/geolocation';
-import { toast } from 'react-hot-toast';
+import { useState, useEffect } from "react";
+import { attendanceApi, CheckInRequest } from "@/lib/api/attendance";
+import { locationsApi } from "@/lib/api/locations";
+import { getCurrentPosition, getDeviceInfo } from "@/lib/utils/geolocation";
+import { toast } from "react-hot-toast";
 
 interface CheckInButtonProps {
   onSuccess?: () => void;
@@ -20,9 +20,9 @@ interface OfficeLocation {
 
 export function CheckInButton({ onSuccess, officeLocationId }: CheckInButtonProps) {
   const [loading, setLoading] = useState(false);
-  const [attendanceType, setAttendanceType] = useState<'OFFICE' | 'REMOTE' | 'FIELD'>('OFFICE');
+  const [attendanceType, setAttendanceType] = useState<"OFFICE" | "REMOTE" | "FIELD">("OFFICE");
   const [officeLocations, setOfficeLocations] = useState<OfficeLocation[]>([]);
-  const [selectedLocationId, setSelectedLocationId] = useState<string>(officeLocationId || '');
+  const [selectedLocationId, setSelectedLocationId] = useState<string>(officeLocationId || "");
 
   useEffect(() => {
     loadOfficeLocations();
@@ -43,14 +43,14 @@ export function CheckInButton({ onSuccess, officeLocationId }: CheckInButtonProp
         setSelectedLocationId(data[0].locationId || data[0].id);
       }
     } catch (error: any) {
-      console.error('Failed to load office locations:', error);
+      console.error("Failed to load office locations:", error);
     }
   };
 
   const handleCheckIn = async () => {
     // Validate office location for OFFICE type
-    if (attendanceType === 'OFFICE' && !selectedLocationId) {
-      toast.error('Please select an office location or create one in Settings');
+    if (attendanceType === "OFFICE" && !selectedLocationId) {
+      toast.error("Please select an office location or create one in Settings");
       return;
     }
 
@@ -66,26 +66,26 @@ export function CheckInButton({ onSuccess, officeLocationId }: CheckInButtonProp
         longitude: position.coords.longitude,
         accuracy: position.coords.accuracy,
         deviceInfo: getDeviceInfo(),
-        officeLocationId: attendanceType === 'OFFICE' ? selectedLocationId : undefined
+        officeLocationId: attendanceType === "OFFICE" ? selectedLocationId : undefined,
       };
 
-      console.log('Check-in request:', request);
+      console.log("Check-in request:", request);
 
       const response = await attendanceApi.checkIn(request);
 
-      toast.success('✅ Checked in successfully!');
+      toast.success("✅ Checked in successfully!");
       onSuccess?.();
     } catch (error: any) {
-      console.error('Check-in error:', error);
+      console.error("Check-in error:", error);
 
-      const errorMessage = error.message || error.response?.data?.message || 'Failed to check in';
+      const errorMessage = error.message || error.response?.data?.message || "Failed to check in";
 
-      if (errorMessage.includes('permission')) {
-        toast.error('📍 Please enable location access to check in');
-      } else if (errorMessage.includes('geofence')) {
+      if (errorMessage.includes("permission")) {
+        toast.error("📍 Please enable location access to check in");
+      } else if (errorMessage.includes("geofence")) {
         toast.error(errorMessage);
-      } else if (errorMessage.includes('Office location')) {
-        toast.error('⚠️ ' + errorMessage);
+      } else if (errorMessage.includes("Office location")) {
+        toast.error("⚠️ " + errorMessage);
       } else {
         toast.error(errorMessage);
       }
@@ -98,31 +98,31 @@ export function CheckInButton({ onSuccess, officeLocationId }: CheckInButtonProp
     <div className="space-y-4">
       <div className="flex gap-2">
         <button
-          onClick={() => setAttendanceType('OFFICE')}
+          onClick={() => setAttendanceType("OFFICE")}
           className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-            attendanceType === 'OFFICE'
-              ? 'bg-blue-600 text-white'
-              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            attendanceType === "OFFICE"
+              ? "bg-blue-600 text-white"
+              : "bg-gray-100 text-gray-700 hover:bg-gray-200"
           }`}
         >
           Office
         </button>
         <button
-          onClick={() => setAttendanceType('REMOTE')}
+          onClick={() => setAttendanceType("REMOTE")}
           className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-            attendanceType === 'REMOTE'
-              ? 'bg-blue-600 text-white'
-              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            attendanceType === "REMOTE"
+              ? "bg-blue-600 text-white"
+              : "bg-gray-100 text-gray-700 hover:bg-gray-200"
           }`}
         >
           Remote
         </button>
         <button
-          onClick={() => setAttendanceType('FIELD')}
+          onClick={() => setAttendanceType("FIELD")}
           className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-            attendanceType === 'FIELD'
-              ? 'bg-blue-600 text-white'
-              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            attendanceType === "FIELD"
+              ? "bg-blue-600 text-white"
+              : "bg-gray-100 text-gray-700 hover:bg-gray-200"
           }`}
         >
           Field
@@ -130,11 +130,9 @@ export function CheckInButton({ onSuccess, officeLocationId }: CheckInButtonProp
       </div>
 
       {/* Office Location Selector (only for OFFICE type) */}
-      {attendanceType === 'OFFICE' && officeLocations.length > 0 && (
+      {attendanceType === "OFFICE" && officeLocations.length > 0 && (
         <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">
-            Select Office Location
-          </label>
+          <label className="block text-sm font-medium text-gray-700">Select Office Location</label>
           <select
             value={selectedLocationId}
             onChange={(e) => setSelectedLocationId(e.target.value)}
@@ -150,7 +148,7 @@ export function CheckInButton({ onSuccess, officeLocationId }: CheckInButtonProp
       )}
 
       {/* Warning if no office locations configured */}
-      {attendanceType === 'OFFICE' && officeLocations.length === 0 && (
+      {attendanceType === "OFFICE" && officeLocations.length === 0 && (
         <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
           <p className="text-sm text-yellow-800">
             ⚠️ No office locations configured. Please contact your admin or create one in Settings.
@@ -171,9 +169,7 @@ export function CheckInButton({ onSuccess, officeLocationId }: CheckInButtonProp
             Getting Location...
           </>
         ) : (
-          <>
-            📍 Check In ({attendanceType})
-          </>
+          <>📍 Check In ({attendanceType})</>
         )}
       </button>
     </div>

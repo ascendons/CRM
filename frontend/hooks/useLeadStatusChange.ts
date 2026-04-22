@@ -1,10 +1,10 @@
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { Lead, LeadStatus } from '@/types/lead';
-import { leadsService } from '@/lib/leads';
-import { activitiesService } from '@/lib/activities';
-import { CreateActivityRequest } from '@/types/activity';
-import toast from 'react-hot-toast';
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Lead, LeadStatus } from "@/types/lead";
+import { leadsService } from "@/lib/leads";
+import { activitiesService } from "@/lib/activities";
+import { CreateActivityRequest } from "@/types/activity";
+import toast from "react-hot-toast";
 
 interface UseLeadStatusChangeProps {
   onStatusChange?: (leadId: string, newStatus: LeadStatus) => void;
@@ -19,8 +19,11 @@ export function useLeadStatusChange({ onStatusChange }: UseLeadStatusChangeProps
     originalStatus: LeadStatus;
   } | null>(null);
 
-
-  const handleStatusChangeRequest = async (leadId: string, newStatus: LeadStatus, currentStatus: LeadStatus) => {
+  const handleStatusChangeRequest = async (
+    leadId: string,
+    newStatus: LeadStatus,
+    currentStatus: LeadStatus
+  ) => {
     // If status is changing to CONTACTED, QUALIFIED, UNQUALIFIED, NEGOTIATION, or LOST, open the modal
     if (
       (newStatus === LeadStatus.CONTACTED && currentStatus !== LeadStatus.CONTACTED) ||
@@ -55,7 +58,7 @@ export function useLeadStatusChange({ onStatusChange }: UseLeadStatusChangeProps
     if (newStatus === LeadStatus.PROPOSAL_SENT) {
       router.push(`/proposals/new?source=LEAD&sourceId=${leadId}`);
       // We do NOT update the status here. It will be updated when proposal is created.
-      // We might want to revert the UI optimism if any in the caller, 
+      // We might want to revert the UI optimism if any in the caller,
       // but since we are navigating away, it might not matter much.
       // However, if the user comes back, the status should be unchanged unless they actually created the proposal.
       return;
@@ -65,7 +68,11 @@ export function useLeadStatusChange({ onStatusChange }: UseLeadStatusChangeProps
     await updateStatus(leadId, newStatus, currentStatus);
   };
 
-  const updateStatus = async (leadId: string, newStatus: LeadStatus, originalStatus: LeadStatus) => {
+  const updateStatus = async (
+    leadId: string,
+    newStatus: LeadStatus,
+    originalStatus: LeadStatus
+  ) => {
     try {
       await leadsService.updateLeadStatus(leadId, newStatus);
       toast.success(`Lead status updated to ${newStatus.replace(/_/g, " ").toLowerCase()}`);
@@ -75,8 +82,8 @@ export function useLeadStatusChange({ onStatusChange }: UseLeadStatusChangeProps
     } catch (error) {
       console.error("Failed to update status", error);
       toast.error("Failed to update status");
-      // Revert optmistic updates if handled by parent, 
-      // but here we primarily handle the API call. 
+      // Revert optmistic updates if handled by parent,
+      // but here we primarily handle the API call.
       // Parent components might need to handle reversion if they did optimistic updates.
       // For now, we assume parent waits or refreshes.
     }
@@ -93,7 +100,8 @@ export function useLeadStatusChange({ onStatusChange }: UseLeadStatusChangeProps
       // 2. SPECIAL CASE: LOST -> Create CLOSED_LOST opportunity
       if (pendingStatusChange.newStatus === LeadStatus.LOST) {
         try {
-          const lossReason = activityData.description || activityData.subject || 'No reason provided';
+          const lossReason =
+            activityData.description || activityData.subject || "No reason provided";
           await leadsService.loseLead(pendingStatusChange.leadId, lossReason);
           toast.success("Lost deal recorded in opportunities");
           if (onStatusChange) {
@@ -105,9 +113,12 @@ export function useLeadStatusChange({ onStatusChange }: UseLeadStatusChangeProps
         }
       } else {
         // 3. Update the status for other cases
-        await updateStatus(pendingStatusChange.leadId, pendingStatusChange.newStatus, pendingStatusChange.originalStatus);
+        await updateStatus(
+          pendingStatusChange.leadId,
+          pendingStatusChange.newStatus,
+          pendingStatusChange.originalStatus
+        );
       }
-
     } catch (error) {
       console.error("Failed to save activity or update status", error);
       toast.error("Failed to complete action");
@@ -145,6 +156,6 @@ export function useLeadStatusChange({ onStatusChange }: UseLeadStatusChangeProps
     pendingStatusChange,
     handleActivitySave,
     handleModalClose,
-    getModalProps
+    getModalProps,
   };
 }

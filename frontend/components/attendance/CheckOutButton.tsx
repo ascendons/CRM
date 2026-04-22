@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { attendanceApi, CheckOutRequest } from '@/lib/api/attendance';
-import { getCurrentPosition, getDeviceInfo } from '@/lib/utils/geolocation';
-import { toast } from 'react-hot-toast';
+import { useState } from "react";
+import { attendanceApi, CheckOutRequest } from "@/lib/api/attendance";
+import { getCurrentPosition, getDeviceInfo } from "@/lib/utils/geolocation";
+import { toast } from "react-hot-toast";
 
 interface CheckOutButtonProps {
   attendanceId: string;
@@ -25,19 +25,19 @@ export function CheckOutButton({ attendanceId, onSuccess }: CheckOutButtonProps)
         latitude: position.coords.latitude,
         longitude: position.coords.longitude,
         accuracy: position.coords.accuracy,
-        deviceInfo: getDeviceInfo()
+        deviceInfo: getDeviceInfo(),
       };
 
       await attendanceApi.checkOut(request);
-      toast.success('✅ Checked out successfully!');
+      toast.success("✅ Checked out successfully!");
       onSuccess?.();
     } catch (error: any) {
-      console.error('Check-out error:', error);
+      console.error("Check-out error:", error);
 
-      if (error.message?.includes('permission')) {
-        toast.error('📍 Please enable location access to check out');
+      if (error.message?.includes("permission")) {
+        toast.error("📍 Please enable location access to check out");
       } else {
-        toast.error('Failed to check out. Please try again.');
+        toast.error("Failed to check out. Please try again.");
       }
     } finally {
       setLoading(false);
@@ -58,9 +58,7 @@ export function CheckOutButton({ attendanceId, onSuccess }: CheckOutButtonProps)
           Getting Location...
         </>
       ) : (
-        <>
-          🏁 Check Out
-        </>
+        <>🏁 Check Out</>
       )}
     </button>
   );

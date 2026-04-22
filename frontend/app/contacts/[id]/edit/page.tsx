@@ -405,7 +405,9 @@ export default function EditContactPage({ params }: { params: Promise<{ id: stri
                 <CountryStateSelector
                   countryValue={formData.mailingCountry || ""}
                   stateValue={formData.mailingState || ""}
-                  onCountryChange={(val) => setFormData((prev) => ({ ...prev, mailingCountry: val }))}
+                  onCountryChange={(val) =>
+                    setFormData((prev) => ({ ...prev, mailingCountry: val }))
+                  }
                   onStateChange={(val) => setFormData((prev) => ({ ...prev, mailingState: val }))}
                 />
               </div>

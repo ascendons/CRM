@@ -166,6 +166,21 @@ public class UserController {
                         .build());
     }
 
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasPermission('USER', 'DELETE')")
+    public ResponseEntity<ApiResponse<Void>> deleteUser(@PathVariable String id) {
+        String currentUserId = getCurrentUserId();
+        log.info("User {} deleting user: {}", currentUserId, id);
+
+        userService.deleteUser(id, currentUserId);
+
+        return ResponseEntity.ok(
+                ApiResponse.<Void>builder()
+                        .success(true)
+                        .message("User deleted successfully")
+                        .build());
+    }
+
     @PostMapping("/{id}/deactivate")
     @PreAuthorize("hasPermission('USER', 'DELETE')")
     public ResponseEntity<ApiResponse<Void>> deactivateUser(

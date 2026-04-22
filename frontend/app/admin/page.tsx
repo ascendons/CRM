@@ -74,9 +74,7 @@ function AdminPageContent() {
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Administration</h1>
-        <p className="text-gray-600">
-          Manage users, roles, permissions, and system settings
-        </p>
+        <p className="text-gray-600">Manage users, roles, permissions, and system settings</p>
       </div>
 
       {/* Admin Cards Grid */}
@@ -102,24 +100,20 @@ function AdminPageContent() {
               )}
 
               {/* Icon */}
-              <div className={`inline-flex items-center justify-center w-12 h-12 ${section.color} rounded-lg mb-4`}>
+              <div
+                className={`inline-flex items-center justify-center w-12 h-12 ${section.color} rounded-lg mb-4`}
+              >
                 <Icon className="h-6 w-6 text-white" />
               </div>
 
               {/* Title */}
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                {section.title}
-              </h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">{section.title}</h3>
 
               {/* Description */}
-              <p className="text-sm text-gray-600 mb-3">
-                {section.description}
-              </p>
+              <p className="text-sm text-gray-600 mb-3">{section.description}</p>
 
               {/* Permissions */}
-              <p className="text-xs text-gray-500 italic">
-                {section.permissions}
-              </p>
+              <p className="text-xs text-gray-500 italic">{section.permissions}</p>
             </button>
           );
         })}
@@ -132,27 +126,28 @@ function AdminPageContent() {
             <Shield className="h-6 w-6 text-blue-600" />
           </div>
           <div className="ml-3">
-            <h3 className="text-sm font-medium text-blue-900">
-              Role-Based Access Control (RBAC)
-            </h3>
+            <h3 className="text-sm font-medium text-blue-900">Role-Based Access Control (RBAC)</h3>
             <div className="mt-2 text-sm text-blue-800">
               <p className="mb-2">
                 This CRM uses a comprehensive permission system with three layers:
               </p>
               <ul className="list-disc list-inside space-y-1 ml-2">
                 <li>
-                  <strong>Roles</strong>: Define hierarchy and data visibility (who can see what records)
+                  <strong>Roles</strong>: Define hierarchy and data visibility (who can see what
+                  records)
                 </li>
                 <li>
-                  <strong>Profiles</strong>: Define object/field permissions (what actions users can perform)
+                  <strong>Profiles</strong>: Define object/field permissions (what actions users can
+                  perform)
                 </li>
                 <li>
-                  <strong>Record-Level</strong>: Ownership and sharing rules (granular access control)
+                  <strong>Record-Level</strong>: Ownership and sharing rules (granular access
+                  control)
                 </li>
               </ul>
               <p className="mt-3 text-xs">
-                Every user must be assigned both a role and a profile. The first user is automatically
-                assigned System Administrator role and profile with full access.
+                Every user must be assigned both a role and a profile. The first user is
+                automatically assigned System Administrator role and profile with full access.
               </p>
             </div>
           </div>

@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 interface ChartData {
   label: string;
@@ -13,7 +13,7 @@ interface BarChartProps {
 }
 
 export function BarChart({ data, title, height = 300 }: BarChartProps) {
-  const maxValue = Math.max(...data.map(d => d.value), 1);
+  const maxValue = Math.max(...data.map((d) => d.value), 1);
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
@@ -34,13 +34,11 @@ export function BarChart({ data, title, height = 300 }: BarChartProps) {
                     className="h-full rounded-lg transition-all duration-500 flex items-center justify-end px-3"
                     style={{
                       width: `${percentage}%`,
-                      backgroundColor: color
+                      backgroundColor: color,
                     }}
                   >
                     {item.value > 0 && (
-                      <span className="text-sm font-bold text-white drop-shadow">
-                        {item.value}
-                      </span>
+                      <span className="text-sm font-bold text-white drop-shadow">{item.value}</span>
                     )}
                   </div>
                 </div>
@@ -101,7 +99,7 @@ export function PieChart({ data, title, size = 200 }: PieChartProps) {
       ...item,
       path,
       color,
-      percentage
+      percentage,
     };
   });
 
@@ -131,10 +129,7 @@ export function PieChart({ data, title, size = 200 }: PieChartProps) {
           {slices.map((slice, index) => (
             <div key={index} className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div
-                  className="w-4 h-4 rounded"
-                  style={{ backgroundColor: slice.color }}
-                />
+                <div className="w-4 h-4 rounded" style={{ backgroundColor: slice.color }} />
                 <span className="text-sm font-medium text-slate-700">{slice.label}</span>
               </div>
               <div className="text-right">
@@ -158,18 +153,20 @@ interface LineChartProps {
   color?: string;
 }
 
-export function LineChart({ data, title, height = 200, color = '#3b82f6' }: LineChartProps) {
+export function LineChart({ data, title, height = 200, color = "#3b82f6" }: LineChartProps) {
   if (data.length === 0) return null;
 
-  const maxValue = Math.max(...data.map(d => d.value), 1);
+  const maxValue = Math.max(...data.map((d) => d.value), 1);
   const width = 100; // percentage
   const padding = 10;
 
-  const points = data.map((item, index) => {
-    const x = (index / (data.length - 1 || 1)) * (width - 2 * padding) + padding;
-    const y = height - ((item.value / maxValue) * (height - 2 * padding) + padding);
-    return `${x},${y}`;
-  }).join(' ');
+  const points = data
+    .map((item, index) => {
+      const x = (index / (data.length - 1 || 1)) * (width - 2 * padding) + padding;
+      const y = height - ((item.value / maxValue) * (height - 2 * padding) + padding);
+      return `${x},${y}`;
+    })
+    .join(" ");
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
@@ -232,7 +229,11 @@ export function LineChart({ data, title, height = 200, color = '#3b82f6' }: Line
       <div className="flex justify-between mt-4">
         {data.map((item, index) => {
           // Show only every few labels to avoid crowding
-          if (data.length > 10 && index % Math.ceil(data.length / 7) !== 0 && index !== data.length - 1) {
+          if (
+            data.length > 10 &&
+            index % Math.ceil(data.length / 7) !== 0 &&
+            index !== data.length - 1
+          ) {
             return <div key={index} />;
           }
           return (
@@ -261,7 +262,7 @@ export function ProgressRing({
   label,
   size = 120,
   strokeWidth = 10,
-  color = '#3b82f6'
+  color = "#3b82f6",
 }: ProgressRingProps) {
   const percentage = Math.min((value / max) * 100, 100);
   const radius = (size - strokeWidth) / 2;

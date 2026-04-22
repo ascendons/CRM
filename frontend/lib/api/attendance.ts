@@ -1,7 +1,7 @@
-import { api } from '../api-client';
+import { api } from "../api-client";
 
 export interface CheckInRequest {
-  type: 'OFFICE' | 'REMOTE' | 'FIELD' | 'HYBRID' | 'CLIENT_SITE';
+  type: "OFFICE" | "REMOTE" | "FIELD" | "HYBRID" | "CLIENT_SITE";
   latitude: number;
   longitude: number;
   accuracy?: number;
@@ -23,7 +23,7 @@ export interface CheckOutRequest {
 
 export interface BreakStartRequest {
   attendanceId: string;
-  type: 'LUNCH' | 'TEA' | 'PERSONAL' | 'PRAYER' | 'SMOKING' | 'MEETING';
+  type: "LUNCH" | "TEA" | "PERSONAL" | "PRAYER" | "SMOKING" | "MEETING";
   latitude?: number;
   longitude?: number;
   accuracy?: number;
@@ -39,22 +39,17 @@ export interface BreakEndRequest {
 
 export const attendanceApi = {
   // Check-in/out
-  checkIn: (data: CheckInRequest) =>
-    api.post('/attendance/check-in', data),
+  checkIn: (data: CheckInRequest) => api.post("/attendance/check-in", data),
 
-  checkOut: (data: CheckOutRequest) =>
-    api.post('/attendance/check-out', data),
+  checkOut: (data: CheckOutRequest) => api.post("/attendance/check-out", data),
 
   // Break management
-  startBreak: (data: BreakStartRequest) =>
-    api.post('/attendance/break/start', data),
+  startBreak: (data: BreakStartRequest) => api.post("/attendance/break/start", data),
 
-  endBreak: (data: BreakEndRequest) =>
-    api.post('/attendance/break/end', data),
+  endBreak: (data: BreakEndRequest) => api.post("/attendance/break/end", data),
 
   // My attendance
-  getMyToday: <T = any>() =>
-    api.get<T>('/attendance/my/today'),
+  getMyToday: <T = any>() => api.get<T>("/attendance/my/today"),
 
   getMyHistory: (startDate: string, endDate: string) =>
     api.get(`/attendance/my/history?startDate=${startDate}&endDate=${endDate}`),
@@ -62,12 +57,11 @@ export const attendanceApi = {
   getMySummary: (year: number, month: number) =>
     api.get(`/attendance/my/summary?year=${year}&month=${month}`),
 
-  getAttendanceById: <T = any>(attendanceId: string) =>
-    api.get<T>(`/attendance/${attendanceId}`),
+  getAttendanceById: <T = any>(attendanceId: string) => api.get<T>(`/attendance/${attendanceId}`),
 
   // Admin APIs
   getDailyDashboard: <T = any>(date?: string) =>
-    api.get<T>(`/attendance/admin/dashboard/daily${date ? '?date=' + date : ''}`),
+    api.get<T>(`/attendance/admin/dashboard/daily${date ? "?date=" + date : ""}`),
 
   getMonthlyReport: (userId: string, year: number, month: number) =>
     api.get(`/attendance/admin/report/monthly/${userId}?year=${year}&month=${month}`),
@@ -76,5 +70,5 @@ export const attendanceApi = {
     api.get(`/attendance/admin/team?startDate=${startDate}&endDate=${endDate}`),
 
   getDetailedDailyAttendance: (date?: string) =>
-    api.get(`/attendance/admin/daily-list${date ? '?date=' + date : ''}`)
+    api.get(`/attendance/admin/daily-list${date ? "?date=" + date : ""}`),
 };

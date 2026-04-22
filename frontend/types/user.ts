@@ -114,9 +114,7 @@ export function getUserStatusColor(isActive: boolean): string {
 }
 
 export function getUserStatusBadge(isActive: boolean): string {
-  return isActive
-    ? "bg-green-100 text-green-800"
-    : "bg-gray-100 text-gray-800";
+  return isActive ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800";
 }
 
 export function isPasswordExpiringSoon(expiresAt: string): boolean {

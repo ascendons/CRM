@@ -1,12 +1,22 @@
-import { api } from '../api-client';
+import { api } from "../api-client";
 
 export interface CreateLeaveRequest {
-  leaveType: 'SICK' | 'CASUAL' | 'EARNED' | 'PAID' | 'UNPAID' | 'MATERNITY' | 'PATERNITY' | 'COMPENSATORY' | 'BEREAVEMENT' | 'MARRIAGE';
+  leaveType:
+    | "SICK"
+    | "CASUAL"
+    | "EARNED"
+    | "PAID"
+    | "UNPAID"
+    | "MATERNITY"
+    | "PATERNITY"
+    | "COMPENSATORY"
+    | "BEREAVEMENT"
+    | "MARRIAGE";
   startDate: string;
   endDate: string;
   reason: string;
   isHalfDay?: boolean;
-  halfDayType?: 'FIRST_HALF' | 'SECOND_HALF';
+  halfDayType?: "FIRST_HALF" | "SECOND_HALF";
   attachments?: string[];
   isEmergencyLeave?: boolean;
   emergencyContactNumber?: string;
@@ -42,7 +52,7 @@ export interface LeaveResponse {
   halfDayType?: string;
   reason: string;
   attachments: string[];
-  status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'CANCELLED' | 'WITHDRAWN';
+  status: "PENDING" | "APPROVED" | "REJECTED" | "CANCELLED" | "WITHDRAWN";
   approverId?: string;
   approverName?: string;
   approvedAt?: string;
@@ -96,54 +106,48 @@ export const leavesApi = {
   /**
    * Apply for leave
    */
-  applyLeave: (data: CreateLeaveRequest): Promise<LeaveResponse> =>
-    api.post('/leaves', data),
+  applyLeave: (data: CreateLeaveRequest): Promise<LeaveResponse> => api.post("/leaves", data),
 
   /**
    * Get my leaves
    */
-  getMyLeaves: (): Promise<LeaveResponse[]> =>
-    api.get('/leaves/my'),
+  getMyLeaves: (): Promise<LeaveResponse[]> => api.get("/leaves/my"),
 
   /**
    * Get team leaves (Manager)
    */
-  getTeamLeaves: (): Promise<LeaveResponse[]> =>
-    api.get('/leaves/team'),
+  getTeamLeaves: (): Promise<LeaveResponse[]> => api.get("/leaves/team"),
 
   /**
    * Get leave by ID
    */
-  getLeaveById: (leaveId: string): Promise<LeaveResponse> =>
-    api.get(`/leaves/${leaveId}`),
+  getLeaveById: (leaveId: string): Promise<LeaveResponse> => api.get(`/leaves/${leaveId}`),
 
   /**
    * Cancel leave
    */
   cancelLeave: (data: CancelLeaveRequest): Promise<LeaveResponse> =>
-    api.post('/leaves/cancel', data),
+    api.post("/leaves/cancel", data),
 
   /**
    * Get leave balance
    */
   getMyBalance: (year?: number): Promise<LeaveBalanceResponse> =>
-    api.get(`/leaves/my/balance${year ? `?year=${year}` : ''}`),
+    api.get(`/leaves/my/balance${year ? `?year=${year}` : ""}`),
 
   /**
    * Get pending approvals (Manager)
    */
-  getPendingApprovals: (): Promise<LeaveResponse[]> =>
-    api.get('/leaves/admin/pending'),
+  getPendingApprovals: (): Promise<LeaveResponse[]> => api.get("/leaves/admin/pending"),
 
   /**
    * Get all pending approvals (Admin)
    */
-  getAllPendingApprovals: (): Promise<LeaveResponse[]> =>
-    api.get('/leaves/admin/all-pending'),
+  getAllPendingApprovals: (): Promise<LeaveResponse[]> => api.get("/leaves/admin/all-pending"),
 
   /**
    * Approve or reject leave (Manager)
    */
   approveLeave: (data: ApproveLeaveRequest): Promise<LeaveResponse> =>
-    api.post('/leaves/admin/approve', data)
+    api.post("/leaves/admin/approve", data),
 };

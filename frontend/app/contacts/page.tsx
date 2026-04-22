@@ -18,7 +18,7 @@ import {
   ArrowUpDown,
   Mail,
   Building2,
-  XCircle
+  XCircle,
 } from "lucide-react";
 
 export default function ContactsPage() {
@@ -77,10 +77,11 @@ export default function ContactsPage() {
     try {
       // Optimistic filtering first
       const term = query.toLowerCase();
-      const localFiltered = contacts.filter(c =>
-        c.firstName.toLowerCase().includes(term) ||
-        c.lastName.toLowerCase().includes(term) ||
-        c.email.toLowerCase().includes(term)
+      const localFiltered = contacts.filter(
+        (c) =>
+          c.firstName.toLowerCase().includes(term) ||
+          c.lastName.toLowerCase().includes(term) ||
+          c.email.toLowerCase().includes(term)
       );
       setFilteredContacts(localFiltered);
     } catch (err) {
@@ -100,8 +101,8 @@ export default function ContactsPage() {
 
   const getSortedContacts = (contactsToSort: Contact[]) => {
     return [...contactsToSort].sort((a, b) => {
-      let aValue: string | number = '';
-      let bValue: string | number = '';
+      let aValue: string | number = "";
+      let bValue: string | number = "";
 
       switch (sortColumn) {
         case "name":
@@ -109,12 +110,12 @@ export default function ContactsPage() {
           bValue = `${b.firstName} ${b.lastName}`.toLowerCase();
           break;
         case "account":
-          aValue = (a.accountName || '').toLowerCase();
-          bValue = (b.accountName || '').toLowerCase();
+          aValue = (a.accountName || "").toLowerCase();
+          bValue = (b.accountName || "").toLowerCase();
           break;
         case "title":
-          aValue = (a.jobTitle || '').toLowerCase();
-          bValue = (b.jobTitle || '').toLowerCase();
+          aValue = (a.jobTitle || "").toLowerCase();
+          bValue = (b.jobTitle || "").toLowerCase();
           break;
         case "email":
           aValue = a.email.toLowerCase();
@@ -184,9 +185,10 @@ export default function ContactsPage() {
     }
   };
 
-  const isAllSelected = paginatedContacts.length > 0 && selectedContacts.length === paginatedContacts.length;
-  const isSomeSelected = selectedContacts.length > 0 && selectedContacts.length < paginatedContacts.length;
-
+  const isAllSelected =
+    paginatedContacts.length > 0 && selectedContacts.length === paginatedContacts.length;
+  const isSomeSelected =
+    selectedContacts.length > 0 && selectedContacts.length < paginatedContacts.length;
 
   if (loading) {
     return (
@@ -209,8 +211,12 @@ export default function ContactsPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between py-4 gap-4">
             <div>
-              <h1 className="text-2xl font-bold text-slate-900  tracking-tight">Contact Management</h1>
-              <p className="text-sm text-slate-500 ">Manage your contact relationships and communications.</p>
+              <h1 className="text-2xl font-bold text-slate-900  tracking-tight">
+                Contact Management
+              </h1>
+              <p className="text-sm text-slate-500 ">
+                Manage your contact relationships and communications.
+              </p>
             </div>
             <div className="flex items-center gap-3">
               <button className="flex items-center gap-2 px-4 py-2 bg-white  border border-slate-200  text-slate-700  rounded-xl text-sm font-semibold hover:bg-slate-50  transition-colors shadow-sm">
@@ -247,7 +253,9 @@ export default function ContactsPage() {
               <div className="flex items-center gap-3 bg-blue-50  text-blue-700  px-4 py-2 rounded-xl text-sm font-medium animate-fade-in">
                 <span>{selectedContacts.length} selected</span>
                 <div className="h-4 w-px bg-blue-200  mx-1"></div>
-                <button onClick={() => setSelectedContacts([])} className="hover:underline">Clear</button>
+                <button onClick={() => setSelectedContacts([])} className="hover:underline">
+                  Clear
+                </button>
               </div>
             )}
           </div>
@@ -271,17 +279,19 @@ export default function ContactsPage() {
                       <input
                         type="checkbox"
                         checked={isAllSelected}
-                        ref={(el) => { if (el) el.indeterminate = isSomeSelected; }}
+                        ref={(el) => {
+                          if (el) el.indeterminate = isSomeSelected;
+                        }}
                         onChange={(e) => handleSelectAll(e.target.checked)}
                         className="w-4 h-4 text-primary bg-white border-slate-300 rounded focus:ring-primary focus:ring-2 cursor-pointer"
                       />
                     </div>
                   </th>
                   {[
-                    { key: 'name', label: 'Contact' },
-                    { key: 'account', label: 'Account' },
-                    { key: 'title', label: 'Job Title' },
-                    { key: 'email', label: 'Email' },
+                    { key: "name", label: "Contact" },
+                    { key: "account", label: "Account" },
+                    { key: "title", label: "Job Title" },
+                    { key: "email", label: "Email" },
                   ].map((col) => (
                     <th
                       key={col.key}
@@ -290,11 +300,15 @@ export default function ContactsPage() {
                     >
                       <div className="flex items-center gap-2">
                         {col.label}
-                        <ArrowUpDown className={`h-3 w-3 ${sortColumn === col.key ? 'text-primary' : 'text-slate-300 group-hover:text-slate-500'}`} />
+                        <ArrowUpDown
+                          className={`h-3 w-3 ${sortColumn === col.key ? "text-primary" : "text-slate-300 group-hover:text-slate-500"}`}
+                        />
                       </div>
                     </th>
                   ))}
-                  <th className="px-6 py-4 text-xs font-semibold text-slate-500  uppercase tracking-wider">Actions</th>
+                  <th className="px-6 py-4 text-xs font-semibold text-slate-500  uppercase tracking-wider">
+                    Actions
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 ">
@@ -319,10 +333,7 @@ export default function ContactsPage() {
                   </tr>
                 ) : (
                   paginatedContacts.map((contact) => (
-                    <tr
-                      key={contact.id}
-                      className="hover:bg-slate-50  transition-colors group"
-                    >
+                    <tr key={contact.id} className="hover:bg-slate-50  transition-colors group">
                       <td className="px-6 py-4">
                         <div className="flex items-center">
                           <input
@@ -333,10 +344,14 @@ export default function ContactsPage() {
                           />
                         </div>
                       </td>
-                      <td className="px-6 py-4 cursor-pointer" onClick={() => router.push(`/contacts/${contact.id}`)}>
+                      <td
+                        className="px-6 py-4 cursor-pointer"
+                        onClick={() => router.push(`/contacts/${contact.id}`)}
+                      >
                         <div className="flex items-center gap-3">
                           <div className="h-9 w-9 rounded-full bg-purple-100  flex items-center justify-center text-purple-700  font-bold text-xs ring-2 ring-white  shadow-sm">
-                            {contact.firstName?.[0]}{contact.lastName?.[0]}
+                            {contact.firstName?.[0]}
+                            {contact.lastName?.[0]}
                           </div>
                           <div>
                             <p className="text-sm font-semibold text-slate-900 ">
@@ -391,7 +406,16 @@ export default function ContactsPage() {
         {sortedContacts.length > 0 && (
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white px-4 sm:px-6 py-4 rounded-2xl border border-slate-200 shadow-sm">
             <p className="text-sm text-slate-600 ">
-              Showing <span className="font-semibold text-slate-900 ">{(currentPage - 1) * itemsPerPage + 1}</span> to <span className="font-semibold text-slate-900 ">{Math.min(currentPage * itemsPerPage, sortedContacts.length)}</span> of <span className="font-semibold text-slate-900 ">{sortedContacts.length}</span> results
+              Showing{" "}
+              <span className="font-semibold text-slate-900 ">
+                {(currentPage - 1) * itemsPerPage + 1}
+              </span>{" "}
+              to{" "}
+              <span className="font-semibold text-slate-900 ">
+                {Math.min(currentPage * itemsPerPage, sortedContacts.length)}
+              </span>{" "}
+              of <span className="font-semibold text-slate-900 ">{sortedContacts.length}</span>{" "}
+              results
             </p>
             <div className="flex items-center gap-2">
               <button

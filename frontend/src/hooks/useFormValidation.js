@@ -1,5 +1,5 @@
-import { useState, useCallback } from 'react';
-import { validateForm, validateField } from '../utils/validation';
+import { useState, useCallback } from "react";
+import { validateForm, validateField } from "../utils/validation";
 
 /**
  * Custom hook for form validation
@@ -20,83 +20,92 @@ const useFormValidation = (initialValues, validationRules, onSubmit) => {
   /**
    * Handle input change
    */
-  const handleChange = useCallback((event) => {
-    const { name, value, type, checked } = event.target;
-    const fieldValue = type === 'checkbox' ? checked : value;
+  const handleChange = useCallback(
+    (event) => {
+      const { name, value, type, checked } = event.target;
+      const fieldValue = type === "checkbox" ? checked : value;
 
-    setValues((prev) => ({
-      ...prev,
-      [name]: fieldValue,
-    }));
-
-    // Clear error when user starts typing
-    if (errors[name]) {
-      setErrors((prev) => ({
+      setValues((prev) => ({
         ...prev,
-        [name]: '',
+        [name]: fieldValue,
       }));
-    }
-  }, [errors]);
+
+      // Clear error when user starts typing
+      if (errors[name]) {
+        setErrors((prev) => ({
+          ...prev,
+          [name]: "",
+        }));
+      }
+    },
+    [errors]
+  );
 
   /**
    * Handle input change for nested fields (e.g., address.city)
    */
-  const handleNestedChange = useCallback((name) => (event) => {
-    const { value, type, checked } = event.target;
-    const fieldValue = type === 'checkbox' ? checked : value;
+  const handleNestedChange = useCallback(
+    (name) => (event) => {
+      const { value, type, checked } = event.target;
+      const fieldValue = type === "checkbox" ? checked : value;
 
-    setValues((prev) => {
-      const keys = name.split('.');
-      const newValues = { ...prev };
-      let current = newValues;
+      setValues((prev) => {
+        const keys = name.split(".");
+        const newValues = { ...prev };
+        let current = newValues;
 
-      // Navigate to nested object
-      for (let i = 0; i < keys.length - 1; i++) {
-        if (!current[keys[i]]) {
-          current[keys[i]] = {};
+        // Navigate to nested object
+        for (let i = 0; i < keys.length - 1; i++) {
+          if (!current[keys[i]]) {
+            current[keys[i]] = {};
+          }
+          current = current[keys[i]];
         }
-        current = current[keys[i]];
+
+        // Set the value
+        current[keys[keys.length - 1]] = fieldValue;
+
+        return newValues;
+      });
+
+      // Clear error when user starts typing
+      if (errors[name]) {
+        setErrors((prev) => ({
+          ...prev,
+          [name]: "",
+        }));
       }
-
-      // Set the value
-      current[keys[keys.length - 1]] = fieldValue;
-
-      return newValues;
-    });
-
-    // Clear error when user starts typing
-    if (errors[name]) {
-      setErrors((prev) => ({
-        ...prev,
-        [name]: '',
-      }));
-    }
-  }, [errors]);
+    },
+    [errors]
+  );
 
   /**
    * Handle field blur - validate on blur
    */
-  const handleBlur = useCallback((event) => {
-    const { name } = event.target;
+  const handleBlur = useCallback(
+    (event) => {
+      const { name } = event.target;
 
-    setTouched((prev) => ({
-      ...prev,
-      [name]: true,
-    }));
+      setTouched((prev) => ({
+        ...prev,
+        [name]: true,
+      }));
 
-    // Validate field on blur
-    if (validationRules[name]) {
-      const value = getNestedValue(values, name);
-      const result = validateField(name, value, validationRules[name]);
+      // Validate field on blur
+      if (validationRules[name]) {
+        const value = getNestedValue(values, name);
+        const result = validateField(name, value, validationRules[name]);
 
-      if (!result.isValid) {
-        setErrors((prev) => ({
-          ...prev,
-          [name]: result.error,
-        }));
+        if (!result.isValid) {
+          setErrors((prev) => ({
+            ...prev,
+            [name]: result.error,
+          }));
+        }
       }
-    }
-  }, [values, validationRules]);
+    },
+    [values, validationRules]
+  );
 
   /**
    * Validate all fields
@@ -110,32 +119,35 @@ const useFormValidation = (initialValues, validationRules, onSubmit) => {
   /**
    * Handle form submit
    */
-  const handleSubmit = useCallback(async (event) => {
-    if (event) {
-      event.preventDefault();
-    }
-
-    // Mark all fields as touched
-    const allTouched = Object.keys(validationRules).reduce((acc, key) => {
-      acc[key] = true;
-      return acc;
-    }, {});
-    setTouched(allTouched);
-
-    // Validate all fields
-    const isValid = validate();
-
-    if (isValid) {
-      setIsSubmitting(true);
-      try {
-        await onSubmit(values);
-      } catch (error) {
-        console.error('Form submission error:', error);
-      } finally {
-        setIsSubmitting(false);
+  const handleSubmit = useCallback(
+    async (event) => {
+      if (event) {
+        event.preventDefault();
       }
-    }
-  }, [values, validationRules, onSubmit, validate]);
+
+      // Mark all fields as touched
+      const allTouched = Object.keys(validationRules).reduce((acc, key) => {
+        acc[key] = true;
+        return acc;
+      }, {});
+      setTouched(allTouched);
+
+      // Validate all fields
+      const isValid = validate();
+
+      if (isValid) {
+        setIsSubmitting(true);
+        try {
+          await onSubmit(values);
+        } catch (error) {
+          console.error("Form submission error:", error);
+        } finally {
+          setIsSubmitting(false);
+        }
+      }
+    },
+    [values, validationRules, onSubmit, validate]
+  );
 
   /**
    * Reset form to initial values
@@ -178,7 +190,7 @@ const useFormValidation = (initialValues, validationRules, onSubmit) => {
    * Get nested value from object using dot notation
    */
   const getNestedValue = (obj, path) => {
-    return path.split('.').reduce((current, key) => current?.[key], obj);
+    return path.split(".").reduce((current, key) => current?.[key], obj);
   };
 
   /**
@@ -192,7 +204,7 @@ const useFormValidation = (initialValues, validationRules, onSubmit) => {
    * Get error message for field
    */
   const getError = (fieldName) => {
-    return hasError(fieldName) ? errors[fieldName] : '';
+    return hasError(fieldName) ? errors[fieldName] : "";
   };
 
   return {

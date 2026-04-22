@@ -1,7 +1,7 @@
 "use client";
 
-import React from 'react';
-import { useRouter } from 'next/navigation';
+import React from "react";
+import { useRouter } from "next/navigation";
 import {
   Warehouse,
   Package,
@@ -9,61 +9,61 @@ import {
   PackageCheck,
   BookmarkCheck,
   BarChart3,
-} from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+} from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
 const InventoryDashboard = () => {
   const router = useRouter();
 
   const modules = [
     {
-      title: 'Warehouses',
-      description: 'Manage warehouses and storage locations',
+      title: "Warehouses",
+      description: "Manage warehouses and storage locations",
       icon: Warehouse,
-      path: '/inventory/warehouses',
-      color: 'text-blue-600',
-      bgColor: 'bg-blue-50',
+      path: "/inventory/warehouses",
+      color: "text-blue-600",
+      bgColor: "bg-blue-50",
     },
     {
-      title: 'Stock Management',
-      description: 'Track inventory levels and stock movements',
+      title: "Stock Management",
+      description: "Track inventory levels and stock movements",
       icon: Package,
-      path: '/inventory/stock',
-      color: 'text-green-600',
-      bgColor: 'bg-green-50',
+      path: "/inventory/stock",
+      color: "text-green-600",
+      bgColor: "bg-green-50",
     },
     {
-      title: 'Purchase Orders',
-      description: 'Create and manage purchase orders',
+      title: "Purchase Orders",
+      description: "Create and manage purchase orders",
       icon: ShoppingCart,
-      path: '/inventory/purchase-orders',
-      color: 'text-indigo-600',
-      bgColor: 'bg-indigo-50',
+      path: "/inventory/purchase-orders",
+      color: "text-indigo-600",
+      bgColor: "bg-indigo-50",
     },
     {
-      title: 'Batch Management',
-      description: 'Track batches, expiry dates, and QC',
+      title: "Batch Management",
+      description: "Track batches, expiry dates, and QC",
       icon: PackageCheck,
-      path: '/inventory/batches',
-      color: 'text-amber-600',
-      bgColor: 'bg-amber-50',
+      path: "/inventory/batches",
+      color: "text-amber-600",
+      bgColor: "bg-amber-50",
     },
     {
-      title: 'Reservations',
-      description: 'Manage stock reservations and allocations',
+      title: "Reservations",
+      description: "Manage stock reservations and allocations",
       icon: BookmarkCheck,
-      path: '/inventory/reservations',
-      color: 'text-purple-600',
-      bgColor: 'bg-purple-50',
+      path: "/inventory/reservations",
+      color: "text-purple-600",
+      bgColor: "bg-purple-50",
     },
     {
-      title: 'Reports & Analytics',
-      description: 'View comprehensive inventory reports',
+      title: "Reports & Analytics",
+      description: "View comprehensive inventory reports",
       icon: BarChart3,
-      path: '/inventory/reports',
-      color: 'text-red-600',
-      bgColor: 'bg-red-50',
+      path: "/inventory/reports",
+      color: "text-red-600",
+      bgColor: "bg-red-50",
     },
   ];
 
@@ -86,7 +86,9 @@ const InventoryDashboard = () => {
               onClick={() => router.push(module.path)}
             >
               <CardHeader className="space-y-4">
-                <div className={`w-16 h-16 rounded-lg ${module.bgColor} flex items-center justify-center`}>
+                <div
+                  className={`w-16 h-16 rounded-lg ${module.bgColor} flex items-center justify-center`}
+                >
                   <Icon className={`w-8 h-8 ${module.color}`} />
                 </div>
                 <div>

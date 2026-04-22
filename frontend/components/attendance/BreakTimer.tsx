@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { attendanceApi } from '@/lib/api/attendance';
-import { toast } from 'react-hot-toast';
-import { Coffee, Clock, Play, Square } from 'lucide-react';
+import { useState, useEffect } from "react";
+import { attendanceApi } from "@/lib/api/attendance";
+import { toast } from "react-hot-toast";
+import { Coffee, Clock, Play, Square } from "lucide-react";
 
 interface BreakTimerProps {
   attendanceId: string;
@@ -12,17 +12,17 @@ interface BreakTimerProps {
 }
 
 const BREAK_TYPES = [
-  { value: 'LUNCH', label: 'Lunch Break', icon: '🍽️' },
-  { value: 'TEA', label: 'Tea Break', icon: '☕' },
-  { value: 'PERSONAL', label: 'Personal', icon: '🚶' },
-  { value: 'PRAYER', label: 'Prayer', icon: '🕌' },
-  { value: 'SMOKING', label: 'Smoking', icon: '🚬' },
-  { value: 'MEETING', label: 'Meeting', icon: '👥' }
+  { value: "LUNCH", label: "Lunch Break", icon: "🍽️" },
+  { value: "TEA", label: "Tea Break", icon: "☕" },
+  { value: "PERSONAL", label: "Personal", icon: "🚶" },
+  { value: "PRAYER", label: "Prayer", icon: "🕌" },
+  { value: "SMOKING", label: "Smoking", icon: "🚬" },
+  { value: "MEETING", label: "Meeting", icon: "👥" },
 ];
 
 export function BreakTimer({ attendanceId, activeBreak, onBreakUpdate }: BreakTimerProps) {
   const [loading, setLoading] = useState(false);
-  const [selectedBreakType, setSelectedBreakType] = useState<string>('LUNCH');
+  const [selectedBreakType, setSelectedBreakType] = useState<string>("LUNCH");
   const [elapsedTime, setElapsedTime] = useState(0);
 
   // Calculate elapsed time for active break
@@ -52,9 +52,9 @@ export function BreakTimer({ attendanceId, activeBreak, onBreakUpdate }: BreakTi
     const secs = seconds % 60;
 
     if (hours > 0) {
-      return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+      return `${hours}:${minutes.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
     }
-    return `${minutes}:${secs.toString().padStart(2, '0')}`;
+    return `${minutes}:${secs.toString().padStart(2, "0")}`;
   };
 
   const handleStartBreak = async () => {
@@ -63,14 +63,14 @@ export function BreakTimer({ attendanceId, activeBreak, onBreakUpdate }: BreakTi
 
       await attendanceApi.startBreak({
         attendanceId,
-        type: selectedBreakType as any
+        type: selectedBreakType as any,
       });
 
-      toast.success('Break started!');
+      toast.success("Break started!");
       onBreakUpdate();
     } catch (error: any) {
-      console.error('Failed to start break:', error);
-      toast.error(error.message || 'Failed to start break');
+      console.error("Failed to start break:", error);
+      toast.error(error.message || "Failed to start break");
     } finally {
       setLoading(false);
     }
@@ -82,14 +82,14 @@ export function BreakTimer({ attendanceId, activeBreak, onBreakUpdate }: BreakTi
 
       await attendanceApi.endBreak({
         attendanceId,
-        breakId: activeBreak.breakId
+        breakId: activeBreak.breakId,
       });
 
-      toast.success('Break ended!');
+      toast.success("Break ended!");
       onBreakUpdate();
     } catch (error: any) {
-      console.error('Failed to end break:', error);
-      toast.error(error.message || 'Failed to end break');
+      console.error("Failed to end break:", error);
+      toast.error(error.message || "Failed to end break");
     } finally {
       setLoading(false);
     }
@@ -97,7 +97,7 @@ export function BreakTimer({ attendanceId, activeBreak, onBreakUpdate }: BreakTi
 
   if (activeBreak) {
     // Show active break timer
-    const breakTypeInfo = BREAK_TYPES.find(bt => bt.value === activeBreak.type) || BREAK_TYPES[0];
+    const breakTypeInfo = BREAK_TYPES.find((bt) => bt.value === activeBreak.type) || BREAK_TYPES[0];
 
     return (
       <div className="bg-amber-500/10 backdrop-blur-sm rounded-xl p-4 border border-amber-400/30">
@@ -159,8 +159,8 @@ export function BreakTimer({ attendanceId, activeBreak, onBreakUpdate }: BreakTi
             onClick={() => setSelectedBreakType(breakType.value)}
             className={`px-3 py-2 rounded-lg text-xs font-medium transition-colors ${
               selectedBreakType === breakType.value
-                ? 'bg-white text-blue-700'
-                : 'bg-white/10 text-white hover:bg-white/20'
+                ? "bg-white text-blue-700"
+                : "bg-white/10 text-white hover:bg-white/20"
             }`}
           >
             <span className="block mb-1">{breakType.icon}</span>

@@ -455,6 +455,26 @@ public class UserService extends BaseTenantService {
     }
 
     @Transactional
+    public void deleteUser(String id, String deletedBy) {
+        log.info("Soft-deleting user with id: {}", id);
+
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
+
+        validateResourceTenantOwnership(user.getTenantId());
+
+        user.setIsDeleted(true);
+        user.setStatus(UserStatus.INACTIVE);
+        user.setDeletedAt(LocalDateTime.now());
+        user.setDeletedBy(deletedBy);
+        user.setLastModifiedAt(LocalDateTime.now());
+        user.setLastModifiedBy(deletedBy);
+
+        userRepository.save(user);
+        log.info("User soft-deleted successfully with userId: {}", user.getUserId());
+    }
+
+    @Transactional
     public void deactivateUser(String id, String deactivatedBy, String reason) {
         log.info("Deactivating user with id: {}", id);
 

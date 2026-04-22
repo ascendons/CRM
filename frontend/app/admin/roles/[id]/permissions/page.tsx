@@ -3,7 +3,11 @@
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { rolesService } from "@/lib/roles";
-import type { RoleResponse, ModulePermissionResponse, ModuleDefinitionResponse } from "@/types/role";
+import type {
+  RoleResponse,
+  ModulePermissionResponse,
+  ModuleDefinitionResponse,
+} from "@/types/role";
 import { Button } from "@/components/ui/button";
 import { AdminRoute } from "@/components/AdminRoute";
 import { ArrowLeft, Save, Shield } from "lucide-react";
@@ -50,9 +54,7 @@ function RolePermissionsPageContent() {
       // Build permission map
       const permissionMap: Record<string, boolean> = {};
       modules.forEach((module) => {
-        const existing = currentPermissions.find(
-          (p) => p.moduleName === module.moduleName
-        );
+        const existing = currentPermissions.find((p) => p.moduleName === module.moduleName);
         permissionMap[module.moduleName] = existing?.canAccess ?? false;
       });
 
@@ -130,10 +132,7 @@ function RolePermissionsPageContent() {
             </p>
           </div>
           <div className="flex items-center space-x-3">
-            <Button
-              variant="outline"
-              onClick={() => router.push(`/admin/roles/${roleId}/edit`)}
-            >
+            <Button variant="outline" onClick={() => router.push(`/admin/roles/${roleId}/edit`)}>
               Edit Role Details
             </Button>
             <Button
@@ -193,7 +192,8 @@ function RolePermissionsPageContent() {
           <div className="mb-4">
             <h2 className="text-lg font-semibold text-gray-900">Module Access Control</h2>
             <p className="text-sm text-gray-600 mt-1">
-              Select which modules users with this role can access. Each module includes multiple related pages.
+              Select which modules users with this role can access. Each module includes multiple
+              related pages.
             </p>
           </div>
 
@@ -261,15 +261,17 @@ function RolePermissionsPageContent() {
           <div className="mb-4">
             <h2 className="text-lg font-semibold text-gray-900">Object-Level Permissions</h2>
             <p className="text-sm text-gray-600 mt-1">
-              Object permissions are configured via the Profile. Go to Profile Management to set CRUD permissions.
+              Object permissions are configured via the Profile. Go to Profile Management to set
+              CRUD permissions.
             </p>
           </div>
 
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
             <p className="text-sm text-blue-800">
-              <strong>Note:</strong> Object-level permissions (Create, Read, Update, Delete) are managed at the{" "}
-              <strong>Profile</strong> level, not at the Role level. Roles control module access, while Profiles
-              control what actions users can perform on specific objects.
+              <strong>Note:</strong> Object-level permissions (Create, Read, Update, Delete) are
+              managed at the <strong>Profile</strong> level, not at the Role level. Roles control
+              module access, while Profiles control what actions users can perform on specific
+              objects.
             </p>
           </div>
 
@@ -295,9 +297,19 @@ function RolePermissionsPageContent() {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {["Lead", "Contact", "Account", "Opportunity", "Activity", "Product", "Proposal"].map((obj) => (
+                {[
+                  "Lead",
+                  "Contact",
+                  "Account",
+                  "Opportunity",
+                  "Activity",
+                  "Product",
+                  "Proposal",
+                ].map((obj) => (
                   <tr key={obj} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{obj}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                      {obj}
+                    </td>
                     <td className="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-500">
                       <span className="text-gray-400">Via Profile</span>
                     </td>
@@ -329,31 +341,63 @@ function RolePermissionsPageContent() {
           <div className="mb-4">
             <h2 className="text-lg font-semibold text-gray-900">System Capabilities</h2>
             <p className="text-sm text-gray-600 mt-1">
-              System permissions are configured in the role details. Go back to edit the role to modify these.
+              System permissions are configured in the role details. Go back to edit the role to
+              modify these.
             </p>
           </div>
 
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
             <p className="text-sm text-blue-800">
-              <strong>Note:</strong> System-level permissions (like "Manage Users", "Export Data") are configured
-              when creating or editing a role.
+              <strong>Note:</strong> System-level permissions (like "Manage Users", "Export Data")
+              are configured when creating or editing a role.
             </p>
           </div>
 
           <div className="space-y-3">
             {[
-              { key: "canManageUsers", label: "Manage Users", desc: "Create, edit, and deactivate users" },
-              { key: "canManageRoles", label: "Manage Roles", desc: "Create and modify role definitions" },
-              { key: "canManageProfiles", label: "Manage Profiles", desc: "Configure user profiles and permissions" },
-              { key: "canViewSetup", label: "View Setup", desc: "Access system setup and configuration" },
-              { key: "canManageSharing", label: "Manage Sharing", desc: "Configure sharing rules and settings" },
-              { key: "canViewAllData", label: "View All Data", desc: "Bypass sharing rules to view all data" },
-              { key: "canModifyAllData", label: "Modify All Data", desc: "Edit all records regardless of ownership" },
+              {
+                key: "canManageUsers",
+                label: "Manage Users",
+                desc: "Create, edit, and deactivate users",
+              },
+              {
+                key: "canManageRoles",
+                label: "Manage Roles",
+                desc: "Create and modify role definitions",
+              },
+              {
+                key: "canManageProfiles",
+                label: "Manage Profiles",
+                desc: "Configure user profiles and permissions",
+              },
+              {
+                key: "canViewSetup",
+                label: "View Setup",
+                desc: "Access system setup and configuration",
+              },
+              {
+                key: "canManageSharing",
+                label: "Manage Sharing",
+                desc: "Configure sharing rules and settings",
+              },
+              {
+                key: "canViewAllData",
+                label: "View All Data",
+                desc: "Bypass sharing rules to view all data",
+              },
+              {
+                key: "canModifyAllData",
+                label: "Modify All Data",
+                desc: "Edit all records regardless of ownership",
+              },
               { key: "canViewAuditLog", label: "View Audit Log", desc: "Access system audit logs" },
               { key: "canExportData", label: "Export Data", desc: "Export data to CSV/Excel" },
               { key: "canImportData", label: "Import Data", desc: "Import data from files" },
             ].map((perm) => (
-              <div key={perm.key} className="flex items-start p-4 border border-gray-200 rounded-lg bg-gray-50">
+              <div
+                key={perm.key}
+                className="flex items-start p-4 border border-gray-200 rounded-lg bg-gray-50"
+              >
                 <input
                   type="checkbox"
                   checked={role.permissions[perm.key as keyof typeof role.permissions] as boolean}
@@ -395,12 +439,14 @@ function RolePermissionsPageContent() {
           <div>
             <div className="text-gray-600">Admin Capabilities</div>
             <div className="text-lg font-semibold text-green-600">
-              {[
-                role.permissions.canManageUsers,
-                role.permissions.canManageRoles,
-                role.permissions.canExportData,
-                role.permissions.canImportData,
-              ].filter(Boolean).length}{" "}
+              {
+                [
+                  role.permissions.canManageUsers,
+                  role.permissions.canManageRoles,
+                  role.permissions.canExportData,
+                  role.permissions.canImportData,
+                ].filter(Boolean).length
+              }{" "}
               enabled
             </div>
           </div>

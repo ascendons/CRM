@@ -108,20 +108,25 @@ export function usePermissions() {
    * @param moduleName - Module name (CRM, ADMINISTRATION, ANALYTICS, PRODUCTS, ACTIVITIES)
    * @returns true if user can access the module
    */
-  const canAccessModule = useCallback((moduleName: string): boolean => {
-    if (!permissions || !permissions.modules) {
-      console.log(`[canAccessModule] No permissions loaded yet for module: ${moduleName}`);
-      return false;
-    }
+  const canAccessModule = useCallback(
+    (moduleName: string): boolean => {
+      if (!permissions || !permissions.modules) {
+        console.log(`[canAccessModule] No permissions loaded yet for module: ${moduleName}`);
+        return false;
+      }
 
-    const module = permissions.modules.find(
-      (m) => m.moduleName.toUpperCase() === moduleName.toUpperCase()
-    );
+      const module = permissions.modules.find(
+        (m) => m.moduleName.toUpperCase() === moduleName.toUpperCase()
+      );
 
-    const hasAccess = module?.canAccess ?? false;
-    console.log(`[canAccessModule] Module: ${moduleName}, Found: ${!!module}, canAccess: ${hasAccess}`);
-    return hasAccess;
-  }, [permissions]);
+      const hasAccess = module?.canAccess ?? false;
+      console.log(
+        `[canAccessModule] Module: ${moduleName}, Found: ${!!module}, canAccess: ${hasAccess}`
+      );
+      return hasAccess;
+    },
+    [permissions]
+  );
 
   /**
    * Check if user can access a specific path (instant, no API call)
@@ -130,26 +135,29 @@ export function usePermissions() {
    * @param path - Path to check (e.g., /leads, /admin/users)
    * @returns true if user can access the path
    */
-  const canAccessPath = useCallback((path: string): boolean => {
-    if (!permissions || !permissions.modules) {
-      return false;
-    }
+  const canAccessPath = useCallback(
+    (path: string): boolean => {
+      if (!permissions || !permissions.modules) {
+        return false;
+      }
 
-    // Check if path belongs to any accessible module
-    return permissions.modules.some((module) => {
-      if (!module.canAccess) return false;
-      if (!module.includedPaths) return false;
+      // Check if path belongs to any accessible module
+      return permissions.modules.some((module) => {
+        if (!module.canAccess) return false;
+        if (!module.includedPaths) return false;
 
-      return module.includedPaths.some((includedPath) => {
-        // Support wildcard matching: "/admin/*" matches "/admin/users"
-        if (includedPath.endsWith("/*")) {
-          const prefix = includedPath.substring(0, includedPath.length - 2);
-          return path.startsWith(prefix);
-        }
-        return path === includedPath || path.startsWith(includedPath + "/");
+        return module.includedPaths.some((includedPath) => {
+          // Support wildcard matching: "/admin/*" matches "/admin/users"
+          if (includedPath.endsWith("/*")) {
+            const prefix = includedPath.substring(0, includedPath.length - 2);
+            return path.startsWith(prefix);
+          }
+          return path === includedPath || path.startsWith(includedPath + "/");
+        });
       });
-    });
-  }, [permissions]);
+    },
+    [permissions]
+  );
 
   /**
    * Check if user has permission on an object (instant, no API call)
@@ -158,42 +166,45 @@ export function usePermissions() {
    * @param action - Action (CREATE, READ, EDIT, DELETE, VIEWALL, MODIFYALL)
    * @returns true if user has permission
    */
-  const hasPermission = useCallback((objectName: string, action: string): boolean => {
-    if (!permissions || !permissions.objectPermissions) {
-      return false;
-    }
-
-    const objectPerm = permissions.objectPermissions.find(
-      (op) => op.objectName.toUpperCase() === objectName.toUpperCase()
-    );
-
-    if (!objectPerm) {
-      return false;
-    }
-
-    switch (action.toUpperCase()) {
-      case "CREATE":
-        return objectPerm.canCreate;
-      case "READ":
-        return objectPerm.canRead;
-      case "EDIT":
-      case "UPDATE":
-        return objectPerm.canEdit;
-      case "DELETE":
-        return objectPerm.canDelete;
-      case "VIEWALL":
-        return objectPerm.canViewAll;
-      case "MODIFYALL":
-        return objectPerm.canModifyAll;
-      case "APPROVE":
-      case "REJECT":
-      case "SEND":
-        // Actions that imply modification capability
-        return objectPerm.canEdit || objectPerm.canModifyAll;
-      default:
+  const hasPermission = useCallback(
+    (objectName: string, action: string): boolean => {
+      if (!permissions || !permissions.objectPermissions) {
         return false;
-    }
-  }, [permissions]);
+      }
+
+      const objectPerm = permissions.objectPermissions.find(
+        (op) => op.objectName.toUpperCase() === objectName.toUpperCase()
+      );
+
+      if (!objectPerm) {
+        return false;
+      }
+
+      switch (action.toUpperCase()) {
+        case "CREATE":
+          return objectPerm.canCreate;
+        case "READ":
+          return objectPerm.canRead;
+        case "EDIT":
+        case "UPDATE":
+          return objectPerm.canEdit;
+        case "DELETE":
+          return objectPerm.canDelete;
+        case "VIEWALL":
+          return objectPerm.canViewAll;
+        case "MODIFYALL":
+          return objectPerm.canModifyAll;
+        case "APPROVE":
+        case "REJECT":
+        case "SEND":
+          // Actions that imply modification capability
+          return objectPerm.canEdit || objectPerm.canModifyAll;
+        default:
+          return false;
+      }
+    },
+    [permissions]
+  );
 
   /**
    * Check if user has a system permission (instant, no API call)
@@ -201,38 +212,41 @@ export function usePermissions() {
    * @param permission - Permission name (canManageUsers, canManageRoles, etc.)
    * @returns true if user has permission
    */
-  const hasSystemPermission = useCallback((permission: string): boolean => {
-    if (!permissions || !permissions.systemPermissions) {
-      return false;
-    }
-
-    const systemPerms = permissions.systemPermissions;
-
-    switch (permission.toLowerCase()) {
-      case "canmanageusers":
-        return systemPerms.canManageUsers;
-      case "canmanageroles":
-        return systemPerms.canManageRoles;
-      case "canmanageprofiles":
-        return systemPerms.canManageProfiles;
-      case "canviewsetup":
-        return systemPerms.canViewSetup;
-      case "canmanagesharing":
-        return systemPerms.canManageSharing;
-      case "canviewalldata":
-        return systemPerms.canViewAllData;
-      case "canmodifyalldata":
-        return systemPerms.canModifyAllData;
-      case "canviewauditlog":
-        return systemPerms.canViewAuditLog;
-      case "canexportdata":
-        return systemPerms.canExportData;
-      case "canimportdata":
-        return systemPerms.canImportData;
-      default:
+  const hasSystemPermission = useCallback(
+    (permission: string): boolean => {
+      if (!permissions || !permissions.systemPermissions) {
         return false;
-    }
-  }, [permissions]);
+      }
+
+      const systemPerms = permissions.systemPermissions;
+
+      switch (permission.toLowerCase()) {
+        case "canmanageusers":
+          return systemPerms.canManageUsers;
+        case "canmanageroles":
+          return systemPerms.canManageRoles;
+        case "canmanageprofiles":
+          return systemPerms.canManageProfiles;
+        case "canviewsetup":
+          return systemPerms.canViewSetup;
+        case "canmanagesharing":
+          return systemPerms.canManageSharing;
+        case "canviewalldata":
+          return systemPerms.canViewAllData;
+        case "canmodifyalldata":
+          return systemPerms.canModifyAllData;
+        case "canviewauditlog":
+          return systemPerms.canViewAuditLog;
+        case "canexportdata":
+          return systemPerms.canExportData;
+        case "canimportdata":
+          return systemPerms.canImportData;
+        default:
+          return false;
+      }
+    },
+    [permissions]
+  );
 
   /**
    * Get data visibility level for current user
@@ -290,7 +304,7 @@ export function usePermissions() {
 export function useCachedPermissions(requiredPermissions: string[]) {
   console.warn(
     "[useCachedPermissions] DEPRECATED: Use usePermissions() instead. " +
-    "The new hook loads all permissions once and provides instant checks."
+      "The new hook loads all permissions once and provides instant checks."
   );
 
   const { hasPermission, loading } = usePermissions();

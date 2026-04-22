@@ -20,12 +20,10 @@ export interface GeolocationPosition {
 /**
  * Get current GPS position using browser Geolocation API
  */
-export async function getCurrentPosition(
-  options?: PositionOptions
-): Promise<GeolocationPosition> {
+export async function getCurrentPosition(options?: PositionOptions): Promise<GeolocationPosition> {
   return new Promise((resolve, reject) => {
     if (!navigator.geolocation) {
-      reject(new Error('Geolocation is not supported by your browser'));
+      reject(new Error("Geolocation is not supported by your browser"));
       return;
     }
 
@@ -39,22 +37,23 @@ export async function getCurrentPosition(
             altitude: position.coords.altitude,
             altitudeAccuracy: position.coords.altitudeAccuracy,
             heading: position.coords.heading,
-            speed: position.coords.speed
+            speed: position.coords.speed,
           },
-          timestamp: position.timestamp
+          timestamp: position.timestamp,
         });
       },
       (error) => {
-        let errorMessage = 'Failed to get location';
+        let errorMessage = "Failed to get location";
         switch (error.code) {
           case error.PERMISSION_DENIED:
-            errorMessage = 'Location permission denied. Please enable location access in your browser settings.';
+            errorMessage =
+              "Location permission denied. Please enable location access in your browser settings.";
             break;
           case error.POSITION_UNAVAILABLE:
-            errorMessage = 'Location information is unavailable.';
+            errorMessage = "Location information is unavailable.";
             break;
           case error.TIMEOUT:
-            errorMessage = 'Location request timed out.';
+            errorMessage = "Location request timed out.";
             break;
         }
         reject(new Error(errorMessage));
@@ -63,7 +62,7 @@ export async function getCurrentPosition(
         enableHighAccuracy: true,
         timeout: 10000,
         maximumAge: 0,
-        ...options
+        ...options,
       }
     );
   });
@@ -73,12 +72,7 @@ export async function getCurrentPosition(
  * Calculate distance between two GPS coordinates using Haversine formula
  * Returns distance in meters
  */
-export function calculateDistance(
-  lat1: number,
-  lon1: number,
-  lat2: number,
-  lon2: number
-): number {
+export function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
   const R = 6371000; // Earth radius in meters
   const φ1 = (lat1 * Math.PI) / 180;
   const φ2 = (lat2 * Math.PI) / 180;
@@ -128,22 +122,22 @@ export function getDeviceInfo(): string {
  * Check if geolocation is supported
  */
 export function isGeolocationSupported(): boolean {
-  return 'geolocation' in navigator;
+  return "geolocation" in navigator;
 }
 
 /**
  * Request location permission
  */
 export async function requestLocationPermission(): Promise<PermissionState> {
-  if (!('permissions' in navigator)) {
-    throw new Error('Permissions API not supported');
+  if (!("permissions" in navigator)) {
+    throw new Error("Permissions API not supported");
   }
 
   try {
-    const result = await navigator.permissions.query({ name: 'geolocation' as PermissionName });
+    const result = await navigator.permissions.query({ name: "geolocation" as PermissionName });
     return result.state;
   } catch (error) {
-    console.error('Error checking location permission:', error);
+    console.error("Error checking location permission:", error);
     throw error;
   }
 }

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Table,
@@ -21,7 +21,7 @@ import {
   Typography,
   CircularProgress,
   Alert,
-} from '@mui/material';
+} from "@mui/material";
 import {
   Add as AddIcon,
   Search as SearchIcon,
@@ -30,11 +30,11 @@ import {
   Delete as DeleteIcon,
   Storage as StorageIcon,
   CheckCircle as DefaultIcon,
-} from '@mui/icons-material';
-import inventoryApi from '../../services/inventoryApi';
-import WarehouseFormEnhanced from './WarehouseFormEnhanced';
-import StorageLocationDialog from './StorageLocationDialog';
-import ConfirmationDialog from '../common/ConfirmationDialog';
+} from "@mui/icons-material";
+import inventoryApi from "../../services/inventoryApi";
+import WarehouseFormEnhanced from "./WarehouseFormEnhanced";
+import StorageLocationDialog from "./StorageLocationDialog";
+import ConfirmationDialog from "../common/ConfirmationDialog";
 
 /**
  * Enhanced Warehouse List with Confirmation Dialogs
@@ -44,7 +44,7 @@ const WarehouseListWithConfirmation = () => {
   const [warehouses, setWarehouses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
@@ -74,7 +74,7 @@ const WarehouseListWithConfirmation = () => {
       const response = await inventoryApi.warehouses.getAll();
       setWarehouses(response.data || []);
     } catch (err) {
-      setError('Failed to load warehouses: ' + err.message);
+      setError("Failed to load warehouses: " + err.message);
     } finally {
       setLoading(false);
     }
@@ -189,12 +189,7 @@ const WarehouseListWithConfirmation = () => {
         <Typography variant="h5" fontWeight="bold">
           Warehouses
         </Typography>
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={handleAdd}
-          disabled={loading}
-        >
+        <Button variant="contained" startIcon={<AddIcon />} onClick={handleAdd} disabled={loading}>
           Add Warehouse
         </Button>
       </Box>
@@ -267,11 +262,11 @@ const WarehouseListWithConfirmation = () => {
                     {warehouse.address?.country}
                   </Typography>
                 </TableCell>
-                <TableCell>{warehouse.managerName || '-'}</TableCell>
+                <TableCell>{warehouse.managerName || "-"}</TableCell>
                 <TableCell>
                   <Chip
-                    label={warehouse.isActive ? 'Active' : 'Inactive'}
-                    color={warehouse.isActive ? 'success' : 'default'}
+                    label={warehouse.isActive ? "Active" : "Inactive"}
+                    color={warehouse.isActive ? "success" : "default"}
                     size="small"
                   />
                 </TableCell>
@@ -305,11 +300,7 @@ const WarehouseListWithConfirmation = () => {
       />
 
       {/* Context Menu */}
-      <Menu
-        anchorEl={anchorEl}
-        open={Boolean(anchorEl)}
-        onClose={handleMenuClose}
-      >
+      <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
         <MenuItem onClick={() => handleEdit(menuWarehouse)}>
           <ListItemIcon>
             <EditIcon fontSize="small" />

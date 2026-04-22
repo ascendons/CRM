@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -11,21 +11,21 @@ import {
   Alert,
   CircularProgress,
   Autocomplete,
-} from '@mui/material';
-import inventoryApi from '../../services/inventoryApi';
+} from "@mui/material";
+import inventoryApi from "../../services/inventoryApi";
 
-const REFERENCE_TYPES = ['QUOTE', 'PROPOSAL', 'ORDER', 'MANUAL'];
+const REFERENCE_TYPES = ["QUOTE", "PROPOSAL", "ORDER", "MANUAL"];
 
 const CreateReservationDialog = ({ open, onClose }) => {
   const [formData, setFormData] = useState({
-    productId: '',
-    warehouseId: '',
-    quantity: '',
-    referenceType: 'QUOTE',
-    referenceId: '',
-    referenceNumber: '',
+    productId: "",
+    warehouseId: "",
+    quantity: "",
+    referenceType: "QUOTE",
+    referenceId: "",
+    referenceNumber: "",
     expiryDays: 7,
-    notes: '',
+    notes: "",
   });
 
   const [warehouses, setWarehouses] = useState([]);
@@ -43,7 +43,7 @@ const CreateReservationDialog = ({ open, onClose }) => {
       const response = await inventoryApi.warehouses.getActive();
       setWarehouses(response.data || []);
     } catch (err) {
-      console.error('Failed to load warehouses:', err);
+      console.error("Failed to load warehouses:", err);
     }
   };
 
@@ -60,19 +60,19 @@ const CreateReservationDialog = ({ open, onClose }) => {
 
       // Reset form
       setFormData({
-        productId: '',
-        warehouseId: '',
-        quantity: '',
-        referenceType: 'QUOTE',
-        referenceId: '',
-        referenceNumber: '',
+        productId: "",
+        warehouseId: "",
+        quantity: "",
+        referenceType: "QUOTE",
+        referenceId: "",
+        referenceNumber: "",
         expiryDays: 7,
-        notes: '',
+        notes: "",
       });
 
       onClose(true);
     } catch (err) {
-      setError(err.response?.data?.message || err.message || 'Failed to create reservation');
+      setError(err.response?.data?.message || err.message || "Failed to create reservation");
     } finally {
       setLoading(false);
     }
@@ -91,14 +91,14 @@ const CreateReservationDialog = ({ open, onClose }) => {
 
   const handleClose = () => {
     setFormData({
-      productId: '',
-      warehouseId: '',
-      quantity: '',
-      referenceType: 'QUOTE',
-      referenceId: '',
-      referenceNumber: '',
+      productId: "",
+      warehouseId: "",
+      quantity: "",
+      referenceType: "QUOTE",
+      referenceId: "",
+      referenceNumber: "",
       expiryDays: 7,
-      notes: '',
+      notes: "",
     });
     setError(null);
     onClose(false);
@@ -134,7 +134,7 @@ const CreateReservationDialog = ({ open, onClose }) => {
               getOptionLabel={(option) => `${option.name} (${option.code})`}
               value={warehouses.find((w) => w.id === formData.warehouseId) || null}
               onChange={(e, newValue) =>
-                setFormData({ ...formData, warehouseId: newValue?.id || '' })
+                setFormData({ ...formData, warehouseId: newValue?.id || "" })
               }
               renderInput={(params) => (
                 <TextField {...params} required label="Warehouse" placeholder="Select warehouse" />
@@ -223,12 +223,8 @@ const CreateReservationDialog = ({ open, onClose }) => {
         <Button onClick={handleClose} disabled={loading}>
           Cancel
         </Button>
-        <Button
-          onClick={handleSubmit}
-          variant="contained"
-          disabled={!isFormValid() || loading}
-        >
-          {loading ? <CircularProgress size={24} /> : 'Create Reservation'}
+        <Button onClick={handleSubmit} variant="contained" disabled={!isFormValid() || loading}>
+          {loading ? <CircularProgress size={24} /> : "Create Reservation"}
         </Button>
       </DialogActions>
     </Dialog>

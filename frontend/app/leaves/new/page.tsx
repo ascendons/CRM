@@ -1,14 +1,14 @@
-'use client';
+"use client";
 
-import { LeaveRequestForm } from '@/components/leaves/LeaveRequestForm';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
+import { LeaveRequestForm } from "@/components/leaves/LeaveRequestForm";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function NewLeavePage() {
   const router = useRouter();
 
   const handleSuccess = () => {
-    router.push('/leaves');
+    router.push("/leaves");
   };
 
   const handleCancel = () => {
@@ -31,10 +31,7 @@ export default function NewLeavePage() {
 
       {/* Form Card */}
       <div className="bg-white rounded-xl shadow-lg p-8">
-        <LeaveRequestForm
-          onSuccess={handleSuccess}
-          onCancel={handleCancel}
-        />
+        <LeaveRequestForm onSuccess={handleSuccess} onCancel={handleCancel} />
       </div>
 
       {/* Info Card */}

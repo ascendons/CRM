@@ -1,7 +1,7 @@
 "use client";
 
-import React from 'react';
-import { BatchList } from '@/src/components/inventory';
+import React from "react";
+import { BatchList } from "@/src/components/inventory";
 
 const BatchesPage = () => {
   return <BatchList />;

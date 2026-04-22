@@ -1,13 +1,13 @@
-'use client';
+"use client";
 
-import { useState, useEffect, useRef } from 'react';
-import { Download, X, RefreshCw, FileText, Loader2 } from 'lucide-react';
-import { organizationApi } from '@/lib/api/organization';
-import { showToast } from '@/lib/toast';
-import InvoiceTemplateSelector from './InvoiceTemplateSelector';
-import InvoicePreview from './InvoicePreview';
-import { Organization } from '@/types/organization';
-import { useReactToPrint } from 'react-to-print';
+import { useState, useEffect, useRef } from "react";
+import { Download, X, RefreshCw, FileText, Loader2 } from "lucide-react";
+import { organizationApi } from "@/lib/api/organization";
+import { showToast } from "@/lib/toast";
+import InvoiceTemplateSelector from "./InvoiceTemplateSelector";
+import InvoicePreview from "./InvoicePreview";
+import { Organization } from "@/types/organization";
+import { useReactToPrint } from "react-to-print";
 
 interface InvoicePreviewModalProps {
   proposalId: string;
@@ -22,9 +22,9 @@ export default function InvoicePreviewModal({
   proposalNumber,
   onClose,
   proposal,
-  parentTaxAmount
+  parentTaxAmount,
 }: InvoicePreviewModalProps) {
-  const [selectedTemplate, setSelectedTemplate] = useState('PROFORMA');
+  const [selectedTemplate, setSelectedTemplate] = useState("PROFORMA");
   const [downloading, setDownloading] = useState(false);
   const [showTemplateSelector, setShowTemplateSelector] = useState(false);
   const [organization, setOrganization] = useState<Organization | null>(null);
@@ -34,7 +34,7 @@ export default function InvoicePreviewModal({
   // Fetch organization data
   useEffect(() => {
     loadOrganizationData();
-    setSelectedTemplate(proposal.isProforma ? 'PROFORMA' : 'QUOTATION');
+    setSelectedTemplate(proposal.isProforma ? "PROFORMA" : "QUOTATION");
   }, []);
 
   const loadOrganizationData = async () => {
@@ -43,8 +43,8 @@ export default function InvoicePreviewModal({
       const data = await organizationApi.getCurrent();
       setOrganization(data);
     } catch (error) {
-      console.error('Failed to load organization data:', error);
-      showToast.error('Failed to load organization settings');
+      console.error("Failed to load organization data:", error);
+      showToast.error("Failed to load organization settings");
     } finally {
       setLoading(false);
     }
@@ -55,17 +55,17 @@ export default function InvoicePreviewModal({
     documentTitle: `invoice-${proposalNumber}-${selectedTemplate.toLowerCase()}`,
     onBeforePrint: async () => {
       setDownloading(true);
-      showToast.info('Preparing print dialog...');
+      showToast.info("Preparing print dialog...");
     },
     onAfterPrint: () => {
       setDownloading(false);
-      showToast.success('Print dialog closed');
+      showToast.success("Print dialog closed");
     },
   });
 
   const handleDownload = () => {
     if (!previewRef.current) {
-      showToast.error('Preview not ready for download');
+      showToast.error("Preview not ready for download");
       return;
     }
     reactToPrintFn();
@@ -86,12 +86,14 @@ export default function InvoicePreviewModal({
               <FileText className="w-7 h-7 text-blue-600" />
             </div>
             <div>
-              <h2 className="text-2xl font-extrabold text-gray-900 tracking-tight">Invoice Preview</h2>
+              <h2 className="text-2xl font-extrabold text-gray-900 tracking-tight">
+                Invoice Preview
+              </h2>
               <p className="text-sm font-medium text-gray-500 mt-1 flex items-center gap-2">
                 <span>{proposalNumber}</span>
                 <span className="w-1 h-1 bg-gray-300 rounded-full"></span>
                 <span className="px-2 py-0.5 bg-blue-50 text-blue-700 rounded-md text-[10px] font-bold uppercase tracking-wider border border-blue-100">
-                  {selectedTemplate.replace('_', ' ')}
+                  {selectedTemplate.replace("_", " ")}
                 </span>
               </p>
             </div>
@@ -101,7 +103,7 @@ export default function InvoicePreviewModal({
               onClick={() => setShowTemplateSelector(!showTemplateSelector)}
               className="flex items-center gap-2 px-5 py-2.5 text-gray-700 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 hover:border-blue-300 transition-all font-bold text-sm shadow-sm"
             >
-              <RefreshCw className={`w-4 h-4 ${showTemplateSelector ? 'animate-spin' : ''}`} />
+              <RefreshCw className={`w-4 h-4 ${showTemplateSelector ? "animate-spin" : ""}`} />
               Change Template
             </button>
             <button
@@ -110,7 +112,7 @@ export default function InvoicePreviewModal({
               className="flex items-center gap-2 px-7 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all font-bold text-sm shadow-md shadow-blue-200 disabled:opacity-50 disabled:cursor-not-allowed transform active:scale-95"
             >
               <Download className="w-4 h-4" />
-              {downloading ? 'Processing...' : 'Download PDF'}
+              {downloading ? "Processing..." : "Download PDF"}
             </button>
             <div className="w-px h-8 bg-gray-200 mx-2"></div>
             <button

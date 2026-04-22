@@ -1,16 +1,16 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import { Product } from '@/types/catalog';
-import { X, Save, Package, Tag } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import { Product } from "@/types/catalog";
+import { X, Save, Package, Tag } from "lucide-react";
 
 interface DynamicProductModalProps {
   product: Product | null;
-  mode: 'view' | 'edit';
+  mode: "view" | "edit";
   open: boolean;
   saving: boolean;
   onClose: () => void;
-  onSave: (data: { displayName: string; attributes: Product['attributes'] }) => void;
+  onSave: (data: { displayName: string; attributes: Product["attributes"] }) => void;
 }
 
 export default function DynamicProductModal({
@@ -19,10 +19,10 @@ export default function DynamicProductModal({
   open,
   saving,
   onClose,
-  onSave
+  onSave,
 }: DynamicProductModalProps) {
-  const [displayName, setDisplayName] = useState('');
-  const [attributes, setAttributes] = useState<Product['attributes']>([]);
+  const [displayName, setDisplayName] = useState("");
+  const [attributes, setAttributes] = useState<Product["attributes"]>([]);
 
   useEffect(() => {
     if (product) {
@@ -34,7 +34,7 @@ export default function DynamicProductModal({
   const handleSave = () => {
     onSave({
       displayName,
-      attributes
+      attributes,
     });
   };
 
@@ -42,21 +42,18 @@ export default function DynamicProductModal({
     const newAttributes = [...attributes];
     newAttributes[index] = {
       ...newAttributes[index],
-      value
+      value,
     };
     setAttributes(newAttributes);
   };
 
   if (!open || !product) return null;
 
-  const isEditing = mode === 'edit';
+  const isEditing = mode === "edit";
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div
-        className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-        onClick={onClose}
-      />
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
       <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-3xl mx-4 max-h-[85vh] overflow-hidden animate-fade-in-up">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-slate-200 bg-slate-50">
@@ -66,11 +63,9 @@ export default function DynamicProductModal({
             </div>
             <div>
               <h2 className="text-lg font-bold text-slate-900">
-                {isEditing ? 'Edit Product' : 'Product Details'}
+                {isEditing ? "Edit Product" : "Product Details"}
               </h2>
-              <p className="text-xs text-slate-500">
-                ID: {product.productId || product.id}
-              </p>
+              <p className="text-xs text-slate-500">ID: {product.productId || product.id}</p>
             </div>
           </div>
           <button
@@ -85,9 +80,7 @@ export default function DynamicProductModal({
         <div className="p-6 overflow-y-auto max-h-[calc(85vh-140px)]">
           {/* Display Name */}
           <div className="mb-6">
-            <label className="block text-sm font-medium text-slate-700 mb-2">
-              Product Name
-            </label>
+            <label className="block text-sm font-medium text-slate-700 mb-2">Product Name</label>
             {isEditing ? (
               <input
                 type="text"
@@ -104,9 +97,7 @@ export default function DynamicProductModal({
           {/* Category */}
           {product.category && (
             <div className="mb-6">
-              <label className="block text-sm font-medium text-slate-700 mb-2">
-                Category
-              </label>
+              <label className="block text-sm font-medium text-slate-700 mb-2">Category</label>
               <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-100 text-blue-800 rounded-lg text-sm font-medium">
                 <Tag className="w-4 h-4" />
                 {product.category}
@@ -149,7 +140,8 @@ export default function DynamicProductModal({
                   </div>
                   {attr.numericValue !== null && attr.numericValue !== undefined && (
                     <div className="mt-2 text-xs text-slate-500">
-                      Numeric value: <span className="font-medium text-slate-700">{attr.numericValue}</span>
+                      Numeric value:{" "}
+                      <span className="font-medium text-slate-700">{attr.numericValue}</span>
                       {attr.unit && <span className="ml-1">{attr.unit}</span>}
                     </div>
                   )}
@@ -183,7 +175,7 @@ export default function DynamicProductModal({
               <div>
                 <span className="text-slate-500">Created:</span>
                 <span className="ml-2 text-slate-900 font-medium">
-                  {product.createdAt ? new Date(product.createdAt).toLocaleString() : 'N/A'}
+                  {product.createdAt ? new Date(product.createdAt).toLocaleString() : "N/A"}
                 </span>
               </div>
               {product.createdBy && (
@@ -203,7 +195,7 @@ export default function DynamicProductModal({
             disabled={saving}
             className="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors disabled:opacity-50"
           >
-            {isEditing ? 'Cancel' : 'Close'}
+            {isEditing ? "Cancel" : "Close"}
           </button>
           {isEditing && (
             <button
@@ -213,9 +205,25 @@ export default function DynamicProductModal({
             >
               {saving ? (
                 <>
-                  <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  <svg
+                    className="animate-spin h-4 w-4 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
                   </svg>
                   Saving...
                 </>

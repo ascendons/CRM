@@ -28,7 +28,12 @@ interface NavSection {
   items: NavItem[];
 }
 
-export default function Sidebar({ isMobileOpen, onMobileClose, isCollapsed, onToggleCollapse }: SidebarProps) {
+export default function Sidebar({
+  isMobileOpen,
+  onMobileClose,
+  isCollapsed,
+  onToggleCollapse,
+}: SidebarProps) {
   const pathname = usePathname();
   const { canAccessModule } = usePermissionContext();
   const { organization } = useOrganization();
@@ -39,8 +44,8 @@ export default function Sidebar({ isMobileOpen, onMobileClose, isCollapsed, onTo
   useEffect(() => {
     if (pathname) {
       const allSections = navSections;
-      const activeSection = allSections.find(section =>
-        section.items.some(item => pathname.startsWith(item.href))
+      const activeSection = allSections.find((section) =>
+        section.items.some((item) => pathname.startsWith(item.href))
       );
 
       if (activeSection && activeSection.title && !expandedSections.includes(activeSection.title)) {
@@ -52,7 +57,7 @@ export default function Sidebar({ isMobileOpen, onMobileClose, isCollapsed, onTo
   // Toggle section expansion
   const toggleSection = (sectionTitle: string) => {
     if (expandedSections.includes(sectionTitle)) {
-      setExpandedSections(expandedSections.filter(s => s !== sectionTitle));
+      setExpandedSections(expandedSections.filter((s) => s !== sectionTitle));
     } else {
       setExpandedSections([...expandedSections, sectionTitle]); // Allow multiple sections open
     }
@@ -60,20 +65,25 @@ export default function Sidebar({ isMobileOpen, onMobileClose, isCollapsed, onTo
 
   // Load user info from localStorage
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const token = localStorage.getItem('auth_token');
+    if (typeof window !== "undefined") {
+      const token = localStorage.getItem("auth_token");
       if (token) {
         try {
-          const parts = token.split('.');
+          const parts = token.split(".");
           if (parts.length === 3) {
-            const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
-            const email = payload.sub || payload.email || '';
-            const name = payload.name || email.split('@')[0] || 'User';
-            const initials = name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2);
+            const payload = JSON.parse(atob(parts[1].replace(/-/g, "+").replace(/_/g, "/")));
+            const email = payload.sub || payload.email || "";
+            const name = payload.name || email.split("@")[0] || "User";
+            const initials = name
+              .split(" ")
+              .map((n: string) => n[0])
+              .join("")
+              .toUpperCase()
+              .slice(0, 2);
             setUser({ name, initials });
           }
         } catch (e) {
-          console.error('Failed to parse token:', e);
+          console.error("Failed to parse token:", e);
         }
       }
     }
@@ -126,10 +136,30 @@ export default function Sidebar({ isMobileOpen, onMobileClose, isCollapsed, onTo
       title: "Inventory",
       items: [
         { href: "/inventory", label: "Overview", icon: "dashboard", module: "ADMINISTRATION" },
-        { href: "/inventory/stock", label: "Stock Management", icon: "inventory", module: "ADMINISTRATION" },
-        { href: "/inventory/warehouses", label: "Warehouses", icon: "store", module: "ADMINISTRATION" },
-        { href: "/inventory/purchase-orders", label: "Purchase Orders", icon: "shopping_cart", module: "ADMINISTRATION" },
-        { href: "/inventory/reports", label: "Reports & Analytics", icon: "analytics", module: "ADMINISTRATION" },
+        {
+          href: "/inventory/stock",
+          label: "Stock Management",
+          icon: "inventory",
+          module: "ADMINISTRATION",
+        },
+        {
+          href: "/inventory/warehouses",
+          label: "Warehouses",
+          icon: "store",
+          module: "ADMINISTRATION",
+        },
+        {
+          href: "/inventory/purchase-orders",
+          label: "Purchase Orders",
+          icon: "shopping_cart",
+          module: "ADMINISTRATION",
+        },
+        {
+          href: "/inventory/reports",
+          label: "Reports & Analytics",
+          icon: "analytics",
+          module: "ADMINISTRATION",
+        },
       ],
     },
     {
@@ -137,13 +167,23 @@ export default function Sidebar({ isMobileOpen, onMobileClose, isCollapsed, onTo
       items: [
         { href: "/attendance", label: "Attendance", icon: "schedule", alwaysVisible: true },
         { href: "/leaves", label: "Leaves", icon: "beach_access", alwaysVisible: true },
-        { href: "/admin/attendance/shifts", label: "Shift Management", icon: "work_history", module: "ADMINISTRATION" },
+        {
+          href: "/admin/attendance/shifts",
+          label: "Shift Management",
+          icon: "work_history",
+          module: "ADMINISTRATION",
+        },
       ],
     },
     {
       title: "Administration",
       items: [
-        { href: "/admin", label: "Admin Panel", icon: "admin_panel_settings", module: "ADMINISTRATION" },
+        {
+          href: "/admin",
+          label: "Admin Panel",
+          icon: "admin_panel_settings",
+          module: "ADMINISTRATION",
+        },
         { href: "/admin/settings", label: "Settings", icon: "settings", module: "ADMINISTRATION" },
       ],
     },
@@ -217,7 +257,7 @@ export default function Sidebar({ isMobileOpen, onMobileClose, isCollapsed, onTo
           if (visibleItems.length === 0) return null;
 
           const isExpanded = expandedSections.includes(section.title);
-          const hasActiveItem = section.items.some(item => isActive(item.href));
+          const hasActiveItem = section.items.some((item) => isActive(item.href));
 
           // For top-level items (no title), show them directly without collapsing
           if (!section.title) {
@@ -232,15 +272,18 @@ export default function Sidebar({ isMobileOpen, onMobileClose, isCollapsed, onTo
                       onClick={mobile ? onMobileClose : undefined}
                       className={`
                         flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all group relative
-                        ${active
-                          ? "bg-primary text-white shadow-lg shadow-primary/20"
-                          : "text-slate-300 hover:bg-slate-800 hover:text-white"
+                        ${
+                          active
+                            ? "bg-primary text-white shadow-lg shadow-primary/20"
+                            : "text-slate-300 hover:bg-slate-800 hover:text-white"
                         }
                         ${isCollapsed && !mobile ? "justify-center" : ""}
                       `}
                       title={isCollapsed && !mobile ? item.label : undefined}
                     >
-                      <span className={`material-symbols-outlined ${active ? "text-white" : "text-slate-400 group-hover:text-white"}`}>
+                      <span
+                        className={`material-symbols-outlined ${active ? "text-white" : "text-slate-400 group-hover:text-white"}`}
+                      >
                         {item.icon}
                       </span>
                       {(!isCollapsed || mobile) && (
@@ -273,9 +316,10 @@ export default function Sidebar({ isMobileOpen, onMobileClose, isCollapsed, onTo
                   className={`
                     w-full flex items-center justify-between px-3 py-2 rounded-lg
                     transition-all group
-                    ${hasActiveItem || isExpanded
-                      ? "bg-slate-800/50 text-white"
-                      : "text-slate-400 hover:bg-slate-800/30 hover:text-slate-300"
+                    ${
+                      hasActiveItem || isExpanded
+                        ? "bg-slate-800/50 text-white"
+                        : "text-slate-400 hover:bg-slate-800/30 hover:text-slate-300"
                     }
                   `}
                 >
@@ -287,7 +331,9 @@ export default function Sidebar({ isMobileOpen, onMobileClose, isCollapsed, onTo
                       {section.title}
                     </span>
                   </div>
-                  <span className={`material-symbols-outlined text-sm transition-transform ${isExpanded ? "rotate-90" : ""}`}>
+                  <span
+                    className={`material-symbols-outlined text-sm transition-transform ${isExpanded ? "rotate-90" : ""}`}
+                  >
                     chevron_right
                   </span>
                 </button>
@@ -300,7 +346,7 @@ export default function Sidebar({ isMobileOpen, onMobileClose, isCollapsed, onTo
 
               {/* Navigation Items - Show only when expanded or sidebar is collapsed */}
               {(isExpanded || (isCollapsed && !mobile)) && (
-                <div className={`space-y-1 ${(!isCollapsed || mobile) ? "mt-1 ml-2" : ""}`}>
+                <div className={`space-y-1 ${!isCollapsed || mobile ? "mt-1 ml-2" : ""}`}>
                   {visibleItems.map((item) => {
                     const active = isActive(item.href);
                     return (
@@ -310,15 +356,18 @@ export default function Sidebar({ isMobileOpen, onMobileClose, isCollapsed, onTo
                         onClick={mobile ? onMobileClose : undefined}
                         className={`
                           flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all group relative
-                          ${active
-                            ? "bg-primary text-white shadow-lg shadow-primary/20"
-                            : "text-slate-300 hover:bg-slate-800 hover:text-white"
+                          ${
+                            active
+                              ? "bg-primary text-white shadow-lg shadow-primary/20"
+                              : "text-slate-300 hover:bg-slate-800 hover:text-white"
                           }
                           ${isCollapsed && !mobile ? "justify-center" : ""}
                         `}
                         title={isCollapsed && !mobile ? item.label : undefined}
                       >
-                        <span className={`material-symbols-outlined text-base ${active ? "text-white" : "text-slate-400 group-hover:text-white"}`}>
+                        <span
+                          className={`material-symbols-outlined text-base ${active ? "text-white" : "text-slate-400 group-hover:text-white"}`}
+                        >
                           {item.icon}
                         </span>
                         {(!isCollapsed || mobile) && (
@@ -330,7 +379,9 @@ export default function Sidebar({ isMobileOpen, onMobileClose, isCollapsed, onTo
                               </span>
                             )}
                             {active && (
-                              <span className="material-symbols-outlined text-sm">chevron_right</span>
+                              <span className="material-symbols-outlined text-sm">
+                                chevron_right
+                              </span>
                             )}
                           </>
                         )}

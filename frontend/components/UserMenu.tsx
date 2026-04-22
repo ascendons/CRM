@@ -57,14 +57,15 @@ export function UserMenu() {
   }
 
   // Get initials for avatar
-  const initials = currentUser.firstName && currentUser.lastName
-    ? `${currentUser.firstName[0]}${currentUser.lastName[0]}`
-    : currentUser.fullName
-      .split(" ")
-      .map((n) => n[0])
-      .join("")
-      .substring(0, 2)
-      .toUpperCase();
+  const initials =
+    currentUser.firstName && currentUser.lastName
+      ? `${currentUser.firstName[0]}${currentUser.lastName[0]}`
+      : currentUser.fullName
+          .split(" ")
+          .map((n) => n[0])
+          .join("")
+          .substring(0, 2)
+          .toUpperCase();
 
   return (
     <div className="relative">
@@ -89,9 +90,7 @@ export function UserMenu() {
 
         {/* User Info */}
         <div className="hidden md:block text-left">
-          <div className="text-sm font-medium text-gray-900">
-            {currentUser.fullName}
-          </div>
+          <div className="text-sm font-medium text-gray-900">{currentUser.fullName}</div>
           {currentUser.roleName && (
             <div className="text-xs text-gray-500">{currentUser.roleName}</div>
           )}
@@ -99,8 +98,7 @@ export function UserMenu() {
 
         {/* Dropdown indicator */}
         <ChevronDown
-          className={`h-4 w-4 text-gray-400 transition-transform ${menuOpen ? "rotate-180" : ""
-            }`}
+          className={`h-4 w-4 text-gray-400 transition-transform ${menuOpen ? "rotate-180" : ""}`}
         />
       </button>
 
@@ -108,23 +106,16 @@ export function UserMenu() {
       {menuOpen && (
         <>
           {/* Backdrop */}
-          <div
-            className="fixed inset-0 z-[60]"
-            onClick={() => setMenuOpen(false)}
-          />
+          <div className="fixed inset-0 z-[60]" onClick={() => setMenuOpen(false)} />
 
           {/* Menu */}
           <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-xl border border-gray-200 z-[70]">
             {/* User Info Header */}
             <div className="px-4 py-3 border-b border-gray-200">
-              <div className="font-medium text-gray-900">
-                {currentUser.fullName}
-              </div>
+              <div className="font-medium text-gray-900">{currentUser.fullName}</div>
               <div className="text-sm text-gray-500">{currentUser.email}</div>
               {currentUser.userId && (
-                <div className="text-xs text-gray-400 mt-1">
-                  ID: {currentUser.userId}
-                </div>
+                <div className="text-xs text-gray-400 mt-1">ID: {currentUser.userId}</div>
               )}
             </div>
 

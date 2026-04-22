@@ -45,7 +45,7 @@ export default function ProductsPage() {
       const pagination = {
         page: currentPage,
         size: pageSize,
-        sort: "productName,asc" // Default sort
+        sort: "productName,asc", // Default sort
       };
 
       let response;
@@ -58,7 +58,7 @@ export default function ProductsPage() {
       }
 
       // Handle Paginated Response
-      if ('content' in response) {
+      if ("content" in response) {
         setProducts(response.content);
         setTotalElements(response.totalElements);
         setTotalPages(response.totalPages);
@@ -68,7 +68,6 @@ export default function ProductsPage() {
         setTotalElements(response.length);
         setTotalPages(1);
       }
-
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load products");
     } finally {
@@ -98,7 +97,7 @@ export default function ProductsPage() {
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handlePageSizeChange = (size: number) => {
@@ -118,14 +117,15 @@ export default function ProductsPage() {
   // Ideally, the backend should provide a categories endpoint.
   // Using existing products data for categories will only show categories of CURRENT page products, which is bad.
   // Let's assume we can fetch categories or keep the list dynamic.
-  // For this implementation, I will remove dynamic category extraction from partial product list 
+  // For this implementation, I will remove dynamic category extraction from partial product list
   // and maybe try to fetch all products JUST for categories or hardcode strict categories if known.
   // But to be safe and avoiding extra heavy calls, I'll temporarily keep it but knowing it's limited.
-  // BETTER: Fetch unique categories separate if needed. 
+  // BETTER: Fetch unique categories separate if needed.
   // Codebase usually doesn't have "getAllCategories" yet. I'll stick to basic mapping but be aware.
   const categories = ["Electronics", "Services", "Subscriptions", "Hardware"];
 
-  if (loading && products.length === 0) { // Only show full loader on initial load
+  if (loading && products.length === 0) {
+    // Only show full loader on initial load
     return (
       <div className="flex items-center justify-center bg-slate-50 min-h-[calc(100vh-4rem)] ">
         <div className="absolute inset-0 overflow-hidden">
@@ -192,7 +192,9 @@ export default function ProductsPage() {
                 >
                   <option value="ALL">All Categories</option>
                   {categories.map((category) => (
-                    <option key={category} value={category}>{category}</option>
+                    <option key={category} value={category}>
+                      {category}
+                    </option>
                   ))}
                 </select>
                 <Filter className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
@@ -247,14 +249,23 @@ export default function ProductsPage() {
                         <Package className="h-16 w-16" />
                       </div>
                       <div className="absolute top-4 right-4">
-                        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-xs font-semibold backdrop-blur-md shadow-sm ${product.isActive
-                          ? "bg-emerald-500/10 text-emerald-700  border border-emerald-500/20"
-                          : "bg-slate-500/10 text-slate-700  border border-slate-500/20"
-                          }`}>
+                        <span
+                          className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-xs font-semibold backdrop-blur-md shadow-sm ${
+                            product.isActive
+                              ? "bg-emerald-500/10 text-emerald-700  border border-emerald-500/20"
+                              : "bg-slate-500/10 text-slate-700  border border-slate-500/20"
+                          }`}
+                        >
                           {product.isActive ? (
-                            <> <CheckCircle2 className="h-3 w-3" /> Active </>
+                            <>
+                              {" "}
+                              <CheckCircle2 className="h-3 w-3" /> Active{" "}
+                            </>
                           ) : (
-                            <> <XCircle className="h-3 w-3" /> Inactive </>
+                            <>
+                              {" "}
+                              <XCircle className="h-3 w-3" /> Inactive{" "}
+                            </>
                           )}
                         </span>
                       </div>
@@ -297,11 +308,18 @@ export default function ProductsPage() {
                             <span>Tax Rate:</span>
                             <span className="font-medium text-slate-700 ">{product.taxRate}%</span>
                           </div>
-                          <div className={`flex items-center gap-1 font-medium ${(product.stockQuantity || 0) > 10 ? 'text-emerald-600' :
-                            (product.stockQuantity || 0) > 0 ? 'text-amber-600' :
-                              'text-rose-600'
-                            }`}>
-                            <span>{(product.stockQuantity || 0) > 0 ? "In Stock:" : "Out of Stock"}</span>
+                          <div
+                            className={`flex items-center gap-1 font-medium ${
+                              (product.stockQuantity || 0) > 10
+                                ? "text-emerald-600"
+                                : (product.stockQuantity || 0) > 0
+                                  ? "text-amber-600"
+                                  : "text-rose-600"
+                            }`}
+                          >
+                            <span>
+                              {(product.stockQuantity || 0) > 0 ? "In Stock:" : "Out of Stock"}
+                            </span>
                             <span>{product.stockQuantity || 0}</span>
                           </div>
                         </div>

@@ -202,7 +202,10 @@ export default function EditProductPage({ params }: EditProductPageProps) {
 
               <div className="space-y-2">
                 <Label htmlFor="unit">Unit</Label>
-                <Select value={formData.unit} onValueChange={(value) => handleChange("unit", value)}>
+                <Select
+                  value={formData.unit}
+                  onValueChange={(value) => handleChange("unit", value)}
+                >
                   <SelectTrigger id="unit">
                     <SelectValue />
                   </SelectTrigger>
@@ -236,7 +239,10 @@ export default function EditProductPage({ params }: EditProductPageProps) {
 
               <div className="space-y-2">
                 <Label htmlFor="taxType">Tax Type</Label>
-                <Select value={formData.taxType} onValueChange={(value) => handleChange("taxType", value)}>
+                <Select
+                  value={formData.taxType}
+                  onValueChange={(value) => handleChange("taxType", value)}
+                >
                   <SelectTrigger id="taxType">
                     <SelectValue />
                   </SelectTrigger>
@@ -323,7 +329,10 @@ export default function EditProductPage({ params }: EditProductPageProps) {
                   min="0"
                   value={formData.stockQuantity !== undefined ? formData.stockQuantity : ""}
                   onChange={(e) =>
-                    handleChange("stockQuantity", e.target.value ? parseInt(e.target.value) : undefined)
+                    handleChange(
+                      "stockQuantity",
+                      e.target.value ? parseInt(e.target.value) : undefined
+                    )
                   }
                 />
               </div>
@@ -336,7 +345,10 @@ export default function EditProductPage({ params }: EditProductPageProps) {
                   min="0"
                   value={formData.minStockLevel !== undefined ? formData.minStockLevel : ""}
                   onChange={(e) =>
-                    handleChange("minStockLevel", e.target.value ? parseInt(e.target.value) : undefined)
+                    handleChange(
+                      "minStockLevel",
+                      e.target.value ? parseInt(e.target.value) : undefined
+                    )
                   }
                 />
               </div>
@@ -349,7 +361,10 @@ export default function EditProductPage({ params }: EditProductPageProps) {
                   min="0"
                   value={formData.maxStockLevel !== undefined ? formData.maxStockLevel : ""}
                   onChange={(e) =>
-                    handleChange("maxStockLevel", e.target.value ? parseInt(e.target.value) : undefined)
+                    handleChange(
+                      "maxStockLevel",
+                      e.target.value ? parseInt(e.target.value) : undefined
+                    )
                   }
                 />
               </div>

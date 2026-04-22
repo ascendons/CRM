@@ -11,11 +11,19 @@
  * - Use parseToIST() to parse dates from backend
  */
 
-import { format, formatDistanceToNow, parseISO, formatDistance, isToday, isYesterday, differenceInDays } from 'date-fns';
-import { toZonedTime, formatInTimeZone } from 'date-fns-tz';
+import {
+  format,
+  formatDistanceToNow,
+  parseISO,
+  formatDistance,
+  isToday,
+  isYesterday,
+  differenceInDays,
+} from "date-fns";
+import { toZonedTime, formatInTimeZone } from "date-fns-tz";
 
 // IST Timezone constant
-export const IST_TIMEZONE = 'Asia/Kolkata';
+export const IST_TIMEZONE = "Asia/Kolkata";
 
 /**
  * Convert a date string or Date object to IST timezone
@@ -23,8 +31,8 @@ export const IST_TIMEZONE = 'Asia/Kolkata';
  * @returns Date object in IST timezone
  */
 export function toIST(date: string | Date): Date {
-    const dateObj = typeof date === 'string' ? parseISO(date) : date;
-    return toZonedTime(dateObj, IST_TIMEZONE);
+  const dateObj = typeof date === "string" ? parseISO(date) : date;
+  return toZonedTime(dateObj, IST_TIMEZONE);
 }
 
 /**
@@ -33,9 +41,9 @@ export function toIST(date: string | Date): Date {
  * @param formatString - Date format string (e.g., 'dd/MM/yyyy', 'PPP', 'Pp')
  * @returns Formatted date string in IST
  */
-export function formatInIST(date: string | Date, formatString: string = 'dd/MM/yyyy'): string {
-    const dateObj = typeof date === 'string' ? parseISO(date) : date;
-    return formatInTimeZone(dateObj, IST_TIMEZONE, formatString);
+export function formatInIST(date: string | Date, formatString: string = "dd/MM/yyyy"): string {
+  const dateObj = typeof date === "string" ? parseISO(date) : date;
+  return formatInTimeZone(dateObj, IST_TIMEZONE, formatString);
 }
 
 /**
@@ -44,7 +52,7 @@ export function formatInIST(date: string | Date, formatString: string = 'dd/MM/y
  * @returns Formatted date string (e.g., "21/02/2026")
  */
 export function formatDateIST(date: string | Date): string {
-    return formatInIST(date, 'dd/MM/yyyy');
+  return formatInIST(date, "dd/MM/yyyy");
 }
 
 /**
@@ -53,7 +61,7 @@ export function formatDateIST(date: string | Date): string {
  * @returns Formatted date-time string (e.g., "21/02/2026 14:30")
  */
 export function formatDateTimeIST(date: string | Date): string {
-    return formatInIST(date, 'dd/MM/yyyy HH:mm');
+  return formatInIST(date, "dd/MM/yyyy HH:mm");
 }
 
 /**
@@ -62,7 +70,7 @@ export function formatDateTimeIST(date: string | Date): string {
  * @returns Formatted date-time string (e.g., "21/02/2026 14:30:45")
  */
 export function formatDateTimeFullIST(date: string | Date): string {
-    return formatInIST(date, 'dd/MM/yyyy HH:mm:ss');
+  return formatInIST(date, "dd/MM/yyyy HH:mm:ss");
 }
 
 /**
@@ -71,7 +79,7 @@ export function formatDateTimeFullIST(date: string | Date): string {
  * @returns Formatted time string (e.g., "14:30")
  */
 export function formatTimeIST(date: string | Date): string {
-    return formatInIST(date, 'HH:mm');
+  return formatInIST(date, "HH:mm");
 }
 
 /**
@@ -80,7 +88,7 @@ export function formatTimeIST(date: string | Date): string {
  * @returns Formatted time string (e.g., "14:30:45")
  */
 export function formatTimeFullIST(date: string | Date): string {
-    return formatInIST(date, 'HH:mm:ss');
+  return formatInIST(date, "HH:mm:ss");
 }
 
 /**
@@ -89,7 +97,7 @@ export function formatTimeFullIST(date: string | Date): string {
  * @returns Formatted date string in IST
  */
 export function formatDateLongIST(date: string | Date): string {
-    return formatInIST(date, 'dd MMMM yyyy');
+  return formatInIST(date, "dd MMMM yyyy");
 }
 
 /**
@@ -98,7 +106,7 @@ export function formatDateLongIST(date: string | Date): string {
  * @returns Formatted date-time string in IST
  */
 export function formatDateTimeLongIST(date: string | Date): string {
-    return formatInIST(date, 'dd MMM yyyy, HH:mm');
+  return formatInIST(date, "dd MMM yyyy, HH:mm");
 }
 
 /**
@@ -107,12 +115,12 @@ export function formatDateTimeLongIST(date: string | Date): string {
  * @returns Formatted date string using en-IN locale
  */
 export function formatLocaleIST(date: string | Date): string {
-    const istDate = toIST(date);
-    return istDate.toLocaleString('en-IN', {
-        timeZone: IST_TIMEZONE,
-        dateStyle: 'medium',
-        timeStyle: 'short',
-    });
+  const istDate = toIST(date);
+  return istDate.toLocaleString("en-IN", {
+    timeZone: IST_TIMEZONE,
+    dateStyle: "medium",
+    timeStyle: "short",
+  });
 }
 
 /**
@@ -122,15 +130,15 @@ export function formatLocaleIST(date: string | Date): string {
  * @returns Relative time string (e.g., "5 minutes ago")
  */
 export function formatRelativeTimeIST(
-    date: string | Date,
-    options?: { addSuffix?: boolean; includeSeconds?: boolean }
+  date: string | Date,
+  options?: { addSuffix?: boolean; includeSeconds?: boolean }
 ): string {
-    const istDate = toIST(date);
-    return formatDistanceToNow(istDate, {
-        addSuffix: true,
-        includeSeconds: true,
-        ...options,
-    });
+  const istDate = toIST(date);
+  return formatDistanceToNow(istDate, {
+    addSuffix: true,
+    includeSeconds: true,
+    ...options,
+  });
 }
 
 /**
@@ -140,9 +148,9 @@ export function formatRelativeTimeIST(
  * @returns Distance string
  */
 export function formatDistanceIST(date: string | Date, baseDate: string | Date): string {
-    const istDate1 = toIST(date);
-    const istDate2 = toIST(baseDate);
-    return formatDistance(istDate1, istDate2);
+  const istDate1 = toIST(date);
+  const istDate2 = toIST(baseDate);
+  return formatDistance(istDate1, istDate2);
 }
 
 /**
@@ -151,9 +159,9 @@ export function formatDistanceIST(date: string | Date, baseDate: string | Date):
  * @returns true if date is today in IST
  */
 export function isTodayIST(date: string | Date): boolean {
-    const istDate = toIST(date);
-    const istNow = toIST(new Date());
-    return isToday(istDate);
+  const istDate = toIST(date);
+  const istNow = toIST(new Date());
+  return isToday(istDate);
 }
 
 /**
@@ -162,8 +170,8 @@ export function isTodayIST(date: string | Date): boolean {
  * @returns true if date is yesterday in IST
  */
 export function isYesterdayIST(date: string | Date): boolean {
-    const istDate = toIST(date);
-    return isYesterday(istDate);
+  const istDate = toIST(date);
+  return isYesterday(istDate);
 }
 
 /**
@@ -173,9 +181,9 @@ export function isYesterdayIST(date: string | Date): boolean {
  * @returns Number of days difference
  */
 export function daysDifferenceIST(laterDate: string | Date, earlierDate: string | Date): number {
-    const istDate1 = toIST(laterDate);
-    const istDate2 = toIST(earlierDate);
-    return differenceInDays(istDate1, istDate2);
+  const istDate1 = toIST(laterDate);
+  const istDate2 = toIST(earlierDate);
+  return differenceInDays(istDate1, istDate2);
 }
 
 /**
@@ -189,28 +197,28 @@ export function daysDifferenceIST(laterDate: string | Date, earlierDate: string 
  * @returns Smart formatted date string in IST
  */
 export function formatSmartDateIST(date: string | Date): string {
-    const istDate = toIST(date);
-    const istNow = toIST(new Date());
+  const istDate = toIST(date);
+  const istNow = toIST(new Date());
 
-    if (isTodayIST(istDate)) {
-        return `Today, ${formatTimeIST(istDate)}`;
-    }
+  if (isTodayIST(istDate)) {
+    return `Today, ${formatTimeIST(istDate)}`;
+  }
 
-    if (isYesterdayIST(istDate)) {
-        return `Yesterday, ${formatTimeIST(istDate)}`;
-    }
+  if (isYesterdayIST(istDate)) {
+    return `Yesterday, ${formatTimeIST(istDate)}`;
+  }
 
-    const daysDiff = differenceInDays(istNow, istDate);
+  const daysDiff = differenceInDays(istNow, istDate);
 
-    if (daysDiff <= 7) {
-        return formatInIST(istDate, 'EEEE, HH:mm'); // e.g., "Monday, 14:30"
-    }
+  if (daysDiff <= 7) {
+    return formatInIST(istDate, "EEEE, HH:mm"); // e.g., "Monday, 14:30"
+  }
 
-    if (istDate.getFullYear() === istNow.getFullYear()) {
-        return formatInIST(istDate, 'dd MMM, HH:mm'); // e.g., "21 Feb, 14:30"
-    }
+  if (istDate.getFullYear() === istNow.getFullYear()) {
+    return formatInIST(istDate, "dd MMM, HH:mm"); // e.g., "21 Feb, 14:30"
+  }
 
-    return formatInIST(istDate, 'dd MMM yyyy, HH:mm'); // e.g., "21 Feb 2026, 14:30"
+  return formatInIST(istDate, "dd MMM yyyy, HH:mm"); // e.g., "21 Feb 2026, 14:30"
 }
 
 /**
@@ -218,7 +226,7 @@ export function formatSmartDateIST(date: string | Date): string {
  * @returns Current Date object in IST
  */
 export function nowIST(): Date {
-    return toIST(new Date());
+  return toIST(new Date());
 }
 
 /**
@@ -227,7 +235,7 @@ export function nowIST(): Date {
  * @returns Date object in IST
  */
 export function parseToIST(dateString: string): Date {
-    return toIST(dateString);
+  return toIST(dateString);
 }
 
 /**
@@ -236,7 +244,7 @@ export function parseToIST(dateString: string): Date {
  * @returns ISO date string
  */
 export function toISOStringIST(date: Date): string {
-    return formatInTimeZone(date, IST_TIMEZONE, "yyyy-MM-dd'T'HH:mm:ss");
+  return formatInTimeZone(date, IST_TIMEZONE, "yyyy-MM-dd'T'HH:mm:ss");
 }
 
 /**
@@ -245,7 +253,7 @@ export function toISOStringIST(date: Date): string {
  * @returns Formatted date string for input fields
  */
 export function formatForInputIST(date: string | Date): string {
-    return formatInIST(date, 'yyyy-MM-dd');
+  return formatInIST(date, "yyyy-MM-dd");
 }
 
 /**
@@ -254,7 +262,7 @@ export function formatForInputIST(date: string | Date): string {
  * @returns Formatted date-time string for input fields
  */
 export function formatForDateTimeInputIST(date: string | Date): string {
-    return formatInIST(date, "yyyy-MM-dd'T'HH:mm");
+  return formatInIST(date, "yyyy-MM-dd'T'HH:mm");
 }
 
 /**
@@ -263,6 +271,6 @@ export function formatForDateTimeInputIST(date: string | Date): string {
  * @returns ISO formatted date string in IST
  */
 export function formatForAPIIST(date: string | Date): string {
-    const dateObj = typeof date === 'string' ? parseISO(date) : date;
-    return toISOStringIST(dateObj);
+  const dateObj = typeof date === "string" ? parseISO(date) : date;
+  return toISOStringIST(dateObj);
 }

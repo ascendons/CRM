@@ -104,7 +104,7 @@ export default function NewLeadPage() {
   };
 
   const handleAccountSelect = (account: Account) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       companyName: account.accountName,
       industry: account.industry as Industry | undefined,
@@ -200,8 +200,9 @@ export default function NewLeadPage() {
                   value={formData.firstName}
                   onChange={handleChange}
                   required
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 ${errors.firstName ? "border-red-500" : "border-gray-300"
-                    }`}
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 ${
+                    errors.firstName ? "border-red-500" : "border-gray-300"
+                  }`}
                 />
                 {errors.firstName && (
                   <p className="mt-1 text-sm text-red-600">{errors.firstName}</p>
@@ -218,8 +219,9 @@ export default function NewLeadPage() {
                   value={formData.lastName}
                   onChange={handleChange}
                   required
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 ${errors.lastName ? "border-red-500" : "border-gray-300"
-                    }`}
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 ${
+                    errors.lastName ? "border-red-500" : "border-gray-300"
+                  }`}
                 />
                 {errors.lastName && <p className="mt-1 text-sm text-red-600">{errors.lastName}</p>}
               </div>
@@ -234,8 +236,9 @@ export default function NewLeadPage() {
                   value={formData.email}
                   onChange={handleChange}
                   required
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 ${errors.email ? "border-red-500" : "border-gray-300"
-                    }`}
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 ${
+                    errors.email ? "border-red-500" : "border-gray-300"
+                  }`}
                 />
                 {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
               </div>
@@ -251,8 +254,9 @@ export default function NewLeadPage() {
                   onChange={handleChange}
                   placeholder="+919876543210"
                   required
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 ${errors.phone ? "border-red-500" : "border-gray-300"
-                    }`}
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 ${
+                    errors.phone ? "border-red-500" : "border-gray-300"
+                  }`}
                 />
                 {errors.phone && <p className="mt-1 text-sm text-red-600">{errors.phone}</p>}
               </div>
@@ -271,8 +275,9 @@ export default function NewLeadPage() {
                   }}
                   autoComplete="off"
                   required
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 ${errors.companyName ? "border-red-500" : "border-gray-300"
-                    }`}
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 ${
+                    errors.companyName ? "border-red-500" : "border-gray-300"
+                  }`}
                 />
                 {isSearchingAccount && (
                   <div className="absolute right-3 top-9">
@@ -281,7 +286,7 @@ export default function NewLeadPage() {
                 )}
 
                 {/* Account Suggestions Dropdown */}
-                {showSuggestions && (accountSuggestions.length > 0) && (
+                {showSuggestions && accountSuggestions.length > 0 && (
                   <div className="absolute z-10 w-full mt-1 bg-white rounded-md shadow-lg border border-gray-200 max-h-60 overflow-auto">
                     <ul className="py-1 text-sm text-gray-700">
                       {accountSuggestions.map((account) => (
@@ -292,9 +297,11 @@ export default function NewLeadPage() {
                         >
                           <div className="font-medium text-gray-900">{account.accountName}</div>
                           <div className="flex gap-2 text-xs text-gray-500 mt-0.5">
-                            {account.industry && <span>{account.industry.replace('_', ' ')}</span>}
+                            {account.industry && <span>{account.industry.replace("_", " ")}</span>}
                             {account.industry && account.companySize && <span>•</span>}
-                            {account.companySize && <span>{account.companySize.replace('_', ' ')}</span>}
+                            {account.companySize && (
+                              <span>{account.companySize.replace("_", " ")}</span>
+                            )}
                             {account.website && <span>•</span>}
                             {account.website && <span>{account.website}</span>}
                           </div>
@@ -440,8 +447,9 @@ export default function NewLeadPage() {
                   value={formData.annualRevenue || ""}
                   onChange={handleChange}
                   required
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 ${errors.annualRevenue ? "border-red-500" : "border-gray-300"
-                    }`}
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 ${
+                    errors.annualRevenue ? "border-red-500" : "border-gray-300"
+                  }`}
                 />
                 {errors.annualRevenue && (
                   <p className="mt-1 text-sm text-red-600">{errors.annualRevenue}</p>
@@ -481,8 +489,9 @@ export default function NewLeadPage() {
                   value={formData.expectedRevenue || ""}
                   onChange={handleChange}
                   required
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 ${errors.expectedRevenue ? "border-red-500" : "border-gray-300"
-                    }`}
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 ${
+                    errors.expectedRevenue ? "border-red-500" : "border-gray-300"
+                  }`}
                 />
                 {errors.expectedRevenue && (
                   <p className="mt-1 text-sm text-red-600">{errors.expectedRevenue}</p>

@@ -1,20 +1,11 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { shiftsApi } from '@/lib/api/shifts';
-import { toast } from 'react-hot-toast';
-import {
-  Plus,
-  Clock,
-  Edit,
-  Trash2,
-  Users,
-  Calendar,
-  CheckCircle2,
-  XCircle
-} from 'lucide-react';
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { shiftsApi } from "@/lib/api/shifts";
+import { toast } from "react-hot-toast";
+import { Plus, Clock, Edit, Trash2, Users, Calendar, CheckCircle2, XCircle } from "lucide-react";
 
 export default function ShiftsPage() {
   const router = useRouter();
@@ -32,8 +23,8 @@ export default function ShiftsPage() {
       const data = await shiftsApi.getAllShifts();
       setShifts(Array.isArray(data) ? data : []);
     } catch (error) {
-      console.error('Failed to load shifts:', error);
-      toast.error('Failed to load shifts');
+      console.error("Failed to load shifts:", error);
+      toast.error("Failed to load shifts");
       setShifts([]);
     } finally {
       setLoading(false);
@@ -41,28 +32,28 @@ export default function ShiftsPage() {
   };
 
   const handleDelete = async (shiftId: string) => {
-    if (!confirm('Are you sure you want to delete this shift?')) {
+    if (!confirm("Are you sure you want to delete this shift?")) {
       return;
     }
 
     try {
       setDeleteLoading(shiftId);
       await shiftsApi.deleteShift(shiftId);
-      toast.success('Shift deleted successfully');
+      toast.success("Shift deleted successfully");
       loadShifts();
     } catch (error: any) {
-      console.error('Failed to delete shift:', error);
-      toast.error(error.message || 'Failed to delete shift');
+      console.error("Failed to delete shift:", error);
+      toast.error(error.message || "Failed to delete shift");
     } finally {
       setDeleteLoading(null);
     }
   };
 
   const formatTime = (time: string) => {
-    if (!time) return '-';
-    const [hours, minutes] = time.split(':');
+    if (!time) return "-";
+    const [hours, minutes] = time.split(":");
     const hour = parseInt(hours);
-    const ampm = hour >= 12 ? 'PM' : 'AM';
+    const ampm = hour >= 12 ? "PM" : "AM";
     const displayHour = hour % 12 || 12;
     return `${displayHour}:${minutes} ${ampm}`;
   };
@@ -70,7 +61,7 @@ export default function ShiftsPage() {
   const formatDuration = (minutes: number) => {
     const hours = Math.floor(minutes / 60);
     const mins = minutes % 60;
-    return `${hours}h ${mins > 0 ? `${mins}m` : ''}`;
+    return `${hours}h ${mins > 0 ? `${mins}m` : ""}`;
   };
 
   if (loading) {
@@ -113,7 +104,9 @@ export default function ShiftsPage() {
           <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-12 text-center">
             <Clock className="h-16 w-16 text-slate-300 mx-auto mb-4" />
             <h3 className="text-xl font-semibold text-slate-900 mb-2">No Shifts Created</h3>
-            <p className="text-slate-600 mb-6">Get started by creating your first shift schedule.</p>
+            <p className="text-slate-600 mb-6">
+              Get started by creating your first shift schedule.
+            </p>
             <Link
               href="/admin/settings/shifts/new"
               className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold transition-colors"
@@ -141,9 +134,7 @@ export default function ShiftsPage() {
                           </span>
                         )}
                       </div>
-                      {shift.code && (
-                        <p className="text-sm text-slate-500">{shift.code}</p>
-                      )}
+                      {shift.code && <p className="text-sm text-slate-500">{shift.code}</p>}
                     </div>
                     <div className="flex items-center gap-1">
                       {shift.isActive ? (
@@ -156,9 +147,7 @@ export default function ShiftsPage() {
 
                   {/* Description */}
                   {shift.description && (
-                    <p className="text-sm text-slate-600 mb-4 line-clamp-2">
-                      {shift.description}
-                    </p>
+                    <p className="text-sm text-slate-600 mb-4 line-clamp-2">{shift.description}</p>
                   )}
 
                   {/* Timing */}
@@ -194,18 +183,14 @@ export default function ShiftsPage() {
                         <Clock className="h-4 w-4 text-blue-600" />
                         <p className="text-xs text-blue-600 font-medium">Grace</p>
                       </div>
-                      <p className="text-sm font-bold text-blue-900">
-                        {shift.graceMinutes} min
-                      </p>
+                      <p className="text-sm font-bold text-blue-900">{shift.graceMinutes} min</p>
                     </div>
                     <div className="bg-purple-50 rounded-lg p-3">
                       <div className="flex items-center gap-2 mb-1">
                         <Calendar className="h-4 w-4 text-purple-600" />
                         <p className="text-xs text-purple-600 font-medium">Type</p>
                       </div>
-                      <p className="text-sm font-bold text-purple-900">
-                        {shift.type}
-                      </p>
+                      <p className="text-sm font-bold text-purple-900">{shift.type}</p>
                     </div>
                   </div>
 
@@ -214,13 +199,13 @@ export default function ShiftsPage() {
                     <div className="mb-4">
                       <p className="text-xs text-slate-500 mb-2">Working Days</p>
                       <div className="flex flex-wrap gap-1">
-                        {['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'].map((day) => (
+                        {["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"].map((day) => (
                           <span
                             key={day}
                             className={`px-2 py-1 text-xs font-semibold rounded ${
                               shift.workingDays.includes(day.toUpperCase())
-                                ? 'bg-emerald-100 text-emerald-700'
-                                : 'bg-slate-100 text-slate-400'
+                                ? "bg-emerald-100 text-emerald-700"
+                                : "bg-slate-100 text-slate-400"
                             }`}
                           >
                             {day}

@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { attendanceApi } from '@/lib/api/attendance';
-import { locationsApi } from '@/lib/api/locations';
-import { toast } from 'react-hot-toast';
-import Link from 'next/link';
-import { ArrowLeft } from 'lucide-react';
+import { useEffect, useState } from "react";
+import { attendanceApi } from "@/lib/api/attendance";
+import { locationsApi } from "@/lib/api/locations";
+import { toast } from "react-hot-toast";
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 
 interface AttendanceLocation {
   latitude: number;
@@ -55,11 +55,11 @@ export default function DailyAttendancePage() {
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
   const [currentLocation, setCurrentLocation] = useState<GeolocationPosition | null>(null);
-  const [locationError, setLocationError] = useState<string>('');
+  const [locationError, setLocationError] = useState<string>("");
   const [currentTime, setCurrentTime] = useState(new Date());
   const [onBreak, setOnBreak] = useState(false);
   const [officeLocations, setOfficeLocations] = useState<OfficeLocation[]>([]);
-  const [selectedLocationId, setSelectedLocationId] = useState<string>('');
+  const [selectedLocationId, setSelectedLocationId] = useState<string>("");
 
   useEffect(() => {
     loadTodayAttendance();
@@ -74,7 +74,7 @@ export default function DailyAttendancePage() {
   useEffect(() => {
     // Check if currently on break
     if (attendance?.breaks) {
-      const activeBreak = attendance.breaks.find(b => !b.endTime);
+      const activeBreak = attendance.breaks.find((b) => !b.endTime);
       setOnBreak(!!activeBreak);
     }
   }, [attendance]);
@@ -86,7 +86,7 @@ export default function DailyAttendancePage() {
       setAttendance(data);
     } catch (error: any) {
       if (error.response?.status !== 404) {
-        console.error('Failed to load attendance:', error);
+        console.error("Failed to load attendance:", error);
       }
     } finally {
       setLoading(false);
@@ -96,49 +96,49 @@ export default function DailyAttendancePage() {
   const loadOfficeLocations = async () => {
     try {
       const data = await locationsApi.getActiveLocations();
-      console.log('Loaded office locations:', data);
+      console.log("Loaded office locations:", data);
       setOfficeLocations(data || []);
       // Auto-select first location if available - use locationId (custom ID)
       if (data && data.length > 0) {
         const firstLocationId = data[0].locationId || data[0].id;
-        console.log('Auto-selecting location:', firstLocationId);
+        console.log("Auto-selecting location:", firstLocationId);
         setSelectedLocationId(firstLocationId);
       }
     } catch (error: any) {
-      console.error('Failed to load office locations:', error);
-      toast.error('Failed to load office locations. Please create one in settings.');
+      console.error("Failed to load office locations:", error);
+      toast.error("Failed to load office locations. Please create one in settings.");
     }
   };
 
   const getCurrentLocation = () => {
     if (!navigator.geolocation) {
-      setLocationError('Geolocation is not supported by your browser');
+      setLocationError("Geolocation is not supported by your browser");
       return;
     }
 
     navigator.geolocation.getCurrentPosition(
       (position) => {
         setCurrentLocation(position);
-        setLocationError('');
+        setLocationError("");
       },
       (error) => {
         setLocationError(error.message);
-        toast.error('Failed to get your location. Please enable location services.');
+        toast.error("Failed to get your location. Please enable location services.");
       },
       { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
     );
   };
 
-  const handleCheckIn = async (type: 'OFFICE' | 'REMOTE' | 'FIELD') => {
+  const handleCheckIn = async (type: "OFFICE" | "REMOTE" | "FIELD") => {
     if (!currentLocation) {
-      toast.error('Getting your location...');
+      toast.error("Getting your location...");
       getCurrentLocation();
       return;
     }
 
     // Validate office location for OFFICE type
-    if (type === 'OFFICE' && !selectedLocationId) {
-      toast.error('Please wait while office locations are loading...');
+    if (type === "OFFICE" && !selectedLocationId) {
+      toast.error("Please wait while office locations are loading...");
       return;
     }
 
@@ -149,25 +149,25 @@ export default function DailyAttendancePage() {
         latitude: currentLocation.coords.latitude,
         longitude: currentLocation.coords.longitude,
         accuracy: currentLocation.coords.accuracy,
-        deviceInfo: navigator.userAgent
+        deviceInfo: navigator.userAgent,
       };
 
       // Add officeLocationId for OFFICE check-ins
-      if (type === 'OFFICE') {
+      if (type === "OFFICE") {
         checkInData.officeLocationId = selectedLocationId;
       }
 
-      console.log('Check-in request:', checkInData);
-      console.log('Selected location ID:', selectedLocationId);
-      console.log('Available locations:', officeLocations);
+      console.log("Check-in request:", checkInData);
+      console.log("Selected location ID:", selectedLocationId);
+      console.log("Available locations:", officeLocations);
 
       await attendanceApi.checkIn(checkInData);
 
-      toast.success('Checked in successfully!');
+      toast.success("Checked in successfully!");
       loadTodayAttendance();
     } catch (error: any) {
-      console.error('Check-in failed:', error);
-      toast.error(error.response?.data?.message || 'Failed to check in');
+      console.error("Check-in failed:", error);
+      toast.error(error.response?.data?.message || "Failed to check in");
     } finally {
       setActionLoading(false);
     }
@@ -182,14 +182,14 @@ export default function DailyAttendancePage() {
         attendanceId: attendance.attendanceId,
         latitude: currentLocation.coords.latitude,
         longitude: currentLocation.coords.longitude,
-        accuracy: currentLocation.coords.accuracy
+        accuracy: currentLocation.coords.accuracy,
       });
 
-      toast.success('Checked out successfully!');
+      toast.success("Checked out successfully!");
       loadTodayAttendance();
     } catch (error: any) {
-      console.error('Check-out failed:', error);
-      toast.error(error.response?.data?.message || 'Failed to check out');
+      console.error("Check-out failed:", error);
+      toast.error(error.response?.data?.message || "Failed to check out");
     } finally {
       setActionLoading(false);
     }
@@ -205,14 +205,14 @@ export default function DailyAttendancePage() {
         type: breakType as any,
         latitude: currentLocation?.coords.latitude,
         longitude: currentLocation?.coords.longitude,
-        accuracy: currentLocation?.coords.accuracy
+        accuracy: currentLocation?.coords.accuracy,
       });
 
-      toast.success('Break started');
+      toast.success("Break started");
       loadTodayAttendance();
     } catch (error: any) {
-      console.error('Start break failed:', error);
-      toast.error(error.response?.data?.message || 'Failed to start break');
+      console.error("Start break failed:", error);
+      toast.error(error.response?.data?.message || "Failed to start break");
     } finally {
       setActionLoading(false);
     }
@@ -221,7 +221,7 @@ export default function DailyAttendancePage() {
   const handleEndBreak = async () => {
     if (!attendance) return;
 
-    const activeBreak = attendance.breaks.find(b => !b.endTime);
+    const activeBreak = attendance.breaks.find((b) => !b.endTime);
     if (!activeBreak) return;
 
     setActionLoading(true);
@@ -231,27 +231,27 @@ export default function DailyAttendancePage() {
         breakId: activeBreak.breakId,
         latitude: currentLocation?.coords.latitude,
         longitude: currentLocation?.coords.longitude,
-        accuracy: currentLocation?.coords.accuracy
+        accuracy: currentLocation?.coords.accuracy,
       });
 
-      toast.success('Break ended');
+      toast.success("Break ended");
       loadTodayAttendance();
     } catch (error: any) {
-      console.error('End break failed:', error);
-      toast.error(error.response?.data?.message || 'Failed to end break');
+      console.error("End break failed:", error);
+      toast.error(error.response?.data?.message || "Failed to end break");
     } finally {
       setActionLoading(false);
     }
   };
 
   const formatTime = (timeStr?: string) => {
-    if (!timeStr) return '--:--';
+    if (!timeStr) return "--:--";
     const date = new Date(timeStr);
-    return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+    return date.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true });
   };
 
   const formatDuration = (minutes?: number) => {
-    if (!minutes) return '--';
+    if (!minutes) return "--";
     const hours = Math.floor(minutes / 60);
     const mins = minutes % 60;
     return `${hours}h ${mins}m`;
@@ -259,13 +259,13 @@ export default function DailyAttendancePage() {
 
   const getStatusColor = (status: string) => {
     const colors: Record<string, string> = {
-      PRESENT: 'bg-green-100 text-green-800',
-      LATE: 'bg-yellow-100 text-yellow-800',
-      ABSENT: 'bg-red-100 text-red-800',
-      HALF_DAY: 'bg-orange-100 text-orange-800',
-      ON_LEAVE: 'bg-blue-100 text-blue-800'
+      PRESENT: "bg-green-100 text-green-800",
+      LATE: "bg-yellow-100 text-yellow-800",
+      ABSENT: "bg-red-100 text-red-800",
+      HALF_DAY: "bg-orange-100 text-orange-800",
+      ON_LEAVE: "bg-blue-100 text-blue-800",
     };
-    return colors[status] || 'bg-gray-100 text-gray-800';
+    return colors[status] || "bg-gray-100 text-gray-800";
   };
 
   if (loading) {
@@ -278,7 +278,7 @@ export default function DailyAttendancePage() {
 
   const hasCheckedIn = !!attendance?.checkInTime;
   const hasCheckedOut = !!attendance?.checkOutTime;
-  const isOnLeave = attendance?.status === 'ON_LEAVE';
+  const isOnLeave = attendance?.status === "ON_LEAVE";
 
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-6">
@@ -295,7 +295,12 @@ export default function DailyAttendancePage() {
           <div>
             <h1 className="text-3xl font-bold text-gray-900">Daily Attendance</h1>
             <p className="text-gray-600 mt-1">
-              {currentTime.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+              {currentTime.toLocaleDateString("en-US", {
+                weekday: "long",
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              })}
             </p>
           </div>
         </div>
@@ -311,10 +316,15 @@ export default function DailyAttendancePage() {
       <div className="bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl shadow-lg p-8 text-white">
         <div className="text-center">
           <div className="text-6xl font-bold tracking-tight">
-            {currentTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })}
+            {currentTime.toLocaleTimeString("en-US", {
+              hour: "2-digit",
+              minute: "2-digit",
+              second: "2-digit",
+              hour12: false,
+            })}
           </div>
           <div className="text-blue-100 mt-2">
-            {currentTime.toLocaleDateString('en-US', { weekday: 'long' })}
+            {currentTime.toLocaleDateString("en-US", { weekday: "long" })}
           </div>
         </div>
 
@@ -322,12 +332,12 @@ export default function DailyAttendancePage() {
         <div className="mt-6 pt-6 border-t border-blue-500/30">
           <div className="flex items-center justify-center gap-2 text-sm">
             <span className="material-symbols-outlined text-lg">
-              {currentLocation ? 'location_on' : 'location_off'}
+              {currentLocation ? "location_on" : "location_off"}
             </span>
             <span>
               {currentLocation
                 ? `Location: ${currentLocation.coords.accuracy?.toFixed(0)}m accuracy`
-                : locationError || 'Getting location...'}
+                : locationError || "Getting location..."}
             </span>
             <button
               onClick={getCurrentLocation}
@@ -344,13 +354,25 @@ export default function DailyAttendancePage() {
         <div className="bg-blue-50 border border-blue-200 rounded-xl p-6">
           <div className="flex items-start gap-4">
             <div className="flex-shrink-0">
-              <svg className="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              <svg
+                className="h-6 w-6 text-blue-600"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
               </svg>
             </div>
             <div className="flex-1">
               <h3 className="text-lg font-semibold text-blue-900 mb-1">You're on Leave Today</h3>
-              <p className="text-blue-700 text-sm mb-2">{attendance.systemNotes || 'You have an approved leave for today.'}</p>
+              <p className="text-blue-700 text-sm mb-2">
+                {attendance.systemNotes || "You have an approved leave for today."}
+              </p>
               {attendance.leaveId && (
                 <p className="text-blue-600 text-xs">Leave ID: {attendance.leaveId}</p>
               )}
@@ -376,28 +398,30 @@ export default function DailyAttendancePage() {
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 {officeLocations.map((location) => (
-                  <option key={location.locationId || location.id} value={location.locationId || location.id}>
+                  <option
+                    key={location.locationId || location.id}
+                    value={location.locationId || location.id}
+                  >
                     {location.name} - {location.address}
                   </option>
                 ))}
               </select>
-              <p className="text-xs text-gray-500 mt-1">
-                Selected: {selectedLocationId || 'None'}
-              </p>
+              <p className="text-xs text-gray-500 mt-1">Selected: {selectedLocationId || "None"}</p>
             </div>
           )}
 
           {officeLocations.length === 0 && (
             <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
               <p className="text-sm text-yellow-800">
-                No office locations found. Please ask your admin to create one in Settings → Office Locations.
+                No office locations found. Please ask your admin to create one in Settings → Office
+                Locations.
               </p>
             </div>
           )}
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <button
-              onClick={() => handleCheckIn('OFFICE')}
+              onClick={() => handleCheckIn("OFFICE")}
               disabled={actionLoading || !currentLocation}
               className="flex flex-col items-center gap-3 p-6 border-2 border-blue-600 text-blue-600 rounded-xl hover:bg-blue-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
             >
@@ -405,7 +429,7 @@ export default function DailyAttendancePage() {
               <span className="font-semibold">Office</span>
             </button>
             <button
-              onClick={() => handleCheckIn('REMOTE')}
+              onClick={() => handleCheckIn("REMOTE")}
               disabled={actionLoading || !currentLocation}
               className="flex flex-col items-center gap-3 p-6 border-2 border-green-600 text-green-600 rounded-xl hover:bg-green-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
             >
@@ -413,7 +437,7 @@ export default function DailyAttendancePage() {
               <span className="font-semibold">Remote</span>
             </button>
             <button
-              onClick={() => handleCheckIn('FIELD')}
+              onClick={() => handleCheckIn("FIELD")}
               disabled={actionLoading || !currentLocation}
               className="flex flex-col items-center gap-3 p-6 border-2 border-purple-600 text-purple-600 rounded-xl hover:bg-purple-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
             >
@@ -430,8 +454,10 @@ export default function DailyAttendancePage() {
           <div className="px-6 py-4 bg-gray-50 border-b border-gray-200">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-semibold text-gray-900">Today's Status</h2>
-              <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(attendance.status)}`}>
-                {attendance.status.replace('_', ' ')}
+              <span
+                className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(attendance.status)}`}
+              >
+                {attendance.status.replace("_", " ")}
               </span>
             </div>
           </div>
@@ -445,7 +471,9 @@ export default function DailyAttendancePage() {
                 </div>
                 <div>
                   <div className="text-sm text-gray-600">Check In</div>
-                  <div className="text-2xl font-bold text-gray-900">{formatTime(attendance.checkInTime)}</div>
+                  <div className="text-2xl font-bold text-gray-900">
+                    {formatTime(attendance.checkInTime)}
+                  </div>
                   {attendance.isLocationVerified && (
                     <div className="flex items-center gap-1 text-xs text-green-600 mt-1">
                       <span className="material-symbols-outlined text-sm">verified</span>
@@ -462,7 +490,7 @@ export default function DailyAttendancePage() {
                 <div>
                   <div className="text-sm text-gray-600">Check Out</div>
                   <div className="text-2xl font-bold text-gray-900">
-                    {hasCheckedOut ? formatTime(attendance.checkOutTime) : 'Not yet'}
+                    {hasCheckedOut ? formatTime(attendance.checkOutTime) : "Not yet"}
                   </div>
                 </div>
               </div>
@@ -474,7 +502,9 @@ export default function DailyAttendancePage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <div className="text-sm text-blue-600 font-medium">Work Duration</div>
-                    <div className="text-2xl font-bold text-blue-900">{formatDuration(attendance.totalWorkMinutes)}</div>
+                    <div className="text-2xl font-bold text-blue-900">
+                      {formatDuration(attendance.totalWorkMinutes)}
+                    </div>
                   </div>
                   <span className="material-symbols-outlined text-blue-600 text-4xl">schedule</span>
                 </div>
@@ -490,14 +520,14 @@ export default function DailyAttendancePage() {
                     {!onBreak ? (
                       <div className="flex gap-2">
                         <button
-                          onClick={() => handleStartBreak('LUNCH')}
+                          onClick={() => handleStartBreak("LUNCH")}
                           disabled={actionLoading}
                           className="px-3 py-1 bg-yellow-600 hover:bg-yellow-700 text-white text-sm font-medium rounded-lg disabled:opacity-50 transition-colors"
                         >
                           Lunch Break
                         </button>
                         <button
-                          onClick={() => handleStartBreak('TEA')}
+                          onClick={() => handleStartBreak("TEA")}
                           disabled={actionLoading}
                           className="px-3 py-1 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg disabled:opacity-50 transition-colors"
                         >
@@ -520,13 +550,17 @@ export default function DailyAttendancePage() {
               {attendance.breaks.length > 0 ? (
                 <div className="space-y-2">
                   {attendance.breaks.map((breakRecord, index) => (
-                    <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div
+                      key={index}
+                      className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                    >
                       <div className="flex items-center gap-3">
                         <span className="material-symbols-outlined text-gray-600">coffee</span>
                         <div>
                           <div className="font-medium text-gray-900">{breakRecord.type}</div>
                           <div className="text-sm text-gray-600">
-                            {formatTime(breakRecord.startTime)} - {breakRecord.endTime ? formatTime(breakRecord.endTime) : 'Ongoing'}
+                            {formatTime(breakRecord.startTime)} -{" "}
+                            {breakRecord.endTime ? formatTime(breakRecord.endTime) : "Ongoing"}
                           </div>
                         </div>
                       </div>
@@ -539,9 +573,7 @@ export default function DailyAttendancePage() {
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-4 text-gray-500 text-sm">
-                  No breaks taken today
-                </div>
+                <div className="text-center py-4 text-gray-500 text-sm">No breaks taken today</div>
               )}
             </div>
 
@@ -552,7 +584,7 @@ export default function DailyAttendancePage() {
                 disabled={actionLoading || !currentLocation}
                 className="w-full py-4 bg-orange-600 hover:bg-orange-700 text-white text-lg font-semibold rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
-                {actionLoading ? 'Processing...' : 'Check Out'}
+                {actionLoading ? "Processing..." : "Check Out"}
               </button>
             )}
           </div>
@@ -564,9 +596,7 @@ export default function DailyAttendancePage() {
         <div className="bg-white rounded-xl shadow p-12 text-center">
           <span className="text-6xl mb-4 block">👋</span>
           <h3 className="text-xl font-semibold text-gray-900 mb-2">Ready to start your day?</h3>
-          <p className="text-gray-600">
-            Check in to start tracking your attendance
-          </p>
+          <p className="text-gray-600">Check in to start tracking your attendance</p>
         </div>
       )}
     </div>

@@ -85,7 +85,7 @@ export default function ProposalsPage() {
       const pagination = {
         page: currentPage,
         size: itemsPerPage,
-        sort: `${sortColumn},${sortDirection}`
+        sort: `${sortColumn},${sortDirection}`,
       };
 
       const isProforma = activeTab === "PROFORMA";
@@ -100,10 +100,10 @@ export default function ProposalsPage() {
       }
 
       const applyTabFilter = (proposals: ProposalResponse[]) => {
-        return proposals.filter(p => !!p.isProforma === isProforma);
+        return proposals.filter((p) => !!p.isProforma === isProforma);
       };
 
-      if ('content' in response) {
+      if ("content" in response) {
         setProposals(response.content);
         setFilteredProposals(applyTabFilter(response.content));
         setTotalElements(response.totalElements);
@@ -152,7 +152,7 @@ export default function ProposalsPage() {
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handlePageSizeChange = (size: number) => {
@@ -176,9 +176,7 @@ export default function ProposalsPage() {
       setShowDeleteModal(false);
       setProposalToDelete(null);
     } catch (err) {
-      showToast.error(
-        err instanceof Error ? err.message : "Failed to delete proposal"
-      );
+      showToast.error(err instanceof Error ? err.message : "Failed to delete proposal");
     } finally {
       setDeleteLoading(false);
     }
@@ -191,9 +189,7 @@ export default function ProposalsPage() {
       showToast.success("Proposal sent successfully");
       loadProposals();
     } catch (err) {
-      showToast.error(
-        err instanceof Error ? err.message : "Failed to send proposal"
-      );
+      showToast.error(err instanceof Error ? err.message : "Failed to send proposal");
     }
   };
 
@@ -204,9 +200,7 @@ export default function ProposalsPage() {
       showToast.success("Proforma marked as Paid");
       loadProposals();
     } catch (err) {
-      showToast.error(
-        err instanceof Error ? err.message : "Failed to update status"
-      );
+      showToast.error(err instanceof Error ? err.message : "Failed to update status");
     }
   };
 
@@ -217,9 +211,7 @@ export default function ProposalsPage() {
       showToast.success("Proforma marked as Rejected");
       loadProposals();
     } catch (err) {
-      showToast.error(
-        err instanceof Error ? err.message : "Failed to reject proforma"
-      );
+      showToast.error(err instanceof Error ? err.message : "Failed to reject proforma");
     }
   };
 
@@ -230,13 +222,9 @@ export default function ProposalsPage() {
       showToast.success("Proforma voided successfully");
       loadProposals();
     } catch (err) {
-      showToast.error(
-        err instanceof Error ? err.message : "Failed to void proforma"
-      );
+      showToast.error(err instanceof Error ? err.message : "Failed to void proforma");
     }
   };
-
-
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("en-IN", {
@@ -266,18 +254,20 @@ export default function ProposalsPage() {
       [ProposalStatus.VOIDED]: "bg-orange-50 text-orange-700 border-orange-100",
     };
 
-    const label = isProforma || activeTab === "PROFORMA"
-      ? getProformaStatusLabel(status)
-      : getProposalStatusLabel(status);
+    const label =
+      isProforma || activeTab === "PROFORMA"
+        ? getProformaStatusLabel(status)
+        : getProposalStatusLabel(status);
 
     const style = statusStyles[status] || "bg-gray-100 text-gray-800";
     return (
-      <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border ${style}`}>
+      <span
+        className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border ${style}`}
+      >
         {label}
       </span>
     );
   };
-
 
   // Group proformas by parentProposalId for the accordion view
   const groupedProformas = useMemo(() => {
@@ -343,12 +333,16 @@ export default function ProposalsPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between py-4 gap-4">
             <div>
-              <h1 className="text-2xl font-bold text-slate-900  tracking-tight">Quotations | Proforma Invoices</h1>
-              <p className="text-sm text-slate-500 ">Manage quotations and track proforma invoices.</p>
+              <h1 className="text-2xl font-bold text-slate-900  tracking-tight">
+                Quotations | Proforma Invoices
+              </h1>
+              <p className="text-sm text-slate-500 ">
+                Manage quotations and track proforma invoices.
+              </p>
             </div>
             <div className="flex items-center gap-3">
               <button
-                onClick={() => router.push(`/proposals/new?isProforma=${activeTab === 'PROFORMA'}`)}
+                onClick={() => router.push(`/proposals/new?isProforma=${activeTab === "PROFORMA"}`)}
                 className="flex items-center gap-2 px-5 py-2 bg-primary hover:bg-primary-hover text-white rounded-xl text-sm font-bold shadow-lg shadow-primary/25 hover:shadow-primary/40 hover:-translate-y-0.5 transition-all"
               >
                 <Plus className="h-4 w-4" />
@@ -364,7 +358,11 @@ export default function ProposalsPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex space-x-8">
             <button
-              onClick={() => { setActiveTab("QUOTATION"); setCurrentPage(1); setStatusFilter("ALL"); }}
+              onClick={() => {
+                setActiveTab("QUOTATION");
+                setCurrentPage(1);
+                setStatusFilter("ALL");
+              }}
               className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
                 activeTab === "QUOTATION"
                   ? "border-primary text-primary"
@@ -374,7 +372,11 @@ export default function ProposalsPage() {
               Quotations
             </button>
             <button
-              onClick={() => { setActiveTab("PROFORMA"); setCurrentPage(1); setStatusFilter("ALL"); }}
+              onClick={() => {
+                setActiveTab("PROFORMA");
+                setCurrentPage(1);
+                setStatusFilter("ALL");
+              }}
               className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
                 activeTab === "PROFORMA"
                   ? "border-primary text-primary"
@@ -411,13 +413,17 @@ export default function ProposalsPage() {
                   <option value="ALL">All Status</option>
                   {activeTab === "PROFORMA" ? (
                     PROFORMA_STATUSES.map((s) => (
-                      <option key={s} value={s}>{getProformaStatusLabel(s)}</option>
+                      <option key={s} value={s}>
+                        {getProformaStatusLabel(s)}
+                      </option>
                     ))
                   ) : (
                     <>
                       <option value={ProposalStatus.DRAFT}>Draft</option>
                       <option value={ProposalStatus.PENDING_APPROVAL}>Pending Approval</option>
-                      <option value={ProposalStatus.PENDING_ON_CUSTOMER}>Pending On Customer</option>
+                      <option value={ProposalStatus.PENDING_ON_CUSTOMER}>
+                        Pending On Customer
+                      </option>
                       <option value={ProposalStatus.SENT}>Sent</option>
                       <option value={ProposalStatus.ACCEPTED}>Accepted</option>
                       <option value={ProposalStatus.REJECTED}>Rejected</option>
@@ -431,14 +437,12 @@ export default function ProposalsPage() {
             </div>
           </div>
         </div>
-
         {error && (
           <div className="bg-red-50  border border-red-200  text-red-700  p-4 rounded-xl flex items-center gap-3">
             <AlertCircle className="h-5 w-5" />
             <p>{error}</p>
           </div>
         )}
-
         {/* Proposals Table */}
         <div className="bg-white  rounded-2xl shadow-sm border border-slate-200  overflow-hidden">
           {filteredProposals.length === 0 ? (
@@ -466,11 +470,11 @@ export default function ProposalsPage() {
                   <tr>
                     <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider w-8"></th>
                     {[
-                      { key: 'proposalNumber', label: 'Proposal #' },
-                      { key: 'title', label: 'Title / Customer' },
-                      { key: 'totalAmount', label: 'Amount' },
-                      { key: 'status', label: 'Status' },
-                      { key: 'validUntil', label: 'Valid Until' },
+                      { key: "proposalNumber", label: "Proposal #" },
+                      { key: "title", label: "Title / Customer" },
+                      { key: "totalAmount", label: "Amount" },
+                      { key: "status", label: "Status" },
+                      { key: "validUntil", label: "Valid Until" },
                     ].map((col) => (
                       <th
                         key={col.key}
@@ -479,11 +483,15 @@ export default function ProposalsPage() {
                       >
                         <div className="flex items-center gap-2">
                           {col.label}
-                          <ArrowUpDown className={`h-3 w-3 ${sortColumn === col.key ? 'text-primary' : 'text-slate-300 group-hover:text-slate-500'}`} />
+                          <ArrowUpDown
+                            className={`h-3 w-3 ${sortColumn === col.key ? "text-primary" : "text-slate-300 group-hover:text-slate-500"}`}
+                          />
                         </div>
                       </th>
                     ))}
-                    <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider text-right">Actions</th>
+                    <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider text-right">
+                      Actions
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
@@ -492,11 +500,15 @@ export default function ProposalsPage() {
                     const isExpanded = expandedGroups.has(parentId);
                     const firstChild = children[0];
                     const progress = getMilestoneProgress(children);
-                    const groupTotal = children.reduce((sum, c) => sum + (c.milestonePayableAmount || c.totalAmount || 0), 0);
+                    const groupTotal = children.reduce(
+                      (sum, c) => sum + (c.milestonePayableAmount || c.totalAmount || 0),
+                      0
+                    );
                     const groupTax = children.reduce((sum, c) => sum + (c.taxAmount || 0), 0);
                     const groupBase = Math.max(0, groupTotal - groupTax);
                     // Extract parent quotation title (strip milestone suffix)
-                    const parentTitle = firstChild.title?.replace(/\s*-\s*[^-]+$/, '') || firstChild.title;
+                    const parentTitle =
+                      firstChild.title?.replace(/\s*-\s*[^-]+$/, "") || firstChild.title;
 
                     return (
                       <>
@@ -514,7 +526,9 @@ export default function ProposalsPage() {
                             )}
                           </td>
                           <td className="px-6 py-4 text-sm font-medium text-slate-900">
-                            <span className="font-mono text-primary/70 text-xs">Parent Quotation</span>
+                            <span className="font-mono text-primary/70 text-xs">
+                              Parent Quotation
+                            </span>
                           </td>
                           <td className="px-6 py-4">
                             <div>
@@ -533,7 +547,7 @@ export default function ProposalsPage() {
                               {formatCurrency(groupTotal)}
                             </div>
                             <span className="text-[10px] font-semibold bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-full mt-1 inline-block">
-                              {children.length} milestone{children.length > 1 ? 's' : ''}
+                              {children.length} milestone{children.length > 1 ? "s" : ""}
                             </span>
                           </td>
                           <td className="px-6 py-4">
@@ -542,7 +556,9 @@ export default function ProposalsPage() {
                               <div className="flex-1 max-w-[100px] bg-slate-200 rounded-full h-1.5">
                                 <div
                                   className="bg-emerald-500 h-1.5 rounded-full transition-all"
-                                  style={{ width: `${progress.total > 0 ? (progress.completed / progress.total) * 100 : 0}%` }}
+                                  style={{
+                                    width: `${progress.total > 0 ? (progress.completed / progress.total) * 100 : 0}%`,
+                                  }}
                                 />
                               </div>
                               <span className="text-xs text-slate-500 font-medium whitespace-nowrap">
@@ -558,129 +574,153 @@ export default function ProposalsPage() {
                           </td>
                           <td className="px-6 py-4 text-right">
                             <button
-                              onClick={(e) => { e.stopPropagation(); toggleGroup(parentId); }}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                toggleGroup(parentId);
+                              }}
                               className="text-xs text-primary hover:text-primary-hover font-medium"
                             >
-                              {isExpanded ? 'Collapse' : 'Expand'}
+                              {isExpanded ? "Collapse" : "Expand"}
                             </button>
                           </td>
                         </tr>
 
                         {/* Child Proforma Rows (expanded) */}
-                        {isExpanded && children.map((proposal, idx) => {
-                          const childTotal = proposal.milestonePayableAmount || proposal.totalAmount || 0;
-                          const childTax = proposal.taxAmount || 0;
-                          const childBase = Math.max(0, childTotal - childTax);
+                        {isExpanded &&
+                          children.map((proposal, idx) => {
+                            const childTotal =
+                              proposal.milestonePayableAmount || proposal.totalAmount || 0;
+                            const childTax = proposal.taxAmount || 0;
+                            const childBase = Math.max(0, childTotal - childTax);
 
-                          const actualPercentage = groupBase > 0 
-                            ? Math.round((childBase / groupBase) * 100) 
-                            : (proposal.paymentMilestones?.[0]?.percentage || 0);
+                            const actualPercentage =
+                              groupBase > 0
+                                ? Math.round((childBase / groupBase) * 100)
+                                : proposal.paymentMilestones?.[0]?.percentage || 0;
 
-                          return (
-                            <tr
-                              key={proposal.id}
-                              className="hover:bg-blue-50/50 transition-colors cursor-pointer bg-white"
-                              onClick={() => router.push(`/proposals/${proposal.id}`)}
-                            >
-                            <td className="px-4 py-3 text-center">
-                              <div className="flex flex-col items-center">
-                                <div className={`w-0.5 h-3 ${idx === 0 ? 'bg-transparent' : 'bg-slate-200'}`} />
-                                <div className="w-2 h-2 rounded-full border-2 border-slate-300 bg-white" />
-                                <div className={`w-0.5 h-3 ${idx === children.length - 1 ? 'bg-transparent' : 'bg-slate-200'}`} />
-                              </div>
-                            </td>
-                            <td className="px-6 py-3 text-sm font-medium text-slate-900">
-                              <span className="font-mono text-primary">{proposal.proposalNumber}</span>
-                            </td>
-                            <td className="px-6 py-3">
-                              <div>
-                                <p className="text-sm font-medium text-slate-700">
-                                  {proposal.paymentMilestones?.[0]?.name || proposal.title}
-                                </p>
-                                {(actualPercentage > 0 || proposal.paymentMilestones?.[0]?.percentage) && (
-                                  <span className="text-[10px] font-medium bg-primary/10 text-primary px-1.5 py-0.5 rounded mt-0.5 inline-block">
-                                    {actualPercentage}%{childTax > 0 ? ' + GST' : ''}
+                            return (
+                              <tr
+                                key={proposal.id}
+                                className="hover:bg-blue-50/50 transition-colors cursor-pointer bg-white"
+                                onClick={() => router.push(`/proposals/${proposal.id}`)}
+                              >
+                                <td className="px-4 py-3 text-center">
+                                  <div className="flex flex-col items-center">
+                                    <div
+                                      className={`w-0.5 h-3 ${idx === 0 ? "bg-transparent" : "bg-slate-200"}`}
+                                    />
+                                    <div className="w-2 h-2 rounded-full border-2 border-slate-300 bg-white" />
+                                    <div
+                                      className={`w-0.5 h-3 ${idx === children.length - 1 ? "bg-transparent" : "bg-slate-200"}`}
+                                    />
+                                  </div>
+                                </td>
+                                <td className="px-6 py-3 text-sm font-medium text-slate-900">
+                                  <span className="font-mono text-primary">
+                                    {proposal.proposalNumber}
                                   </span>
-                                )}
-                              </div>
-                            </td>
-                            <td className="px-6 py-3">
-                              <div className="text-sm font-bold text-slate-900">
-                                {formatCurrency(proposal.milestonePayableAmount || proposal.totalAmount)}
-                              </div>
-                            </td>
-                            <td className="px-6 py-3">
-                              {getStatusBadge(proposal.status)}
-                            </td>
-                            <td className="px-6 py-3 text-sm text-slate-600">
-                              <div className="flex items-center gap-1.5">
-                                <Clock className="h-3.5 w-3.5 text-slate-400" />
-                                {formatDate(proposal.validUntil)}
-                              </div>
-                            </td>
-                            <td className="px-6 py-3 text-right">
-                              <div className="flex items-center justify-end gap-2">
-                                {/* Quick Actions for Proforma */}
-                                {proposal.status === ProposalStatus.DRAFT && (
-                                  <button
-                                    onClick={(e) => handleSend(proposal.id, e)}
-                                    className="p-2 text-blue-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                                    title="Send to Customer"
-                                  >
-                                    <Send className="h-4 w-4" />
-                                  </button>
-                                )}
-                                {proposal.status === ProposalStatus.SENT && (
-                                  <>
+                                </td>
+                                <td className="px-6 py-3">
+                                  <div>
+                                    <p className="text-sm font-medium text-slate-700">
+                                      {proposal.paymentMilestones?.[0]?.name || proposal.title}
+                                    </p>
+                                    {(actualPercentage > 0 ||
+                                      proposal.paymentMilestones?.[0]?.percentage) && (
+                                      <span className="text-[10px] font-medium bg-primary/10 text-primary px-1.5 py-0.5 rounded mt-0.5 inline-block">
+                                        {actualPercentage}%{childTax > 0 ? " + GST" : ""}
+                                      </span>
+                                    )}
+                                  </div>
+                                </td>
+                                <td className="px-6 py-3">
+                                  <div className="text-sm font-bold text-slate-900">
+                                    {formatCurrency(
+                                      proposal.milestonePayableAmount || proposal.totalAmount
+                                    )}
+                                  </div>
+                                </td>
+                                <td className="px-6 py-3">{getStatusBadge(proposal.status)}</td>
+                                <td className="px-6 py-3 text-sm text-slate-600">
+                                  <div className="flex items-center gap-1.5">
+                                    <Clock className="h-3.5 w-3.5 text-slate-400" />
+                                    {formatDate(proposal.validUntil)}
+                                  </div>
+                                </td>
+                                <td className="px-6 py-3 text-right">
+                                  <div className="flex items-center justify-end gap-2">
+                                    {/* Quick Actions for Proforma */}
+                                    {proposal.status === ProposalStatus.DRAFT && (
+                                      <button
+                                        onClick={(e) => handleSend(proposal.id, e)}
+                                        className="p-2 text-blue-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                        title="Send to Customer"
+                                      >
+                                        <Send className="h-4 w-4" />
+                                      </button>
+                                    )}
+                                    {proposal.status === ProposalStatus.SENT && (
+                                      <>
+                                        <button
+                                          onClick={(e) => handleAccept(proposal.id, e)}
+                                          className="p-2 text-emerald-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
+                                          title="Mark as Paid"
+                                        >
+                                          <CheckCircle className="h-4 w-4" />
+                                        </button>
+                                      </>
+                                    )}
+                                    {proposal.status !== ProposalStatus.VOIDED &&
+                                      proposal.status !== ProposalStatus.ACCEPTED && (
+                                        <button
+                                          onClick={(e) => handleVoid(proposal.id, e)}
+                                          className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+                                          title="Void / Cancel"
+                                        >
+                                          <Ban className="h-4 w-4" />
+                                        </button>
+                                      )}
+
+                                    <div className="w-px h-4 bg-slate-200 mx-1" />
+
                                     <button
-                                      onClick={(e) => handleAccept(proposal.id, e)}
-                                      className="p-2 text-emerald-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
-                                      title="Mark as Paid"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        router.push(`/proposals/${proposal.id}`);
+                                      }}
+                                      className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                      title="View"
                                     >
-                                      <CheckCircle className="h-4 w-4" />
+                                      <Eye className="h-4 w-4" />
                                     </button>
-                                  </>
-                                )}
-                                {proposal.status !== ProposalStatus.VOIDED && proposal.status !== ProposalStatus.ACCEPTED && (
-                                  <button
-                                    onClick={(e) => handleVoid(proposal.id, e)}
-                                    className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
-                                    title="Void / Cancel"
-                                  >
-                                    <Ban className="h-4 w-4" />
-                                  </button>
-                                )}
-
-                                <div className="w-px h-4 bg-slate-200 mx-1" />
-
-                                <button
-                                  onClick={(e) => { e.stopPropagation(); router.push(`/proposals/${proposal.id}`); }}
-                                  className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                                  title="View"
-                                >
-                                  <Eye className="h-4 w-4" />
-                                </button>
-                                {proposal.status !== ProposalStatus.ACCEPTED && proposal.status !== ProposalStatus.REJECTED && (
-                                  <button
-                                    onClick={(e) => { e.stopPropagation(); router.push(`/proposals/${proposal.id}/edit`); }}
-                                    className="p-2 text-slate-400 hover:text-primary hover:bg-slate-100 rounded-lg transition-colors"
-                                    title="Edit"
-                                  >
-                                    <Edit2 className="h-4 w-4" />
-                                  </button>
-                                )}
-                                <button
-                                  onClick={(e) => { e.stopPropagation(); handleDelete(proposal.id); }}
-                                  className="p-2 text-rose-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
-                                  title="Delete"
-                                >
-                                  <Trash2 className="h-4 w-4" />
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
-                          );
-                        })}
+                                    {proposal.status !== ProposalStatus.ACCEPTED &&
+                                      proposal.status !== ProposalStatus.REJECTED && (
+                                        <button
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            router.push(`/proposals/${proposal.id}/edit`);
+                                          }}
+                                          className="p-2 text-slate-400 hover:text-primary hover:bg-slate-100 rounded-lg transition-colors"
+                                          title="Edit"
+                                        >
+                                          <Edit2 className="h-4 w-4" />
+                                        </button>
+                                      )}
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleDelete(proposal.id);
+                                      }}
+                                      className="p-2 text-rose-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                                      title="Delete"
+                                    >
+                                      <Trash2 className="h-4 w-4" />
+                                    </button>
+                                  </div>
+                                </td>
+                              </tr>
+                            );
+                          })}
                       </>
                     );
                   })}
@@ -710,9 +750,7 @@ export default function ProposalsPage() {
                           {formatCurrency(proposal.milestonePayableAmount || proposal.totalAmount)}
                         </div>
                       </td>
-                      <td className="px-6 py-4">
-                        {getStatusBadge(proposal.status)}
-                      </td>
+                      <td className="px-6 py-4">{getStatusBadge(proposal.status)}</td>
                       <td className="px-6 py-4 text-sm text-slate-600">
                         <div className="flex items-center gap-1.5">
                           <Clock className="h-3.5 w-3.5 text-slate-400" />
@@ -742,36 +780,47 @@ export default function ProposalsPage() {
                               </button>
                             </>
                           )}
-                          {proposal.status !== ProposalStatus.VOIDED && proposal.status !== ProposalStatus.ACCEPTED && (
-                            <button
-                              onClick={(e) => handleVoid(proposal.id, e)}
-                              className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
-                              title="Void / Cancel"
-                            >
-                              <Ban className="h-4 w-4" />
-                            </button>
-                          )}
+                          {proposal.status !== ProposalStatus.VOIDED &&
+                            proposal.status !== ProposalStatus.ACCEPTED && (
+                              <button
+                                onClick={(e) => handleVoid(proposal.id, e)}
+                                className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+                                title="Void / Cancel"
+                              >
+                                <Ban className="h-4 w-4" />
+                              </button>
+                            )}
 
                           <div className="w-px h-4 bg-slate-200 mx-1" />
 
                           <button
-                            onClick={(e) => { e.stopPropagation(); router.push(`/proposals/${proposal.id}`); }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              router.push(`/proposals/${proposal.id}`);
+                            }}
                             className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                             title="View"
                           >
                             <Eye className="h-4 w-4" />
                           </button>
-                          {proposal.status !== ProposalStatus.ACCEPTED && proposal.status !== ProposalStatus.REJECTED && (
-                            <button
-                              onClick={(e) => { e.stopPropagation(); router.push(`/proposals/${proposal.id}/edit`); }}
-                              className="p-2 text-slate-400 hover:text-primary hover:bg-slate-100 rounded-lg transition-colors"
-                              title="Edit"
-                            >
-                              <Edit2 className="h-4 w-4" />
-                            </button>
-                          )}
+                          {proposal.status !== ProposalStatus.ACCEPTED &&
+                            proposal.status !== ProposalStatus.REJECTED && (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  router.push(`/proposals/${proposal.id}/edit`);
+                                }}
+                                className="p-2 text-slate-400 hover:text-primary hover:bg-slate-100 rounded-lg transition-colors"
+                                title="Edit"
+                              >
+                                <Edit2 className="h-4 w-4" />
+                              </button>
+                            )}
                           <button
-                            onClick={(e) => { e.stopPropagation(); handleDelete(proposal.id); }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDelete(proposal.id);
+                            }}
                             className="p-2 text-rose-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
                             title="Delete"
                           >
@@ -791,11 +840,11 @@ export default function ProposalsPage() {
                 <thead className="bg-slate-50/50 border-b border-slate-200">
                   <tr>
                     {[
-                      { key: 'proposalNumber', label: 'Proposal #' },
-                      { key: 'title', label: 'Title / Customer' },
-                      { key: 'totalAmount', label: 'Total / Invoice' },
-                      { key: 'status', label: 'Status' },
-                      { key: 'validUntil', label: 'Valid Until' },
+                      { key: "proposalNumber", label: "Proposal #" },
+                      { key: "title", label: "Title / Customer" },
+                      { key: "totalAmount", label: "Total / Invoice" },
+                      { key: "status", label: "Status" },
+                      { key: "validUntil", label: "Valid Until" },
                     ].map((col) => (
                       <th
                         key={col.key}
@@ -804,11 +853,15 @@ export default function ProposalsPage() {
                       >
                         <div className="flex items-center gap-2">
                           {col.label}
-                          <ArrowUpDown className={`h-3 w-3 ${sortColumn === col.key ? 'text-primary' : 'text-slate-300 group-hover:text-slate-500'}`} />
+                          <ArrowUpDown
+                            className={`h-3 w-3 ${sortColumn === col.key ? "text-primary" : "text-slate-300 group-hover:text-slate-500"}`}
+                          />
                         </div>
                       </th>
                     ))}
-                    <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider text-right">Actions</th>
+                    <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider text-right">
+                      Actions
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
@@ -824,6 +877,11 @@ export default function ProposalsPage() {
                       <td className="px-6 py-4">
                         <div>
                           <p className="text-sm font-semibold text-slate-900">{proposal.title}</p>
+                          {proposal.isTechnicalQuotation && (
+                            <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-semibold bg-purple-100 text-purple-700 mt-0.5">
+                              Technical Quotation
+                            </span>
+                          )}
                           <div className="flex items-center gap-1 text-xs text-slate-500 mt-0.5">
                             <User className="h-3 w-3" />
                             {proposal.customerName || "No customer"}
@@ -842,25 +900,40 @@ export default function ProposalsPage() {
                         <div className="text-sm font-bold text-slate-900">
                           {formatCurrency(proposal.totalAmount)}
                         </div>
-                        {proposal.paymentMilestones && proposal.paymentMilestones.length > 0 && proposal.currentMilestoneIndex !== undefined && proposal.paymentMilestones[proposal.currentMilestoneIndex] && (
-                          <div className="text-xs text-slate-500 mt-1 flex items-center gap-1.5 flex-wrap">
-                            <span>Inv: {formatCurrency((proposal.totalAmount * proposal.paymentMilestones[proposal.currentMilestoneIndex].percentage) / 100)}</span>
-                            <span className="text-[10px] font-medium bg-primary/10 text-primary px-1.5 py-0.5 rounded whitespace-nowrap">
-                              {proposal.paymentMilestones[proposal.currentMilestoneIndex].name} ({proposal.paymentMilestones[proposal.currentMilestoneIndex].percentage}%)
-                            </span>
-                          </div>
-                        )}
+                        {proposal.paymentMilestones &&
+                          proposal.paymentMilestones.length > 0 &&
+                          proposal.currentMilestoneIndex !== undefined &&
+                          proposal.paymentMilestones[proposal.currentMilestoneIndex] && (
+                            <div className="text-xs text-slate-500 mt-1 flex items-center gap-1.5 flex-wrap">
+                              <span>
+                                Inv:{" "}
+                                {formatCurrency(
+                                  (proposal.totalAmount *
+                                    proposal.paymentMilestones[proposal.currentMilestoneIndex]
+                                      .percentage) /
+                                    100
+                                )}
+                              </span>
+                              <span className="text-[10px] font-medium bg-primary/10 text-primary px-1.5 py-0.5 rounded whitespace-nowrap">
+                                {proposal.paymentMilestones[proposal.currentMilestoneIndex].name} (
+                                {
+                                  proposal.paymentMilestones[proposal.currentMilestoneIndex]
+                                    .percentage
+                                }
+                                %)
+                              </span>
+                            </div>
+                          )}
                       </td>
-                      <td className="px-6 py-4">
-                        {getStatusBadge(proposal.status)}
-                      </td>
+                      <td className="px-6 py-4">{getStatusBadge(proposal.status)}</td>
                       <td className="px-6 py-4 text-sm text-slate-600">
                         <div className="flex items-center gap-1.5">
                           <Clock className="h-3.5 w-3.5 text-slate-400" />
                           {formatDate(proposal.validUntil)}
-                          {new Date(proposal.validUntil) < new Date() && proposal.status === ProposalStatus.SENT && (
-                            <span className="text-xs text-amber-600 font-medium ml-2">(Exp)</span>
-                          )}
+                          {new Date(proposal.validUntil) < new Date() &&
+                            proposal.status === ProposalStatus.SENT && (
+                              <span className="text-xs text-amber-600 font-medium ml-2">(Exp)</span>
+                            )}
                         </div>
                       </td>
                       <td className="px-6 py-4 text-right">
@@ -897,23 +970,33 @@ export default function ProposalsPage() {
                           <div className="w-px h-4 bg-slate-200 mx-1" />
 
                           <button
-                            onClick={(e) => { e.stopPropagation(); router.push(`/proposals/${proposal.id}`); }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              router.push(`/proposals/${proposal.id}`);
+                            }}
                             className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                             title="View"
                           >
                             <Eye className="h-4 w-4" />
                           </button>
-                          {proposal.status !== ProposalStatus.ACCEPTED && proposal.status !== ProposalStatus.REJECTED && (
-                            <button
-                              onClick={(e) => { e.stopPropagation(); router.push(`/proposals/${proposal.id}/edit`); }}
-                              className="p-2 text-slate-400 hover:text-primary hover:bg-slate-100 rounded-lg transition-colors"
-                              title="Edit"
-                            >
-                              <Edit2 className="h-4 w-4" />
-                            </button>
-                          )}
+                          {proposal.status !== ProposalStatus.ACCEPTED &&
+                            proposal.status !== ProposalStatus.REJECTED && (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  router.push(`/proposals/${proposal.id}/edit`);
+                                }}
+                                className="p-2 text-slate-400 hover:text-primary hover:bg-slate-100 rounded-lg transition-colors"
+                                title="Edit"
+                              >
+                                <Edit2 className="h-4 w-4" />
+                              </button>
+                            )}
                           <button
-                            onClick={(e) => { e.stopPropagation(); handleDelete(proposal.id); }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDelete(proposal.id);
+                            }}
                             className="p-2 text-rose-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
                             title="Delete"
                           >
@@ -928,7 +1011,6 @@ export default function ProposalsPage() {
             </div>
           )}
         </div>
-
         {/* Pagination */}:
         {totalPages > 0 && (
           <div className="mt-8">

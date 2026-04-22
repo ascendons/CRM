@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -13,15 +13,15 @@ import {
   Box,
   Divider,
   Autocomplete,
-} from '@mui/material';
-import inventoryApi from '../../services/inventoryApi';
+} from "@mui/material";
+import inventoryApi from "../../services/inventoryApi";
 
 const StockTransferDialog = ({ open, stock, onClose }) => {
   const [formData, setFormData] = useState({
-    toWarehouseId: '',
-    quantity: '',
-    reason: '',
-    notes: '',
+    toWarehouseId: "",
+    quantity: "",
+    reason: "",
+    notes: "",
   });
 
   const [warehouses, setWarehouses] = useState([]);
@@ -38,11 +38,9 @@ const StockTransferDialog = ({ open, stock, onClose }) => {
     try {
       const response = await inventoryApi.warehouses.getActive();
       // Filter out current warehouse
-      setWarehouses(
-        response.data.filter((w) => w.id !== stock.warehouseId)
-      );
+      setWarehouses(response.data.filter((w) => w.id !== stock.warehouseId));
     } catch (err) {
-      console.error('Failed to load warehouses:', err);
+      console.error("Failed to load warehouses:", err);
     }
   };
 
@@ -62,7 +60,7 @@ const StockTransferDialog = ({ open, stock, onClose }) => {
 
       onClose(true); // Refresh parent
     } catch (err) {
-      setError(err.response?.data?.message || err.message || 'Failed to transfer stock');
+      setError(err.response?.data?.message || err.message || "Failed to transfer stock");
     } finally {
       setLoading(false);
     }
@@ -80,10 +78,10 @@ const StockTransferDialog = ({ open, stock, onClose }) => {
 
   const handleClose = () => {
     setFormData({
-      toWarehouseId: '',
-      quantity: '',
-      reason: '',
-      notes: '',
+      toWarehouseId: "",
+      quantity: "",
+      reason: "",
+      notes: "",
     });
     setError(null);
     onClose(false);
@@ -101,7 +99,7 @@ const StockTransferDialog = ({ open, stock, onClose }) => {
         )}
 
         {/* Stock Info */}
-        <Box sx={{ bgcolor: 'grey.50', p: 2, borderRadius: 1, mb: 3 }}>
+        <Box sx={{ bgcolor: "grey.50", p: 2, borderRadius: 1, mb: 3 }}>
           <Grid container spacing={1}>
             <Grid item xs={12}>
               <Typography variant="caption" color="text.secondary">
@@ -140,7 +138,7 @@ const StockTransferDialog = ({ open, stock, onClose }) => {
               getOptionLabel={(option) => `${option.name} (${option.code})`}
               value={warehouses.find((w) => w.id === formData.toWarehouseId) || null}
               onChange={(e, newValue) =>
-                setFormData({ ...formData, toWarehouseId: newValue?.id || '' })
+                setFormData({ ...formData, toWarehouseId: newValue?.id || "" })
               }
               renderInput={(params) => (
                 <TextField
@@ -160,9 +158,7 @@ const StockTransferDialog = ({ open, stock, onClose }) => {
               type="number"
               label="Quantity to Transfer"
               value={formData.quantity}
-              onChange={(e) =>
-                setFormData({ ...formData, quantity: e.target.value })
-              }
+              onChange={(e) => setFormData({ ...formData, quantity: e.target.value })}
               inputProps={{
                 min: 1,
                 max: stock?.quantityAvailable || 0,
@@ -177,9 +173,7 @@ const StockTransferDialog = ({ open, stock, onClose }) => {
               required
               label="Reason"
               value={formData.reason}
-              onChange={(e) =>
-                setFormData({ ...formData, reason: e.target.value })
-              }
+              onChange={(e) => setFormData({ ...formData, reason: e.target.value })}
               placeholder="e.g., Branch replenishment, Warehouse consolidation"
             />
           </Grid>
@@ -191,9 +185,7 @@ const StockTransferDialog = ({ open, stock, onClose }) => {
               rows={3}
               label="Notes (Optional)"
               value={formData.notes}
-              onChange={(e) =>
-                setFormData({ ...formData, notes: e.target.value })
-              }
+              onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
             />
           </Grid>
         </Grid>
@@ -203,12 +195,8 @@ const StockTransferDialog = ({ open, stock, onClose }) => {
         <Button onClick={handleClose} disabled={loading}>
           Cancel
         </Button>
-        <Button
-          onClick={handleSubmit}
-          variant="contained"
-          disabled={!isFormValid() || loading}
-        >
-          {loading ? <CircularProgress size={24} /> : 'Transfer Stock'}
+        <Button onClick={handleSubmit} variant="contained" disabled={!isFormValid() || loading}>
+          {loading ? <CircularProgress size={24} /> : "Transfer Stock"}
         </Button>
       </DialogActions>
     </Dialog>

@@ -23,7 +23,7 @@ function LoginForm() {
   const [mousePos, setMousePos] = useState({ x: 50, y: 50 });
   const leftPanelRef = useRef<HTMLDivElement>(null);
   const searchParams = useSearchParams();
-  const showRegister = searchParams.get('admin_register') === 'true';
+  const showRegister = searchParams.get("admin_register") === "true";
 
   useEffect(() => {
     setMounted(true);
@@ -77,7 +77,6 @@ function LoginForm() {
 
   return (
     <div className="min-h-screen flex relative overflow-hidden bg-gradient-to-br from-slate-50 via-white to-sky-50/30">
-
       {/* ===== LEFT PANEL: Interactive Brand Showcase ===== */}
       <div
         ref={leftPanelRef}
@@ -90,17 +89,39 @@ function LoginForm() {
             radial-gradient(circle at 80% 20%, rgba(14,165,233,0.08) 0%, transparent 40%),
             linear-gradient(135deg, #f0f9ff 0%, #e8f4fd 30%, #ecfeff 60%, #f8fafc 100%)
           `,
-          transition: 'background 0.3s ease',
+          transition: "background 0.3s ease",
         }}
       >
         {/* Animated gradient mesh blobs */}
         <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute w-[450px] h-[450px] rounded-full opacity-25 animate-blob-1"
-            style={{ background: 'radial-gradient(circle, #67e8f9 0%, transparent 70%)', filter: 'blur(80px)', top: '10%', left: '10%' }} />
-          <div className="absolute w-[400px] h-[400px] rounded-full opacity-20 animate-blob-2"
-            style={{ background: 'radial-gradient(circle, #a78bfa 0%, transparent 70%)', filter: 'blur(80px)', bottom: '10%', right: '5%' }} />
-          <div className="absolute w-[350px] h-[350px] rounded-full opacity-15 animate-blob-3"
-            style={{ background: 'radial-gradient(circle, #38bdf8 0%, transparent 70%)', filter: 'blur(60px)', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }} />
+          <div
+            className="absolute w-[450px] h-[450px] rounded-full opacity-25 animate-blob-1"
+            style={{
+              background: "radial-gradient(circle, #67e8f9 0%, transparent 70%)",
+              filter: "blur(80px)",
+              top: "10%",
+              left: "10%",
+            }}
+          />
+          <div
+            className="absolute w-[400px] h-[400px] rounded-full opacity-20 animate-blob-2"
+            style={{
+              background: "radial-gradient(circle, #a78bfa 0%, transparent 70%)",
+              filter: "blur(80px)",
+              bottom: "10%",
+              right: "5%",
+            }}
+          />
+          <div
+            className="absolute w-[350px] h-[350px] rounded-full opacity-15 animate-blob-3"
+            style={{
+              background: "radial-gradient(circle, #38bdf8 0%, transparent 70%)",
+              filter: "blur(60px)",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+            }}
+          />
         </div>
 
         {/* Interactive mouse-follow spotlight */}
@@ -110,21 +131,23 @@ function LoginForm() {
             background: `radial-gradient(circle, rgba(6,182,212,0.06) 0%, transparent 60%)`,
             left: `${mousePos.x}%`,
             top: `${mousePos.y}%`,
-            transform: 'translate(-50%, -50%)',
+            transform: "translate(-50%, -50%)",
           }}
         />
 
         {/* Dot grid pattern */}
-        <div className="absolute inset-0 opacity-[0.035] pointer-events-none"
+        <div
+          className="absolute inset-0 opacity-[0.035] pointer-events-none"
           style={{
-            backgroundImage: 'radial-gradient(circle, #0891b2 1px, transparent 1px)',
-            backgroundSize: '32px 32px',
+            backgroundImage: "radial-gradient(circle, #0891b2 1px, transparent 1px)",
+            backgroundSize: "32px 32px",
           }}
         />
 
         {/* Main content */}
-        <div className={`relative z-10 text-center max-w-lg transition-all duration-1000 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-
+        <div
+          className={`relative z-10 text-center max-w-lg transition-all duration-1000 ${mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
+        >
           {/* Logo with glow effect */}
           <div className="relative mx-auto w-44 h-44 mb-8">
             {/* Glowing rings */}
@@ -132,8 +155,13 @@ function LoginForm() {
             <div className="absolute inset-[-40px] rounded-full border border-cyan-300/5 animate-logo-ring-2" />
 
             {/* Glow behind logo */}
-            <div className="absolute inset-0 rounded-full"
-              style={{ background: 'radial-gradient(circle, rgba(6,182,212,0.15) 0%, transparent 60%)', filter: 'blur(25px)' }} />
+            <div
+              className="absolute inset-0 rounded-full"
+              style={{
+                background: "radial-gradient(circle, rgba(6,182,212,0.15) 0%, transparent 60%)",
+                filter: "blur(25px)",
+              }}
+            />
 
             {/* Actual Logo Image */}
             <div className="relative w-full h-full rounded-full overflow-hidden flex items-center justify-center animate-logo-float">
@@ -166,19 +194,45 @@ function LoginForm() {
           {/* Feature cards with hover gradients */}
           <div className="space-y-3 text-left">
             {[
-              { icon: "🚀", title: "Accelerate Growth", desc: "Streamline your sales pipeline end-to-end", gradient: "from-cyan-50 to-sky-50", border: "hover:border-cyan-300", glow: "group-hover:shadow-cyan-100/50" },
-              { icon: "🔒", title: "Enterprise Security", desc: "Role-based access with granular permissions", gradient: "from-violet-50 to-indigo-50", border: "hover:border-violet-300", glow: "group-hover:shadow-violet-100/50" },
-              { icon: "📊", title: "Real-Time Analytics", desc: "Data-driven insights for smarter decisions", gradient: "from-emerald-50 to-teal-50", border: "hover:border-emerald-300", glow: "group-hover:shadow-emerald-100/50" },
+              {
+                icon: "🚀",
+                title: "Accelerate Growth",
+                desc: "Streamline your sales pipeline end-to-end",
+                gradient: "from-cyan-50 to-sky-50",
+                border: "hover:border-cyan-300",
+                glow: "group-hover:shadow-cyan-100/50",
+              },
+              {
+                icon: "🔒",
+                title: "Enterprise Security",
+                desc: "Role-based access with granular permissions",
+                gradient: "from-violet-50 to-indigo-50",
+                border: "hover:border-violet-300",
+                glow: "group-hover:shadow-violet-100/50",
+              },
+              {
+                icon: "📊",
+                title: "Real-Time Analytics",
+                desc: "Data-driven insights for smarter decisions",
+                gradient: "from-emerald-50 to-teal-50",
+                border: "hover:border-emerald-300",
+                glow: "group-hover:shadow-emerald-100/50",
+              },
             ].map((feature, i) => (
               <div
                 key={i}
-                className={`group flex items-start gap-4 p-4 rounded-xl bg-gradient-to-r ${feature.gradient} border border-white/80 shadow-sm transition-all duration-500 ${feature.border} ${feature.glow} hover:shadow-lg hover:-translate-y-0.5 cursor-default ${mounted ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-8'
-                  }`}
+                className={`group flex items-start gap-4 p-4 rounded-xl bg-gradient-to-r ${feature.gradient} border border-white/80 shadow-sm transition-all duration-500 ${feature.border} ${feature.glow} hover:shadow-lg hover:-translate-y-0.5 cursor-default ${
+                  mounted ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-8"
+                }`}
                 style={{ transitionDelay: `${0.5 + i * 0.15}s` }}
               >
-                <span className="text-2xl mt-0.5 group-hover:scale-125 transition-transform duration-300">{feature.icon}</span>
+                <span className="text-2xl mt-0.5 group-hover:scale-125 transition-transform duration-300">
+                  {feature.icon}
+                </span>
                 <div>
-                  <p className="text-slate-800 font-semibold text-sm group-hover:text-slate-900 transition-colors">{feature.title}</p>
+                  <p className="text-slate-800 font-semibold text-sm group-hover:text-slate-900 transition-colors">
+                    {feature.title}
+                  </p>
                   <p className="text-slate-500 text-xs mt-0.5">{feature.desc}</p>
                 </div>
               </div>
@@ -189,13 +243,18 @@ function LoginForm() {
 
       {/* ===== RIGHT PANEL: Login Form ===== */}
       <div className="flex-1 flex items-center justify-center p-6 sm:p-10 lg:p-16 relative">
-
         {/* Subtle gradient accent */}
-        <div className="absolute top-0 right-0 w-96 h-96 rounded-full opacity-10 -translate-y-1/2 translate-x-1/3 pointer-events-none"
-          style={{ background: 'radial-gradient(circle, #06b6d4, transparent)', filter: 'blur(80px)' }} />
+        <div
+          className="absolute top-0 right-0 w-96 h-96 rounded-full opacity-10 -translate-y-1/2 translate-x-1/3 pointer-events-none"
+          style={{
+            background: "radial-gradient(circle, #06b6d4, transparent)",
+            filter: "blur(80px)",
+          }}
+        />
 
-        <div className={`w-full max-w-md relative z-10 transition-all duration-1000 delay-200 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-
+        <div
+          className={`w-full max-w-md relative z-10 transition-all duration-1000 delay-200 ${mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
+        >
           {/* Mobile logo */}
           <div className="lg:hidden text-center mb-10">
             <Image
@@ -207,7 +266,9 @@ function LoginForm() {
               priority
             />
             <h1 className="text-3xl font-black">
-              <span className="bg-gradient-to-r from-cyan-700 to-teal-600 bg-clip-text text-transparent">Ascendons</span>
+              <span className="bg-gradient-to-r from-cyan-700 to-teal-600 bg-clip-text text-transparent">
+                Ascendons
+              </span>
               <span className="text-slate-600 font-light ml-1.5">CRM</span>
             </h1>
           </div>
@@ -215,9 +276,7 @@ function LoginForm() {
           {/* Header */}
           <div className="mb-8">
             <h2 className="text-3xl font-bold text-slate-900 tracking-tight">Welcome back</h2>
-            <p className="mt-2 text-slate-500 text-sm">
-              Sign in to your account to continue
-            </p>
+            <p className="mt-2 text-slate-500 text-sm">Sign in to your account to continue</p>
           </div>
 
           {/* Form Card with animated gradient border */}
@@ -241,14 +300,25 @@ function LoginForm() {
                 <div className="space-y-5">
                   {/* Email */}
                   <div>
-                    <label htmlFor="email" className="block text-sm font-medium text-slate-700 mb-2">
+                    <label
+                      htmlFor="email"
+                      className="block text-sm font-medium text-slate-700 mb-2"
+                    >
                       Email address
                     </label>
-                    <div className={`relative rounded-xl transition-all duration-300 ${focusedField === 'email' ? 'ring-2 ring-cyan-400/30 ring-offset-1' : ''}`}>
+                    <div
+                      className={`relative rounded-xl transition-all duration-300 ${focusedField === "email" ? "ring-2 ring-cyan-400/30 ring-offset-1" : ""}`}
+                    >
                       <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                        <Mail className={`h-4 w-4 transition-colors duration-300 ${fieldErrors.email ? 'text-red-400' :
-                          focusedField === 'email' ? 'text-cyan-500' : 'text-slate-400'
-                          }`} />
+                        <Mail
+                          className={`h-4 w-4 transition-colors duration-300 ${
+                            fieldErrors.email
+                              ? "text-red-400"
+                              : focusedField === "email"
+                                ? "text-cyan-500"
+                                : "text-slate-400"
+                          }`}
+                        />
                       </div>
                       <input
                         id="email"
@@ -258,30 +328,44 @@ function LoginForm() {
                         required
                         value={formData.email}
                         onChange={handleChange}
-                        onFocus={() => setFocusedField('email')}
+                        onFocus={() => setFocusedField("email")}
                         onBlur={() => setFocusedField(null)}
-                        className={`block w-full pl-11 pr-4 py-3 border ${fieldErrors.email
-                          ? "border-red-300 text-red-900 placeholder-red-300"
-                          : "border-slate-200 text-slate-900 placeholder-slate-400"
-                          } rounded-xl bg-slate-50/50 hover:bg-white focus:bg-white focus:outline-none focus:border-cyan-400 sm:text-sm transition-all duration-300`}
+                        className={`block w-full pl-11 pr-4 py-3 border ${
+                          fieldErrors.email
+                            ? "border-red-300 text-red-900 placeholder-red-300"
+                            : "border-slate-200 text-slate-900 placeholder-slate-400"
+                        } rounded-xl bg-slate-50/50 hover:bg-white focus:bg-white focus:outline-none focus:border-cyan-400 sm:text-sm transition-all duration-300`}
                         placeholder="you@example.com"
                       />
                     </div>
                     {fieldErrors.email && (
-                      <p className="mt-2 text-sm text-red-500 animate-fadeIn">{fieldErrors.email}</p>
+                      <p className="mt-2 text-sm text-red-500 animate-fadeIn">
+                        {fieldErrors.email}
+                      </p>
                     )}
                   </div>
 
                   {/* Password */}
                   <div>
-                    <label htmlFor="password" className="block text-sm font-medium text-slate-700 mb-2">
+                    <label
+                      htmlFor="password"
+                      className="block text-sm font-medium text-slate-700 mb-2"
+                    >
                       Password
                     </label>
-                    <div className={`relative rounded-xl transition-all duration-300 ${focusedField === 'password' ? 'ring-2 ring-cyan-400/30 ring-offset-1' : ''}`}>
+                    <div
+                      className={`relative rounded-xl transition-all duration-300 ${focusedField === "password" ? "ring-2 ring-cyan-400/30 ring-offset-1" : ""}`}
+                    >
                       <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                        <Lock className={`h-4 w-4 transition-colors duration-300 ${fieldErrors.password ? 'text-red-400' :
-                          focusedField === 'password' ? 'text-cyan-500' : 'text-slate-400'
-                          }`} />
+                        <Lock
+                          className={`h-4 w-4 transition-colors duration-300 ${
+                            fieldErrors.password
+                              ? "text-red-400"
+                              : focusedField === "password"
+                                ? "text-cyan-500"
+                                : "text-slate-400"
+                          }`}
+                        />
                       </div>
                       <input
                         id="password"
@@ -291,12 +375,13 @@ function LoginForm() {
                         required
                         value={formData.password}
                         onChange={handleChange}
-                        onFocus={() => setFocusedField('password')}
+                        onFocus={() => setFocusedField("password")}
                         onBlur={() => setFocusedField(null)}
-                        className={`block w-full pl-11 pr-11 py-3 border ${fieldErrors.password
-                          ? "border-red-300 text-red-900 placeholder-red-300"
-                          : "border-slate-200 text-slate-900 placeholder-slate-400"
-                          } rounded-xl bg-slate-50/50 hover:bg-white focus:bg-white focus:outline-none focus:border-cyan-400 sm:text-sm transition-all duration-300`}
+                        className={`block w-full pl-11 pr-11 py-3 border ${
+                          fieldErrors.password
+                            ? "border-red-300 text-red-900 placeholder-red-300"
+                            : "border-slate-200 text-slate-900 placeholder-slate-400"
+                        } rounded-xl bg-slate-50/50 hover:bg-white focus:bg-white focus:outline-none focus:border-cyan-400 sm:text-sm transition-all duration-300`}
                         placeholder="Enter your password"
                       />
                       <button
@@ -304,14 +389,23 @@ function LoginForm() {
                         onClick={() => setShowPassword(!showPassword)}
                         className="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-slate-600 focus:outline-none transition-colors"
                       >
-                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        {showPassword ? (
+                          <EyeOff className="h-4 w-4" />
+                        ) : (
+                          <Eye className="h-4 w-4" />
+                        )}
                       </button>
                     </div>
                     {fieldErrors.password && (
-                      <p className="mt-2 text-sm text-red-500 animate-fadeIn">{fieldErrors.password}</p>
+                      <p className="mt-2 text-sm text-red-500 animate-fadeIn">
+                        {fieldErrors.password}
+                      </p>
                     )}
                     <div className="text-right mt-2.5">
-                      <Link href="/forgot-password" className="text-xs font-medium text-cyan-600 hover:text-cyan-700 transition-colors">
+                      <Link
+                        href="/forgot-password"
+                        className="text-xs font-medium text-cyan-600 hover:text-cyan-700 transition-colors"
+                      >
                         Forgot password?
                       </Link>
                     </div>
@@ -324,8 +418,12 @@ function LoginForm() {
                   disabled={isLoading}
                   className="group relative w-full flex items-center justify-center gap-2 py-3.5 px-4 text-sm font-semibold rounded-xl text-white transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden hover:-translate-y-0.5 active:translate-y-0"
                   style={{
-                    background: isLoading ? 'rgba(6,182,212,0.5)' : 'linear-gradient(135deg, #0891b2 0%, #06b6d4 50%, #0e7490 100%)',
-                    boxShadow: isLoading ? 'none' : '0 8px 24px rgba(6,182,212,0.25), 0 2px 8px rgba(6,182,212,0.15)',
+                    background: isLoading
+                      ? "rgba(6,182,212,0.5)"
+                      : "linear-gradient(135deg, #0891b2 0%, #06b6d4 50%, #0e7490 100%)",
+                    boxShadow: isLoading
+                      ? "none"
+                      : "0 8px 24px rgba(6,182,212,0.25), 0 2px 8px rgba(6,182,212,0.15)",
                   }}
                 >
                   {/* Hover shine */}
@@ -344,7 +442,9 @@ function LoginForm() {
               {showRegister && (
                 <div className="mt-8 flex items-center gap-3">
                   <div className="flex-1 h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
-                  <span className="text-xs text-slate-400 font-medium uppercase tracking-wide">or</span>
+                  <span className="text-xs text-slate-400 font-medium uppercase tracking-wide">
+                    or
+                  </span>
                   <div className="flex-1 h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
                 </div>
               )}
@@ -373,53 +473,121 @@ function LoginForm() {
       {/* ===== Animations ===== */}
       <style jsx global>{`
         @keyframes blob1 {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          25% { transform: translate(40px, -30px) scale(1.1); }
-          50% { transform: translate(-20px, 40px) scale(0.95); }
-          75% { transform: translate(30px, 20px) scale(1.05); }
+          0%,
+          100% {
+            transform: translate(0, 0) scale(1);
+          }
+          25% {
+            transform: translate(40px, -30px) scale(1.1);
+          }
+          50% {
+            transform: translate(-20px, 40px) scale(0.95);
+          }
+          75% {
+            transform: translate(30px, 20px) scale(1.05);
+          }
         }
         @keyframes blob2 {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          25% { transform: translate(-30px, 40px) scale(1.05); }
-          50% { transform: translate(40px, -20px) scale(0.9); }
-          75% { transform: translate(-20px, -30px) scale(1.1); }
+          0%,
+          100% {
+            transform: translate(0, 0) scale(1);
+          }
+          25% {
+            transform: translate(-30px, 40px) scale(1.05);
+          }
+          50% {
+            transform: translate(40px, -20px) scale(0.9);
+          }
+          75% {
+            transform: translate(-20px, -30px) scale(1.1);
+          }
         }
         @keyframes blob3 {
-          0%, 100% { transform: translate(-50%, -50%) scale(1); }
-          50% { transform: translate(-50%, -50%) scale(1.15); }
+          0%,
+          100% {
+            transform: translate(-50%, -50%) scale(1);
+          }
+          50% {
+            transform: translate(-50%, -50%) scale(1.15);
+          }
         }
-        .animate-blob-1 { animation: blob1 14s ease-in-out infinite; }
-        .animate-blob-2 { animation: blob2 18s ease-in-out infinite; }
-        .animate-blob-3 { animation: blob3 12s ease-in-out infinite; }
+        .animate-blob-1 {
+          animation: blob1 14s ease-in-out infinite;
+        }
+        .animate-blob-2 {
+          animation: blob2 18s ease-in-out infinite;
+        }
+        .animate-blob-3 {
+          animation: blob3 12s ease-in-out infinite;
+        }
 
         @keyframes logo-float {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-8px); }
+          0%,
+          100% {
+            transform: translateY(0);
+          }
+          50% {
+            transform: translateY(-8px);
+          }
         }
-        .animate-logo-float { animation: logo-float 4s ease-in-out infinite; }
+        .animate-logo-float {
+          animation: logo-float 4s ease-in-out infinite;
+        }
 
         @keyframes logo-ring-1 {
-          0%, 100% { transform: scale(1); opacity: 0.1; }
-          50% { transform: scale(1.05); opacity: 0.2; }
+          0%,
+          100% {
+            transform: scale(1);
+            opacity: 0.1;
+          }
+          50% {
+            transform: scale(1.05);
+            opacity: 0.2;
+          }
         }
         @keyframes logo-ring-2 {
-          0%, 100% { transform: scale(1); opacity: 0.05; }
-          50% { transform: scale(1.08); opacity: 0.12; }
+          0%,
+          100% {
+            transform: scale(1);
+            opacity: 0.05;
+          }
+          50% {
+            transform: scale(1.08);
+            opacity: 0.12;
+          }
         }
-        .animate-logo-ring-1 { animation: logo-ring-1 3s ease-in-out infinite; }
-        .animate-logo-ring-2 { animation: logo-ring-2 4s ease-in-out infinite 0.5s; }
+        .animate-logo-ring-1 {
+          animation: logo-ring-1 3s ease-in-out infinite;
+        }
+        .animate-logo-ring-2 {
+          animation: logo-ring-2 4s ease-in-out infinite 0.5s;
+        }
 
         @keyframes gradient-shift {
-          0% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-          100% { background-position: 0% 50%; }
+          0% {
+            background-position: 0% 50%;
+          }
+          50% {
+            background-position: 100% 50%;
+          }
+          100% {
+            background-position: 0% 50%;
+          }
         }
-        .animate-gradient-shift { animation: gradient-shift 4s ease-in-out infinite; }
+        .animate-gradient-shift {
+          animation: gradient-shift 4s ease-in-out infinite;
+        }
 
         @keyframes gradient-border {
-          0% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-          100% { background-position: 0% 50%; }
+          0% {
+            background-position: 0% 50%;
+          }
+          50% {
+            background-position: 100% 50%;
+          }
+          100% {
+            background-position: 0% 50%;
+          }
         }
         .animate-gradient-border {
           background-size: 200% 200%;
@@ -427,19 +595,40 @@ function LoginForm() {
         }
 
         @keyframes shake {
-          0%, 100% { transform: translateX(0); }
-          20% { transform: translateX(-4px); }
-          40% { transform: translateX(4px); }
-          60% { transform: translateX(-3px); }
-          80% { transform: translateX(3px); }
+          0%,
+          100% {
+            transform: translateX(0);
+          }
+          20% {
+            transform: translateX(-4px);
+          }
+          40% {
+            transform: translateX(4px);
+          }
+          60% {
+            transform: translateX(-3px);
+          }
+          80% {
+            transform: translateX(3px);
+          }
         }
-        .animate-shake { animation: shake 0.4s ease-in-out; }
+        .animate-shake {
+          animation: shake 0.4s ease-in-out;
+        }
 
         @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(-4px); }
-          to { opacity: 1; transform: translateY(0); }
+          from {
+            opacity: 0;
+            transform: translateY(-4px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
         }
-        .animate-fadeIn { animation: fadeIn 0.3s ease-out; }
+        .animate-fadeIn {
+          animation: fadeIn 0.3s ease-out;
+        }
       `}</style>
     </div>
   );
@@ -447,11 +636,13 @@ function LoginForm() {
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-white to-sky-50/30">
-        <Loader2 className="animate-spin h-8 w-8 text-cyan-500" />
-      </div>
-    }>
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-white to-sky-50/30">
+          <Loader2 className="animate-spin h-8 w-8 text-cyan-500" />
+        </div>
+      }
+    >
       <LoginForm />
     </Suspense>
   );

@@ -105,6 +105,7 @@ public class ProposalService extends BaseTenantService {
                 .paymentMilestones(mapMilestones(request.getPaymentMilestones()))
                 .currentMilestoneIndex(0)
                 .isProforma(request.getIsProforma() != null ? request.getIsProforma() : false)
+                .isTechnicalQuotation(request.getIsTechnicalQuotation() != null ? request.getIsTechnicalQuotation() : false)
                 .approverIds(request.getApproverIds() != null ? request.getApproverIds() : List.of())
                 .approvedByIds(List.of())
                 .status(ProposalStatus.DRAFT)
@@ -391,6 +392,10 @@ public class ProposalService extends BaseTenantService {
 
         if (request.getApproverIds() != null) {
             proposal.setApproverIds(request.getApproverIds());
+        }
+
+        if (request.getIsTechnicalQuotation() != null) {
+            proposal.setIsTechnicalQuotation(request.getIsTechnicalQuotation());
         }
 
         // Update audit fields
@@ -1257,6 +1262,7 @@ public class ProposalService extends BaseTenantService {
                             .quantity(dto.getQuantity())
                             .unit(dto.getUnit() != null && !dto.getUnit().isEmpty() ? dto.getUnit() : product.getUnit())
                             .hsnCode(dto.getHsnCode() != null && !dto.getHsnCode().isEmpty() ? dto.getHsnCode() : product.getHsnCode())
+                            .listPrice(dto.getListPrice() != null ? dto.getListPrice() : (product.getListPrice() != null ? product.getListPrice() : product.getBasePrice()))
                             .unitPrice(dto.getUnitPrice() != null ? dto.getUnitPrice() : product.getBasePrice())
                             .taxRate(product.getTaxRate())
                             .discountType(dto.getDiscountType())
@@ -1349,6 +1355,7 @@ public class ProposalService extends BaseTenantService {
                             .quantity(dto.getQuantity())
                             .unit(dto.getUnit() != null && !dto.getUnit().isEmpty() ? dto.getUnit() : product.getUnit())
                             .hsnCode(dto.getHsnCode() != null && !dto.getHsnCode().isEmpty() ? dto.getHsnCode() : product.getHsnCode())
+                            .listPrice(dto.getListPrice() != null ? dto.getListPrice() : product.getListPrice())
                             .unitPrice(dto.getUnitPrice() != null ? dto.getUnitPrice() : product.getBasePrice())
                             .taxRate(product.getTaxRate())
                             .discountType(dto.getDiscountType())
@@ -1430,6 +1437,7 @@ public class ProposalService extends BaseTenantService {
                 .paymentMilestones(proposal.getPaymentMilestones())
                 .currentMilestoneIndex(proposal.getCurrentMilestoneIndex())
                 .isProforma(Boolean.TRUE.equals(proposal.getIsProforma()))
+                .isTechnicalQuotation(Boolean.TRUE.equals(proposal.getIsTechnicalQuotation()))
                 .hasBeenConverted(Boolean.TRUE.equals(proposal.getHasBeenConverted()))
                 .parentProposalId(proposal.getParentProposalId())
                 .parentTaxAmount(proposal.getParentTaxAmount())

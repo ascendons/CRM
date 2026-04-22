@@ -124,7 +124,10 @@ export function AssignLeadModal({
               <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
                 {/* Header */}
                 <div className="flex items-center justify-between mb-4">
-                  <Dialog.Title as="h3" className="text-lg font-medium leading-6 text-gray-900 flex items-center">
+                  <Dialog.Title
+                    as="h3"
+                    className="text-lg font-medium leading-6 text-gray-900 flex items-center"
+                  >
                     <UserPlus className="h-5 w-5 mr-2 text-blue-600" />
                     Assign Lead
                   </Dialog.Title>
@@ -172,8 +175,9 @@ export function AssignLeadModal({
                         {filteredUsers.map((user) => (
                           <label
                             key={user.id}
-                            className={`flex items-center p-3 cursor-pointer hover:bg-gray-50 transition-colors ${selectedUserId === user.userId ? "bg-blue-50" : ""
-                              }`}
+                            className={`flex items-center p-3 cursor-pointer hover:bg-gray-50 transition-colors ${
+                              selectedUserId === user.userId ? "bg-blue-50" : ""
+                            }`}
                           >
                             <input
                               type="radio"
@@ -209,7 +213,11 @@ export function AssignLeadModal({
                     <Button type="button" variant="outline" onClick={onClose} disabled={submitting}>
                       Cancel
                     </Button>
-                    <Button type="submit" variant="default" disabled={submitting || !selectedUserId}>
+                    <Button
+                      type="submit"
+                      variant="default"
+                      disabled={submitting || !selectedUserId}
+                    >
                       {submitting ? (
                         <>
                           <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>

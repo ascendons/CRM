@@ -217,7 +217,9 @@ export function getProfileById(id: string): ProfileResponse | undefined {
 }
 
 export function getProfileByName(name: string): ProfileResponse | undefined {
-  return PREDEFINED_PROFILES.find((profile) => profile.profileName.toLowerCase() === name.toLowerCase());
+  return PREDEFINED_PROFILES.find(
+    (profile) => profile.profileName.toLowerCase() === name.toLowerCase()
+  );
 }
 
 export function searchProfiles(query: string): ProfileResponse[] {

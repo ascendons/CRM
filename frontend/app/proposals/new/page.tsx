@@ -13,12 +13,7 @@ function CreateProposalContent() {
   const isProforma = isProformaQuery === "true";
 
   return (
-    <ProposalForm
-      mode="create"
-      sourceType={source}
-      sourceId={sourceId}
-      isProforma={isProforma}
-    />
+    <ProposalForm mode="create" sourceType={source} sourceId={sourceId} isProforma={isProforma} />
   );
 }
 
@@ -37,11 +32,13 @@ export default function NewProposalPage() {
 
       {/* Form Content */}
       <div className="max-w-[1600px] mx-auto px-6 py-6">
-        <Suspense fallback={
-          <div className="flex items-center justify-center min-h-[400px]">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-          </div>
-        }>
+        <Suspense
+          fallback={
+            <div className="flex items-center justify-center min-h-[400px]">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+            </div>
+          }
+        >
           <CreateProposalContent />
         </Suspense>
       </div>

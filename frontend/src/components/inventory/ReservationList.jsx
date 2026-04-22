@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Button,
@@ -23,7 +23,7 @@ import {
   DialogActions,
   TextField,
   Grid,
-} from '@mui/material';
+} from "@mui/material";
 import {
   Add as AddIcon,
   MoreVert as MoreIcon,
@@ -32,16 +32,16 @@ import {
   Schedule as ExtendIcon,
   Bookmark as ReservationIcon,
   Visibility as ViewIcon,
-} from '@mui/icons-material';
-import inventoryApi from '../../services/inventoryApi';
-import { format, formatDistanceToNow } from 'date-fns';
-import CreateReservationDialog from './CreateReservationDialog';
+} from "@mui/icons-material";
+import inventoryApi from "../../services/inventoryApi";
+import { format, formatDistanceToNow } from "date-fns";
+import CreateReservationDialog from "./CreateReservationDialog";
 
 const ReservationList = () => {
   const [reservations, setReservations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [filterStatus, setFilterStatus] = useState('ACTIVE');
+  const [filterStatus, setFilterStatus] = useState("ACTIVE");
 
   // Dialog states
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
@@ -49,7 +49,7 @@ const ReservationList = () => {
   const [selectedReservation, setSelectedReservation] = useState(null);
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
   const [extendDialogOpen, setExtendDialogOpen] = useState(false);
-  const [cancelReason, setCancelReason] = useState('');
+  const [cancelReason, setCancelReason] = useState("");
   const [extendDays, setExtendDays] = useState(7);
 
   // Stats
@@ -70,26 +70,23 @@ const ReservationList = () => {
 
       // Filter by status
       let filtered = allReservations;
-      if (filterStatus !== 'ALL') {
+      if (filterStatus !== "ALL") {
         filtered = allReservations.filter((r) => r.status === filterStatus);
       }
 
       setReservations(filtered);
-      setActiveCount(allReservations.filter((r) => r.status === 'ACTIVE').length);
+      setActiveCount(allReservations.filter((r) => r.status === "ACTIVE").length);
 
       // Count expiring soon (within 24 hours)
       const now = new Date();
       const expiringThreshold = new Date(now.getTime() + 24 * 60 * 60 * 1000);
       setExpiringCount(
         allReservations.filter(
-          (r) =>
-            r.status === 'ACTIVE' &&
-            r.expiresAt &&
-            new Date(r.expiresAt) <= expiringThreshold
+          (r) => r.status === "ACTIVE" && r.expiresAt && new Date(r.expiresAt) <= expiringThreshold
         ).length
       );
     } catch (err) {
-      setError('Failed to load reservations: ' + err.message);
+      setError("Failed to load reservations: " + err.message);
     } finally {
       setLoading(false);
     }
@@ -110,7 +107,7 @@ const ReservationList = () => {
       handleMenuClose();
       fetchReservations();
     } catch (err) {
-      setError('Failed to fulfill reservation: ' + err.message);
+      setError("Failed to fulfill reservation: " + err.message);
     }
   };
 
@@ -120,7 +117,7 @@ const ReservationList = () => {
       handleMenuClose();
       fetchReservations();
     } catch (err) {
-      setError('Failed to release reservation: ' + err.message);
+      setError("Failed to release reservation: " + err.message);
     }
   };
 
@@ -128,11 +125,11 @@ const ReservationList = () => {
     try {
       await inventoryApi.reservations.cancel(selectedReservation.id, cancelReason);
       setCancelDialogOpen(false);
-      setCancelReason('');
+      setCancelReason("");
       handleMenuClose();
       fetchReservations();
     } catch (err) {
-      setError('Failed to cancel reservation: ' + err.message);
+      setError("Failed to cancel reservation: " + err.message);
     }
   };
 
@@ -144,19 +141,19 @@ const ReservationList = () => {
       handleMenuClose();
       fetchReservations();
     } catch (err) {
-      setError('Failed to extend reservation: ' + err.message);
+      setError("Failed to extend reservation: " + err.message);
     }
   };
 
   const getStatusColor = (status) => {
     const colors = {
-      ACTIVE: 'success',
-      FULFILLED: 'info',
-      EXPIRED: 'error',
-      CANCELLED: 'default',
-      RELEASED: 'warning',
+      ACTIVE: "success",
+      FULFILLED: "info",
+      EXPIRED: "error",
+      CANCELLED: "default",
+      RELEASED: "warning",
     };
-    return colors[status] || 'default';
+    return colors[status] || "default";
   };
 
   const isExpiringSoon = (expiresAt) => {
@@ -207,7 +204,7 @@ const ReservationList = () => {
           </Card>
         </Grid>
         <Grid item xs={12} sm={6}>
-          <Card sx={{ p: 2, borderLeft: 4, borderColor: 'warning.main' }}>
+          <Card sx={{ p: 2, borderLeft: 4, borderColor: "warning.main" }}>
             <Typography variant="body2" color="text.secondary">
               Expiring Soon (24h)
             </Typography>
@@ -229,36 +226,36 @@ const ReservationList = () => {
         <Box display="flex" gap={1}>
           <Button
             size="small"
-            variant={filterStatus === 'ACTIVE' ? 'contained' : 'outlined'}
-            onClick={() => setFilterStatus('ACTIVE')}
+            variant={filterStatus === "ACTIVE" ? "contained" : "outlined"}
+            onClick={() => setFilterStatus("ACTIVE")}
           >
             Active
           </Button>
           <Button
             size="small"
-            variant={filterStatus === 'FULFILLED' ? 'contained' : 'outlined'}
-            onClick={() => setFilterStatus('FULFILLED')}
+            variant={filterStatus === "FULFILLED" ? "contained" : "outlined"}
+            onClick={() => setFilterStatus("FULFILLED")}
           >
             Fulfilled
           </Button>
           <Button
             size="small"
-            variant={filterStatus === 'EXPIRED' ? 'contained' : 'outlined'}
-            onClick={() => setFilterStatus('EXPIRED')}
+            variant={filterStatus === "EXPIRED" ? "contained" : "outlined"}
+            onClick={() => setFilterStatus("EXPIRED")}
           >
             Expired
           </Button>
           <Button
             size="small"
-            variant={filterStatus === 'CANCELLED' ? 'contained' : 'outlined'}
-            onClick={() => setFilterStatus('CANCELLED')}
+            variant={filterStatus === "CANCELLED" ? "contained" : "outlined"}
+            onClick={() => setFilterStatus("CANCELLED")}
           >
             Cancelled
           </Button>
           <Button
             size="small"
-            variant={filterStatus === 'ALL' ? 'contained' : 'outlined'}
-            onClick={() => setFilterStatus('ALL')}
+            variant={filterStatus === "ALL" ? "contained" : "outlined"}
+            onClick={() => setFilterStatus("ALL")}
           >
             All
           </Button>
@@ -307,7 +304,7 @@ const ReservationList = () => {
                         ? formatDistanceToNow(new Date(reservation.createdAt), {
                             addSuffix: true,
                           })
-                        : '-'}
+                        : "-"}
                     </Typography>
                   </TableCell>
                   <TableCell>
@@ -315,23 +312,22 @@ const ReservationList = () => {
                       <Box>
                         <Typography
                           variant="caption"
-                          color={isExpiringSoon(reservation.expiresAt) ? 'warning.main' : 'text.secondary'}
+                          color={
+                            isExpiringSoon(reservation.expiresAt)
+                              ? "warning.main"
+                              : "text.secondary"
+                          }
                         >
                           {formatDistanceToNow(new Date(reservation.expiresAt), {
                             addSuffix: true,
                           })}
                         </Typography>
                         {isExpiringSoon(reservation.expiresAt) && (
-                          <Chip
-                            label="Expiring Soon"
-                            color="warning"
-                            size="small"
-                            sx={{ ml: 1 }}
-                          />
+                          <Chip label="Expiring Soon" color="warning" size="small" sx={{ ml: 1 }} />
                         )}
                       </Box>
                     ) : (
-                      '-'
+                      "-"
                     )}
                   </TableCell>
                   <TableCell>
@@ -342,10 +338,7 @@ const ReservationList = () => {
                     />
                   </TableCell>
                   <TableCell align="right">
-                    <IconButton
-                      size="small"
-                      onClick={(e) => handleMenuOpen(e, reservation)}
-                    >
+                    <IconButton size="small" onClick={(e) => handleMenuOpen(e, reservation)}>
                       <MoreIcon />
                     </IconButton>
                   </TableCell>
@@ -368,12 +361,12 @@ const ReservationList = () => {
 
       {/* Context Menu */}
       <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
-        <MenuItem onClick={() => console.log('View details')}>
+        <MenuItem onClick={() => console.log("View details")}>
           <ViewIcon sx={{ mr: 1 }} fontSize="small" />
           View Details
         </MenuItem>
 
-        {selectedReservation?.status === 'ACTIVE' && (
+        {selectedReservation?.status === "ACTIVE" && (
           <>
             <MenuItem onClick={handleFulfill}>
               <FulfillIcon sx={{ mr: 1 }} fontSize="small" />
@@ -430,12 +423,7 @@ const ReservationList = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setCancelDialogOpen(false)}>Close</Button>
-          <Button
-            onClick={handleCancel}
-            color="error"
-            variant="contained"
-            disabled={!cancelReason}
-          >
+          <Button onClick={handleCancel} color="error" variant="contained" disabled={!cancelReason}>
             Cancel Reservation
           </Button>
         </DialogActions>

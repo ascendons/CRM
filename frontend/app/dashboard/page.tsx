@@ -34,7 +34,7 @@ import {
   FileText,
   Trophy,
   MapPin,
-  AlertCircle
+  AlertCircle,
 } from "lucide-react";
 import { Opportunity } from "@/types/opportunity";
 import { attendanceApi } from "@/lib/api/attendance";
@@ -54,7 +54,7 @@ export default function DashboardPage() {
   const [recentActivities, setRecentActivities] = useState<any[]>([]);
   const [upcomingActivities, setUpcomingActivities] = useState<any[]>([]);
   const [dealOfTheDay, setDealOfTheDay] = useState<Opportunity | null>(null);
-  const [activeTab, setActiveTab] = useState<'upcoming' | 'recent'>('upcoming');
+  const [activeTab, setActiveTab] = useState<"upcoming" | "recent">("upcoming");
   const [monthlyRevenueGoal, setMonthlyRevenueGoal] = useState<number>(1000000); // 10L Default
   const [isLoading, setIsLoading] = useState(true);
   const [todayAttendance, setTodayAttendance] = useState<any>(null);
@@ -81,9 +81,9 @@ export default function DashboardPage() {
       loadLeaveData();
     };
 
-    window.addEventListener('focus', handleFocus);
+    window.addEventListener("focus", handleFocus);
     return () => {
-      window.removeEventListener('focus', handleFocus);
+      window.removeEventListener("focus", handleFocus);
     };
   }, [router]);
 
@@ -91,10 +91,10 @@ export default function DashboardPage() {
     try {
       setAttendanceLoading(true);
       const data = await attendanceApi.getMyToday();
-      console.log('📋 Today Attendance Data:', data);
+      console.log("📋 Today Attendance Data:", data);
       setTodayAttendance(data);
     } catch (error) {
-      console.error('❌ Failed to load attendance:', error);
+      console.error("❌ Failed to load attendance:", error);
       setTodayAttendance(null);
     } finally {
       setAttendanceLoading(false);
@@ -107,11 +107,11 @@ export default function DashboardPage() {
       const currentYear = new Date().getFullYear();
 
       const balance = await leavesApi.getMyBalance(currentYear).catch(() => null);
-      console.log('🏖️ Leave Balance:', balance);
+      console.log("🏖️ Leave Balance:", balance);
 
       setLeaveBalance(balance);
     } catch (error) {
-      console.error('❌ Failed to load leave data:', error);
+      console.error("❌ Failed to load leave data:", error);
       setLeaveBalance(null);
     } finally {
       setLeaveLoading(false);
@@ -120,7 +120,17 @@ export default function DashboardPage() {
 
   const loadStatistics = async () => {
     try {
-      const [stats, oppStats, contacts, accounts, opportunities, activities, allActivities, allOpportunities, currentOrg] = await Promise.all([
+      const [
+        stats,
+        oppStats,
+        contacts,
+        accounts,
+        opportunities,
+        activities,
+        allActivities,
+        allOpportunities,
+        currentOrg,
+      ] = await Promise.all([
         leadsService.getStatistics(),
         opportunitiesService.getStatistics(),
         contactsService.getContactCount(),
@@ -151,10 +161,14 @@ export default function DashboardPage() {
 
         // Upcoming: Tasks not completed, sort by dueDate asc (or createdAt if no due date), take 5
         const upcoming = [...allActivities]
-          .filter(a => a.type === 'TASK' && a.status !== 'COMPLETED')
+          .filter((a) => a.type === "TASK" && a.status !== "COMPLETED")
           .sort((a, b) => {
-            const dateA = a.dueDate ? new Date(a.dueDate).getTime() : new Date(a.createdAt).getTime();
-            const dateB = b.dueDate ? new Date(b.dueDate).getTime() : new Date(b.createdAt).getTime();
+            const dateA = a.dueDate
+              ? new Date(a.dueDate).getTime()
+              : new Date(a.createdAt).getTime();
+            const dateB = b.dueDate
+              ? new Date(b.dueDate).getTime()
+              : new Date(b.createdAt).getTime();
             return dateA - dateB;
           })
           .slice(0, 5);
@@ -166,7 +180,7 @@ export default function DashboardPage() {
         // Filter: status not CLOSED_WON or CLOSED_LOST
         // Sort: amount desc
         const topDeal = [...allOpportunities]
-          .filter(o => o.stage !== 'CLOSED_WON' && o.stage !== 'CLOSED_LOST')
+          .filter((o) => o.stage !== "CLOSED_WON" && o.stage !== "CLOSED_LOST")
           .sort((a, b) => (b.amount || 0) - (a.amount || 0))[0];
 
         if (topDeal) {
@@ -198,12 +212,11 @@ export default function DashboardPage() {
 
   // Format amount like 10L, 1.5Cr, 50K
   const formatAmount = (amount: number) => {
-    if (amount >= 10000000) return `₹${(amount / 10000000).toFixed(1).replace(/\.0$/, '')}Cr`;
-    if (amount >= 100000) return `₹${(amount / 100000).toFixed(1).replace(/\.0$/, '')}L`;
-    if (amount >= 1000) return `₹${(amount / 1000).toFixed(1).replace(/\.0$/, '')}K`;
+    if (amount >= 10000000) return `₹${(amount / 10000000).toFixed(1).replace(/\.0$/, "")}Cr`;
+    if (amount >= 100000) return `₹${(amount / 100000).toFixed(1).replace(/\.0$/, "")}L`;
+    if (amount >= 1000) return `₹${(amount / 1000).toFixed(1).replace(/\.0$/, "")}K`;
     return `₹${amount}`;
   };
-
 
   return (
     <div className="bg-slate-50 pb-12">
@@ -214,7 +227,7 @@ export default function DashboardPage() {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-1">
             <h2 className="text-3xl font-bold text-slate-900 tracking-tight">
-              Welcome back, {user?.fullName?.split(' ')[0] || "User"}
+              Welcome back, {user?.fullName?.split(" ")[0] || "User"}
             </h2>
             <p className="text-slate-500 text-lg">
               Here&apos;s your performance overview for today.
@@ -242,10 +255,7 @@ export default function DashboardPage() {
             loading={attendanceLoading}
             onRefresh={loadTodayAttendance}
           />
-          <LeaveSummaryCard
-            leaveBalance={leaveBalance}
-            loading={leaveLoading}
-          />
+          <LeaveSummaryCard leaveBalance={leaveBalance} loading={leaveLoading} />
         </div>
 
         {/* Stats Grid */}
@@ -261,8 +271,8 @@ export default function DashboardPage() {
                   <DollarSign className="h-6 w-6 text-blue-600" />
                 </div>
                 <span className="flex items-center gap-1 text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full">
-                  <TrendingUp className="h-3 w-3" />
-                  +{opportunityStats?.winRate ? (opportunityStats.winRate / 5).toFixed(1) : "0"}%
+                  <TrendingUp className="h-3 w-3" />+
+                  {opportunityStats?.winRate ? (opportunityStats.winRate / 5).toFixed(1) : "0"}%
                 </span>
               </div>
               <p className="text-sm font-medium text-slate-500">Total Revenue</p>
@@ -270,7 +280,11 @@ export default function DashboardPage() {
                 ₹{opportunityStats?.wonValue ? (opportunityStats.wonValue / 1000).toFixed(0) : "0"}K
               </h3>
               <p className="text-xs text-slate-400 mt-2">
-                Pipeline: ₹{opportunityStats?.pipelineValue ? (opportunityStats.pipelineValue / 1000).toFixed(0) : "0"}K
+                Pipeline: ₹
+                {opportunityStats?.pipelineValue
+                  ? (opportunityStats.pipelineValue / 1000).toFixed(0)
+                  : "0"}
+                K
               </p>
             </div>
             <div className="absolute bottom-0 left-0 h-1 bg-gradient-to-r from-blue-400 to-primary w-full transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left"></div>
@@ -322,7 +336,11 @@ export default function DashboardPage() {
                 {opportunityStats?.openOpportunities || opportunityCount}
               </h3>
               <p className="text-xs text-slate-400 mt-2">
-                Avg size: ₹{opportunityStats?.averageDealSize ? (opportunityStats.averageDealSize / 1000).toFixed(0) : "0"}K
+                Avg size: ₹
+                {opportunityStats?.averageDealSize
+                  ? (opportunityStats.averageDealSize / 1000).toFixed(0)
+                  : "0"}
+                K
               </p>
             </div>
             <div className="absolute bottom-0 left-0 h-1 bg-gradient-to-r from-amber-400 to-orange-500 w-full transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left"></div>
@@ -338,8 +356,14 @@ export default function DashboardPage() {
                 <div className="p-2 bg-emerald-50 rounded-lg">
                   <Target className="h-6 w-6 text-emerald-600" />
                 </div>
-                <span className={`text-xs font-bold px-2 py-1 rounded-full flex items-center gap-1 ${opportunityStats && opportunityStats.winRate >= 70 ? "text-emerald-600 bg-emerald-50" : "text-amber-600 bg-amber-50"}`}>
-                  {opportunityStats && opportunityStats.winRate >= 70 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
+                <span
+                  className={`text-xs font-bold px-2 py-1 rounded-full flex items-center gap-1 ${opportunityStats && opportunityStats.winRate >= 70 ? "text-emerald-600 bg-emerald-50" : "text-amber-600 bg-amber-50"}`}
+                >
+                  {opportunityStats && opportunityStats.winRate >= 70 ? (
+                    <TrendingUp className="h-3 w-3" />
+                  ) : (
+                    <TrendingDown className="h-3 w-3" />
+                  )}
                   {opportunityStats ? (opportunityStats.winRate - 70).toFixed(1) : "0"}%
                 </span>
               </div>
@@ -347,9 +371,7 @@ export default function DashboardPage() {
               <h3 className="text-2xl font-bold text-slate-900 mt-1">
                 {opportunityStats?.winRate ? opportunityStats.winRate.toFixed(1) : "0"}%
               </h3>
-              <p className="text-xs text-slate-400 mt-2">
-                Target: 70%
-              </p>
+              <p className="text-xs text-slate-400 mt-2">Target: 70%</p>
             </div>
             <div className="absolute bottom-0 left-0 h-1 bg-gradient-to-r from-emerald-400 to-teal-500 w-full transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left"></div>
           </div>
@@ -380,17 +402,42 @@ export default function DashboardPage() {
 
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
                   {[
-                    { label: "Total", value: statistics.totalLeads, color: "bg-slate-100 text-slate-600" },
-                    { label: "New", value: statistics.newLeads, color: "bg-blue-50 text-blue-600 border-blue-100" },
-                    { label: "Contacted", value: statistics.contactedLeads, color: "bg-purple-50 text-purple-600 border-purple-100" },
-                    { label: "Qualified", value: statistics.qualifiedLeads, color: "bg-amber-50 text-amber-600 border-amber-100" },
-                    { label: "Converted", value: statistics.convertedLeads, color: "bg-emerald-50 text-emerald-600 border-emerald-100" },
+                    {
+                      label: "Total",
+                      value: statistics.totalLeads,
+                      color: "bg-slate-100 text-slate-600",
+                    },
+                    {
+                      label: "New",
+                      value: statistics.newLeads,
+                      color: "bg-blue-50 text-blue-600 border-blue-100",
+                    },
+                    {
+                      label: "Contacted",
+                      value: statistics.contactedLeads,
+                      color: "bg-purple-50 text-purple-600 border-purple-100",
+                    },
+                    {
+                      label: "Qualified",
+                      value: statistics.qualifiedLeads,
+                      color: "bg-amber-50 text-amber-600 border-amber-100",
+                    },
+                    {
+                      label: "Converted",
+                      value: statistics.convertedLeads,
+                      color: "bg-emerald-50 text-emerald-600 border-emerald-100",
+                    },
                   ].map((stat, i) => (
-                    <div key={i} className={`p-4 rounded-xl border ${stat.color.includes('border') ? '' : 'border-transparent'} ${stat.color.split(' ')[0]} transition-all hover:shadow-sm`}>
-                      <div className={`text-xs font-semibold uppercase tracking-wider ${stat.color.split(' ')[1]}`}>{stat.label}</div>
-                      <div className="mt-2 text-3xl font-bold text-slate-900">
-                        {stat.value}
+                    <div
+                      key={i}
+                      className={`p-4 rounded-xl border ${stat.color.includes("border") ? "" : "border-transparent"} ${stat.color.split(" ")[0]} transition-all hover:shadow-sm`}
+                    >
+                      <div
+                        className={`text-xs font-semibold uppercase tracking-wider ${stat.color.split(" ")[1]}`}
+                      >
+                        {stat.label}
                       </div>
+                      <div className="mt-2 text-3xl font-bold text-slate-900">{stat.value}</div>
                     </div>
                   ))}
                 </div>
@@ -401,8 +448,14 @@ export default function DashboardPage() {
             <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 min-h-[400px]">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                 <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-                  <div className={`p-1.5 rounded-lg ${activeTab === 'upcoming' ? 'bg-blue-100 text-blue-600' : 'bg-purple-100 text-purple-600'}`}>
-                    {activeTab === 'upcoming' ? <CheckCircle2 className="h-5 w-5" /> : <Clock className="h-5 w-5" />}
+                  <div
+                    className={`p-1.5 rounded-lg ${activeTab === "upcoming" ? "bg-blue-100 text-blue-600" : "bg-purple-100 text-purple-600"}`}
+                  >
+                    {activeTab === "upcoming" ? (
+                      <CheckCircle2 className="h-5 w-5" />
+                    ) : (
+                      <Clock className="h-5 w-5" />
+                    )}
                   </div>
                   Action & Insight Center
                 </h3>
@@ -416,20 +469,22 @@ export default function DashboardPage() {
                   </Link>
                   <div className="flex bg-slate-100 p-1 rounded-lg">
                     <button
-                      onClick={() => setActiveTab('upcoming')}
-                      className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${activeTab === 'upcoming'
-                        ? 'bg-white text-blue-600 shadow-sm'
-                        : 'text-slate-500 hover:text-slate-700'
-                        }`}
+                      onClick={() => setActiveTab("upcoming")}
+                      className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${
+                        activeTab === "upcoming"
+                          ? "bg-white text-blue-600 shadow-sm"
+                          : "text-slate-500 hover:text-slate-700"
+                      }`}
                     >
                       My Tasks
                     </button>
                     <button
-                      onClick={() => setActiveTab('recent')}
-                      className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${activeTab === 'recent'
-                        ? 'bg-white text-purple-600 shadow-sm'
-                        : 'text-slate-500 hover:text-slate-700'
-                        }`}
+                      onClick={() => setActiveTab("recent")}
+                      className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${
+                        activeTab === "recent"
+                          ? "bg-white text-purple-600 shadow-sm"
+                          : "text-slate-500 hover:text-slate-700"
+                      }`}
                     >
                       Recent Activity
                     </button>
@@ -445,7 +500,7 @@ export default function DashboardPage() {
               </div>
 
               <div className="space-y-4">
-                {activeTab === 'upcoming' ? (
+                {activeTab === "upcoming" ? (
                   // Upcoming Tasks Tab
                   upcomingActivities.length > 0 ? (
                     upcomingActivities.map((activity) => (
@@ -455,30 +510,45 @@ export default function DashboardPage() {
                         className="group flex items-start gap-4 p-4 rounded-xl bg-slate-50 border border-slate-100 hover:border-blue-200 hover:shadow-sm transition-all cursor-pointer"
                       >
                         <div className="mt-1">
-                          <div className={`h-5 w-5 rounded border-2 flex items-center justify-center transition-colors ${activity.status === 'COMPLETED'
-                            ? 'bg-green-500 border-green-500'
-                            : 'border-slate-300 group-hover:border-blue-400'
-                            }`}>
-                            {activity.status === 'COMPLETED' && <CheckCircle2 className="h-3.5 w-3.5 text-white" />}
+                          <div
+                            className={`h-5 w-5 rounded border-2 flex items-center justify-center transition-colors ${
+                              activity.status === "COMPLETED"
+                                ? "bg-green-500 border-green-500"
+                                : "border-slate-300 group-hover:border-blue-400"
+                            }`}
+                          >
+                            {activity.status === "COMPLETED" && (
+                              <CheckCircle2 className="h-3.5 w-3.5 text-white" />
+                            )}
                           </div>
                         </div>
                         <div className="flex-1">
-                          <p className={`text-sm font-medium transition-colors ${activity.status === 'COMPLETED' ? 'text-slate-400 line-through' : 'text-slate-900'}`}>
+                          <p
+                            className={`text-sm font-medium transition-colors ${activity.status === "COMPLETED" ? "text-slate-400 line-through" : "text-slate-900"}`}
+                          >
                             {activity.subject}
                           </p>
                           <div className="flex items-center gap-3 mt-1.5">
                             {activity.dueDate && (
-                              <span className={`text-xs flex items-center gap-1 ${new Date(activity.dueDate) < new Date() ? 'text-red-500 font-medium' : 'text-slate-500'
-                                }`}>
+                              <span
+                                className={`text-xs flex items-center gap-1 ${
+                                  new Date(activity.dueDate) < new Date()
+                                    ? "text-red-500 font-medium"
+                                    : "text-slate-500"
+                                }`}
+                              >
                                 <Calendar className="h-3 w-3" />
                                 {new Date(activity.dueDate).toLocaleDateString()}
                               </span>
                             )}
                             {activity.priority && (
-                              <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${activity.priority === 'HIGH' || activity.priority === 'URGENT'
-                                ? 'bg-red-50 text-red-600'
-                                : 'bg-slate-100 text-slate-500'
-                                }`}>
+                              <span
+                                className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${
+                                  activity.priority === "HIGH" || activity.priority === "URGENT"
+                                    ? "bg-red-50 text-red-600"
+                                    : "bg-slate-100 text-slate-500"
+                                }`}
+                              >
                                 {activity.priority}
                               </span>
                             )}
@@ -493,49 +563,73 @@ export default function DashboardPage() {
                     <div className="text-center py-10 text-slate-500">
                       <CheckCircle2 className="h-10 w-10 text-slate-300 mx-auto mb-3" />
                       <p>No upcoming tasks. You're all caught up!</p>
-                      <Link href="/activities/new" className="text-blue-600 text-sm font-medium hover:underline mt-2 inline-block">
+                      <Link
+                        href="/activities/new"
+                        className="text-blue-600 text-sm font-medium hover:underline mt-2 inline-block"
+                      >
                         Create a Task
                       </Link>
                     </div>
                   )
-                ) : (
-                  // Recent Activity Tab
-                  recentActivities.length > 0 ? (
-                    recentActivities.map((activity) => (
-                      <Link
-                        key={activity.id}
-                        href={`/activities/${activity.id}/edit`}
-                        className="group flex items-start gap-4 p-4 rounded-xl bg-slate-50 border border-slate-100 hover:border-purple-200 hover:shadow-sm transition-all cursor-pointer"
+                ) : // Recent Activity Tab
+                recentActivities.length > 0 ? (
+                  recentActivities.map((activity) => (
+                    <Link
+                      key={activity.id}
+                      href={`/activities/${activity.id}/edit`}
+                      className="group flex items-start gap-4 p-4 rounded-xl bg-slate-50 border border-slate-100 hover:border-purple-200 hover:shadow-sm transition-all cursor-pointer"
+                    >
+                      <div
+                        className={`h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0 ${
+                          activity.type === "CALL"
+                            ? "bg-green-100 text-green-600"
+                            : activity.type === "EMAIL"
+                              ? "bg-blue-100 text-blue-600"
+                              : activity.type === "MEETING"
+                                ? "bg-purple-100 text-purple-600"
+                                : "bg-slate-200 text-slate-600"
+                        }`}
                       >
-                        <div className={`h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0 ${activity.type === 'CALL' ? 'bg-green-100 text-green-600' :
-                          activity.type === 'EMAIL' ? 'bg-blue-100 text-blue-600' :
-                            activity.type === 'MEETING' ? 'bg-purple-100 text-purple-600' :
-                              'bg-slate-200 text-slate-600'
-                          }`}>
-                          {activity.type === 'CALL' && <div className="material-symbols-outlined text-[20px]">call</div>}
-                          {activity.type === 'EMAIL' && <div className="material-symbols-outlined text-[20px]">mail</div>}
-                          {activity.type === 'MEETING' && <div className="material-symbols-outlined text-[20px]">groups</div>}
-                          {activity.type === 'TASK' && <div className="material-symbols-outlined text-[20px]">check_circle</div>}
-                          {activity.type === 'NOTE' && <div className="material-symbols-outlined text-[20px]">description</div>}
-                        </div>
-                        <div className="flex-1">
-                          <p className="text-sm font-medium text-slate-900 group-hover:text-purple-600 transition-colors">{activity.subject}</p>
-                          <p className="text-xs text-slate-500 mt-1">
-                            {activity.type} • {formatLocaleIST(activity.createdAt)}
-                          </p>
-                        </div>
-                        <span className={`px-2 py-1 rounded text-xs font-medium ${activity.status === 'COMPLETED' ? 'bg-green-100 text-green-700' : 'bg-blue-50 text-blue-600'
-                          }`}>
-                          {activity.status}
-                        </span>
-                      </Link>
-                    ))
-                  ) : (
-                    <div className="text-center py-10 text-slate-500">
-                      <Clock className="h-10 w-10 text-slate-300 mx-auto mb-3" />
-                      <p>No recent activity found.</p>
-                    </div>
-                  )
+                        {activity.type === "CALL" && (
+                          <div className="material-symbols-outlined text-[20px]">call</div>
+                        )}
+                        {activity.type === "EMAIL" && (
+                          <div className="material-symbols-outlined text-[20px]">mail</div>
+                        )}
+                        {activity.type === "MEETING" && (
+                          <div className="material-symbols-outlined text-[20px]">groups</div>
+                        )}
+                        {activity.type === "TASK" && (
+                          <div className="material-symbols-outlined text-[20px]">check_circle</div>
+                        )}
+                        {activity.type === "NOTE" && (
+                          <div className="material-symbols-outlined text-[20px]">description</div>
+                        )}
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-slate-900 group-hover:text-purple-600 transition-colors">
+                          {activity.subject}
+                        </p>
+                        <p className="text-xs text-slate-500 mt-1">
+                          {activity.type} • {formatLocaleIST(activity.createdAt)}
+                        </p>
+                      </div>
+                      <span
+                        className={`px-2 py-1 rounded text-xs font-medium ${
+                          activity.status === "COMPLETED"
+                            ? "bg-green-100 text-green-700"
+                            : "bg-blue-50 text-blue-600"
+                        }`}
+                      >
+                        {activity.status}
+                      </span>
+                    </Link>
+                  ))
+                ) : (
+                  <div className="text-center py-10 text-slate-500">
+                    <Clock className="h-10 w-10 text-slate-300 mx-auto mb-3" />
+                    <p>No recent activity found.</p>
+                  </div>
                 )}
               </div>
             </div>
@@ -548,17 +642,43 @@ export default function DashboardPage() {
               <h3 className="text-lg font-bold text-slate-900 mb-4">Quick Actions</h3>
               <div className="space-y-3">
                 {[
-                  { label: "Create Lead", desc: "Add to pipeline", icon: UserPlus, href: "/leads/new", color: "text-blue-600 bg-blue-50" },
-                  { label: "New Contact", desc: "Add details", icon: Users, href: "/contacts/new", color: "text-purple-600 bg-purple-50" },
-                  { label: "New Account", desc: "Company profile", icon: Building2, href: "/accounts/new", color: "text-emerald-600 bg-emerald-50" },
-                  { label: "Log Activity", desc: "Tasks & Calls", icon: CheckCircle2, href: "/activities/new", color: "text-amber-600 bg-amber-50" },
+                  {
+                    label: "Create Lead",
+                    desc: "Add to pipeline",
+                    icon: UserPlus,
+                    href: "/leads/new",
+                    color: "text-blue-600 bg-blue-50",
+                  },
+                  {
+                    label: "New Contact",
+                    desc: "Add details",
+                    icon: Users,
+                    href: "/contacts/new",
+                    color: "text-purple-600 bg-purple-50",
+                  },
+                  {
+                    label: "New Account",
+                    desc: "Company profile",
+                    icon: Building2,
+                    href: "/accounts/new",
+                    color: "text-emerald-600 bg-emerald-50",
+                  },
+                  {
+                    label: "Log Activity",
+                    desc: "Tasks & Calls",
+                    icon: CheckCircle2,
+                    href: "/activities/new",
+                    color: "text-amber-600 bg-amber-50",
+                  },
                 ].map((action, i) => (
                   <Link
                     key={i}
                     href={action.href}
                     className="flex items-center p-3 rounded-xl hover:bg-slate-50 transition-colors group border border-transparent hover:border-slate-100"
                   >
-                    <div className={`h-10 w-10 rounded-lg ${action.color} flex items-center justify-center mr-4 group-hover:scale-110 transition-transform`}>
+                    <div
+                      className={`h-10 w-10 rounded-lg ${action.color} flex items-center justify-center mr-4 group-hover:scale-110 transition-transform`}
+                    >
                       <action.icon className="h-5 w-5" />
                     </div>
                     <div>
@@ -587,7 +707,10 @@ export default function DashboardPage() {
 
                 <div className="flex items-end gap-1 mb-1">
                   <span className="text-3xl font-bold">
-                    {opportunityStats && monthlyRevenueGoal > 0 ? Math.round((opportunityStats.wonValue / monthlyRevenueGoal) * 100) : 0}%
+                    {opportunityStats && monthlyRevenueGoal > 0
+                      ? Math.round((opportunityStats.wonValue / monthlyRevenueGoal) * 100)
+                      : 0}
+                    %
                   </span>
                   <span className="text-sm text-indigo-200 mb-1.5">of goal achieved</span>
                 </div>
@@ -596,12 +719,20 @@ export default function DashboardPage() {
                 <div className="h-2 w-full bg-black/20 rounded-full overflow-hidden mb-6">
                   <div
                     className="h-full bg-gradient-to-r from-emerald-400 to-teal-300 rounded-full transition-all duration-1000 ease-out"
-                    style={{ width: `${opportunityStats && monthlyRevenueGoal > 0 ? Math.min(100, (opportunityStats.wonValue / monthlyRevenueGoal) * 100) : 0}%` }}
+                    style={{
+                      width: `${opportunityStats && monthlyRevenueGoal > 0 ? Math.min(100, (opportunityStats.wonValue / monthlyRevenueGoal) * 100) : 0}%`,
+                    }}
                   ></div>
                 </div>
 
                 <div className="flex justify-between text-xs text-indigo-100 font-medium mb-6">
-                  <span>₹{opportunityStats?.wonValue ? (opportunityStats.wonValue / 1000).toFixed(0) : "0"}K Won</span>
+                  <span>
+                    ₹
+                    {opportunityStats?.wonValue
+                      ? (opportunityStats.wonValue / 1000).toFixed(0)
+                      : "0"}
+                    K Won
+                  </span>
                   <span>Goal: {formatAmount(monthlyRevenueGoal)}</span>
                 </div>
 
@@ -617,10 +748,15 @@ export default function DashboardPage() {
                     </div>
                     <div className="flex items-center justify-between text-sm">
                       <span className="text-indigo-200">{dealOfTheDay.accountName}</span>
-                      <span className="font-bold text-white">₹{(dealOfTheDay.amount / 1000).toFixed(1)}K</span>
+                      <span className="font-bold text-white">
+                        ₹{(dealOfTheDay.amount / 1000).toFixed(1)}K
+                      </span>
                     </div>
                     <div className="mt-3 flex items-center gap-2">
-                      <Link href={`/opportunities/${dealOfTheDay.id}`} className="w-full text-center px-3 py-1.5 bg-white text-indigo-600 rounded-lg text-xs font-bold hover:bg-indigo-50 transition-colors">
+                      <Link
+                        href={`/opportunities/${dealOfTheDay.id}`}
+                        className="w-full text-center px-3 py-1.5 bg-white text-indigo-600 rounded-lg text-xs font-bold hover:bg-indigo-50 transition-colors"
+                      >
                         View Deal
                       </Link>
                     </div>

@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import { createPortal } from 'react-dom';
-import { X, Package, Warehouse, DollarSign } from 'lucide-react';
-import { api } from '@/lib/api-client';
+import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
+import { X, Package, Warehouse, DollarSign } from "lucide-react";
+import { api } from "@/lib/api-client";
 
 interface EnableInventoryModalProps {
   isOpen: boolean;
@@ -27,57 +27,57 @@ export default function EnableInventoryModal({
   productId,
   productName,
   productAttributes,
-  onSuccess
+  onSuccess,
 }: EnableInventoryModalProps) {
   const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
-    sku: '',
-    warehouseId: '',
+    sku: "",
+    warehouseId: "",
     initialStock: 0,
     minStockLevel: 10,
     reorderLevel: 20,
-    basePrice: '',
-    currency: 'INR',
+    basePrice: "",
+    currency: "INR",
     taxRate: 18,
-    taxType: 'GST',
-    autoSyncEnabled: true
+    taxType: "GST",
+    autoSyncEnabled: true,
   });
 
   useEffect(() => {
     if (isOpen) {
       // Lock body scroll
-      document.body.style.overflow = 'hidden';
+      document.body.style.overflow = "hidden";
       fetchWarehouses();
 
       // Auto-extract and populate price from UnitPrice attribute
       if (productAttributes) {
         const extractedPrice = extractPriceFromAttributes(productAttributes);
         if (extractedPrice) {
-          setFormData(prev => ({ ...prev, basePrice: extractedPrice.toString() }));
+          setFormData((prev) => ({ ...prev, basePrice: extractedPrice.toString() }));
         }
       }
     } else {
       // Explicitly unlock when closed
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = "unset";
     }
 
     return () => {
       // Cleanup: always unlock body scroll
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = "unset";
     };
   }, [isOpen, productAttributes]);
 
   const extractPriceFromAttributes = (attributes: Array<{ key: string; value: string }>) => {
-    const priceAttr = attributes.find(attr =>
-      attr.key.toLowerCase().includes('price') ||
-      attr.key.toLowerCase().includes('unitprice')
+    const priceAttr = attributes.find(
+      (attr) =>
+        attr.key.toLowerCase().includes("price") || attr.key.toLowerCase().includes("unitprice")
     );
 
     if (priceAttr) {
-      const cleaned = priceAttr.value.replace(/[^0-9.]/g, '');
+      const cleaned = priceAttr.value.replace(/[^0-9.]/g, "");
       const price = parseFloat(cleaned);
       return isNaN(price) ? null : price;
     }
@@ -87,24 +87,25 @@ export default function EnableInventoryModal({
 
   const fetchWarehouses = async () => {
     try {
-      const data = await api.get<Warehouse[]>('/inventory/warehouses/list');
+      const data = await api.get<Warehouse[]>("/inventory/warehouses/list");
       const warehouseList = Array.isArray(data) ? data : [];
       setWarehouses(warehouseList);
 
       // Auto-select default warehouse if available
-      const defaultWarehouse = warehouseList.find((w: any) => w.isDefault === true) || warehouseList[0];
+      const defaultWarehouse =
+        warehouseList.find((w: any) => w.isDefault === true) || warehouseList[0];
 
       if (defaultWarehouse) {
-        setFormData(prev => ({ ...prev, warehouseId: defaultWarehouse.id }));
+        setFormData((prev) => ({ ...prev, warehouseId: defaultWarehouse.id }));
       }
 
       if (warehouseList.length === 0) {
-        setError('No warehouses found. Please create a warehouse first.');
+        setError("No warehouses found. Please create a warehouse first.");
       }
     } catch (err) {
-      console.error('Failed to fetch warehouses:', err);
+      console.error("Failed to fetch warehouses:", err);
       setWarehouses([]);
-      setError('Failed to load warehouses. Please try again.');
+      setError("Failed to load warehouses. Please try again.");
     }
   };
 
@@ -120,7 +121,7 @@ export default function EnableInventoryModal({
         initialStock: parseInt(formData.initialStock.toString()),
         minStockLevel: parseInt(formData.minStockLevel.toString()),
         reorderLevel: parseInt(formData.reorderLevel.toString()),
-        taxRate: parseFloat(formData.taxRate.toString())
+        taxRate: parseFloat(formData.taxRate.toString()),
       };
 
       await api.post(`/catalog/${productId}/inventory/enable`, payload);
@@ -128,8 +129,8 @@ export default function EnableInventoryModal({
       onClose();
       resetForm();
     } catch (err: any) {
-      console.error('Failed to enable inventory:', err);
-      setError(err.message || 'Failed to enable inventory tracking');
+      console.error("Failed to enable inventory:", err);
+      setError(err.message || "Failed to enable inventory tracking");
     } finally {
       setLoading(false);
     }
@@ -137,16 +138,16 @@ export default function EnableInventoryModal({
 
   const resetForm = () => {
     setFormData({
-      sku: '',
-      warehouseId: '',
+      sku: "",
+      warehouseId: "",
       initialStock: 0,
       minStockLevel: 10,
       reorderLevel: 20,
-      basePrice: '',
-      currency: 'INR',
+      basePrice: "",
+      currency: "INR",
       taxRate: 18,
-      taxType: 'GST',
-      autoSyncEnabled: true
+      taxType: "GST",
+      autoSyncEnabled: true,
     });
     setError(null);
   };
@@ -169,10 +170,7 @@ export default function EnableInventoryModal({
             <h2 className="text-xl font-semibold text-gray-900">Enable Inventory Tracking</h2>
             <p className="text-sm text-gray-500 mt-1">{productName}</p>
           </div>
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
-          >
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -190,7 +188,8 @@ export default function EnableInventoryModal({
             <div className="bg-blue-50 border border-blue-200 text-blue-800 px-4 py-3 rounded flex items-start gap-2">
               <DollarSign className="w-4 h-4 mt-0.5 flex-shrink-0" />
               <div className="text-sm">
-                <strong>UnitPrice auto-mapped:</strong> Base Price has been automatically set to {formData.currency} {formData.basePrice}
+                <strong>UnitPrice auto-mapped:</strong> Base Price has been automatically set to{" "}
+                {formData.currency} {formData.basePrice}
               </div>
             </div>
           )}
@@ -215,7 +214,10 @@ export default function EnableInventoryModal({
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 <Warehouse className="w-4 h-4 inline mr-1" />
-                Warehouse * {warehouses.length > 0 && <span className="text-xs text-green-600">({warehouses.length} found)</span>}
+                Warehouse *{" "}
+                {warehouses.length > 0 && (
+                  <span className="text-xs text-green-600">({warehouses.length} found)</span>
+                )}
               </label>
               <select
                 required
@@ -231,7 +233,9 @@ export default function EnableInventoryModal({
                 ))}
               </select>
               {warehouses.length === 0 && (
-                <p className="text-xs text-red-600 mt-1">No warehouses available. Check console for errors.</p>
+                <p className="text-xs text-red-600 mt-1">
+                  No warehouses available. Check console for errors.
+                </p>
               )}
             </div>
           </div>
@@ -247,7 +251,9 @@ export default function EnableInventoryModal({
                 required
                 min="0"
                 value={formData.initialStock}
-                onChange={(e) => setFormData({ ...formData, initialStock: parseInt(e.target.value) || 0 })}
+                onChange={(e) =>
+                  setFormData({ ...formData, initialStock: parseInt(e.target.value) || 0 })
+                }
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
@@ -260,20 +266,22 @@ export default function EnableInventoryModal({
                 type="number"
                 min="0"
                 value={formData.minStockLevel}
-                onChange={(e) => setFormData({ ...formData, minStockLevel: parseInt(e.target.value) || 0 })}
+                onChange={(e) =>
+                  setFormData({ ...formData, minStockLevel: parseInt(e.target.value) || 0 })
+                }
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Reorder Level
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Reorder Level</label>
               <input
                 type="number"
                 min="0"
                 value={formData.reorderLevel}
-                onChange={(e) => setFormData({ ...formData, reorderLevel: parseInt(e.target.value) || 0 })}
+                onChange={(e) =>
+                  setFormData({ ...formData, reorderLevel: parseInt(e.target.value) || 0 })
+                }
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
@@ -298,9 +306,7 @@ export default function EnableInventoryModal({
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Currency
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Currency</label>
               <select
                 value={formData.currency}
                 onChange={(e) => setFormData({ ...formData, currency: e.target.value })}
@@ -316,24 +322,22 @@ export default function EnableInventoryModal({
           {/* Tax Configuration */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Tax Rate (%)
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Tax Rate (%)</label>
               <input
                 type="number"
                 step="0.01"
                 min="0"
                 max="100"
                 value={formData.taxRate}
-                onChange={(e) => setFormData({ ...formData, taxRate: parseFloat(e.target.value) || 0 })}
+                onChange={(e) =>
+                  setFormData({ ...formData, taxRate: parseFloat(e.target.value) || 0 })
+                }
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Tax Type
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Tax Type</label>
               <select
                 value={formData.taxType}
                 onChange={(e) => setFormData({ ...formData, taxType: e.target.value })}
@@ -377,14 +381,30 @@ export default function EnableInventoryModal({
             >
               {loading ? (
                 <>
-                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  <svg
+                    className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
                   </svg>
                   Enabling...
                 </>
               ) : (
-                'Enable Inventory Tracking'
+                "Enable Inventory Tracking"
               )}
             </button>
           </div>
@@ -394,7 +414,5 @@ export default function EnableInventoryModal({
   );
 
   // Use portal to render at document root to avoid z-index/overflow issues
-  return typeof document !== 'undefined'
-    ? createPortal(modalContent, document.body)
-    : null;
+  return typeof document !== "undefined" ? createPortal(modalContent, document.body) : null;
 }

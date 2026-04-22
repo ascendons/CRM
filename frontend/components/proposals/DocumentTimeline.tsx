@@ -25,9 +25,9 @@ const PROFORMA_STEPS: Step[] = [
 ];
 
 function getStepIndex(steps: Step[], status: string, hasBeenConverted?: boolean): number {
-  if (hasBeenConverted) return steps.findIndex(s => s.key === "CONVERTED");
+  if (hasBeenConverted) return steps.findIndex((s) => s.key === "CONVERTED");
   if (status === "REJECTED") return -1; // special case
-  return steps.findIndex(s => s.key === status);
+  return steps.findIndex((s) => s.key === status);
 }
 
 interface DocumentTimelineProps {
@@ -37,7 +37,12 @@ interface DocumentTimelineProps {
   isRejected?: boolean;
 }
 
-export default function DocumentTimeline({ status, isProforma, hasBeenConverted, isRejected }: DocumentTimelineProps) {
+export default function DocumentTimeline({
+  status,
+  isProforma,
+  hasBeenConverted,
+  isRejected,
+}: DocumentTimelineProps) {
   const steps = isProforma ? PROFORMA_STEPS : QUOTATION_STEPS;
   const currentIdx = getStepIndex(steps, status, hasBeenConverted);
 
@@ -58,21 +63,34 @@ export default function DocumentTimeline({ status, isProforma, hasBeenConverted,
               <div
                 className={`
                   w-10 h-10 rounded-full border-2 flex items-center justify-center text-sm font-bold transition-all
-                  ${isVoided ? "border-red-400 bg-red-50 text-red-600" :
-                    isRejectedStep ? "border-red-300 bg-red-50" :
-                    isActive ? "border-blue-500 bg-blue-500 text-white shadow-md scale-110" :
-                    isDone ? "border-green-400 bg-green-50 text-green-700" :
-                    "border-gray-200 bg-gray-50 text-gray-400"}
+                  ${
+                    isVoided
+                      ? "border-red-400 bg-red-50 text-red-600"
+                      : isRejectedStep
+                        ? "border-red-300 bg-red-50"
+                        : isActive
+                          ? "border-blue-500 bg-blue-500 text-white shadow-md scale-110"
+                          : isDone
+                            ? "border-green-400 bg-green-50 text-green-700"
+                            : "border-gray-200 bg-gray-50 text-gray-400"
+                  }
                 `}
               >
                 {isDone && !isActive ? "✓" : step.icon}
               </div>
-              <span className={`mt-1 text-xs font-medium text-center
-                ${isActive ? "text-blue-600" :
-                  isDone ? "text-green-600" :
-                  isVoided ? "text-red-500" :
-                  "text-gray-400"}
-              `}>
+              <span
+                className={`mt-1 text-xs font-medium text-center
+                ${
+                  isActive
+                    ? "text-blue-600"
+                    : isDone
+                      ? "text-green-600"
+                      : isVoided
+                        ? "text-red-500"
+                        : "text-gray-400"
+                }
+              `}
+              >
                 {step.label}
               </span>
               {isActive && (

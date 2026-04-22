@@ -1,10 +1,18 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
-import { leavesApi, LeaveResponse } from '@/lib/api/leaves';
-import { toast } from 'react-hot-toast';
-import { ArrowLeft, Calendar, Clock, CheckCircle, XCircle, AlertCircle, FileText } from 'lucide-react';
+import { useEffect, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { leavesApi, LeaveResponse } from "@/lib/api/leaves";
+import { toast } from "react-hot-toast";
+import {
+  ArrowLeft,
+  Calendar,
+  Clock,
+  CheckCircle,
+  XCircle,
+  AlertCircle,
+  FileText,
+} from "lucide-react";
 
 export default function LeaveDetailPage() {
   const params = useParams();
@@ -25,9 +33,9 @@ export default function LeaveDetailPage() {
       const leave = await leavesApi.getLeaveById(leaveId);
       setLeave(leave);
     } catch (error) {
-      console.error('Failed to load leave:', error);
-      toast.error('Failed to load leave details');
-      router.push('/leaves');
+      console.error("Failed to load leave:", error);
+      toast.error("Failed to load leave details");
+      router.push("/leaves");
     } finally {
       setLoading(false);
     }
@@ -36,20 +44,20 @@ export default function LeaveDetailPage() {
   const handleCancelLeave = async () => {
     if (!leave) return;
 
-    const reason = window.prompt('Please provide a reason for cancellation:');
-    if (!reason || reason.trim() === '') {
-      toast.error('Cancellation reason is required');
+    const reason = window.prompt("Please provide a reason for cancellation:");
+    if (!reason || reason.trim() === "") {
+      toast.error("Cancellation reason is required");
       return;
     }
 
     try {
       setCancelling(true);
       await leavesApi.cancelLeave({ leaveId, cancellationReason: reason.trim() });
-      toast.success('Leave cancelled successfully');
+      toast.success("Leave cancelled successfully");
       loadLeaveDetails();
     } catch (error: any) {
-      console.error('Failed to cancel leave:', error);
-      toast.error(error.message || 'Failed to cancel leave');
+      console.error("Failed to cancel leave:", error);
+      toast.error(error.message || "Failed to cancel leave");
     } finally {
       setCancelling(false);
     }
@@ -57,17 +65,29 @@ export default function LeaveDetailPage() {
 
   const getStatusBadge = (status: string) => {
     const statusConfig = {
-      PENDING: { bg: 'bg-yellow-100', text: 'text-yellow-800', icon: AlertCircle, label: 'Pending' },
-      APPROVED: { bg: 'bg-green-100', text: 'text-green-800', icon: CheckCircle, label: 'Approved' },
-      REJECTED: { bg: 'bg-red-100', text: 'text-red-800', icon: XCircle, label: 'Rejected' },
-      CANCELLED: { bg: 'bg-gray-100', text: 'text-gray-800', icon: XCircle, label: 'Cancelled' },
+      PENDING: {
+        bg: "bg-yellow-100",
+        text: "text-yellow-800",
+        icon: AlertCircle,
+        label: "Pending",
+      },
+      APPROVED: {
+        bg: "bg-green-100",
+        text: "text-green-800",
+        icon: CheckCircle,
+        label: "Approved",
+      },
+      REJECTED: { bg: "bg-red-100", text: "text-red-800", icon: XCircle, label: "Rejected" },
+      CANCELLED: { bg: "bg-gray-100", text: "text-gray-800", icon: XCircle, label: "Cancelled" },
     };
 
     const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.PENDING;
     const Icon = config.icon;
 
     return (
-      <span className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium ${config.bg} ${config.text}`}>
+      <span
+        className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium ${config.bg} ${config.text}`}
+      >
         <Icon className="h-4 w-4" />
         {config.label}
       </span>
@@ -76,36 +96,36 @@ export default function LeaveDetailPage() {
 
   const getLeaveTypeLabel = (type: string) => {
     const labels: Record<string, string> = {
-      SICK: 'Sick Leave',
-      CASUAL: 'Casual Leave',
-      EARNED: 'Earned Leave',
-      PAID: 'Paid Leave',
-      UNPAID: 'Unpaid Leave',
-      MATERNITY: 'Maternity Leave',
-      PATERNITY: 'Paternity Leave',
-      COMPENSATORY: 'Compensatory Leave',
-      BEREAVEMENT: 'Bereavement Leave',
-      MARRIAGE: 'Marriage Leave',
+      SICK: "Sick Leave",
+      CASUAL: "Casual Leave",
+      EARNED: "Earned Leave",
+      PAID: "Paid Leave",
+      UNPAID: "Unpaid Leave",
+      MATERNITY: "Maternity Leave",
+      PATERNITY: "Paternity Leave",
+      COMPENSATORY: "Compensatory Leave",
+      BEREAVEMENT: "Bereavement Leave",
+      MARRIAGE: "Marriage Leave",
     };
     return labels[type] || type;
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
+    return new Date(dateString).toLocaleDateString("en-US", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
     });
   };
 
   const formatDateTime = (dateString: string) => {
-    return new Date(dateString).toLocaleString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+    return new Date(dateString).toLocaleString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
@@ -121,7 +141,7 @@ export default function LeaveDetailPage() {
     return null;
   }
 
-  const canCancel = leave.status === 'PENDING' && !leave.isCancelled;
+  const canCancel = leave.status === "PENDING" && !leave.isCancelled;
 
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-6">
@@ -129,7 +149,7 @@ export default function LeaveDetailPage() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <button
-            onClick={() => router.push('/leaves')}
+            onClick={() => router.push("/leaves")}
             className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
           >
             <ArrowLeft className="h-5 w-5 text-slate-600" />
@@ -151,7 +171,9 @@ export default function LeaveDetailPage() {
             <div>
               <h2 className="text-2xl font-bold">{getLeaveTypeLabel(leave.leaveType)}</h2>
               <p className="text-blue-100 mt-1">
-                {leave.isHalfDay ? `Half Day (${leave.halfDayType})` : `${leave.totalDays} day${leave.totalDays !== 1 ? 's' : ''}`}
+                {leave.isHalfDay
+                  ? `Half Day (${leave.halfDayType})`
+                  : `${leave.totalDays} day${leave.totalDays !== 1 ? "s" : ""}`}
               </p>
             </div>
           </div>
@@ -168,7 +190,9 @@ export default function LeaveDetailPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="bg-slate-50 rounded-xl p-4">
                 <p className="text-sm text-slate-600 mb-1">Start Date</p>
-                <p className="text-lg font-semibold text-slate-900">{formatDate(leave.startDate)}</p>
+                <p className="text-lg font-semibold text-slate-900">
+                  {formatDate(leave.startDate)}
+                </p>
               </div>
               <div className="bg-slate-50 rounded-xl p-4">
                 <p className="text-sm text-slate-600 mb-1">End Date</p>
@@ -235,7 +259,7 @@ export default function LeaveDetailPage() {
           )}
 
           {/* Approval Section */}
-          {leave.status === 'APPROVED' && leave.approverName && (
+          {leave.status === "APPROVED" && leave.approverName && (
             <div className="bg-green-50 border border-green-200 rounded-xl p-4">
               <h3 className="text-lg font-semibold text-green-900 mb-3 flex items-center gap-2">
                 <CheckCircle className="h-5 w-5" />
@@ -249,7 +273,9 @@ export default function LeaveDetailPage() {
                 {leave.approvedAt && (
                   <div className="flex justify-between">
                     <span className="text-green-700">Approved At:</span>
-                    <span className="font-semibold text-green-900">{formatDateTime(leave.approvedAt)}</span>
+                    <span className="font-semibold text-green-900">
+                      {formatDateTime(leave.approvedAt)}
+                    </span>
                   </div>
                 )}
                 {leave.approvalNotes && (
@@ -263,7 +289,7 @@ export default function LeaveDetailPage() {
           )}
 
           {/* Rejection Section */}
-          {leave.status === 'REJECTED' && (
+          {leave.status === "REJECTED" && (
             <div className="bg-red-50 border border-red-200 rounded-xl p-4">
               <h3 className="text-lg font-semibold text-red-900 mb-3 flex items-center gap-2">
                 <XCircle className="h-5 w-5" />
@@ -279,7 +305,9 @@ export default function LeaveDetailPage() {
                 {leave.approvedAt && (
                   <div className="flex justify-between">
                     <span className="text-red-700">Rejected At:</span>
-                    <span className="font-semibold text-red-900">{formatDateTime(leave.approvedAt)}</span>
+                    <span className="font-semibold text-red-900">
+                      {formatDateTime(leave.approvedAt)}
+                    </span>
                   </div>
                 )}
                 {leave.rejectionReason && (
@@ -303,7 +331,9 @@ export default function LeaveDetailPage() {
                 {leave.cancelledAt && (
                   <div className="flex justify-between">
                     <span className="text-gray-700">Cancelled At:</span>
-                    <span className="font-semibold text-gray-900">{formatDateTime(leave.cancelledAt)}</span>
+                    <span className="font-semibold text-gray-900">
+                      {formatDateTime(leave.cancelledAt)}
+                    </span>
                   </div>
                 )}
                 {leave.cancellationReason && (

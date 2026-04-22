@@ -73,7 +73,7 @@ export default function CreateUserPage() {
         id: user.id,
         userId: user.userId,
         userName: user.fullName || user.username || user.email,
-        email: user.email
+        email: user.email,
       }));
       setManagers(managerOptions);
     } catch (error) {
@@ -90,7 +90,8 @@ export default function CreateUserPage() {
     if (!formData.username.trim()) {
       newErrors.username = "Username is required";
     } else if (!/^[a-zA-Z0-9._-]+$/.test(formData.username)) {
-      newErrors.username = "Username can only contain letters, numbers, dots, underscores, and hyphens";
+      newErrors.username =
+        "Username can only contain letters, numbers, dots, underscores, and hyphens";
     }
 
     if (!formData.email.trim()) {
@@ -103,8 +104,13 @@ export default function CreateUserPage() {
       newErrors.password = "Password is required";
     } else if (formData.password.length < 8) {
       newErrors.password = "Password must be at least 8 characters";
-    } else if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(formData.password)) {
-      newErrors.password = "Password must contain uppercase, lowercase, number, and special character (@$!%*?&)";
+    } else if (
+      !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(
+        formData.password
+      )
+    ) {
+      newErrors.password =
+        "Password must contain uppercase, lowercase, number, and special character (@$!%*?&)";
     }
 
     if (!formData.firstName.trim()) {
@@ -195,8 +201,9 @@ export default function CreateUserPage() {
                   name="username"
                   value={formData.username}
                   onChange={handleChange}
-                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.username ? "border-red-500" : "border-gray-300"
-                    }`}
+                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                    errors.username ? "border-red-500" : "border-gray-300"
+                  }`}
                   placeholder="john.doe"
                 />
                 {errors.username && <p className="mt-1 text-sm text-red-600">{errors.username}</p>}
@@ -211,8 +218,9 @@ export default function CreateUserPage() {
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
-                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.email ? "border-red-500" : "border-gray-300"
-                    }`}
+                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                    errors.email ? "border-red-500" : "border-gray-300"
+                  }`}
                   placeholder="john.doe@company.com"
                 />
                 {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
@@ -227,8 +235,9 @@ export default function CreateUserPage() {
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
-                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.password ? "border-red-500" : "border-gray-300"
-                    }`}
+                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                    errors.password ? "border-red-500" : "border-gray-300"
+                  }`}
                   placeholder="Minimum 8 characters with uppercase, lowercase, number, and special character"
                 />
                 {errors.password && <p className="mt-1 text-sm text-red-600">{errors.password}</p>}
@@ -252,10 +261,13 @@ export default function CreateUserPage() {
                   name="firstName"
                   value={formData.firstName}
                   onChange={handleChange}
-                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.firstName ? "border-red-500" : "border-gray-300"
-                    }`}
+                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                    errors.firstName ? "border-red-500" : "border-gray-300"
+                  }`}
                 />
-                {errors.firstName && <p className="mt-1 text-sm text-red-600">{errors.firstName}</p>}
+                {errors.firstName && (
+                  <p className="mt-1 text-sm text-red-600">{errors.firstName}</p>
+                )}
               </div>
 
               <div>
@@ -267,8 +279,9 @@ export default function CreateUserPage() {
                   name="lastName"
                   value={formData.lastName}
                   onChange={handleChange}
-                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.lastName ? "border-red-500" : "border-gray-300"
-                    }`}
+                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                    errors.lastName ? "border-red-500" : "border-gray-300"
+                  }`}
                 />
                 {errors.lastName && <p className="mt-1 text-sm text-red-600">{errors.lastName}</p>}
               </div>
@@ -336,8 +349,9 @@ export default function CreateUserPage() {
                   value={formData.roleId}
                   onChange={handleChange}
                   disabled={loadingData}
-                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.roleId ? "border-red-500" : "border-gray-300"
-                    } ${loadingData ? "bg-gray-100 cursor-not-allowed" : ""}`}
+                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                    errors.roleId ? "border-red-500" : "border-gray-300"
+                  } ${loadingData ? "bg-gray-100 cursor-not-allowed" : ""}`}
                 >
                   <option value="">Select a role...</option>
                   {roles.map((role) => (
@@ -359,8 +373,9 @@ export default function CreateUserPage() {
                   value={formData.profileId}
                   onChange={handleChange}
                   disabled={loadingData}
-                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.profileId ? "border-red-500" : "border-gray-300"
-                    } ${loadingData ? "bg-gray-100 cursor-not-allowed" : ""}`}
+                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                    errors.profileId ? "border-red-500" : "border-gray-300"
+                  } ${loadingData ? "bg-gray-100 cursor-not-allowed" : ""}`}
                 >
                   <option value="">Select a profile...</option>
                   {profiles.map((profile) => (
@@ -369,7 +384,9 @@ export default function CreateUserPage() {
                     </option>
                   ))}
                 </select>
-                {errors.profileId && <p className="mt-1 text-sm text-red-600">{errors.profileId}</p>}
+                {errors.profileId && (
+                  <p className="mt-1 text-sm text-red-600">{errors.profileId}</p>
+                )}
                 {loadingData && <p className="mt-1 text-xs text-gray-500">Loading profiles...</p>}
               </div>
 
@@ -393,7 +410,9 @@ export default function CreateUserPage() {
                     </option>
                   ))}
                 </select>
-                {errors.managerId && <p className="mt-1 text-sm text-red-600">{errors.managerId}</p>}
+                {errors.managerId && (
+                  <p className="mt-1 text-sm text-red-600">{errors.managerId}</p>
+                )}
                 {loadingData && <p className="mt-1 text-xs text-gray-500">Loading users...</p>}
                 <p className="mt-1 text-xs text-gray-500">
                   Select the reporting manager for this user (required for leave approvals)

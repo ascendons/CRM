@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { LeaveTypeBalance } from '@/lib/api/leaves';
+import { LeaveTypeBalance } from "@/lib/api/leaves";
 
 interface LeaveBalanceCardProps {
   leaveType: string;
@@ -10,34 +10,34 @@ interface LeaveBalanceCardProps {
 export function LeaveBalanceCard({ leaveType, balance }: LeaveBalanceCardProps) {
   const getLeaveTypeName = (type: string) => {
     const typeNames: { [key: string]: string } = {
-      'SICK': 'Sick Leave',
-      'CASUAL': 'Casual Leave',
-      'EARNED': 'Earned Leave',
-      'PAID': 'Paid Leave',
-      'UNPAID': 'Unpaid Leave',
-      'MATERNITY': 'Maternity Leave',
-      'PATERNITY': 'Paternity Leave',
-      'COMPENSATORY': 'Comp Off',
-      'BEREAVEMENT': 'Bereavement Leave',
-      'MARRIAGE': 'Marriage Leave'
+      SICK: "Sick Leave",
+      CASUAL: "Casual Leave",
+      EARNED: "Earned Leave",
+      PAID: "Paid Leave",
+      UNPAID: "Unpaid Leave",
+      MATERNITY: "Maternity Leave",
+      PATERNITY: "Paternity Leave",
+      COMPENSATORY: "Comp Off",
+      BEREAVEMENT: "Bereavement Leave",
+      MARRIAGE: "Marriage Leave",
     };
     return typeNames[type] || type;
   };
 
   const getColor = (type: string) => {
     const colors: { [key: string]: string } = {
-      'SICK': 'blue',
-      'CASUAL': 'green',
-      'EARNED': 'purple',
-      'PAID': 'indigo',
-      'UNPAID': 'gray',
-      'MATERNITY': 'pink',
-      'PATERNITY': 'cyan',
-      'COMPENSATORY': 'orange',
-      'BEREAVEMENT': 'red',
-      'MARRIAGE': 'rose'
+      SICK: "blue",
+      CASUAL: "green",
+      EARNED: "purple",
+      PAID: "indigo",
+      UNPAID: "gray",
+      MATERNITY: "pink",
+      PATERNITY: "cyan",
+      COMPENSATORY: "orange",
+      BEREAVEMENT: "red",
+      MARRIAGE: "rose",
     };
-    return colors[type] || 'blue';
+    return colors[type] || "blue";
   };
 
   const color = getColor(leaveType);
@@ -47,19 +47,13 @@ export function LeaveBalanceCard({ leaveType, balance }: LeaveBalanceCardProps) 
     <div className="bg-white rounded-xl shadow p-6">
       <div className="flex justify-between items-start mb-4">
         <div>
-          <h3 className="text-lg font-semibold text-gray-900">
-            {getLeaveTypeName(leaveType)}
-          </h3>
+          <h3 className="text-lg font-semibold text-gray-900">{getLeaveTypeName(leaveType)}</h3>
           {balance.isCarryForward && balance.carriedForward > 0 && (
-            <p className="text-sm text-gray-500 mt-1">
-              +{balance.carriedForward} carried forward
-            </p>
+            <p className="text-sm text-gray-500 mt-1">+{balance.carriedForward} carried forward</p>
           )}
         </div>
         <div className="text-right">
-          <p className={`text-3xl font-bold text-${color}-600`}>
-            {balance.available}
-          </p>
+          <p className={`text-3xl font-bold text-${color}-600`}>{balance.available}</p>
           <p className="text-sm text-gray-500">Available</p>
         </div>
       </div>

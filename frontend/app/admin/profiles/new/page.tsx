@@ -1,17 +1,30 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { profilesService } from '@/lib/profiles';
-import type { ObjectPermission, SystemPermissions, CreateProfileRequest } from '@/types/profile';
-import { AdminRoute } from '@/components/AdminRoute';
-import { ArrowLeft, Plus } from 'lucide-react';
-import { toast } from 'react-hot-toast';
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { profilesService } from "@/lib/profiles";
+import type { ObjectPermission, SystemPermissions, CreateProfileRequest } from "@/types/profile";
+import { AdminRoute } from "@/components/AdminRoute";
+import { ArrowLeft, Plus } from "lucide-react";
+import { toast } from "react-hot-toast";
 
 // Available objects in the system
 const AVAILABLE_OBJECTS = [
-  'USER', 'ROLE', 'PROFILE', 'LEAD', 'OPPORTUNITY', 'CONTACT', 'ACCOUNT',
-  'ACTIVITY', 'PROPOSAL', 'PRODUCT', 'ATTENDANCE', 'SHIFT', 'LEAVE', 'HOLIDAY', 'LOCATION'
+  "USER",
+  "ROLE",
+  "PROFILE",
+  "LEAD",
+  "OPPORTUNITY",
+  "CONTACT",
+  "ACCOUNT",
+  "ACTIVITY",
+  "PROPOSAL",
+  "PRODUCT",
+  "ATTENDANCE",
+  "SHIFT",
+  "LEAVE",
+  "HOLIDAY",
+  "LOCATION",
 ];
 
 export default function NewProfilePage() {
@@ -27,8 +40,8 @@ function NewProfileContent() {
   const [saving, setSaving] = useState(false);
 
   // Form state
-  const [profileName, setProfileName] = useState('');
-  const [description, setDescription] = useState('');
+  const [profileName, setProfileName] = useState("");
+  const [description, setDescription] = useState("");
   const [objectPermissions, setObjectPermissions] = useState<ObjectPermission[]>(
     AVAILABLE_OBJECTS.map((obj) => ({
       objectName: obj,
@@ -59,9 +72,7 @@ function NewProfileContent() {
     value: boolean
   ) => {
     setObjectPermissions((prev) =>
-      prev.map((perm) =>
-        perm.objectName === objectName ? { ...perm, [field]: value } : perm
-      )
+      prev.map((perm) => (perm.objectName === objectName ? { ...perm, [field]: value } : perm))
     );
   };
 
@@ -94,7 +105,7 @@ function NewProfileContent() {
     e.preventDefault();
 
     if (!profileName.trim()) {
-      toast.error('Profile name is required');
+      toast.error("Profile name is required");
       return;
     }
 
@@ -108,11 +119,11 @@ function NewProfileContent() {
       };
 
       const response = await profilesService.createProfile(request);
-      toast.success('Profile created successfully');
+      toast.success("Profile created successfully");
       router.push(`/admin/profiles/${response.id}`);
     } catch (error: any) {
-      console.error('Failed to create profile:', error);
-      toast.error(error.message || 'Failed to create profile');
+      console.error("Failed to create profile:", error);
+      toast.error(error.message || "Failed to create profile");
     } finally {
       setSaving(false);
     }
@@ -141,7 +152,7 @@ function NewProfileContent() {
           className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
         >
           <Plus className="h-4 w-4 mr-2" />
-          {saving ? 'Creating...' : 'Create Profile'}
+          {saving ? "Creating..." : "Create Profile"}
         </button>
       </div>
 
@@ -150,9 +161,7 @@ function NewProfileContent() {
         <h2 className="text-lg font-semibold text-gray-900 mb-4">Basic Information</h2>
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Profile Name *
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Profile Name *</label>
             <input
               type="text"
               value={profileName}
@@ -163,9 +172,7 @@ function NewProfileContent() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Description
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
@@ -187,14 +194,30 @@ function NewProfileContent() {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Object</th>
-                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Create</th>
-                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Read</th>
-                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Edit</th>
-                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Delete</th>
-                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">View All</th>
-                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Modify All</th>
-                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">All</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  Object
+                </th>
+                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">
+                  Create
+                </th>
+                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">
+                  Read
+                </th>
+                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">
+                  Edit
+                </th>
+                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">
+                  Delete
+                </th>
+                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">
+                  View All
+                </th>
+                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">
+                  Modify All
+                </th>
+                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">
+                  All
+                </th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
@@ -209,13 +232,19 @@ function NewProfileContent() {
 
                 return (
                   <tr key={perm.objectName} className="hover:bg-gray-50">
-                    <td className="px-4 py-3 text-sm font-medium text-gray-900">{perm.objectName}</td>
+                    <td className="px-4 py-3 text-sm font-medium text-gray-900">
+                      {perm.objectName}
+                    </td>
                     <td className="px-4 py-3 text-center">
                       <input
                         type="checkbox"
                         checked={perm.canCreate}
                         onChange={(e) =>
-                          handleObjectPermissionChange(perm.objectName, 'canCreate', e.target.checked)
+                          handleObjectPermissionChange(
+                            perm.objectName,
+                            "canCreate",
+                            e.target.checked
+                          )
                         }
                         className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
                       />
@@ -225,7 +254,7 @@ function NewProfileContent() {
                         type="checkbox"
                         checked={perm.canRead}
                         onChange={(e) =>
-                          handleObjectPermissionChange(perm.objectName, 'canRead', e.target.checked)
+                          handleObjectPermissionChange(perm.objectName, "canRead", e.target.checked)
                         }
                         className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
                       />
@@ -235,7 +264,7 @@ function NewProfileContent() {
                         type="checkbox"
                         checked={perm.canEdit}
                         onChange={(e) =>
-                          handleObjectPermissionChange(perm.objectName, 'canEdit', e.target.checked)
+                          handleObjectPermissionChange(perm.objectName, "canEdit", e.target.checked)
                         }
                         className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
                       />
@@ -245,7 +274,11 @@ function NewProfileContent() {
                         type="checkbox"
                         checked={perm.canDelete}
                         onChange={(e) =>
-                          handleObjectPermissionChange(perm.objectName, 'canDelete', e.target.checked)
+                          handleObjectPermissionChange(
+                            perm.objectName,
+                            "canDelete",
+                            e.target.checked
+                          )
                         }
                         className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
                       />
@@ -255,7 +288,11 @@ function NewProfileContent() {
                         type="checkbox"
                         checked={perm.canViewAll}
                         onChange={(e) =>
-                          handleObjectPermissionChange(perm.objectName, 'canViewAll', e.target.checked)
+                          handleObjectPermissionChange(
+                            perm.objectName,
+                            "canViewAll",
+                            e.target.checked
+                          )
                         }
                         className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
                       />
@@ -265,7 +302,11 @@ function NewProfileContent() {
                         type="checkbox"
                         checked={perm.canModifyAll}
                         onChange={(e) =>
-                          handleObjectPermissionChange(perm.objectName, 'canModifyAll', e.target.checked)
+                          handleObjectPermissionChange(
+                            perm.objectName,
+                            "canModifyAll",
+                            e.target.checked
+                          )
                         }
                         className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
                       />
@@ -289,9 +330,7 @@ function NewProfileContent() {
       {/* System Permissions */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">System Permissions</h2>
-        <p className="text-sm text-gray-600 mb-4">
-          Configure system-level capabilities and access
-        </p>
+        <p className="text-sm text-gray-600 mb-4">Configure system-level capabilities and access</p>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
             <label htmlFor="canAccessAPI" className="text-sm text-gray-700">
@@ -301,7 +340,7 @@ function NewProfileContent() {
               type="checkbox"
               id="canAccessAPI"
               checked={systemPermissions.canAccessAPI}
-              onChange={(e) => handleSystemPermissionChange('canAccessAPI', e.target.checked)}
+              onChange={(e) => handleSystemPermissionChange("canAccessAPI", e.target.checked)}
               className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
             />
           </div>
@@ -316,7 +355,7 @@ function NewProfileContent() {
                 id="apiRateLimit"
                 value={systemPermissions.apiRateLimit}
                 onChange={(e) =>
-                  handleSystemPermissionChange('apiRateLimit', parseInt(e.target.value) || 100)
+                  handleSystemPermissionChange("apiRateLimit", parseInt(e.target.value) || 100)
                 }
                 min="1"
                 max="10000"
@@ -333,9 +372,7 @@ function NewProfileContent() {
               type="checkbox"
               id="canAccessMobileApp"
               checked={systemPermissions.canAccessMobileApp}
-              onChange={(e) =>
-                handleSystemPermissionChange('canAccessMobileApp', e.target.checked)
-              }
+              onChange={(e) => handleSystemPermissionChange("canAccessMobileApp", e.target.checked)}
               className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
             />
           </div>
@@ -348,7 +385,7 @@ function NewProfileContent() {
               type="checkbox"
               id="canAccessReports"
               checked={systemPermissions.canAccessReports}
-              onChange={(e) => handleSystemPermissionChange('canAccessReports', e.target.checked)}
+              onChange={(e) => handleSystemPermissionChange("canAccessReports", e.target.checked)}
               className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
             />
           </div>
@@ -362,7 +399,7 @@ function NewProfileContent() {
               id="canAccessDashboards"
               checked={systemPermissions.canAccessDashboards}
               onChange={(e) =>
-                handleSystemPermissionChange('canAccessDashboards', e.target.checked)
+                handleSystemPermissionChange("canAccessDashboards", e.target.checked)
               }
               className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
             />
@@ -376,7 +413,7 @@ function NewProfileContent() {
               type="checkbox"
               id="canBulkUpdate"
               checked={systemPermissions.canBulkUpdate}
-              onChange={(e) => handleSystemPermissionChange('canBulkUpdate', e.target.checked)}
+              onChange={(e) => handleSystemPermissionChange("canBulkUpdate", e.target.checked)}
               className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
             />
           </div>
@@ -389,7 +426,7 @@ function NewProfileContent() {
               type="checkbox"
               id="canBulkDelete"
               checked={systemPermissions.canBulkDelete}
-              onChange={(e) => handleSystemPermissionChange('canBulkDelete', e.target.checked)}
+              onChange={(e) => handleSystemPermissionChange("canBulkDelete", e.target.checked)}
               className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
             />
           </div>
@@ -402,7 +439,7 @@ function NewProfileContent() {
               type="checkbox"
               id="canMassEmail"
               checked={systemPermissions.canMassEmail}
-              onChange={(e) => handleSystemPermissionChange('canMassEmail', e.target.checked)}
+              onChange={(e) => handleSystemPermissionChange("canMassEmail", e.target.checked)}
               className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
             />
           </div>
@@ -416,7 +453,7 @@ function NewProfileContent() {
               id="canBypassValidation"
               checked={systemPermissions.canBypassValidation}
               onChange={(e) =>
-                handleSystemPermissionChange('canBypassValidation', e.target.checked)
+                handleSystemPermissionChange("canBypassValidation", e.target.checked)
               }
               className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
             />
@@ -430,7 +467,7 @@ function NewProfileContent() {
               type="checkbox"
               id="canRunApex"
               checked={systemPermissions.canRunApex}
-              onChange={(e) => handleSystemPermissionChange('canRunApex', e.target.checked)}
+              onChange={(e) => handleSystemPermissionChange("canRunApex", e.target.checked)}
               className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
             />
           </div>
@@ -451,7 +488,7 @@ function NewProfileContent() {
           disabled={saving}
           className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
         >
-          {saving ? 'Creating...' : 'Create Profile'}
+          {saving ? "Creating..." : "Create Profile"}
         </button>
       </div>
     </form>
