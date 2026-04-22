@@ -345,6 +345,149 @@ public class RoleMigrationService {
                 modified = true;
             }
 
+            boolean projectsExists = modules.stream()
+                    .anyMatch(m -> m.getModuleName().equalsIgnoreCase("PROJECTS"));
+            if (!projectsExists) {
+                modules.add(Role.ModulePermission.builder()
+                        .moduleName("PROJECTS")
+                        .displayName("Project Management")
+                        .canAccess(true)
+                        .includedPaths(Arrays.asList("/projects/**", "/timesheets/**"))
+                        .description("Manage projects, tasks, time tracking, and workload")
+                        .build());
+                modified = true;
+            }
+
+            boolean kbExists = modules.stream()
+                    .anyMatch(m -> m.getModuleName().equalsIgnoreCase("KNOWLEDGE_BASE"));
+            if (!kbExists) {
+                modules.add(Role.ModulePermission.builder()
+                        .moduleName("KNOWLEDGE_BASE")
+                        .displayName("Knowledge Base")
+                        .canAccess(true)
+                        .includedPaths(Arrays.asList("/knowledge-base/**"))
+                        .description("Internal knowledge base and documentation")
+                        .build());
+                modified = true;
+            }
+
+            boolean webFormsExists = modules.stream()
+                    .anyMatch(m -> m.getModuleName().equalsIgnoreCase("WEB_FORMS"));
+            if (!webFormsExists) {
+                modules.add(Role.ModulePermission.builder()
+                        .moduleName("WEB_FORMS")
+                        .displayName("Web Forms & Landing Pages")
+                        .canAccess(true)
+                        .includedPaths(Arrays.asList("/marketing/**"))
+                        .description("Web form and landing page builder for lead capture")
+                        .build());
+                modified = true;
+            }
+
+            boolean performanceExists = modules.stream()
+                    .anyMatch(m -> m.getModuleName().equalsIgnoreCase("PERFORMANCE_REVIEWS"));
+            if (!performanceExists) {
+                modules.add(Role.ModulePermission.builder()
+                        .moduleName("PERFORMANCE_REVIEWS")
+                        .displayName("Performance Reviews & OKRs")
+                        .canAccess(true)
+                        .includedPaths(Arrays.asList("/hr/performance/**", "/hr/okrs/**"))
+                        .description("Performance review cycles, competency ratings, and OKR tracking")
+                        .build());
+                modified = true;
+            }
+
+            boolean onboardingExists = modules.stream()
+                    .anyMatch(m -> m.getModuleName().equalsIgnoreCase("ONBOARDING"));
+            if (!onboardingExists) {
+                modules.add(Role.ModulePermission.builder()
+                        .moduleName("ONBOARDING")
+                        .displayName("Employee Onboarding")
+                        .canAccess(true)
+                        .includedPaths(Arrays.asList("/hr/onboarding/**"))
+                        .description("Employee onboarding and offboarding workflows")
+                        .build());
+                modified = true;
+            }
+
+            boolean driveExists = modules.stream()
+                    .anyMatch(m -> m.getModuleName().equalsIgnoreCase("DRIVE"));
+            if (!driveExists) {
+                modules.add(Role.ModulePermission.builder()
+                        .moduleName("DRIVE")
+                        .displayName("Document Drive")
+                        .canAccess(true)
+                        .includedPaths(Arrays.asList("/drive/**"))
+                        .description("Document storage and collaboration")
+                        .build());
+                modified = true;
+            }
+
+            boolean feedExists = modules.stream()
+                    .anyMatch(m -> m.getModuleName().equalsIgnoreCase("FEED"));
+            if (!feedExists) {
+                modules.add(Role.ModulePermission.builder()
+                        .moduleName("FEED")
+                        .displayName("Activity Feed")
+                        .canAccess(true)
+                        .includedPaths(Arrays.asList("/feed/**"))
+                        .description("Company activity feed and announcements")
+                        .build());
+                modified = true;
+            }
+
+            boolean surveysExists = modules.stream()
+                    .anyMatch(m -> m.getModuleName().equalsIgnoreCase("SURVEYS"));
+            if (!surveysExists) {
+                modules.add(Role.ModulePermission.builder()
+                        .moduleName("SURVEYS")
+                        .displayName("Surveys & Polls")
+                        .canAccess(true)
+                        .includedPaths(Arrays.asList("/surveys/**"))
+                        .description("Create and manage employee surveys and polls")
+                        .build());
+                modified = true;
+            }
+
+            boolean reportsExists = modules.stream()
+                    .anyMatch(m -> m.getModuleName().equalsIgnoreCase("REPORTS"));
+            if (!reportsExists) {
+                modules.add(Role.ModulePermission.builder()
+                        .moduleName("REPORTS")
+                        .displayName("Custom Reports")
+                        .canAccess(true)
+                        .includedPaths(Arrays.asList("/reports/**"))
+                        .description("Custom report builder and saved reports")
+                        .build());
+                modified = true;
+            }
+
+            boolean esignExists = modules.stream()
+                    .anyMatch(m -> m.getModuleName().equalsIgnoreCase("ESIGNATURE"));
+            if (!esignExists) {
+                modules.add(Role.ModulePermission.builder()
+                        .moduleName("ESIGNATURE")
+                        .displayName("E-Signature")
+                        .canAccess(true)
+                        .includedPaths(Arrays.asList("/esignature/**"))
+                        .description("Electronic signature requests for documents")
+                        .build());
+                modified = true;
+            }
+
+            boolean aiExists = modules.stream()
+                    .anyMatch(m -> m.getModuleName().equalsIgnoreCase("AI_COPILOT"));
+            if (!aiExists) {
+                modules.add(Role.ModulePermission.builder()
+                        .moduleName("AI_COPILOT")
+                        .displayName("AI CoPilot")
+                        .canAccess(true)
+                        .includedPaths(Arrays.asList("/ai/**"))
+                        .description("AI-powered suggestions and automation")
+                        .build());
+                modified = true;
+            }
+
             if (modified) {
                 roleRepository.save(role);
                 patchCount++;

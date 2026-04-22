@@ -14,4 +14,6 @@ public interface DealerOrderRepository extends MongoRepository<DealerOrder, Stri
     List<DealerOrder> findByTenantIdAndStatusAndIsDeletedFalse(String tenantId, String status);
 
     List<DealerOrder> findByTenantIdAndIsDeletedFalse(String tenantId);
+
+    List<DealerOrder> findByIsDeletedFalse();
 }

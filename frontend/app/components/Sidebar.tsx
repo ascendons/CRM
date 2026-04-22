@@ -150,6 +150,7 @@ export default function Sidebar({ isMobileOpen, onMobileClose, isCollapsed, onTo
         { href: "/service-requests", label: "Service Requests", icon: "support_agent", module: "FIELD_SERVICE" },
         { href: "/work-orders", label: "Work Orders", icon: "engineering", module: "FIELD_SERVICE" },
         { href: "/dispatch", label: "Dispatch Board", icon: "route", module: "FIELD_SERVICE" },
+        { href: "/dispatch/map", label: "Field Map", icon: "location_on", module: "FIELD_SERVICE" },
         { href: "/skill-matrix", label: "Skill Matrix", icon: "psychology", module: "FIELD_SERVICE" },
         { href: "/parts-requests", label: "Parts Requests", icon: "category", module: "FIELD_SERVICE" },
       ],
@@ -161,6 +162,28 @@ export default function Sidebar({ isMobileOpen, onMobileClose, isCollapsed, onTo
         { href: "/procurement/rfq", label: "RFQ", icon: "request_quote", module: "PROCUREMENT" },
         { href: "/procurement/grn", label: "GRN", icon: "receipt_long", module: "PROCUREMENT" },
         { href: "/procurement/rate-contracts", label: "Rate Contracts", icon: "handshake", module: "PROCUREMENT" },
+        { href: "/procurement/purchase-orders", label: "PO Approval", icon: "approval", module: "PROCUREMENT" },
+      ],
+    },
+    {
+      title: "Project Management",
+      items: [
+        { href: "/projects", label: "Projects", icon: "folder", module: "PROJECTS" },
+        { href: "/timesheets", label: "Timesheets", icon: "timer", module: "PROJECTS" },
+        { href: "/projects/workload", label: "Workload", icon: "people", module: "PROJECTS" },
+      ],
+    },
+    {
+      title: "Knowledge Base",
+      items: [
+        { href: "/knowledge-base", label: "Knowledge Base", icon: "menu_book", module: "KNOWLEDGE_BASE" },
+      ],
+    },
+    {
+      title: "Marketing",
+      items: [
+        { href: "/marketing/forms", label: "Web Forms", icon: "dynamic_form", module: "WEB_FORMS" },
+        { href: "/marketing/landing-pages", label: "Landing Pages", icon: "web", module: "WEB_FORMS" },
       ],
     },
     {
@@ -172,6 +195,7 @@ export default function Sidebar({ isMobileOpen, onMobileClose, isCollapsed, onTo
     {
       title: "Administration",
       items: [
+        { href: "/admin/engineers", label: "Engineers", icon: "badge", module: "ADMINISTRATION" },
         { href: "/admin", label: "Admin Panel", icon: "admin_panel_settings", module: "ADMINISTRATION" },
         { href: "/admin/settings", label: "Settings", icon: "settings", module: "ADMINISTRATION" },
         { href: "/admin/settings/escalation", label: "Escalation Rules", icon: "warning", module: "ADMINISTRATION" },

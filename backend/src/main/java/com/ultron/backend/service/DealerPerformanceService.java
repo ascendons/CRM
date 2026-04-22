@@ -43,7 +43,7 @@ public class DealerPerformanceService extends BaseTenantService {
         int month = now.getMonthValue() == 1 ? 12 : now.getMonthValue() - 1;
         int year = now.getMonthValue() == 1 ? now.getYear() - 1 : now.getYear();
 
-        List<DealerOrder> allOrders = dealerOrderRepository.findAll();
+        List<DealerOrder> allOrders = dealerOrderRepository.findByIsDeletedFalse();
 
         Map<String, List<DealerOrder>> byDealer = allOrders.stream()
                 .filter(o -> !o.isDeleted() && o.getPlacedAt() != null

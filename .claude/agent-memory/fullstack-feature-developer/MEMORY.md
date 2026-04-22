@@ -120,3 +120,14 @@ String formatted = DateTimeUtil.formatDateTime(now);
 - User entity has timezone field defaulting to "Asia/Kolkata"
 - MongoDB stores dates as UTC but conversions handle IST
 - Consistent date format across application: DD/MM/YYYY for Indian users
+
+## Feature Module Index (P1-P6 implemented 2026-04-21)
+
+- [Architecture & Conventions](architecture.md) — Stack, key paths, ID gen, SecurityConfig
+- [RBAC Migration Pattern](rbac-migration.md) — How to add new modules to ProfileMigrationService + RoleMigrationService
+
+### Implemented Modules
+- **PROJECTS** (P1+P2): entities Project, ProjectTask, TaskComment, TimeEntry; controllers /projects, /project-tasks, /time-entries
+- **KNOWLEDGE_BASE** (P3): entities KbCategory, KbArticle; controller /kb
+- **WEB_FORMS** (P6): entities WebForm, WebFormSubmission, LandingPage; controllers /forms, /landing-pages
+- Public endpoints added to SecurityConfig: `/forms/*/submit`, `/landing-pages/public/**`

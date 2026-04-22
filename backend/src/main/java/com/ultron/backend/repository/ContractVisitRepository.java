@@ -15,4 +15,6 @@ public interface ContractVisitRepository extends MongoRepository<ContractVisit, 
     List<ContractVisit> findByTenantIdAndStatus(String tenantId, ContractVisitStatus status);
 
     List<ContractVisit> findByTenantIdAndEngineerId(String tenantId, String engineerId);
+
+    List<ContractVisit> findByStatusAndWorkOrderIdIsNull(ContractVisitStatus status);
 }

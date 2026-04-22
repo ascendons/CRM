@@ -35,11 +35,11 @@ public class ContractVisitScheduler {
         log.info("Running contract visit scheduler");
         LocalDate today = LocalDate.now();
 
-        List<ContractVisit> scheduled = visitRepository.findAll().stream()
-                .filter(v -> v.getStatus() == ContractVisitStatus.SCHEDULED
-                        && v.getWorkOrderId() == null
-                        && v.getScheduledDate() != null
-                        && !v.getScheduledDate().isAfter(today))
+        List<ContractVisit> scheduled = visitRepository
+                .findByStatusAndWorkOrderIdIsNull(ContractVisitStatus.SCHEDULED).stream()
+                .filter(v -> v.getScheduledDate() != null
+                        && !v.getScheduledDate().isAfter(today)
+                        && v.getTenantId() != null)
                 .toList();
 
         for (ContractVisit visit : scheduled) {

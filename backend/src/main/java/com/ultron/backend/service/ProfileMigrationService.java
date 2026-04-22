@@ -518,7 +518,8 @@ public class ProfileMigrationService {
                 "ASSETS", "CONTRACTS", "SERVICE_REQUESTS", "WORK_ORDERS",
                 "DISPATCH", "SKILL_MATRIX", "PARTS_REQUEST",
                 "VENDORS", "PROCUREMENT", "DEALERS",
-                "SERVICE_ANALYTICS", "ESCALATION", "PURCHASE_ORDER"
+                "SERVICE_ANALYTICS", "ESCALATION", "PURCHASE_ORDER",
+                "PROJECTS", "KNOWLEDGE_BASE", "WEB_FORMS"
         );
 
         for (Profile profile : allProfiles) {
