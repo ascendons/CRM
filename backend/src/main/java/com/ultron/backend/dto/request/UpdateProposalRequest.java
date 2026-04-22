@@ -34,6 +34,7 @@ public class UpdateProposalRequest {
     private LocalDate validUntil;
 
     private Boolean isTechnicalQuotation;
+    private Boolean showDiscount;
 
     private List<String> approverIds;
 

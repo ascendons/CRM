@@ -41,6 +41,7 @@ public class CreateProposalRequest {
 
     private Boolean isProforma;
     private Boolean isTechnicalQuotation;
+    private Boolean showDiscount;
     private List<String> approverIds;
 
     // Customer Information

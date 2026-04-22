@@ -136,6 +136,8 @@ public class Proposal {
     @Builder.Default
     private Boolean isTechnicalQuotation = false;
     @Builder.Default
+    private Boolean showDiscount = true;
+    @Builder.Default
     private Boolean hasBeenConverted = false;
     private String parentProposalId;
     private BigDecimal parentTaxAmount;

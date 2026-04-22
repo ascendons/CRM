@@ -106,6 +106,7 @@ public class ProposalService extends BaseTenantService {
                 .currentMilestoneIndex(0)
                 .isProforma(request.getIsProforma() != null ? request.getIsProforma() : false)
                 .isTechnicalQuotation(request.getIsTechnicalQuotation() != null ? request.getIsTechnicalQuotation() : false)
+                .showDiscount(request.getShowDiscount() != null ? request.getShowDiscount() : true)
                 .approverIds(request.getApproverIds() != null ? request.getApproverIds() : List.of())
                 .approvedByIds(List.of())
                 .status(ProposalStatus.DRAFT)
@@ -396,6 +397,10 @@ public class ProposalService extends BaseTenantService {
 
         if (request.getIsTechnicalQuotation() != null) {
             proposal.setIsTechnicalQuotation(request.getIsTechnicalQuotation());
+        }
+
+        if (request.getShowDiscount() != null) {
+            proposal.setShowDiscount(request.getShowDiscount());
         }
 
         // Update audit fields
@@ -1438,6 +1443,7 @@ public class ProposalService extends BaseTenantService {
                 .currentMilestoneIndex(proposal.getCurrentMilestoneIndex())
                 .isProforma(Boolean.TRUE.equals(proposal.getIsProforma()))
                 .isTechnicalQuotation(Boolean.TRUE.equals(proposal.getIsTechnicalQuotation()))
+                .showDiscount(proposal.getShowDiscount() == null || Boolean.TRUE.equals(proposal.getShowDiscount()))
                 .hasBeenConverted(Boolean.TRUE.equals(proposal.getHasBeenConverted()))
                 .parentProposalId(proposal.getParentProposalId())
                 .parentTaxAmount(proposal.getParentTaxAmount())

@@ -267,7 +267,7 @@ public class LeadController {
      * POST /api/v1/leads/{id}/assign
      */
     @PostMapping("/{id}/assign")
-    @PreAuthorize("hasPermission('LEAD', 'EDIT')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<LeadResponse>> assignLead(
             @PathVariable String id,
             @Valid @RequestBody AssignLeadRequest request) {
