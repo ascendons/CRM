@@ -60,7 +60,7 @@ export default function LeadsPage() {
   const [leadToAssign, setLeadToAssign] = useState<Lead | null>(null);
 
   const currentUser = authService.getUser();
-  const canAssignLeads = currentUser?.role === "ADMIN" || currentUser?.role === "admin";
+  const canAssignLeads = currentUser?.role === "ADMIN";
 
   const statistics = useMemo(
     () => ({

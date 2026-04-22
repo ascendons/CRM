@@ -207,6 +207,7 @@ export interface CreateProposalRequest {
   notes?: string;
   isProforma?: boolean;
   isTechnicalQuotation?: boolean;
+  showDiscount?: boolean;
   approverIds?: string[];
 }
 
@@ -231,6 +232,7 @@ export interface UpdateProposalRequest {
   notes?: string;
   isProforma?: boolean;
   isTechnicalQuotation?: boolean;
+  showDiscount?: boolean;
   approverIds?: string[];
 }
 

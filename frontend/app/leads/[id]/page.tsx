@@ -48,8 +48,7 @@ export default function LeadDetailPage() {
   const [newStatus, setNewStatus] = useState<LeadStatus>(LeadStatus.NEW);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showAssignModal, setShowAssignModal] = useState(false);
-  const canAssignLeads =
-    authService.getUser()?.role === "ADMIN" || authService.getUser()?.role === "admin";
+  const canAssignLeads = authService.getUser()?.role === "ADMIN";
   const [proposals, setProposals] = useState<ProposalResponse[]>([]);
   const [proposalsLoading, setProposalsLoading] = useState(false);
 
