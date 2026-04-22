@@ -109,6 +109,6 @@ export const leadsService = {
    * Get lead statistics
    */
   async getStatistics(): Promise<LeadStatistics> {
-    return await api.get<LeadStatistics>("/leads/stats");
+    return await api.get<LeadStatistics>("/leads/personalstats");
   },
 };
