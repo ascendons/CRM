@@ -1019,7 +1019,7 @@ export default function ProposalDetailPage() {
                           <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">
                             Unit Price
                           </th>
-                          {!proposal.isTechnicalQuotation && (
+                          {!proposal.isTechnicalQuotation && proposal.showDiscount !== false && (
                             <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">
                               Discount
                             </th>
@@ -1064,13 +1064,14 @@ export default function ProposalDetailPage() {
                               <td className="px-4 py-4 text-right text-sm text-gray-900">
                                 {formatCurrency(item.unitPrice)}
                               </td>
-                              {!proposal.isTechnicalQuotation && (
-                                <td className="px-4 py-4 text-right text-sm text-gray-900">
-                                  {item.lineDiscountAmount > 0
-                                    ? formatCurrency(item.lineDiscountAmount)
-                                    : "-"}
-                                </td>
-                              )}
+                              {!proposal.isTechnicalQuotation &&
+                                proposal.showDiscount !== false && (
+                                  <td className="px-4 py-4 text-right text-sm text-gray-900">
+                                    {item.lineDiscountAmount > 0
+                                      ? formatCurrency(item.lineDiscountAmount)
+                                      : "-"}
+                                  </td>
+                                )}
                               <td className="px-4 py-4 text-right text-sm text-gray-900">
                                 {formatCurrency(item.lineTaxAmount)}
                                 <span className="text-gray-500 ml-1">({item.taxRate}%)</span>

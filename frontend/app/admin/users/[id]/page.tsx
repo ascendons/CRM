@@ -2,6 +2,7 @@
 
 import { use, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { Trash2 } from "lucide-react";
 import { usersService } from "@/lib/users";
 import { authService } from "@/lib/auth";
 import { showToast } from "@/lib/toast";
@@ -20,6 +21,9 @@ export default function UserDetailPage({ params }: { params: Promise<{ id: strin
   const [showDeactivateModal, setShowDeactivateModal] = useState(false);
   const [deactivateReason, setDeactivateReason] = useState("");
   const [isDeactivating, setIsDeactivating] = useState(false);
+
+  // Delete modal
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   useEffect(() => {
     if (!authService.isAuthenticated()) {
@@ -63,6 +67,17 @@ export default function UserDetailPage({ params }: { params: Promise<{ id: strin
       showToast.error(errorMessage);
     } finally {
       setIsDeactivating(false);
+    }
+  };
+
+  const handleDeleteUser = async () => {
+    if (!user) return;
+    try {
+      await usersService.deleteUser(user.id);
+      showToast.success("User deleted successfully");
+      router.push("/admin/users");
+    } catch (err) {
+      showToast.error(err instanceof Error ? err.message : "Failed to delete user");
     }
   };
 
@@ -188,6 +203,13 @@ export default function UserDetailPage({ params }: { params: Promise<{ id: strin
               </button>
             )}
             <button
+              onClick={() => setShowDeleteModal(true)}
+              className="px-4 py-2 bg-red-700 text-white rounded-lg hover:bg-red-800 transition-colors flex items-center gap-2"
+            >
+              <Trash2 className="w-4 h-4" />
+              Delete
+            </button>
+            <button
               onClick={() => router.push("/admin/users")}
               className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
             >
@@ -304,6 +326,18 @@ export default function UserDetailPage({ params }: { params: Promise<{ id: strin
             </dl>
           </DetailSection>
         </div>
+
+        {/* Delete Modal */}
+        <ConfirmModal
+          isOpen={showDeleteModal}
+          title="Delete User"
+          message={`Are you sure you want to permanently delete ${getUserDisplayName(user)}? This action cannot be undone.`}
+          confirmLabel="Delete User"
+          cancelLabel="Cancel"
+          confirmButtonClass="bg-red-700 hover:bg-red-800"
+          onConfirm={handleDeleteUser}
+          onCancel={() => setShowDeleteModal(false)}
+        />
 
         {/* Deactivate Modal */}
         <ConfirmModal

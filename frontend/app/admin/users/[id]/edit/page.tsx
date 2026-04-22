@@ -2,6 +2,7 @@
 
 import { use, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { ChevronLeft } from "lucide-react";
 import { usersService } from "@/lib/users";
 import { rolesService } from "@/lib/roles";
 import { profilesService } from "@/lib/profiles";
@@ -193,6 +194,12 @@ export default function EditUserPage({ params }: { params: Promise<{ id: string 
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
+          <button
+            onClick={() => router.back()}
+            className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-900 mb-6"
+          >
+            <ChevronLeft className="w-4 h-4" /> Back
+          </button>
           <h1 className="text-3xl font-bold text-gray-900">Edit User</h1>
           <p className="mt-2 text-gray-600">
             Update information for {user.profile.fullName} (@{user.username})

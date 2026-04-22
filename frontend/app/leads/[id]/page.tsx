@@ -24,6 +24,7 @@ import ConfirmModal from "@/components/ConfirmModal";
 import { AssignLeadModal } from "@/components/leads/AssignLeadModal";
 import { UserPlus, MessageSquare, FileText, CheckSquare } from "lucide-react";
 import { useLeadStatusChange } from "@/hooks/useLeadStatusChange";
+import { authService } from "@/lib/auth";
 import { LogActivityModal } from "@/components/leads/LogActivityModal";
 import { EntityActivities } from "@/components/common/EntityActivities";
 import { activitiesService } from "@/lib/activities";
@@ -47,6 +48,8 @@ export default function LeadDetailPage() {
   const [newStatus, setNewStatus] = useState<LeadStatus>(LeadStatus.NEW);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showAssignModal, setShowAssignModal] = useState(false);
+  const canAssignLeads =
+    authService.getUser()?.role === "ADMIN" || authService.getUser()?.role === "admin";
   const [proposals, setProposals] = useState<ProposalResponse[]>([]);
   const [proposalsLoading, setProposalsLoading] = useState(false);
 
@@ -689,14 +692,16 @@ export default function LeadDetailPage() {
             <div className="bg-white rounded-lg shadow p-6">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-semibold text-gray-900">Assigned To</h2>
-                <button
-                  onClick={() => setShowAssignModal(true)}
-                  className="text-blue-600 hover:text-blue-700 text-sm font-medium inline-flex items-center gap-1"
-                  title={lead.assignedUserName ? "Reassign lead" : "Assign lead"}
-                >
-                  <UserPlus className="h-4 w-4" />
-                  {lead.assignedUserName ? "Reassign" : "Assign"}
-                </button>
+                {canAssignLeads && (
+                  <button
+                    onClick={() => setShowAssignModal(true)}
+                    className="text-blue-600 hover:text-blue-700 text-sm font-medium inline-flex items-center gap-1"
+                    title={lead.assignedUserName ? "Reassign lead" : "Assign lead"}
+                  >
+                    <UserPlus className="h-4 w-4" />
+                    {lead.assignedUserName ? "Reassign" : "Assign"}
+                  </button>
+                )}
               </div>
               {lead.assignedUserName ? (
                 <div className="space-y-3">
@@ -723,12 +728,14 @@ export default function LeadDetailPage() {
                     <UserPlus className="h-6 w-6 text-gray-400" />
                   </div>
                   <p className="text-sm text-gray-500 mb-3">No sales person assigned</p>
-                  <button
-                    onClick={() => setShowAssignModal(true)}
-                    className="text-sm text-blue-600 hover:text-blue-700 font-medium"
-                  >
-                    Assign Now
-                  </button>
+                  {canAssignLeads && (
+                    <button
+                      onClick={() => setShowAssignModal(true)}
+                      className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+                    >
+                      Assign Now
+                    </button>
+                  )}
                 </div>
               )}
             </div>

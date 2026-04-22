@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { leadsService } from "@/lib/leads";
 import { authService } from "@/lib/auth";
-import { Lead, LeadStatus, LeadStatistics, formatLeadName } from "@/types/lead";
+import { Lead, LeadStatus, formatLeadName } from "@/types/lead";
 import { EmptyState } from "@/components/EmptyState";
 import ConfirmModal from "@/components/ConfirmModal";
 import { showToast } from "@/lib/toast";
@@ -36,7 +36,6 @@ export default function LeadsPage() {
   const router = useRouter();
   const [leads, setLeads] = useState<Lead[]>([]);
   const [filteredLeads, setFilteredLeads] = useState<Lead[]>([]);
-  const [statistics, setStatistics] = useState<LeadStatistics | null>(null);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<LeadStatus[]>([]);
@@ -60,6 +59,20 @@ export default function LeadsPage() {
   const [showAssignModal, setShowAssignModal] = useState(false);
   const [leadToAssign, setLeadToAssign] = useState<Lead | null>(null);
 
+  const currentUser = authService.getUser();
+  const canAssignLeads = currentUser?.role === "ADMIN" || currentUser?.role === "admin";
+
+  const statistics = useMemo(
+    () => ({
+      totalLeads: leads.length,
+      newLeads: leads.filter((l) => l.leadStatus === LeadStatus.NEW).length,
+      contactedLeads: leads.filter((l) => l.leadStatus === LeadStatus.CONTACTED).length,
+      qualifiedLeads: leads.filter((l) => l.leadStatus === LeadStatus.QUALIFIED).length,
+      convertedLeads: leads.filter((l) => l.leadStatus === LeadStatus.CONVERTED).length,
+    }),
+    [leads]
+  );
+
   useEffect(() => {
     if (!authService.isAuthenticated()) {
       router.push("/login");
@@ -67,7 +80,6 @@ export default function LeadsPage() {
     }
 
     loadLeads();
-    loadStatistics();
   }, [router]);
 
   const filterLeads = useCallback(() => {
@@ -106,15 +118,6 @@ export default function LeadsPage() {
       setError(err instanceof Error ? err.message : "Failed to load leads");
     } finally {
       setLoading(false);
-    }
-  };
-
-  const loadStatistics = async () => {
-    try {
-      const stats = await leadsService.getStatistics();
-      setStatistics(stats);
-    } catch (err) {
-      console.error("Failed to load statistics:", err);
     }
   };
 
@@ -210,7 +213,6 @@ export default function LeadsPage() {
       setShowBulkDeleteModal(false);
       setSelectedLeads([]);
       await loadLeads();
-      await loadStatistics();
     } catch {
       showToast.error("Failed to delete some leads. Please try again.");
     } finally {
@@ -298,7 +300,7 @@ export default function LeadsPage() {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6 animate-fade-in-up">
         {/* Statistics Cards */}
-        {statistics && (
+        {leads.length >= 0 && (
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
             <StatCard
               icon={Briefcase}
@@ -550,15 +552,17 @@ export default function LeadsPage() {
                                 <span className="text-sm text-slate-700">
                                   {lead.assignedUserName}
                                 </span>
-                                <button
-                                  onClick={(e) => handleAssignClick(lead, e)}
-                                  className="ml-1 p-1 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
-                                  title="Reassign lead"
-                                >
-                                  <UserPlus className="h-3.5 w-3.5" />
-                                </button>
+                                {canAssignLeads && (
+                                  <button
+                                    onClick={(e) => handleAssignClick(lead, e)}
+                                    className="ml-1 p-1 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                                    title="Reassign lead"
+                                  >
+                                    <UserPlus className="h-3.5 w-3.5" />
+                                  </button>
+                                )}
                               </div>
-                            ) : (
+                            ) : canAssignLeads ? (
                               <button
                                 onClick={(e) => handleAssignClick(lead, e)}
                                 className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors"
@@ -566,6 +570,8 @@ export default function LeadsPage() {
                                 <UserPlus className="h-3.5 w-3.5" />
                                 Assign
                               </button>
+                            ) : (
+                              <span className="text-xs text-slate-400">Unassigned</span>
                             )}
                           </td>
                           <td className="px-6 py-4 text-xs text-slate-500 ">
@@ -646,7 +652,6 @@ export default function LeadsPage() {
             filter={statusFilter}
             onStatusChange={() => {
               loadLeads();
-              loadStatistics();
               router.refresh();
             }}
           />

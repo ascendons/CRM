@@ -318,41 +318,56 @@ const InvoicePreview = forwardRef<HTMLDivElement, InvoicePreviewProps>(
               </tr>
             </thead>
             <tbody className="text-[11px]">
-              {displayItems.map((item, index) => (
-                <tr
-                  key={index}
-                  className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors"
-                >
-                  <td className="py-3 px-1 text-center text-gray-400 italic">
-                    {String(index + 1).padStart(2, "0")}
-                  </td>
-                  <td className="py-3 px-6">
-                    <div className="text-gray-900 tracking-tight text-sm mb-0.5">
-                      {item.productName}
-                    </div>
-                    {item.description && (
-                      <div className="text-[10px] text-gray-400 font-medium leading-relaxed max-w-sm">
-                        {item.description}
+              {displayItems.map((item, index) => {
+                const hideDiscount =
+                  proposal.showDiscount === false || proposal.isTechnicalQuotation;
+                // When hiding discount, fold the discount into the unit price
+                const lineDiscount = item.lineDiscountAmount || 0;
+                const effectiveLineAmount =
+                  hideDiscount && lineDiscount > 0
+                    ? item.unitPrice * item.quantity - lineDiscount
+                    : (item.lineSubtotal ?? item.unitPrice * item.quantity);
+                const effectiveUnitPrice =
+                  hideDiscount && lineDiscount > 0
+                    ? effectiveLineAmount / item.quantity
+                    : item.unitPrice;
+
+                return (
+                  <tr
+                    key={index}
+                    className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors"
+                  >
+                    <td className="py-3 px-1 text-center text-gray-400 italic">
+                      {String(index + 1).padStart(2, "0")}
+                    </td>
+                    <td className="py-3 px-6">
+                      <div className="text-gray-900 tracking-tight text-sm mb-0.5">
+                        {item.productName}
                       </div>
-                    )}
-                  </td>
-                  <td className="py-3 px-6 text-center text-gray-900 font-mono">
-                    {item.hsnCode || "-"}
-                  </td>
-                  <td className="py-3 px-6 text-center text-gray-900">
-                    <span>{item.quantity}</span>
-                    {item.unit && (
-                      <span className="text-[9px] text-gray-700 uppercase ml-1">{item.unit}</span>
-                    )}
-                  </td>
-                  <td className="py-3 px-6 text-right tabular-nums text-gray-900">
-                    {formatNumber(item.unitPrice)}
-                  </td>
-                  <td className="py-3 px-6 text-right tabular-nums font-black text-gray-900 text-sm">
-                    {formatNumber(item.lineSubtotal)}
-                  </td>
-                </tr>
-              ))}
+                      {item.description && (
+                        <div className="text-[10px] text-gray-400 font-medium leading-relaxed max-w-sm">
+                          {item.description}
+                        </div>
+                      )}
+                    </td>
+                    <td className="py-3 px-6 text-center text-gray-900 font-mono">
+                      {item.hsnCode || "-"}
+                    </td>
+                    <td className="py-3 px-6 text-center text-gray-900">
+                      <span>{item.quantity}</span>
+                      {item.unit && (
+                        <span className="text-[9px] text-gray-700 uppercase ml-1">{item.unit}</span>
+                      )}
+                    </td>
+                    <td className="py-3 px-6 text-right tabular-nums text-gray-900">
+                      {formatNumber(effectiveUnitPrice)}
+                    </td>
+                    <td className="py-3 px-6 text-right tabular-nums font-black text-gray-900 text-sm">
+                      {formatNumber(effectiveLineAmount)}
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
@@ -429,19 +444,24 @@ const InvoicePreview = forwardRef<HTMLDivElement, InvoicePreviewProps>(
                   Subtotal (Excl. Tax)
                 </span>
                 <span className="font-black text-gray-900">
-                  {formatCurrency(proposal.subtotal)}
+                  {(proposal.showDiscount === false || proposal.isTechnicalQuotation) &&
+                  (proposal.discountAmount || 0) > 0
+                    ? formatCurrency((proposal.subtotal || 0) - (proposal.discountAmount || 0))
+                    : formatCurrency(proposal.subtotal)}
                 </span>
               </div>
-              {proposal.discountAmount > 0 && (
-                <div className="flex justify-between items-center text-sm">
-                  <span className="font-bold text-red-400 uppercase tracking-widest text-[10px]">
-                    Discount
-                  </span>
-                  <span className="font-black text-red-600">
-                    -{formatCurrency(proposal.discountAmount)}
-                  </span>
-                </div>
-              )}
+              {proposal.discountAmount > 0 &&
+                proposal.showDiscount !== false &&
+                !proposal.isTechnicalQuotation && (
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="font-bold text-red-400 uppercase tracking-widest text-[10px]">
+                      Discount
+                    </span>
+                    <span className="font-black text-red-600">
+                      -{formatCurrency(proposal.discountAmount)}
+                    </span>
+                  </div>
+                )}
               {(() => {
                 const computedTax = proposal.isProforma
                   ? proposal.lineItems?.reduce((sum, item) => {

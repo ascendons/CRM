@@ -128,6 +128,7 @@ export interface ProposalResponse {
   // Proforma status
   isProforma?: boolean;
   isTechnicalQuotation?: boolean;
+  showDiscount?: boolean;
   hasBeenConverted?: boolean;
 
   // Approval Flow

@@ -85,7 +85,7 @@ export function AssignLeadModal({
     try {
       await leadAssignmentService.assignLead(leadId, { userId: selectedUserId });
       toast.success("Lead assigned successfully");
-      onSuccess?.();
+      await onSuccess?.();
       onClose();
     } catch (error: any) {
       console.error("Failed to assign lead:", error);

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { showToast } from "@/lib/toast";
 import { useDynamicCatalog } from "@/hooks/useDynamicCatalog";
 import {
   Upload,
@@ -105,6 +106,13 @@ export default function UploadPage() {
         selectedFields.length > 0 ? selectedFields : undefined
       );
       setResult(uploadResult);
+      const count = uploadResult?.totalProducts;
+      if (count != null) {
+        showToast.success(`Successfully imported ${count} products`);
+      } else {
+        showToast.success("Products imported successfully!");
+      }
+      router.push("/catalog");
     } catch (error) {
       console.error("Upload failed:", error);
     } finally {

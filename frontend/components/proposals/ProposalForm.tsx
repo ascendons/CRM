@@ -92,6 +92,9 @@ export default function ProposalForm({
   const [isTechnicalQuotation, setIsTechnicalQuotation] = useState<boolean>(
     (initialData as any)?.isTechnicalQuotation ?? false
   );
+  const [showDiscount, setShowDiscount] = useState<boolean>(
+    initialData?.showDiscount !== undefined ? initialData.showDiscount : true
+  );
   const [source, setSource] = useState<ProposalSource>(
     initialData?.source || sourceType || ProposalSource.LEAD
   );
@@ -511,6 +514,7 @@ export default function ProposalForm({
           notes: notes.trim() || undefined,
           isProforma,
           isTechnicalQuotation,
+          showDiscount,
           approverIds: approverIds.length > 0 ? approverIds : undefined,
         };
 
@@ -563,6 +567,7 @@ export default function ProposalForm({
           notes: notes.trim() || undefined,
           isProforma,
           isTechnicalQuotation,
+          showDiscount,
           approverIds: approverIds.length > 0 ? approverIds : undefined,
         };
 
@@ -665,7 +670,7 @@ export default function ProposalForm({
           }
         >
           <div className="space-y-4">
-            {/* Document Type */}
+            {/* Document Type — create only */}
             {mode === "create" && (
               <div>
                 <label className={labelCls}>Document Type</label>
@@ -704,6 +709,36 @@ export default function ProposalForm({
                 {isTechnicalQuotation && (
                   <p className="mt-1 text-xs text-purple-600">
                     Technical Quotation hides MRP and discount — shows only final prices.
+                  </p>
+                )}
+              </div>
+            )}
+
+            {/* Discount Display Toggle — available in both create and edit */}
+            {!isTechnicalQuotation && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Discount Display
+                </label>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowDiscount(true)}
+                    className={`flex-1 py-2 px-3 text-sm border rounded-lg font-medium transition-colors ${showDiscount ? "bg-green-600 text-white border-green-600" : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"}`}
+                  >
+                    Show Discount
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowDiscount(false)}
+                    className={`flex-1 py-2 px-3 text-sm border rounded-lg font-medium transition-colors ${!showDiscount ? "bg-orange-500 text-white border-orange-500" : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"}`}
+                  >
+                    Hide Discount (apply internally)
+                  </button>
+                </div>
+                {!showDiscount && (
+                  <p className="mt-1 text-xs text-orange-600">
+                    Discount is applied internally. Customer sees only the final unit price.
                   </p>
                 )}
               </div>
