@@ -1222,14 +1222,14 @@ export default function ProposalForm({
         <div className="space-y-4">
           {/* Column headers — px-3 matches the card's inner padding so labels align with inputs */}
           <div className="hidden lg:flex gap-2 px-3 mb-1 text-xs font-medium text-gray-400 uppercase tracking-wide">
-            <div className="flex-1 min-w-0">Product / Service</div>
-            <div className="w-32 flex-shrink-0">Qty</div>
-            <div className="w-16 flex-shrink-0">Unit</div>
-            <div className="w-24 flex-shrink-0">HSN</div>
-            <div className="w-36 flex-shrink-0">Unit Price (₹)</div>
-            <div className="w-36 flex-shrink-0">Discount</div>
-            <div className="w-24 flex-shrink-0">Disc. Val</div>
-            <div className="w-44 flex-shrink-0 text-right">Total (₹)</div>
+            <div className="flex-[3] min-w-0">Product / Service</div>
+            <div className="w-20 flex-shrink-0">Qty</div>
+            <div className="w-14 flex-shrink-0">Unit</div>
+            <div className="w-20 flex-shrink-0">HSN</div>
+            <div className="w-28 flex-shrink-0">Unit Price (₹)</div>
+            <div className="w-28 flex-shrink-0">Discount</div>
+            <div className="w-20 flex-shrink-0">Disc. Val</div>
+            <div className="w-32 flex-shrink-0 text-right">Total (₹)</div>
             <div className="w-8 flex-shrink-0" />
             <div className="w-8 flex-shrink-0" />
           </div>
@@ -1322,7 +1322,7 @@ export default function ProposalForm({
                 </div>
 
                 {/* Qty */}
-                <div className="w-32 flex-shrink-0">
+                <div className="w-20 flex-shrink-0">
                   <input
                     value={item.quantity ?? ""}
                     onChange={(e) => {
@@ -1346,7 +1346,7 @@ export default function ProposalForm({
                 </div>
 
                 {/* Unit */}
-                <div className="w-16 flex-shrink-0">
+                <div className="w-14 flex-shrink-0">
                   <input
                     value={item.unit || ""}
                     onChange={(e) => {
@@ -1365,7 +1365,7 @@ export default function ProposalForm({
                 </div>
 
                 {/* HSN Code */}
-                <div className="w-24 flex-shrink-0">
+                <div className="w-20 flex-shrink-0">
                   <input
                     value={item.hsnCode || ""}
                     onChange={(e) => {
@@ -1384,7 +1384,7 @@ export default function ProposalForm({
                 </div>
 
                 {/* Unit Price */}
-                <div className="w-36 flex-shrink-0">
+                <div className="w-28 flex-shrink-0">
                   <input
                     value={item.unitPrice || ""}
                     onChange={(e) => {
@@ -1406,7 +1406,7 @@ export default function ProposalForm({
                 </div>
 
                 {/* Discount Type */}
-                <div className="w-36 flex-shrink-0">
+                <div className="w-28 flex-shrink-0">
                   <select
                     value={item.discountType || ""}
                     onChange={(e) =>
@@ -1422,7 +1422,7 @@ export default function ProposalForm({
                 </div>
 
                 {/* Discount Value */}
-                <div className="w-24 flex-shrink-0">
+                <div className="w-20 flex-shrink-0">
                   <input
                     value={item.discountValue || ""}
                     onChange={(e) => {
@@ -1446,7 +1446,7 @@ export default function ProposalForm({
                 </div>
 
                 {/* Line Item Total */}
-                <div className="w-44 flex-shrink-0">
+                <div className="w-32 flex-shrink-0">
                   <div className="w-full px-4 py-2 bg-gray-100 border border-gray-200 rounded-lg text-sm font-semibold text-gray-700 text-right whitespace-normal break-all min-h-[40px]">
                     {(() => {
                       const qty = item.quantity || 0;
