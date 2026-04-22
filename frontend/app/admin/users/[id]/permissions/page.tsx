@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
-import { permissionsApi, EffectivePermissionsResponse } from '@/lib/api/permissions';
-import { ModuleSection } from '@/components/permissions/ModuleSection';
-import { ArrowLeft, RefreshCw, Search, Shield, User } from 'lucide-react';
-import { toast } from 'react-hot-toast';
+import { useEffect, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { permissionsApi, EffectivePermissionsResponse } from "@/lib/api/permissions";
+import { ModuleSection } from "@/components/permissions/ModuleSection";
+import { ArrowLeft, RefreshCw, Search, Shield, User } from "lucide-react";
+import { toast } from "react-hot-toast";
 
 export default function UserPermissionsPage() {
   const params = useParams();
@@ -15,7 +15,7 @@ export default function UserPermissionsPage() {
   const [permissions, setPermissions] = useState<EffectivePermissionsResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     loadPermissions();
@@ -27,8 +27,8 @@ export default function UserPermissionsPage() {
       const data = await permissionsApi.getEffectivePermissions(userId);
       setPermissions(data);
     } catch (error: any) {
-      console.error('Failed to load permissions:', error);
-      toast.error(error.message || 'Failed to load permissions');
+      console.error("Failed to load permissions:", error);
+      toast.error(error.message || "Failed to load permissions");
     } finally {
       setLoading(false);
     }
@@ -38,7 +38,7 @@ export default function UserPermissionsPage() {
     setRefreshing(true);
     await loadPermissions();
     setRefreshing(false);
-    toast.success('Permissions refreshed');
+    toast.success("Permissions refreshed");
   };
 
   const handleGrant = async (objectName: string, action: string, reason?: string) => {
@@ -46,12 +46,12 @@ export default function UserPermissionsPage() {
       await permissionsApi.grantPermission(userId, {
         objectName,
         action,
-        reason
+        reason,
       });
       toast.success(`Granted ${action} on ${objectName}`);
       await loadPermissions();
     } catch (error: any) {
-      toast.error(error.message || 'Failed to grant permission');
+      toast.error(error.message || "Failed to grant permission");
       throw error;
     }
   };
@@ -61,27 +61,26 @@ export default function UserPermissionsPage() {
       await permissionsApi.revokePermission(userId, {
         objectName,
         action,
-        reason
+        reason,
       });
       toast.success(`Revoked ${action} on ${objectName}`);
       await loadPermissions();
     } catch (error: any) {
-      toast.error(error.message || 'Failed to revoke permission');
+      toast.error(error.message || "Failed to revoke permission");
       throw error;
     }
   };
 
   // Filter modules based on search query
-  const filteredModules = permissions?.modules.filter(module => {
+  const filteredModules = permissions?.modules.filter((module) => {
     if (!searchQuery) return true;
     const query = searchQuery.toLowerCase();
     return (
       module.displayName.toLowerCase().includes(query) ||
-      module.objects.some(obj =>
-        obj.displayName.toLowerCase().includes(query) ||
-        Object.keys(obj.permissions).some(action =>
-          action.toLowerCase().includes(query)
-        )
+      module.objects.some(
+        (obj) =>
+          obj.displayName.toLowerCase().includes(query) ||
+          Object.keys(obj.permissions).some((action) => action.toLowerCase().includes(query))
       )
     );
   });
@@ -124,9 +123,7 @@ export default function UserPermissionsPage() {
           <div>
             <div className="flex items-center gap-3">
               <User className="h-6 w-6 text-gray-400" />
-              <h1 className="text-2xl font-bold text-gray-900">
-                User Permissions
-              </h1>
+              <h1 className="text-2xl font-bold text-gray-900">User Permissions</h1>
             </div>
             <p className="text-gray-600 mt-1">
               {permissions.userName} ({permissions.userEmail})
@@ -139,7 +136,7 @@ export default function UserPermissionsPage() {
           disabled={refreshing}
           className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
         >
-          <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
+          <RefreshCw className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`} />
           Refresh
         </button>
       </div>
@@ -228,24 +225,16 @@ export default function UserPermissionsPage() {
                 className="flex items-center justify-between py-2 px-3 bg-gray-50 rounded-lg"
               >
                 <div>
-                  <span className="font-semibold text-gray-900">
-                    {override.action}
-                  </span>
+                  <span className="font-semibold text-gray-900">{override.action}</span>
                   <span className="text-gray-500 mx-2">on</span>
-                  <span className="font-semibold text-gray-900">
-                    {override.objectName}
-                  </span>
+                  <span className="font-semibold text-gray-900">{override.objectName}</span>
                   {override.reason && (
-                    <p className="text-xs text-gray-500 mt-1">
-                      Reason: {override.reason}
-                    </p>
+                    <p className="text-xs text-gray-500 mt-1">Reason: {override.reason}</p>
                   )}
                 </div>
                 <div className="text-right text-xs text-gray-500">
                   <p>By: {override.grantedByName}</p>
-                  {override.grantedAt && (
-                    <p>{new Date(override.grantedAt).toLocaleDateString()}</p>
-                  )}
+                  {override.grantedAt && <p>{new Date(override.grantedAt).toLocaleDateString()}</p>}
                 </div>
               </div>
             ))}

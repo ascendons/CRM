@@ -30,7 +30,7 @@ export default function NewProductPage() {
       minStockLevel: data.minStockLevel,
       maxStockLevel: data.maxStockLevel,
       reorderLevel: data.reorderLevel,
-      // isActive is not in CreateProductRequest based on backend DTO view? 
+      // isActive is not in CreateProductRequest based on backend DTO view?
       // Let's check DTO. The DTO view showed earlier didn't have isActive/status in CreateProductRequest.
       // Wait, CreateProductRequest showed in step 778:
       // private String sku;

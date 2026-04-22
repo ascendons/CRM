@@ -197,7 +197,10 @@ export default function NewProductPage() {
 
               <div className="space-y-2">
                 <Label htmlFor="currency">Currency</Label>
-                <Select value={formData.currency} onValueChange={(value) => handleChange("currency", value)}>
+                <Select
+                  value={formData.currency}
+                  onValueChange={(value) => handleChange("currency", value)}
+                >
                   <SelectTrigger id="currency">
                     <SelectValue />
                   </SelectTrigger>
@@ -213,7 +216,10 @@ export default function NewProductPage() {
                 <Label htmlFor="unit">
                   Unit <span className="text-red-500">*</span>
                 </Label>
-                <Select value={formData.unit} onValueChange={(value) => handleChange("unit", value)}>
+                <Select
+                  value={formData.unit}
+                  onValueChange={(value) => handleChange("unit", value)}
+                >
                   <SelectTrigger id="unit">
                     <SelectValue />
                   </SelectTrigger>
@@ -252,7 +258,10 @@ export default function NewProductPage() {
                 <Label htmlFor="taxType">
                   Tax Type <span className="text-red-500">*</span>
                 </Label>
-                <Select value={formData.taxType} onValueChange={(value) => handleChange("taxType", value)}>
+                <Select
+                  value={formData.taxType}
+                  onValueChange={(value) => handleChange("taxType", value)}
+                >
                   <SelectTrigger id="taxType">
                     <SelectValue />
                   </SelectTrigger>
@@ -319,7 +328,10 @@ export default function NewProductPage() {
                   placeholder="100"
                   value={formData.stockQuantity || ""}
                   onChange={(e) =>
-                    handleChange("stockQuantity", e.target.value ? parseInt(e.target.value) : undefined)
+                    handleChange(
+                      "stockQuantity",
+                      e.target.value ? parseInt(e.target.value) : undefined
+                    )
                   }
                 />
               </div>
@@ -333,7 +345,10 @@ export default function NewProductPage() {
                   placeholder="10"
                   value={formData.minStockLevel || ""}
                   onChange={(e) =>
-                    handleChange("minStockLevel", e.target.value ? parseInt(e.target.value) : undefined)
+                    handleChange(
+                      "minStockLevel",
+                      e.target.value ? parseInt(e.target.value) : undefined
+                    )
                   }
                 />
               </div>
@@ -347,7 +362,10 @@ export default function NewProductPage() {
                   placeholder="1000"
                   value={formData.maxStockLevel || ""}
                   onChange={(e) =>
-                    handleChange("maxStockLevel", e.target.value ? parseInt(e.target.value) : undefined)
+                    handleChange(
+                      "maxStockLevel",
+                      e.target.value ? parseInt(e.target.value) : undefined
+                    )
                   }
                 />
               </div>

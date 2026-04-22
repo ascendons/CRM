@@ -1,15 +1,24 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import Link from 'next/link';
-import { attendanceApi } from '@/lib/api/attendance';
-import { CheckInButton } from '@/components/attendance/CheckInButton';
-import { CheckOutButton } from '@/components/attendance/CheckOutButton';
-import { AttendanceStatusBadge } from '@/components/attendance/AttendanceStatusBadge';
-import AttendanceCalendar from '@/components/attendance/AttendanceCalendar';
-import { usePermissionContext } from '@/providers/PermissionProvider';
-import { toast } from 'react-hot-toast';
-import { CalendarClock, Users, User, Clock, CheckCircle2, XCircle, Coffee, MapPin } from 'lucide-react';
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { attendanceApi } from "@/lib/api/attendance";
+import { CheckInButton } from "@/components/attendance/CheckInButton";
+import { CheckOutButton } from "@/components/attendance/CheckOutButton";
+import { AttendanceStatusBadge } from "@/components/attendance/AttendanceStatusBadge";
+import AttendanceCalendar from "@/components/attendance/AttendanceCalendar";
+import { usePermissionContext } from "@/providers/PermissionProvider";
+import { toast } from "react-hot-toast";
+import {
+  CalendarClock,
+  Users,
+  User,
+  Clock,
+  CheckCircle2,
+  XCircle,
+  Coffee,
+  MapPin,
+} from "lucide-react";
 
 interface Attendance {
   id: string;
@@ -44,11 +53,11 @@ interface TeamAttendance {
   checkInAddress?: string;
 }
 
-type TabType = 'my-attendance' | 'team-attendance';
+type TabType = "my-attendance" | "team-attendance";
 
 export default function AttendancePage() {
   const { hasPermission } = usePermissionContext();
-  const [activeTab, setActiveTab] = useState<TabType>('my-attendance');
+  const [activeTab, setActiveTab] = useState<TabType>("my-attendance");
   const [todayAttendance, setTodayAttendance] = useState<Attendance | null>(null);
   const [teamAttendance, setTeamAttendance] = useState<TeamAttendance[]>([]);
   const [loading, setLoading] = useState(true);
@@ -57,7 +66,7 @@ export default function AttendancePage() {
   const [attendanceRecords, setAttendanceRecords] = useState<any[]>([]);
   const [calendarLoading, setCalendarLoading] = useState(false);
 
-  const isAdmin = hasPermission('ATTENDANCE', 'VIEWALL');
+  const isAdmin = hasPermission("ATTENDANCE", "VIEWALL");
 
   const loadTodayAttendance = async () => {
     try {
@@ -66,7 +75,7 @@ export default function AttendancePage() {
         setTodayAttendance(response.data);
       }
     } catch (error) {
-      console.error('Failed to load attendance:', error);
+      console.error("Failed to load attendance:", error);
     } finally {
       setLoading(false);
     }
@@ -75,14 +84,14 @@ export default function AttendancePage() {
   const loadTeamAttendance = async () => {
     try {
       setTeamLoading(true);
-      const today = new Date().toISOString().split('T')[0];
+      const today = new Date().toISOString().split("T")[0];
       const response = await attendanceApi.getDetailedDailyAttendance(today);
 
       // The new endpoint returns data directly in the format we need
       setTeamAttendance(Array.isArray(response) ? response : []);
     } catch (error) {
-      console.error('Failed to load team attendance:', error);
-      toast.error('Failed to load team attendance');
+      console.error("Failed to load team attendance:", error);
+      toast.error("Failed to load team attendance");
       setTeamAttendance([]);
     } finally {
       setTeamLoading(false);
@@ -98,8 +107,8 @@ export default function AttendancePage() {
       const startDate = new Date(year, month - 1, 1);
       const endDate = new Date(year, month, 0);
 
-      const startDateStr = startDate.toISOString().split('T')[0];
-      const endDateStr = endDate.toISOString().split('T')[0];
+      const startDateStr = startDate.toISOString().split("T")[0];
+      const endDateStr = endDate.toISOString().split("T")[0];
 
       const data = await attendanceApi.getMyHistory(startDateStr, endDateStr);
 
@@ -109,12 +118,12 @@ export default function AttendancePage() {
           status: record.status,
           checkInTime: record.checkInTime,
           checkOutTime: record.checkOutTime,
-          workMinutes: record.totalWorkMinutes
+          workMinutes: record.totalWorkMinutes,
         }));
         setAttendanceRecords(records);
       }
     } catch (error) {
-      console.error('Failed to load month attendance:', error);
+      console.error("Failed to load month attendance:", error);
       setAttendanceRecords([]);
     } finally {
       setCalendarLoading(false);
@@ -131,21 +140,21 @@ export default function AttendancePage() {
   }, [currentDate]);
 
   useEffect(() => {
-    if (activeTab === 'team-attendance' && isAdmin) {
+    if (activeTab === "team-attendance" && isAdmin) {
       loadTeamAttendance();
     }
   }, [activeTab, isAdmin]);
 
   const formatTime = (dateTime?: string) => {
-    if (!dateTime) return '-';
-    return new Date(dateTime).toLocaleTimeString('en-US', {
-      hour: '2-digit',
-      minute: '2-digit'
+    if (!dateTime) return "-";
+    return new Date(dateTime).toLocaleTimeString("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
   const formatDuration = (minutes?: number) => {
-    if (!minutes) return '-';
+    if (!minutes) return "-";
     const hours = Math.floor(minutes / 60);
     const mins = minutes % 60;
     return `${hours}h ${mins}m`;
@@ -153,14 +162,14 @@ export default function AttendancePage() {
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'PRESENT':
-      case 'CHECKED_IN':
+      case "PRESENT":
+      case "CHECKED_IN":
         return <CheckCircle2 className="h-5 w-5 text-green-600" />;
-      case 'ABSENT':
+      case "ABSENT":
         return <XCircle className="h-5 w-5 text-red-600" />;
-      case 'ON_LEAVE':
+      case "ON_LEAVE":
         return <Coffee className="h-5 w-5 text-blue-600" />;
-      case 'LATE':
+      case "LATE":
         return <Clock className="h-5 w-5 text-yellow-600" />;
       default:
         return <Clock className="h-5 w-5 text-gray-400" />;
@@ -185,11 +194,11 @@ export default function AttendancePage() {
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Attendance</h1>
           <p className="text-gray-600 mt-1">
-            {new Date().toLocaleDateString('en-US', {
-              weekday: 'long',
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric'
+            {new Date().toLocaleDateString("en-US", {
+              weekday: "long",
+              year: "numeric",
+              month: "long",
+              day: "numeric",
             })}
           </p>
         </div>
@@ -205,11 +214,11 @@ export default function AttendancePage() {
       {/* Tabs */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-1 flex gap-1">
         <button
-          onClick={() => setActiveTab('my-attendance')}
+          onClick={() => setActiveTab("my-attendance")}
           className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-semibold transition-all ${
-            activeTab === 'my-attendance'
-              ? 'bg-blue-600 text-white shadow-md'
-              : 'text-gray-600 hover:bg-gray-50'
+            activeTab === "my-attendance"
+              ? "bg-blue-600 text-white shadow-md"
+              : "text-gray-600 hover:bg-gray-50"
           }`}
         >
           <User className="h-5 w-5" />
@@ -217,11 +226,11 @@ export default function AttendancePage() {
         </button>
         {isAdmin && (
           <button
-            onClick={() => setActiveTab('team-attendance')}
+            onClick={() => setActiveTab("team-attendance")}
             className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-semibold transition-all ${
-              activeTab === 'team-attendance'
-                ? 'bg-blue-600 text-white shadow-md'
-                : 'text-gray-600 hover:bg-gray-50'
+              activeTab === "team-attendance"
+                ? "bg-blue-600 text-white shadow-md"
+                : "text-gray-600 hover:bg-gray-50"
             }`}
           >
             <Users className="h-5 w-5" />
@@ -234,7 +243,7 @@ export default function AttendancePage() {
       </div>
 
       {/* Content */}
-      {activeTab === 'my-attendance' ? (
+      {activeTab === "my-attendance" ? (
         <>
           {/* Main Action Card */}
           <div className="bg-white rounded-2xl shadow-lg p-8">
@@ -245,7 +254,9 @@ export default function AttendancePage() {
                 </div>
                 <div>
                   <h2 className="text-2xl font-bold text-gray-900">Good Morning!</h2>
-                  <p className="text-gray-600 mt-2">Ready to start your day? Check in to mark your attendance.</p>
+                  <p className="text-gray-600 mt-2">
+                    Ready to start your day? Check in to mark your attendance.
+                  </p>
                 </div>
                 <div className="max-w-md mx-auto">
                   <CheckInButton onSuccess={loadTodayAttendance} />
@@ -260,14 +271,18 @@ export default function AttendancePage() {
                     <span className="text-4xl">✅</span>
                   </div>
                   <h2 className="text-2xl font-bold text-gray-900 mt-4">You're Checked In!</h2>
-                  <p className="text-gray-600 mt-2">Don't forget to check out when you're done for the day.</p>
+                  <p className="text-gray-600 mt-2">
+                    Don't forget to check out when you're done for the day.
+                  </p>
                 </div>
 
                 <div className="bg-gray-50 rounded-xl p-6 space-y-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <p className="text-sm text-gray-600">Check-in Time</p>
-                      <p className="text-lg font-semibold text-gray-900">{formatTime(todayAttendance.checkInTime)}</p>
+                      <p className="text-lg font-semibold text-gray-900">
+                        {formatTime(todayAttendance.checkInTime)}
+                      </p>
                     </div>
                     <div>
                       <p className="text-sm text-gray-600">Type</p>
@@ -317,18 +332,24 @@ export default function AttendancePage() {
                 </div>
                 <div>
                   <h2 className="text-2xl font-bold text-gray-900">Day Complete!</h2>
-                  <p className="text-gray-600 mt-2">You've checked out for today. See you tomorrow!</p>
+                  <p className="text-gray-600 mt-2">
+                    You've checked out for today. See you tomorrow!
+                  </p>
                 </div>
 
                 <div className="bg-gray-50 rounded-xl p-6 space-y-4 max-w-md mx-auto">
                   <div className="grid grid-cols-2 gap-4 text-left">
                     <div>
                       <p className="text-sm text-gray-600">Check-in</p>
-                      <p className="text-lg font-semibold text-gray-900">{formatTime(todayAttendance.checkInTime)}</p>
+                      <p className="text-lg font-semibold text-gray-900">
+                        {formatTime(todayAttendance.checkInTime)}
+                      </p>
                     </div>
                     <div>
                       <p className="text-sm text-gray-600">Check-out</p>
-                      <p className="text-lg font-semibold text-gray-900">{formatTime(todayAttendance.checkOutTime)}</p>
+                      <p className="text-lg font-semibold text-gray-900">
+                        {formatTime(todayAttendance.checkOutTime)}
+                      </p>
                     </div>
                     <div>
                       <p className="text-sm text-gray-600">Total Work</p>
@@ -383,7 +404,7 @@ export default function AttendancePage() {
                 month={currentDate.getMonth()}
                 attendanceRecords={attendanceRecords}
                 onDateClick={(date) => {
-                  const record = attendanceRecords.find(r => r.date === date);
+                  const record = attendanceRecords.find((r) => r.date === date);
                   if (record) {
                     toast.success(`${new Date(date).toLocaleDateString()}: ${record.status}`);
                   }
@@ -397,7 +418,9 @@ export default function AttendancePage() {
         <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
           <div className="px-6 py-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white">
             <h2 className="text-xl font-bold">Team Attendance - Today</h2>
-            <p className="text-blue-100 text-sm mt-1">Real-time attendance status of all team members</p>
+            <p className="text-blue-100 text-sm mt-1">
+              Real-time attendance status of all team members
+            </p>
           </div>
 
           {teamLoading ? (
@@ -442,7 +465,9 @@ export default function AttendancePage() {
                     <tr key={index} className="hover:bg-gray-50 transition-colors">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div>
-                          <div className="text-sm font-semibold text-gray-900">{record.userName || 'Unknown'}</div>
+                          <div className="text-sm font-semibold text-gray-900">
+                            {record.userName || "Unknown"}
+                          </div>
                           <div className="text-xs text-gray-500">{record.userEmail}</div>
                           {record.department && (
                             <div className="text-xs text-gray-400">{record.department}</div>
@@ -465,7 +490,9 @@ export default function AttendancePage() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm font-medium text-gray-900">
-                          {record.checkOutTime ? formatTime(record.checkOutTime) : (
+                          {record.checkOutTime ? (
+                            formatTime(record.checkOutTime)
+                          ) : (
                             <span className="inline-flex items-center gap-1 text-green-600">
                               <span className="h-2 w-2 rounded-full bg-green-500 animate-pulse"></span>
                               Active
@@ -479,13 +506,18 @@ export default function AttendancePage() {
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                          record.type === 'OFFICE' ? 'bg-blue-100 text-blue-800' :
-                          record.type === 'REMOTE' ? 'bg-green-100 text-green-800' :
-                          record.type === 'FIELD' ? 'bg-purple-100 text-purple-800' :
-                          'bg-gray-100 text-gray-800'
-                        }`}>
-                          {record.type || 'N/A'}
+                        <span
+                          className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                            record.type === "OFFICE"
+                              ? "bg-blue-100 text-blue-800"
+                              : record.type === "REMOTE"
+                                ? "bg-green-100 text-green-800"
+                                : record.type === "FIELD"
+                                  ? "bg-purple-100 text-purple-800"
+                                  : "bg-gray-100 text-gray-800"
+                          }`}
+                        >
+                          {record.type || "N/A"}
                         </span>
                       </td>
                       <td className="px-6 py-4">
@@ -506,12 +538,16 @@ export default function AttendancePage() {
                                 )}
                               </div>
                               {record.checkInAddress && (
-                                <div className="text-xs text-gray-600 max-w-xs truncate" title={record.checkInAddress}>
+                                <div
+                                  className="text-xs text-gray-600 max-w-xs truncate"
+                                  title={record.checkInAddress}
+                                >
                                   {record.checkInAddress}
                                 </div>
                               )}
                               <div className="text-xs text-gray-400 font-mono">
-                                {record.checkInLatitude.toFixed(6)}, {record.checkInLongitude.toFixed(6)}
+                                {record.checkInLatitude.toFixed(6)},{" "}
+                                {record.checkInLongitude.toFixed(6)}
                               </div>
                             </div>
                           ) : (
@@ -537,25 +573,29 @@ export default function AttendancePage() {
                 <div>
                   <p className="text-xs text-gray-600">Present</p>
                   <p className="text-lg font-bold text-green-600">
-                    {teamAttendance.filter(r => r.status === 'PRESENT' || r.status === 'LATE' || r.checkInTime).length}
+                    {
+                      teamAttendance.filter(
+                        (r) => r.status === "PRESENT" || r.status === "LATE" || r.checkInTime
+                      ).length
+                    }
                   </p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-600">On Leave</p>
                   <p className="text-lg font-bold text-blue-600">
-                    {teamAttendance.filter(r => r.status === 'ON_LEAVE').length}
+                    {teamAttendance.filter((r) => r.status === "ON_LEAVE").length}
                   </p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-600">Absent</p>
                   <p className="text-lg font-bold text-red-600">
-                    {teamAttendance.filter(r => r.status === 'ABSENT').length}
+                    {teamAttendance.filter((r) => r.status === "ABSENT").length}
                   </p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-600">Late</p>
                   <p className="text-lg font-bold text-yellow-600">
-                    {teamAttendance.filter(r => r.status === 'LATE').length}
+                    {teamAttendance.filter((r) => r.status === "LATE").length}
                   </p>
                 </div>
               </div>

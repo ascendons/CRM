@@ -48,7 +48,7 @@ public class LeadAssignmentService {
 
         // Get assignment configuration
         LeadAssignmentConfig config = configRepository.findByTenantId(tenantId)
-                .orElse(null);
+                .stream().findFirst().orElse(null);
 
         // Auto-configure if config is missing or has no eligible roles
         if (config == null || config.getEligibleRoleIds() == null || config.getEligibleRoleIds().isEmpty()) {
@@ -159,7 +159,7 @@ public class LeadAssignmentService {
 
         // Validate user has eligible role
         LeadAssignmentConfig config = configRepository.findByTenantId(tenantId)
-                .orElse(null);
+                .stream().findFirst().orElse(null);
 
         // Auto-configure if config is missing or has no eligible roles
         if (config == null || config.getEligibleRoleIds() == null || config.getEligibleRoleIds().isEmpty()) {
@@ -197,6 +197,7 @@ public class LeadAssignmentService {
         String previousUserId = lead.getAssignedUserId();
         lead.setAssignedUserId(user.getUserId());
         lead.setAssignedUserName(user.getFullName());
+        lead.setLeadOwnerId(user.getId());
         lead.setAssignedAt(LocalDateTime.now());
         lead.setLastModifiedBy(modifiedBy);
         lead.setLastModifiedAt(LocalDateTime.now());

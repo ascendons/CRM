@@ -18,13 +18,13 @@ export const leadsService = {
   async getAllLeads(pagination?: any): Promise<Lead[]> {
     const params = new URLSearchParams();
     if (pagination) {
-      // Add pagination params if needed, but current signature didn't have it. 
+      // Add pagination params if needed, but current signature didn't have it.
       // Keeping it simple to fix the dropdown issue.
     } else {
       params.append("size", "1000");
     }
 
-    // Check if backend treats no-params as "List" or "Page". 
+    // Check if backend treats no-params as "List" or "Page".
     // Safest is to handle "content" property.
     const response = await api.get<any>(`/leads?${params.toString()}`);
 
@@ -94,7 +94,7 @@ export const leadsService = {
    * Mark lead as lost and create CLOSED_LOST opportunity
    */
   async loseLead(id: string, lossReason?: string): Promise<Lead> {
-    const params = lossReason ? `?lossReason=${encodeURIComponent(lossReason)}` : '';
+    const params = lossReason ? `?lossReason=${encodeURIComponent(lossReason)}` : "";
     return await api.post<Lead>(`/leads/${id}/lost${params}`, {});
   },
 
@@ -109,6 +109,6 @@ export const leadsService = {
    * Get lead statistics
    */
   async getStatistics(): Promise<LeadStatistics> {
-    return await api.get<LeadStatistics>("/leads/stats");
+    return await api.get<LeadStatistics>("/leads/personalstats");
   },
 };

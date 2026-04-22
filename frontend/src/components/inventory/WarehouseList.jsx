@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Button,
@@ -21,17 +21,17 @@ import {
   TextField,
   Alert,
   CircularProgress,
-} from '@mui/material';
+} from "@mui/material";
 import {
   Add as AddIcon,
   Edit as EditIcon,
   Delete as DeleteIcon,
   LocationOn as LocationIcon,
   Warehouse as WarehouseIcon,
-} from '@mui/icons-material';
-import inventoryApi from '../../services/inventoryApi';
-import WarehouseForm from './WarehouseForm';
-import StorageLocationDialog from './StorageLocationDialog';
+} from "@mui/icons-material";
+import inventoryApi from "../../services/inventoryApi";
+import WarehouseForm from "./WarehouseForm";
+import StorageLocationDialog from "./StorageLocationDialog";
 
 const WarehouseList = () => {
   const [warehouses, setWarehouses] = useState([]);
@@ -59,13 +59,13 @@ const WarehouseList = () => {
       const response = await inventoryApi.warehouses.getAll({
         page,
         size: rowsPerPage,
-        sort: 'createdAt,desc',
+        sort: "createdAt,desc",
       });
 
       setWarehouses(response.data.content || []);
       setTotalCount(response.data.totalElements || 0);
     } catch (err) {
-      setError('Failed to load warehouses: ' + err.message);
+      setError("Failed to load warehouses: " + err.message);
     } finally {
       setLoading(false);
     }
@@ -93,7 +93,7 @@ const WarehouseList = () => {
       setWarehouseToDelete(null);
       fetchWarehouses();
     } catch (err) {
-      setError('Failed to delete warehouse: ' + err.message);
+      setError("Failed to delete warehouse: " + err.message);
       setDeleteDialogOpen(false);
     }
   };
@@ -144,11 +144,7 @@ const WarehouseList = () => {
             Warehouse Management
           </Typography>
         </Box>
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={handleCreate}
-        >
+        <Button variant="contained" startIcon={<AddIcon />} onClick={handleCreate}>
           Add Warehouse
         </Button>
       </Box>
@@ -186,18 +182,12 @@ const WarehouseList = () => {
                   </TableCell>
                   <TableCell>
                     <Box display="flex" alignItems="center" gap={1}>
-                      {warehouse.isDefault && (
-                        <Chip label="Default" color="primary" size="small" />
-                      )}
+                      {warehouse.isDefault && <Chip label="Default" color="primary" size="small" />}
                       <Typography variant="body2">{warehouse.name}</Typography>
                     </Box>
                   </TableCell>
                   <TableCell>
-                    <Chip
-                      label={warehouse.type}
-                      size="small"
-                      variant="outlined"
-                    />
+                    <Chip label={warehouse.type} size="small" variant="outlined" />
                   </TableCell>
                   <TableCell>
                     <Typography variant="body2" color="text.secondary">
@@ -205,9 +195,7 @@ const WarehouseList = () => {
                     </Typography>
                   </TableCell>
                   <TableCell>
-                    <Typography variant="body2">
-                      {warehouse.managerName || '-'}
-                    </Typography>
+                    <Typography variant="body2">{warehouse.managerName || "-"}</Typography>
                   </TableCell>
                   <TableCell>
                     <Chip
@@ -220,25 +208,19 @@ const WarehouseList = () => {
                   </TableCell>
                   <TableCell>
                     <Chip
-                      label={warehouse.isActive ? 'Active' : 'Inactive'}
-                      color={warehouse.isActive ? 'success' : 'default'}
+                      label={warehouse.isActive ? "Active" : "Inactive"}
+                      color={warehouse.isActive ? "success" : "default"}
                       size="small"
                     />
                   </TableCell>
                   <TableCell align="right">
                     <Tooltip title="Edit">
-                      <IconButton
-                        size="small"
-                        onClick={() => handleEdit(warehouse)}
-                      >
+                      <IconButton size="small" onClick={() => handleEdit(warehouse)}>
                         <EditIcon />
                       </IconButton>
                     </Tooltip>
                     <Tooltip title="Manage Locations">
-                      <IconButton
-                        size="small"
-                        onClick={() => handleManageLocations(warehouse)}
-                      >
+                      <IconButton size="small" onClick={() => handleManageLocations(warehouse)}>
                         <LocationIcon />
                       </IconButton>
                     </Tooltip>
@@ -280,11 +262,7 @@ const WarehouseList = () => {
       </Card>
 
       {/* Warehouse Form Dialog */}
-      <WarehouseForm
-        open={openForm}
-        warehouse={selectedWarehouse}
-        onClose={handleFormClose}
-      />
+      <WarehouseForm open={openForm} warehouse={selectedWarehouse} onClose={handleFormClose} />
 
       {/* Storage Location Dialog */}
       {selectedWarehouse && (
@@ -300,8 +278,8 @@ const WarehouseList = () => {
         <DialogTitle>Confirm Delete</DialogTitle>
         <DialogContent>
           <Typography>
-            Are you sure you want to delete warehouse "{warehouseToDelete?.name}"?
-            This action cannot be undone.
+            Are you sure you want to delete warehouse "{warehouseToDelete?.name}"? This action
+            cannot be undone.
           </Typography>
         </DialogContent>
         <DialogActions>

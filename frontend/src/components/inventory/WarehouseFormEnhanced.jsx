@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -14,61 +14,28 @@ import {
   CircularProgress,
   Box,
   Typography,
-} from '@mui/material';
-import { CheckCircle as SuccessIcon } from '@mui/icons-material';
-import inventoryApi from '../../services/inventoryApi';
-import useFormValidation from '../../hooks/useFormValidation';
-import {
-  required,
-  minLength,
-  maxLength,
-  pattern,
-  compose,
-} from '../../utils/validation';
+} from "@mui/material";
+import { CheckCircle as SuccessIcon } from "@mui/icons-material";
+import inventoryApi from "../../services/inventoryApi";
+import useFormValidation from "../../hooks/useFormValidation";
+import { required, minLength, maxLength, pattern, compose } from "../../utils/validation";
 
-const WAREHOUSE_TYPES = ['MAIN', 'BRANCH', 'VIRTUAL', 'TRANSIT'];
+const WAREHOUSE_TYPES = ["MAIN", "BRANCH", "VIRTUAL", "TRANSIT"];
 
 // Validation rules for warehouse form
 const validationRules = {
-  name: compose(
-    required,
-    minLength(2),
-    maxLength(100)
-  ),
+  name: compose(required, minLength(2), maxLength(100)),
   code: compose(
     minLength(2),
     maxLength(20),
-    pattern(
-      /^[A-Z0-9-]*$/,
-      'Code must contain only uppercase letters, numbers, and hyphens'
-    )
+    pattern(/^[A-Z0-9-]*$/, "Code must contain only uppercase letters, numbers, and hyphens")
   ),
   type: required,
-  'address.line1': compose(
-    required,
-    minLength(5),
-    maxLength(200)
-  ),
-  'address.city': compose(
-    required,
-    minLength(2),
-    maxLength(100)
-  ),
-  'address.state': compose(
-    required,
-    minLength(2),
-    maxLength(100)
-  ),
-  'address.postalCode': compose(
-    required,
-    minLength(3),
-    maxLength(20)
-  ),
-  'address.country': compose(
-    required,
-    minLength(2),
-    maxLength(100)
-  ),
+  "address.line1": compose(required, minLength(5), maxLength(200)),
+  "address.city": compose(required, minLength(2), maxLength(100)),
+  "address.state": compose(required, minLength(2), maxLength(100)),
+  "address.postalCode": compose(required, minLength(3), maxLength(20)),
+  "address.country": compose(required, minLength(2), maxLength(100)),
 };
 
 const WarehouseFormEnhanced = ({ open, warehouse, onClose }) => {
@@ -76,20 +43,20 @@ const WarehouseFormEnhanced = ({ open, warehouse, onClose }) => {
   const [success, setSuccess] = React.useState(false);
 
   const initialValues = {
-    code: '',
-    name: '',
-    type: 'MAIN',
+    code: "",
+    name: "",
+    type: "MAIN",
     address: {
-      line1: '',
-      line2: '',
-      city: '',
-      state: '',
-      country: '',
-      postalCode: '',
-      landmark: '',
+      line1: "",
+      line2: "",
+      city: "",
+      state: "",
+      country: "",
+      postalCode: "",
+      landmark: "",
     },
-    managerId: '',
-    managerName: '',
+    managerId: "",
+    managerName: "",
     isActive: true,
     isDefault: false,
   };
@@ -114,7 +81,7 @@ const WarehouseFormEnhanced = ({ open, warehouse, onClose }) => {
         onClose(true);
       }, 1000);
     } catch (err) {
-      setError(err.response?.data?.message || err.message || 'Failed to save warehouse');
+      setError(err.response?.data?.message || err.message || "Failed to save warehouse");
       throw err; // Re-throw to stop form submission
     }
   };
@@ -137,20 +104,20 @@ const WarehouseFormEnhanced = ({ open, warehouse, onClose }) => {
   useEffect(() => {
     if (warehouse && open) {
       setFormValues({
-        code: warehouse.code || '',
-        name: warehouse.name || '',
-        type: warehouse.type || 'MAIN',
+        code: warehouse.code || "",
+        name: warehouse.name || "",
+        type: warehouse.type || "MAIN",
         address: warehouse.address || {
-          line1: '',
-          line2: '',
-          city: '',
-          state: '',
-          country: '',
-          postalCode: '',
-          landmark: '',
+          line1: "",
+          line2: "",
+          city: "",
+          state: "",
+          country: "",
+          postalCode: "",
+          landmark: "",
         },
-        managerId: warehouse.managerId || '',
-        managerName: warehouse.managerName || '',
+        managerId: warehouse.managerId || "",
+        managerName: warehouse.managerName || "",
         isActive: warehouse.isActive ?? true,
         isDefault: warehouse.isDefault ?? false,
       });
@@ -173,9 +140,7 @@ const WarehouseFormEnhanced = ({ open, warehouse, onClose }) => {
       fullWidth
       disableEscapeKeyDown={isSubmitting}
     >
-      <DialogTitle>
-        {warehouse ? 'Edit Warehouse' : 'Create New Warehouse'}
-      </DialogTitle>
+      <DialogTitle>{warehouse ? "Edit Warehouse" : "Create New Warehouse"}</DialogTitle>
 
       <form onSubmit={handleSubmit}>
         <DialogContent>
@@ -186,12 +151,8 @@ const WarehouseFormEnhanced = ({ open, warehouse, onClose }) => {
           )}
 
           {success && (
-            <Alert
-              severity="success"
-              sx={{ mb: 2 }}
-              icon={<SuccessIcon />}
-            >
-              Warehouse {warehouse ? 'updated' : 'created'} successfully!
+            <Alert severity="success" sx={{ mb: 2 }} icon={<SuccessIcon />}>
+              Warehouse {warehouse ? "updated" : "created"} successfully!
             </Alert>
           )}
 
@@ -211,9 +172,10 @@ const WarehouseFormEnhanced = ({ open, warehouse, onClose }) => {
                 value={values.code}
                 onChange={handleChange}
                 onBlur={handleBlur}
-                error={hasError('code')}
+                error={hasError("code")}
                 helperText={
-                  getError('code') || 'Auto-generated if empty. Use uppercase letters, numbers, and hyphens only.'
+                  getError("code") ||
+                  "Auto-generated if empty. Use uppercase letters, numbers, and hyphens only."
                 }
                 placeholder="WH-001"
                 disabled={isSubmitting}
@@ -229,8 +191,8 @@ const WarehouseFormEnhanced = ({ open, warehouse, onClose }) => {
                 value={values.name}
                 onChange={handleChange}
                 onBlur={handleBlur}
-                error={hasError('name')}
-                helperText={getError('name') || 'Descriptive name for the warehouse'}
+                error={hasError("name")}
+                helperText={getError("name") || "Descriptive name for the warehouse"}
                 placeholder="Main Distribution Center"
                 disabled={isSubmitting}
               />
@@ -246,8 +208,8 @@ const WarehouseFormEnhanced = ({ open, warehouse, onClose }) => {
                 value={values.type}
                 onChange={handleChange}
                 onBlur={handleBlur}
-                error={hasError('type')}
-                helperText={getError('type') || 'Select the type of warehouse'}
+                error={hasError("type")}
+                helperText={getError("type") || "Select the type of warehouse"}
                 disabled={isSubmitting}
               >
                 {WAREHOUSE_TYPES.map((type) => (
@@ -280,7 +242,7 @@ const WarehouseFormEnhanced = ({ open, warehouse, onClose }) => {
             </Grid>
 
             <Grid item xs={12}>
-              <Box sx={{ bgcolor: 'grey.50', p: 2, borderRadius: 1 }}>
+              <Box sx={{ bgcolor: "grey.50", p: 2, borderRadius: 1 }}>
                 <Grid container spacing={2}>
                   <Grid item xs={12}>
                     <TextField
@@ -289,10 +251,10 @@ const WarehouseFormEnhanced = ({ open, warehouse, onClose }) => {
                       name="address.line1"
                       label="Address Line 1"
                       value={values.address.line1}
-                      onChange={handleNestedChange('address.line1')}
+                      onChange={handleNestedChange("address.line1")}
                       onBlur={handleBlur}
-                      error={hasError('address.line1')}
-                      helperText={getError('address.line1') || 'Street address, P.O. box'}
+                      error={hasError("address.line1")}
+                      helperText={getError("address.line1") || "Street address, P.O. box"}
                       placeholder="123 Main Street"
                       disabled={isSubmitting}
                     />
@@ -304,7 +266,7 @@ const WarehouseFormEnhanced = ({ open, warehouse, onClose }) => {
                       name="address.line2"
                       label="Address Line 2"
                       value={values.address.line2}
-                      onChange={handleNestedChange('address.line2')}
+                      onChange={handleNestedChange("address.line2")}
                       helperText="Apartment, suite, unit, building, floor (optional)"
                       placeholder="Suite 100"
                       disabled={isSubmitting}
@@ -318,10 +280,10 @@ const WarehouseFormEnhanced = ({ open, warehouse, onClose }) => {
                       name="address.city"
                       label="City"
                       value={values.address.city}
-                      onChange={handleNestedChange('address.city')}
+                      onChange={handleNestedChange("address.city")}
                       onBlur={handleBlur}
-                      error={hasError('address.city')}
-                      helperText={getError('address.city')}
+                      error={hasError("address.city")}
+                      helperText={getError("address.city")}
                       placeholder="New York"
                       disabled={isSubmitting}
                     />
@@ -334,10 +296,10 @@ const WarehouseFormEnhanced = ({ open, warehouse, onClose }) => {
                       name="address.state"
                       label="State / Province"
                       value={values.address.state}
-                      onChange={handleNestedChange('address.state')}
+                      onChange={handleNestedChange("address.state")}
                       onBlur={handleBlur}
-                      error={hasError('address.state')}
-                      helperText={getError('address.state')}
+                      error={hasError("address.state")}
+                      helperText={getError("address.state")}
                       placeholder="NY"
                       disabled={isSubmitting}
                     />
@@ -350,10 +312,10 @@ const WarehouseFormEnhanced = ({ open, warehouse, onClose }) => {
                       name="address.country"
                       label="Country"
                       value={values.address.country}
-                      onChange={handleNestedChange('address.country')}
+                      onChange={handleNestedChange("address.country")}
                       onBlur={handleBlur}
-                      error={hasError('address.country')}
-                      helperText={getError('address.country')}
+                      error={hasError("address.country")}
+                      helperText={getError("address.country")}
                       placeholder="United States"
                       disabled={isSubmitting}
                     />
@@ -366,10 +328,10 @@ const WarehouseFormEnhanced = ({ open, warehouse, onClose }) => {
                       name="address.postalCode"
                       label="Postal / ZIP Code"
                       value={values.address.postalCode}
-                      onChange={handleNestedChange('address.postalCode')}
+                      onChange={handleNestedChange("address.postalCode")}
                       onBlur={handleBlur}
-                      error={hasError('address.postalCode')}
-                      helperText={getError('address.postalCode')}
+                      error={hasError("address.postalCode")}
+                      helperText={getError("address.postalCode")}
                       placeholder="10001"
                       disabled={isSubmitting}
                     />
@@ -381,7 +343,7 @@ const WarehouseFormEnhanced = ({ open, warehouse, onClose }) => {
                       name="address.landmark"
                       label="Landmark"
                       value={values.address.landmark}
-                      onChange={handleNestedChange('address.landmark')}
+                      onChange={handleNestedChange("address.landmark")}
                       helperText="Nearby landmark for easier location (optional)"
                       placeholder="Near Central Park"
                       disabled={isSubmitting}
@@ -444,11 +406,7 @@ const WarehouseFormEnhanced = ({ open, warehouse, onClose }) => {
             disabled={isSubmitting}
             startIcon={isSubmitting && <CircularProgress size={20} />}
           >
-            {isSubmitting
-              ? 'Saving...'
-              : warehouse
-              ? 'Update Warehouse'
-              : 'Create Warehouse'}
+            {isSubmitting ? "Saving..." : warehouse ? "Update Warehouse" : "Create Warehouse"}
           </Button>
         </DialogActions>
       </form>

@@ -17,7 +17,9 @@ export const leadAssignmentService = {
   /**
    * Update lead assignment configuration
    */
-  async updateConfiguration(data: UpdateLeadAssignmentConfigRequest): Promise<LeadAssignmentConfig> {
+  async updateConfiguration(
+    data: UpdateLeadAssignmentConfigRequest
+  ): Promise<LeadAssignmentConfig> {
     return await api.put<LeadAssignmentConfig>("/lead-assignment-config", data);
   },
 

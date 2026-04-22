@@ -64,9 +64,7 @@ function LeadAssignmentConfigContent() {
 
   const handleRoleToggle = (roleId: string) => {
     setSelectedRoleIds((prev) =>
-      prev.includes(roleId)
-        ? prev.filter((id) => id !== roleId)
-        : [...prev, roleId]
+      prev.includes(roleId) ? prev.filter((id) => id !== roleId) : [...prev, roleId]
     );
   };
 
@@ -121,7 +119,8 @@ function LeadAssignmentConfigContent() {
           <h1 className="text-2xl font-bold text-gray-900">Lead Auto-Assignment Configuration</h1>
         </div>
         <p className="text-gray-600">
-          Configure which roles are eligible for automatic lead assignment and choose the assignment strategy.
+          Configure which roles are eligible for automatic lead assignment and choose the assignment
+          strategy.
         </p>
       </div>
 
@@ -172,8 +171,12 @@ function LeadAssignmentConfigContent() {
                   className="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500"
                 />
                 <div className="ml-3 flex-1">
-                  <div className="font-medium text-gray-900">{getStrategyDisplayName(strategyOption)}</div>
-                  <div className="text-sm text-gray-600 mt-1">{getStrategyDescription(strategyOption)}</div>
+                  <div className="font-medium text-gray-900">
+                    {getStrategyDisplayName(strategyOption)}
+                  </div>
+                  <div className="text-sm text-gray-600 mt-1">
+                    {getStrategyDescription(strategyOption)}
+                  </div>
                 </div>
               </label>
             ))}
@@ -184,7 +187,8 @@ function LeadAssignmentConfigContent() {
         <div className="bg-white rounded-lg border border-gray-200 p-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-2">Eligible Roles</h2>
           <p className="text-sm text-gray-600 mb-4">
-            Select which roles are eligible to receive auto-assigned leads. Only active users with these roles will be included in the assignment rotation.
+            Select which roles are eligible to receive auto-assigned leads. Only active users with
+            these roles will be included in the assignment rotation.
           </p>
 
           {roles.length === 0 ? (
@@ -264,13 +268,17 @@ function LeadAssignmentConfigContent() {
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
                 <span className="text-gray-600">Status:</span>{" "}
-                <span className={`font-medium ${config.enabled ? "text-green-600" : "text-red-600"}`}>
+                <span
+                  className={`font-medium ${config.enabled ? "text-green-600" : "text-red-600"}`}
+                >
                   {config.enabled ? "Enabled" : "Disabled"}
                 </span>
               </div>
               <div>
                 <span className="text-gray-600">Strategy:</span>{" "}
-                <span className="font-medium text-gray-900">{getStrategyDisplayName(config.strategy)}</span>
+                <span className="font-medium text-gray-900">
+                  {getStrategyDisplayName(config.strategy)}
+                </span>
               </div>
               <div>
                 <span className="text-gray-600">Eligible Roles:</span>{" "}

@@ -73,5 +73,5 @@ export const meService = {
     desktopNotifications?: boolean;
   }): Promise<CurrentUser> {
     return api.put("/me/settings", data);
-  }
+  },
 };

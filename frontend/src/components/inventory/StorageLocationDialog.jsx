@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -18,21 +18,18 @@ import {
   Divider,
   Alert,
   MenuItem,
-} from '@mui/material';
-import {
-  Delete as DeleteIcon,
-  Add as AddIcon,
-} from '@mui/icons-material';
-import inventoryApi from '../../services/inventoryApi';
+} from "@mui/material";
+import { Delete as DeleteIcon, Add as AddIcon } from "@mui/icons-material";
+import inventoryApi from "../../services/inventoryApi";
 
-const LOCATION_TYPES = ['BIN', 'PALLET', 'SHELF', 'FLOOR', 'RACK'];
+const LOCATION_TYPES = ["BIN", "PALLET", "SHELF", "FLOOR", "RACK"];
 
 const StorageLocationDialog = ({ open, warehouse, onClose }) => {
   const [newLocation, setNewLocation] = useState({
-    code: '',
-    name: '',
-    type: 'BIN',
-    capacity: '',
+    code: "",
+    name: "",
+    type: "BIN",
+    capacity: "",
     isActive: true,
   });
   const [error, setError] = useState(null);
@@ -52,17 +49,17 @@ const StorageLocationDialog = ({ open, warehouse, onClose }) => {
 
       // Reset form
       setNewLocation({
-        code: '',
-        name: '',
-        type: 'BIN',
-        capacity: '',
+        code: "",
+        name: "",
+        type: "BIN",
+        capacity: "",
         isActive: true,
       });
 
       // Refresh the dialog by closing and reopening
       onClose();
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to add location');
+      setError(err.response?.data?.message || "Failed to add location");
     } finally {
       setAdding(false);
     }
@@ -74,7 +71,7 @@ const StorageLocationDialog = ({ open, warehouse, onClose }) => {
       await inventoryApi.warehouses.removeLocation(warehouse.id, locationId);
       onClose();
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to remove location');
+      setError(err.response?.data?.message || "Failed to remove location");
     }
   };
 
@@ -86,9 +83,7 @@ const StorageLocationDialog = ({ open, warehouse, onClose }) => {
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
       <DialogTitle>
         <Box display="flex" alignItems="center" justifyContent="space-between">
-          <Typography variant="h6">
-            Storage Locations - {warehouse?.name}
-          </Typography>
+          <Typography variant="h6">Storage Locations - {warehouse?.name}</Typography>
           <Chip
             label={`${warehouse?.locations?.length || 0} Locations`}
             color="primary"
@@ -105,7 +100,7 @@ const StorageLocationDialog = ({ open, warehouse, onClose }) => {
         )}
 
         {/* Add New Location Form */}
-        <Box sx={{ bgcolor: 'grey.50', p: 2, borderRadius: 1, mb: 3 }}>
+        <Box sx={{ bgcolor: "grey.50", p: 2, borderRadius: 1, mb: 3 }}>
           <Typography variant="subtitle2" gutterBottom>
             Add New Location
           </Typography>
@@ -117,9 +112,7 @@ const StorageLocationDialog = ({ open, warehouse, onClose }) => {
                 label="Code"
                 placeholder="e.g., A-01-01"
                 value={newLocation.code}
-                onChange={(e) =>
-                  setNewLocation({ ...newLocation, code: e.target.value })
-                }
+                onChange={(e) => setNewLocation({ ...newLocation, code: e.target.value })}
               />
             </Grid>
 
@@ -130,9 +123,7 @@ const StorageLocationDialog = ({ open, warehouse, onClose }) => {
                 size="small"
                 label="Name"
                 value={newLocation.name}
-                onChange={(e) =>
-                  setNewLocation({ ...newLocation, name: e.target.value })
-                }
+                onChange={(e) => setNewLocation({ ...newLocation, name: e.target.value })}
               />
             </Grid>
 
@@ -144,9 +135,7 @@ const StorageLocationDialog = ({ open, warehouse, onClose }) => {
                 size="small"
                 label="Type"
                 value={newLocation.type}
-                onChange={(e) =>
-                  setNewLocation({ ...newLocation, type: e.target.value })
-                }
+                onChange={(e) => setNewLocation({ ...newLocation, type: e.target.value })}
               >
                 {LOCATION_TYPES.map((type) => (
                   <MenuItem key={type} value={type}>
@@ -164,9 +153,7 @@ const StorageLocationDialog = ({ open, warehouse, onClose }) => {
                 type="number"
                 placeholder="Max units"
                 value={newLocation.capacity}
-                onChange={(e) =>
-                  setNewLocation({ ...newLocation, capacity: e.target.value })
-                }
+                onChange={(e) => setNewLocation({ ...newLocation, capacity: e.target.value })}
               />
             </Grid>
 
@@ -198,7 +185,7 @@ const StorageLocationDialog = ({ open, warehouse, onClose }) => {
                 key={location.id}
                 sx={{
                   border: 1,
-                  borderColor: 'divider',
+                  borderColor: "divider",
                   borderRadius: 1,
                   mb: 1,
                 }}
@@ -213,15 +200,11 @@ const StorageLocationDialog = ({ open, warehouse, onClose }) => {
                         <Chip label={location.code} size="small" variant="outlined" />
                       )}
                       <Chip label={location.type} size="small" color="primary" />
-                      {!location.isActive && (
-                        <Chip label="Inactive" size="small" color="default" />
-                      )}
+                      {!location.isActive && <Chip label="Inactive" size="small" color="default" />}
                     </Box>
                   }
                   secondary={
-                    location.capacity
-                      ? `Capacity: ${location.capacity} units`
-                      : 'No capacity limit'
+                    location.capacity ? `Capacity: ${location.capacity} units` : "No capacity limit"
                   }
                 />
                 <ListItemSecondaryAction>
@@ -239,9 +222,9 @@ const StorageLocationDialog = ({ open, warehouse, onClose }) => {
         ) : (
           <Box
             sx={{
-              textAlign: 'center',
+              textAlign: "center",
               py: 4,
-              color: 'text.secondary',
+              color: "text.secondary",
             }}
           >
             <Typography variant="body2">

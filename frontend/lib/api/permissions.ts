@@ -1,4 +1,4 @@
-import { api } from '../api-client';
+import { api } from "../api-client";
 
 export interface PermissionOverride {
   objectName: string;
@@ -14,7 +14,7 @@ export interface PermissionOverride {
 export interface PermissionDetail {
   action: string;
   granted: boolean;
-  source: 'PROFILE' | 'USER_GRANT' | 'USER_DENY';
+  source: "PROFILE" | "USER_GRANT" | "USER_DENY";
   isOverride: boolean;
 }
 

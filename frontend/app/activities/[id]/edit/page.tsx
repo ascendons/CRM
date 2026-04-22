@@ -1,18 +1,24 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useRouter, useParams } from 'next/navigation';
-import Link from 'next/link';
-import { activitiesService } from '@/lib/activities';
-import { leadsService } from '@/lib/leads';
-import { contactsService } from '@/lib/contacts';
-import { accountsService } from '@/lib/accounts';
-import { opportunitiesService } from '@/lib/opportunities';
-import { Activity, ActivityType, ActivityStatus, ActivityPriority, UpdateActivityRequest } from '@/types/activity';
-import { Lead } from '@/types/lead';
-import { Contact } from '@/types/contact';
-import { Account } from '@/types/account';
-import { Opportunity } from '@/types/opportunity';
+import { useState, useEffect } from "react";
+import { useRouter, useParams } from "next/navigation";
+import Link from "next/link";
+import { activitiesService } from "@/lib/activities";
+import { leadsService } from "@/lib/leads";
+import { contactsService } from "@/lib/contacts";
+import { accountsService } from "@/lib/accounts";
+import { opportunitiesService } from "@/lib/opportunities";
+import {
+  Activity,
+  ActivityType,
+  ActivityStatus,
+  ActivityPriority,
+  UpdateActivityRequest,
+} from "@/types/activity";
+import { Lead } from "@/types/lead";
+import { Contact } from "@/types/contact";
+import { Account } from "@/types/account";
+import { Opportunity } from "@/types/opportunity";
 
 export default function EditActivityPage() {
   const router = useRouter();
@@ -38,13 +44,14 @@ export default function EditActivityPage() {
 
   const loadData = async () => {
     try {
-      const [activityData, leadsData, contactsData, accountsData, opportunitiesData] = await Promise.all([
-        activitiesService.getActivityById(id),
-        leadsService.getAllLeads(),
-        contactsService.getAllContacts(),
-        accountsService.getAllAccounts(),
-        opportunitiesService.getAllOpportunities(),
-      ]);
+      const [activityData, leadsData, contactsData, accountsData, opportunitiesData] =
+        await Promise.all([
+          activitiesService.getActivityById(id),
+          leadsService.getAllLeads(),
+          contactsService.getAllContacts(),
+          accountsService.getAllAccounts(),
+          opportunitiesService.getAllOpportunities(),
+        ]);
 
       setActivity(activityData);
       setLeads(leadsData);
@@ -58,30 +65,32 @@ export default function EditActivityPage() {
         type: activityData.type,
         status: activityData.status,
         priority: activityData.priority,
-        description: activityData.description || '',
-        scheduledDate: activityData.scheduledDate ? activityData.scheduledDate.substring(0, 16) : '',
-        dueDate: activityData.dueDate ? activityData.dueDate.substring(0, 16) : '',
+        description: activityData.description || "",
+        scheduledDate: activityData.scheduledDate
+          ? activityData.scheduledDate.substring(0, 16)
+          : "",
+        dueDate: activityData.dueDate ? activityData.dueDate.substring(0, 16) : "",
         durationMinutes: activityData.durationMinutes,
-        location: activityData.location || '',
-        leadId: activityData.leadId || '',
-        contactId: activityData.contactId || '',
-        accountId: activityData.accountId || '',
-        opportunityId: activityData.opportunityId || '',
-        phoneNumber: activityData.phoneNumber || '',
-        callDirection: activityData.callDirection || '',
-        emailFrom: activityData.emailFrom || '',
-        emailTo: activityData.emailTo || '',
-        emailSubject: activityData.emailSubject || '',
-        meetingLink: activityData.meetingLink || '',
-        meetingType: activityData.meetingType || '',
-        taskCategory: activityData.taskCategory || '',
-        outcome: activityData.outcome || '',
-        nextSteps: activityData.nextSteps || '',
+        location: activityData.location || "",
+        leadId: activityData.leadId || "",
+        contactId: activityData.contactId || "",
+        accountId: activityData.accountId || "",
+        opportunityId: activityData.opportunityId || "",
+        phoneNumber: activityData.phoneNumber || "",
+        callDirection: activityData.callDirection || "",
+        emailFrom: activityData.emailFrom || "",
+        emailTo: activityData.emailTo || "",
+        emailSubject: activityData.emailSubject || "",
+        meetingLink: activityData.meetingLink || "",
+        meetingType: activityData.meetingType || "",
+        taskCategory: activityData.taskCategory || "",
+        outcome: activityData.outcome || "",
+        nextSteps: activityData.nextSteps || "",
       });
     } catch (error) {
-      console.error('Failed to load data:', error);
-      alert('Failed to load activity');
-      router.push('/activities');
+      console.error("Failed to load data:", error);
+      alert("Failed to load activity");
+      router.push("/activities");
     } finally {
       setLoading(false);
     }
@@ -120,18 +129,20 @@ export default function EditActivityPage() {
       await activitiesService.updateActivity(id, cleanedData);
       router.push(`/activities/${id}`);
     } catch (error: any) {
-      console.error('Failed to update activity:', error);
-      setErrors({ submit: error.message || 'Failed to update activity' });
+      console.error("Failed to update activity:", error);
+      setErrors({ submit: error.message || "Failed to update activity" });
     } finally {
       setSubmitting(false);
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: name === 'durationMinutes' ? (value ? parseInt(value) : undefined) : value
+      [name]: name === "durationMinutes" ? (value ? parseInt(value) : undefined) : value,
     }));
   };
 
@@ -204,8 +215,10 @@ export default function EditActivityPage() {
                     required
                     className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500"
                   >
-                    {Object.values(ActivityType).map(type => (
-                      <option key={type} value={type}>{type}</option>
+                    {Object.values(ActivityType).map((type) => (
+                      <option key={type} value={type}>
+                        {type}
+                      </option>
                     ))}
                   </select>
                 </div>
@@ -221,8 +234,10 @@ export default function EditActivityPage() {
                     required
                     className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500"
                   >
-                    {Object.values(ActivityStatus).map(status => (
-                      <option key={status} value={status}>{status.replace('_', ' ')}</option>
+                    {Object.values(ActivityStatus).map((status) => (
+                      <option key={status} value={status}>
+                        {status.replace("_", " ")}
+                      </option>
                     ))}
                   </select>
                 </div>
@@ -235,8 +250,10 @@ export default function EditActivityPage() {
                     onChange={handleChange}
                     className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500"
                   >
-                    {Object.values(ActivityPriority).map(priority => (
-                      <option key={priority} value={priority}>{priority}</option>
+                    {Object.values(ActivityPriority).map((priority) => (
+                      <option key={priority} value={priority}>
+                        {priority}
+                      </option>
                     ))}
                   </select>
                 </div>
@@ -281,11 +298,13 @@ export default function EditActivityPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Duration (minutes)</label>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Duration (minutes)
+                  </label>
                   <input
                     type="number"
                     name="durationMinutes"
-                    value={formData.durationMinutes || ''}
+                    value={formData.durationMinutes || ""}
                     onChange={handleChange}
                     className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500"
                   />
@@ -317,7 +336,7 @@ export default function EditActivityPage() {
                     className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500"
                   >
                     <option value="">None</option>
-                    {leads.map(lead => (
+                    {leads.map((lead) => (
                       <option key={lead.id} value={lead.id}>
                         {lead.firstName} {lead.lastName} - {lead.companyName}
                       </option>
@@ -334,7 +353,7 @@ export default function EditActivityPage() {
                     className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500"
                   >
                     <option value="">None</option>
-                    {contacts.map(contact => (
+                    {contacts.map((contact) => (
                       <option key={contact.id} value={contact.id}>
                         {contact.firstName} {contact.lastName}
                       </option>
@@ -351,7 +370,7 @@ export default function EditActivityPage() {
                     className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500"
                   >
                     <option value="">None</option>
-                    {accounts.map(account => (
+                    {accounts.map((account) => (
                       <option key={account.id} value={account.id}>
                         {account.accountName}
                       </option>
@@ -368,7 +387,7 @@ export default function EditActivityPage() {
                     className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500"
                   >
                     <option value="">None</option>
-                    {opportunities.map(opp => (
+                    {opportunities.map((opp) => (
                       <option key={opp.id} value={opp.id}>
                         {opp.opportunityName}
                       </option>
@@ -538,7 +557,7 @@ export default function EditActivityPage() {
                 disabled={submitting}
                 className="px-4 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-700 disabled:bg-gray-400"
               >
-                {submitting ? 'Saving...' : 'Save Changes'}
+                {submitting ? "Saving..." : "Save Changes"}
               </button>
             </div>
           </form>

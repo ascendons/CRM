@@ -24,6 +24,7 @@ import ConfirmModal from "@/components/ConfirmModal";
 import { AssignLeadModal } from "@/components/leads/AssignLeadModal";
 import { UserPlus, MessageSquare, FileText, CheckSquare } from "lucide-react";
 import { useLeadStatusChange } from "@/hooks/useLeadStatusChange";
+import { authService } from "@/lib/auth";
 import { LogActivityModal } from "@/components/leads/LogActivityModal";
 import { EntityActivities } from "@/components/common/EntityActivities";
 import { activitiesService } from "@/lib/activities";
@@ -47,11 +48,14 @@ export default function LeadDetailPage() {
   const [newStatus, setNewStatus] = useState<LeadStatus>(LeadStatus.NEW);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showAssignModal, setShowAssignModal] = useState(false);
+  const canAssignLeads = authService.getUser()?.role === "ADMIN";
   const [proposals, setProposals] = useState<ProposalResponse[]>([]);
   const [proposalsLoading, setProposalsLoading] = useState(false);
 
   // Tabs
-  const [activeTab, setActiveTab] = useState<'details' | 'proposals' | 'discussion' | 'negotiation'>('details');
+  const [activeTab, setActiveTab] = useState<
+    "details" | "proposals" | "discussion" | "negotiation"
+  >("details");
 
   // Activities
   const [activities, setActivities] = useState<Activity[]>([]);
@@ -64,7 +68,7 @@ export default function LeadDetailPage() {
     pendingStatusChange,
     handleActivitySave,
     handleModalClose,
-    getModalProps
+    getModalProps,
   } = useLeadStatusChange({
     onStatusChange: async (leadId, newStatus) => {
       if (lead) {
@@ -77,7 +81,7 @@ export default function LeadDetailPage() {
             const activeProposal = getActiveProposal();
             if (activeProposal) {
               await proposalsService.updateProposal(activeProposal.id, {
-                status: ProposalStatus.ACCEPTED
+                status: ProposalStatus.ACCEPTED,
               });
               showToast.success("Proposal marked as accepted");
             }
@@ -88,7 +92,7 @@ export default function LeadDetailPage() {
             // Since convertLead API might return opportunity ID in the future,
             // for now we navigate to the opportunities list
             setTimeout(() => {
-              router.push('/opportunities');
+              router.push("/opportunities");
             }, 1500);
           } catch (error) {
             console.error("Failed to update proposal status", error);
@@ -98,7 +102,7 @@ export default function LeadDetailPage() {
         // Ensure other pages like dashboard see the change
         router.refresh();
       }
-    }
+    },
   });
 
   useEffect(() => {
@@ -124,7 +128,7 @@ export default function LeadDetailPage() {
     try {
       setProposalsLoading(true);
       const data = await proposalsService.getProposalsBySource(ProposalSource.LEAD, id);
-      if ('content' in data) {
+      if ("content" in data) {
         setProposals(data.content);
       } else {
         setProposals(data || []);
@@ -150,12 +154,12 @@ export default function LeadDetailPage() {
 
   const getActiveProposal = () => {
     // Find the proposal that is currently in negotiation or the last sent proposal
-    const negotiationProposal = proposals.find(p => p.status === ProposalStatus.NEGOTIATION);
+    const negotiationProposal = proposals.find((p) => p.status === ProposalStatus.NEGOTIATION);
     if (negotiationProposal) return negotiationProposal;
 
     // Sort by created date desc to get latest
     const sentProposals = proposals
-      .filter(p => p.status === ProposalStatus.SENT)
+      .filter((p) => p.status === ProposalStatus.SENT)
       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
     return sentProposals[0];
@@ -171,8 +175,6 @@ export default function LeadDetailPage() {
     handleStatusChangeRequest(lead.id, newStatus, lead.leadStatus);
     setShowStatusModal(false);
   };
-
-
 
   const handleDeleteClick = () => {
     setShowDeleteModal(true);
@@ -283,26 +285,27 @@ export default function LeadDetailPage() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-
         {/* Tabs */}
         <div className="border-b border-gray-200 mb-6">
           <nav className="-mb-px flex space-x-8" aria-label="Tabs">
             <button
-              onClick={() => setActiveTab('details')}
-              className={`${activeTab === 'details'
-                ? 'border-blue-500 text-blue-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2`}
+              onClick={() => setActiveTab("details")}
+              className={`${
+                activeTab === "details"
+                  ? "border-blue-500 text-blue-600"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2`}
             >
               <FileText className="h-4 w-4" />
               Details
             </button>
             <button
-              onClick={() => setActiveTab('proposals')}
-              className={`${activeTab === 'proposals'
-                ? 'border-blue-500 text-blue-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2`}
+              onClick={() => setActiveTab("proposals")}
+              className={`${
+                activeTab === "proposals"
+                  ? "border-blue-500 text-blue-600"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2`}
             >
               <CheckSquare className="h-4 w-4" />
               Proposals
@@ -311,11 +314,12 @@ export default function LeadDetailPage() {
               </span>
             </button>
             <button
-              onClick={() => setActiveTab('discussion')}
-              className={`${activeTab === 'discussion'
-                ? 'border-blue-500 text-blue-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2`}
+              onClick={() => setActiveTab("discussion")}
+              className={`${
+                activeTab === "discussion"
+                  ? "border-blue-500 text-blue-600"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2`}
             >
               <MessageSquare className="h-4 w-4" />
               Discussion
@@ -325,11 +329,12 @@ export default function LeadDetailPage() {
             </button>
             {lead && lead.leadStatus === LeadStatus.NEGOTIATION && (
               <button
-                onClick={() => setActiveTab('negotiation')}
-                className={`${activeTab === 'negotiation'
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                  } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2`}
+                onClick={() => setActiveTab("negotiation")}
+                className={`${
+                  activeTab === "negotiation"
+                    ? "border-blue-500 text-blue-600"
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2`}
               >
                 <Gavel className="h-4 w-4" />
                 Negotiation
@@ -341,8 +346,7 @@ export default function LeadDetailPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
-
-            {activeTab === 'details' && (
+            {activeTab === "details" && (
               <>
                 {/* Contact Information */}
                 <div className="bg-white rounded-lg shadow p-6">
@@ -458,7 +462,9 @@ export default function LeadDetailPage() {
                     <h2 className="text-lg font-semibold text-gray-900 mb-4">Address</h2>
                     <address className="text-sm text-gray-900 not-italic">
                       {lead.streetAddress && <div>{lead.streetAddress}</div>}
-                      <div>{[lead.city, lead.state, lead.postalCode].filter(Boolean).join(", ")}</div>
+                      <div>
+                        {[lead.city, lead.state, lead.postalCode].filter(Boolean).join(", ")}
+                      </div>
                       {lead.country && <div>{lead.country}</div>}
                     </address>
                   </div>
@@ -467,7 +473,9 @@ export default function LeadDetailPage() {
                 {/* Description */}
                 {lead.description && (
                   <div className="bg-white rounded-lg shadow p-6">
-                    <h2 className="text-lg font-semibold text-gray-900 mb-4">Description / Notes</h2>
+                    <h2 className="text-lg font-semibold text-gray-900 mb-4">
+                      Description / Notes
+                    </h2>
                     <p className="text-sm text-gray-700 whitespace-pre-wrap">{lead.description}</p>
                   </div>
                 )}
@@ -479,7 +487,7 @@ export default function LeadDetailPage() {
               </>
             )}
 
-            {activeTab === 'proposals' && (
+            {activeTab === "proposals" && (
               <div className="bg-white rounded-lg shadow p-6">
                 <div className="flex justify-between items-center mb-4">
                   <h2 className="text-lg font-semibold text-gray-900">Proposals</h2>
@@ -541,9 +549,7 @@ export default function LeadDetailPage() {
                                 {proposal.proposalNumber}
                               </Link>
                             </td>
-                            <td className="px-4 py-4 text-sm text-gray-900">
-                              {proposal.title}
-                            </td>
+                            <td className="px-4 py-4 text-sm text-gray-900">{proposal.title}</td>
                             <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
                               ₹{proposal.totalAmount.toLocaleString()}
                             </td>
@@ -587,7 +593,7 @@ export default function LeadDetailPage() {
               </div>
             )}
 
-            {activeTab === 'discussion' && (
+            {activeTab === "discussion" && (
               <div className="bg-white rounded-lg shadow p-6">
                 <div className="flex justify-between items-center mb-6">
                   <h2 className="text-lg font-semibold text-gray-900">Discussion & Activities</h2>
@@ -602,15 +608,19 @@ export default function LeadDetailPage() {
               </div>
             )}
 
-            {activeTab === 'negotiation' && lead?.leadStatus === LeadStatus.NEGOTIATION && (
+            {activeTab === "negotiation" && lead?.leadStatus === LeadStatus.NEGOTIATION && (
               <div className="space-y-6">
                 {(() => {
                   const activeProposal = getActiveProposal();
                   if (!activeProposal) {
                     return (
                       <div className="bg-white rounded-lg shadow p-8 text-center">
-                        <p className="text-gray-500 mb-4">No active proposal found for negotiation.</p>
-                        <p className="text-sm text-gray-400">Please ensure there is a SENT proposal to negotiate on.</p>
+                        <p className="text-gray-500 mb-4">
+                          No active proposal found for negotiation.
+                        </p>
+                        <p className="text-sm text-gray-400">
+                          Please ensure there is a SENT proposal to negotiate on.
+                        </p>
                       </div>
                     );
                   }
@@ -621,18 +631,23 @@ export default function LeadDetailPage() {
                           Active Negotiation: {activeProposal.proposalNumber}
                         </h3>
                         <p className="text-sm text-purple-700 mt-1">
-                          You are currently negotiating proposal <strong>{activeProposal.title}</strong> worth <strong>₹{activeProposal.totalAmount.toLocaleString()}</strong>.
+                          You are currently negotiating proposal{" "}
+                          <strong>{activeProposal.title}</strong> worth{" "}
+                          <strong>₹{activeProposal.totalAmount.toLocaleString()}</strong>.
                         </p>
                       </div>
 
                       {/* Commercial Negotiation */}
-                      <CommercialNegotiation proposal={activeProposal} onUpdate={() => {
-                        loadProposals();
-                        // Also reload lead to update status if finalized
-                        if (activeProposal.status === ProposalStatus.SENT) {
-                          loadLead();
-                        }
-                      }} />
+                      <CommercialNegotiation
+                        proposal={activeProposal}
+                        onUpdate={() => {
+                          loadProposals();
+                          // Also reload lead to update status if finalized
+                          if (activeProposal.status === ProposalStatus.SENT) {
+                            loadLead();
+                          }
+                        }}
+                      />
 
                       {/* Technical Negotiation (Comments) */}
                       <ProposalComments proposal={activeProposal} />
@@ -676,14 +691,16 @@ export default function LeadDetailPage() {
             <div className="bg-white rounded-lg shadow p-6">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-semibold text-gray-900">Assigned To</h2>
-                <button
-                  onClick={() => setShowAssignModal(true)}
-                  className="text-blue-600 hover:text-blue-700 text-sm font-medium inline-flex items-center gap-1"
-                  title={lead.assignedUserName ? "Reassign lead" : "Assign lead"}
-                >
-                  <UserPlus className="h-4 w-4" />
-                  {lead.assignedUserName ? "Reassign" : "Assign"}
-                </button>
+                {canAssignLeads && (
+                  <button
+                    onClick={() => setShowAssignModal(true)}
+                    className="text-blue-600 hover:text-blue-700 text-sm font-medium inline-flex items-center gap-1"
+                    title={lead.assignedUserName ? "Reassign lead" : "Assign lead"}
+                  >
+                    <UserPlus className="h-4 w-4" />
+                    {lead.assignedUserName ? "Reassign" : "Assign"}
+                  </button>
+                )}
               </div>
               {lead.assignedUserName ? (
                 <div className="space-y-3">
@@ -710,12 +727,14 @@ export default function LeadDetailPage() {
                     <UserPlus className="h-6 w-6 text-gray-400" />
                   </div>
                   <p className="text-sm text-gray-500 mb-3">No sales person assigned</p>
-                  <button
-                    onClick={() => setShowAssignModal(true)}
-                    className="text-sm text-blue-600 hover:text-blue-700 font-medium"
-                  >
-                    Assign Now
-                  </button>
+                  {canAssignLeads && (
+                    <button
+                      onClick={() => setShowAssignModal(true)}
+                      className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+                    >
+                      Assign Now
+                    </button>
+                  )}
                 </div>
               )}
             </div>
@@ -813,8 +832,6 @@ export default function LeadDetailPage() {
         </div>
       )}
 
-
-
       {/* Delete Confirmation Modal */}
       <ConfirmModal
         isOpen={showDeleteModal}
@@ -841,8 +858,8 @@ export default function LeadDetailPage() {
       )}
 
       {/* Activity Log Modal (triggered by status change hook) */}
-      {pendingStatusChange && (
-        pendingStatusChange.newStatus === LeadStatus.NEGOTIATION ? (
+      {pendingStatusChange &&
+        (pendingStatusChange.newStatus === LeadStatus.NEGOTIATION ? (
           <NegotiationStartModal
             isOpen={isActivityModalOpen}
             onClose={handleModalClose}
@@ -854,7 +871,9 @@ export default function LeadDetailPage() {
                 if (activeProposal) {
                   await proposalsService.updateProposal(activeProposal.id, {
                     status: ProposalStatus.NEGOTIATION,
-                    notes: activeProposal.notes ? `${activeProposal.notes}\n\nNegotiation Started: ${reason}` : `Negotiation Started: ${reason}`
+                    notes: activeProposal.notes
+                      ? `${activeProposal.notes}\n\nNegotiation Started: ${reason}`
+                      : `Negotiation Started: ${reason}`,
                   });
                 }
 
@@ -863,13 +882,15 @@ export default function LeadDetailPage() {
                   leadId: pendingStatusChange.leadId,
                   type: ActivityType.NOTE,
                   status: ActivityStatus.COMPLETED,
-                  subject: activeProposal ? `Negotiation Started - ${activeProposal.proposalNumber}` : 'Negotiation Started',
+                  subject: activeProposal
+                    ? `Negotiation Started - ${activeProposal.proposalNumber}`
+                    : "Negotiation Started",
                   description: reason,
                 });
 
                 // Refresh data
                 loadProposals();
-                setActiveTab('negotiation');
+                setActiveTab("negotiation");
               } catch (error) {
                 console.error("Failed to start negotiation", error);
                 showToast.error("Failed to start negotiation");
@@ -888,8 +909,7 @@ export default function LeadDetailPage() {
             newStatus={pendingStatusChange.newStatus}
             {...getModalProps()}
           />
-        )
-      )}
+        ))}
     </div>
   );
 }

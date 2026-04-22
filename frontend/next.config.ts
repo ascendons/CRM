@@ -11,7 +11,7 @@ const nextConfig: NextConfig = {
   webpack: (config, { isServer }) => {
     config.resolve.alias = {
       ...config.resolve.alias,
-      '@': path.resolve(__dirname, './'),
+      "@": path.resolve(__dirname, "./"),
     };
     return config;
   },
@@ -22,10 +22,10 @@ const nextConfig: NextConfig = {
   },
 
   async rewrites() {
-    const backendUrl = process.env.BACKEND_URL || 'http://localhost:8080';
+    const backendUrl = process.env.BACKEND_URL || "http://localhost:8080";
     return [
       {
-        source: '/crm-backend/:path*',
+        source: "/crm-backend/:path*",
         destination: `${backendUrl}/api/v1/:path*`,
       },
     ];

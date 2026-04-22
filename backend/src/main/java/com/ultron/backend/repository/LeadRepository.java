@@ -86,6 +86,18 @@ public interface LeadRepository extends MongoRepository<Lead, String> {
     long countByLeadOwnerIdAndTenantIdAndIsDeletedFalse(String ownerId, String tenantId);
 
     /**
+     * Count leads by status scoped to a set of owners (for hierarchy stats)
+     * MULTI-TENANT SAFE
+     */
+    long countByLeadOwnerIdInAndLeadStatusAndTenantIdAndIsDeletedFalse(List<String> ownerIds, LeadStatus status, String tenantId);
+
+    /**
+     * Count total leads for a set of owners (for hierarchy stats)
+     * MULTI-TENANT SAFE
+     */
+    long countByLeadOwnerIdInAndTenantIdAndIsDeletedFalse(List<String> ownerIds, String tenantId);
+
+    /**
      * Count total leads for tenant
      * MULTI-TENANT SAFE
      */

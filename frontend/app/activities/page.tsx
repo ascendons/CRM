@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useState, useCallback, Suspense } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { activitiesService } from '@/lib/activities';
-import { Activity, ActivityType, ActivityStatus, ActivityPriority } from '@/types/activity';
-import { showToast } from '@/lib/toast';
-import ConfirmModal from '@/components/ConfirmModal';
-import { EmptyState } from '@/components/EmptyState';
+import { useEffect, useState, useCallback, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { activitiesService } from "@/lib/activities";
+import { Activity, ActivityType, ActivityStatus, ActivityPriority } from "@/types/activity";
+import { showToast } from "@/lib/toast";
+import ConfirmModal from "@/components/ConfirmModal";
+import { EmptyState } from "@/components/EmptyState";
 import {
   Search,
   Plus,
@@ -21,22 +21,22 @@ import {
   XCircle,
   AlertCircle,
   Filter,
-  Users
+  Users,
 } from "lucide-react";
 
 function ActivitiesContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const initialType = searchParams.get('type') || '';
+  const initialType = searchParams.get("type") || "";
 
   const [activities, setActivities] = useState<Activity[]>([]);
   const [filteredActivities, setFilteredActivities] = useState<Activity[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [typeFilter, setTypeFilter] = useState<string>(initialType);
-  const [statusFilter, setStatusFilter] = useState<string>('');
-  const [priorityFilter, setPriorityFilter] = useState<string>('');
-  const [error, setError] = useState<string>('');
+  const [statusFilter, setStatusFilter] = useState<string>("");
+  const [priorityFilter, setPriorityFilter] = useState<string>("");
+  const [error, setError] = useState<string>("");
 
   // Selection & Actions
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -53,13 +53,13 @@ function ActivitiesContent() {
 
   const loadActivities = async () => {
     try {
-      setError('');
+      setError("");
       setLoading(true);
       const data = await activitiesService.getAllActivities();
       setActivities(data);
       setFilteredActivities(data);
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to load activities';
+      const errorMessage = error instanceof Error ? error.message : "Failed to load activities";
       setError(errorMessage);
       showToast.error(errorMessage);
     } finally {
@@ -71,22 +71,23 @@ function ActivitiesContent() {
     let filtered = activities;
 
     if (searchQuery) {
-      filtered = filtered.filter(activity =>
-        activity.subject.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        activity.description?.toLowerCase().includes(searchQuery.toLowerCase())
+      filtered = filtered.filter(
+        (activity) =>
+          activity.subject.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          activity.description?.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
 
     if (typeFilter) {
-      filtered = filtered.filter(activity => activity.type === typeFilter);
+      filtered = filtered.filter((activity) => activity.type === typeFilter);
     }
 
     if (statusFilter) {
-      filtered = filtered.filter(activity => activity.status === statusFilter);
+      filtered = filtered.filter((activity) => activity.status === statusFilter);
     }
 
     if (priorityFilter) {
-      filtered = filtered.filter(activity => activity.priority === priorityFilter);
+      filtered = filtered.filter((activity) => activity.priority === priorityFilter);
     }
 
     setFilteredActivities(filtered);
@@ -108,12 +109,12 @@ function ActivitiesContent() {
     try {
       setIsDeleting(true);
       await activitiesService.deleteActivity(activityToDelete);
-      showToast.success('Activity deleted successfully');
+      showToast.success("Activity deleted successfully");
       setShowDeleteModal(false);
       setActivityToDelete(null);
       loadActivities();
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to delete activity';
+      const errorMessage = error instanceof Error ? error.message : "Failed to delete activity";
       showToast.error(errorMessage);
     } finally {
       setIsDeleting(false);
@@ -127,43 +128,48 @@ function ActivitiesContent() {
 
   const getTypeIcon = (type: ActivityType) => {
     switch (type) {
-      case ActivityType.CALL: return <Phone className="h-4 w-4" />;
-      case ActivityType.EMAIL: return <Mail className="h-4 w-4" />;
-      case ActivityType.MEETING: return <Users className="h-4 w-4" />;
-      case ActivityType.TASK: return <CheckCircle2 className="h-4 w-4" />;
-      default: return <FileText className="h-4 w-4" />;
+      case ActivityType.CALL:
+        return <Phone className="h-4 w-4" />;
+      case ActivityType.EMAIL:
+        return <Mail className="h-4 w-4" />;
+      case ActivityType.MEETING:
+        return <Users className="h-4 w-4" />;
+      case ActivityType.TASK:
+        return <CheckCircle2 className="h-4 w-4" />;
+      default:
+        return <FileText className="h-4 w-4" />;
     }
   };
 
   const getTypeBadgeColor = (type: ActivityType) => {
     const colors = {
-      [ActivityType.TASK]: 'bg-blue-50 text-blue-700 border-blue-100',
-      [ActivityType.EMAIL]: 'bg-purple-50 text-purple-700 border-purple-100',
-      [ActivityType.CALL]: 'bg-emerald-50 text-emerald-700 border-emerald-100',
-      [ActivityType.MEETING]: 'bg-orange-50 text-orange-700 border-orange-100',
-      [ActivityType.NOTE]: 'bg-slate-50 text-slate-700 border-slate-200'
+      [ActivityType.TASK]: "bg-blue-50 text-blue-700 border-blue-100",
+      [ActivityType.EMAIL]: "bg-purple-50 text-purple-700 border-purple-100",
+      [ActivityType.CALL]: "bg-emerald-50 text-emerald-700 border-emerald-100",
+      [ActivityType.MEETING]: "bg-orange-50 text-orange-700 border-orange-100",
+      [ActivityType.NOTE]: "bg-slate-50 text-slate-700 border-slate-200",
     };
-    return colors[type] || 'bg-gray-100 text-gray-800';
+    return colors[type] || "bg-gray-100 text-gray-800";
   };
 
   const getStatusBadgeColor = (status: ActivityStatus) => {
     const colors = {
-      [ActivityStatus.PENDING]: 'bg-amber-50 text-amber-700 border-amber-100',
-      [ActivityStatus.IN_PROGRESS]: 'bg-blue-50 text-blue-700 border-blue-100',
-      [ActivityStatus.COMPLETED]: 'bg-emerald-50 text-emerald-700 border-emerald-100',
-      [ActivityStatus.CANCELLED]: 'bg-slate-50 text-slate-600 border-slate-200'
+      [ActivityStatus.PENDING]: "bg-amber-50 text-amber-700 border-amber-100",
+      [ActivityStatus.IN_PROGRESS]: "bg-blue-50 text-blue-700 border-blue-100",
+      [ActivityStatus.COMPLETED]: "bg-emerald-50 text-emerald-700 border-emerald-100",
+      [ActivityStatus.CANCELLED]: "bg-slate-50 text-slate-600 border-slate-200",
     };
-    return colors[status] || 'bg-gray-100 text-gray-800';
+    return colors[status] || "bg-gray-100 text-gray-800";
   };
 
   const getPriorityBadgeColor = (priority: ActivityPriority) => {
     const colors = {
-      [ActivityPriority.LOW]: 'text-slate-600 bg-slate-100',
-      [ActivityPriority.MEDIUM]: 'text-blue-600 bg-blue-50',
-      [ActivityPriority.HIGH]: 'text-orange-600 bg-orange-50',
-      [ActivityPriority.URGENT]: 'text-red-600 bg-red-50'
+      [ActivityPriority.LOW]: "text-slate-600 bg-slate-100",
+      [ActivityPriority.MEDIUM]: "text-blue-600 bg-blue-50",
+      [ActivityPriority.HIGH]: "text-orange-600 bg-orange-50",
+      [ActivityPriority.URGENT]: "text-red-600 bg-red-50",
     };
-    return colors[priority] || 'bg-gray-100 text-gray-800';
+    return colors[priority] || "bg-gray-100 text-gray-800";
   };
 
   // Pagination Logic
@@ -200,7 +206,9 @@ function ActivitiesContent() {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between py-4 gap-4">
             <div>
               <h1 className="text-2xl font-bold text-slate-900  tracking-tight">Activities</h1>
-              <p className="text-sm text-slate-500 ">Track tasks, meetings, calls, and follow-ups.</p>
+              <p className="text-sm text-slate-500 ">
+                Track tasks, meetings, calls, and follow-ups.
+              </p>
             </div>
             <div className="flex items-center gap-3">
               <button
@@ -231,9 +239,24 @@ function ActivitiesContent() {
             </div>
 
             {[
-              { value: typeFilter, onChange: setTypeFilter, options: Object.values(ActivityType), label: "All Types" },
-              { value: statusFilter, onChange: setStatusFilter, options: Object.values(ActivityStatus), label: "All Statuses" },
-              { value: priorityFilter, onChange: setPriorityFilter, options: Object.values(ActivityPriority), label: "All Priorities" },
+              {
+                value: typeFilter,
+                onChange: setTypeFilter,
+                options: Object.values(ActivityType),
+                label: "All Types",
+              },
+              {
+                value: statusFilter,
+                onChange: setStatusFilter,
+                options: Object.values(ActivityStatus),
+                label: "All Statuses",
+              },
+              {
+                value: priorityFilter,
+                onChange: setPriorityFilter,
+                options: Object.values(ActivityPriority),
+                label: "All Priorities",
+              },
             ].map((filter, idx) => (
               <div key={idx} className="relative">
                 <select
@@ -242,8 +265,10 @@ function ActivitiesContent() {
                   className="w-full appearance-none pl-4 pr-10 py-2.5 bg-slate-50  border border-slate-200  rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all cursor-pointer"
                 >
                   <option value="">{filter.label}</option>
-                  {filter.options.map(opt => (
-                    <option key={opt} value={opt}>{opt.replace('_', ' ')}</option>
+                  {filter.options.map((opt) => (
+                    <option key={opt} value={opt}>
+                      {opt.replace("_", " ")}
+                    </option>
                   ))}
                 </select>
                 <Filter className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
@@ -259,13 +284,18 @@ function ActivitiesContent() {
             <div className="flex-1">
               <p className="font-medium">{error}</p>
               <button
-                onClick={() => { setError(''); loadActivities(); }}
+                onClick={() => {
+                  setError("");
+                  loadActivities();
+                }}
                 className="text-sm underline mt-1 hover:text-red-800 "
               >
                 Retry
               </button>
             </div>
-            <button onClick={() => setError('')}><XCircle className="h-5 w-5" /></button>
+            <button onClick={() => setError("")}>
+              <XCircle className="h-5 w-5" />
+            </button>
           </div>
         )}
 
@@ -293,13 +323,27 @@ function ActivitiesContent() {
               <table className="w-full text-left border-collapse">
                 <thead className="bg-slate-50/50  border-b border-slate-200 ">
                   <tr>
-                    <th className="px-6 py-4 text-xs font-semibold text-slate-500  uppercase tracking-wider">Activity</th>
-                    <th className="px-6 py-4 text-xs font-semibold text-slate-500  uppercase tracking-wider">Type</th>
-                    <th className="px-6 py-4 text-xs font-semibold text-slate-500  uppercase tracking-wider">Status</th>
-                    <th className="px-6 py-4 text-xs font-semibold text-slate-500  uppercase tracking-wider">Priority</th>
-                    <th className="px-6 py-4 text-xs font-semibold text-slate-500  uppercase tracking-wider">Related To</th>
-                    <th className="px-6 py-4 text-xs font-semibold text-slate-500  uppercase tracking-wider">Due Date</th>
-                    <th className="px-6 py-4 text-xs font-semibold text-slate-500  uppercase tracking-wider text-right">Actions</th>
+                    <th className="px-6 py-4 text-xs font-semibold text-slate-500  uppercase tracking-wider">
+                      Activity
+                    </th>
+                    <th className="px-6 py-4 text-xs font-semibold text-slate-500  uppercase tracking-wider">
+                      Type
+                    </th>
+                    <th className="px-6 py-4 text-xs font-semibold text-slate-500  uppercase tracking-wider">
+                      Status
+                    </th>
+                    <th className="px-6 py-4 text-xs font-semibold text-slate-500  uppercase tracking-wider">
+                      Priority
+                    </th>
+                    <th className="px-6 py-4 text-xs font-semibold text-slate-500  uppercase tracking-wider">
+                      Related To
+                    </th>
+                    <th className="px-6 py-4 text-xs font-semibold text-slate-500  uppercase tracking-wider">
+                      Due Date
+                    </th>
+                    <th className="px-6 py-4 text-xs font-semibold text-slate-500  uppercase tracking-wider text-right">
+                      Actions
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 ">
@@ -311,52 +355,79 @@ function ActivitiesContent() {
                     >
                       <td className="px-6 py-4">
                         <div>
-                          <p className="text-sm font-bold text-slate-900  line-clamp-1">{activity.subject}</p>
-                          <p className="text-xs text-slate-500  mt-0.5 line-clamp-1">{activity.description || "No description"}</p>
+                          <p className="text-sm font-bold text-slate-900  line-clamp-1">
+                            {activity.subject}
+                          </p>
+                          <p className="text-xs text-slate-500  mt-0.5 line-clamp-1">
+                            {activity.description || "No description"}
+                          </p>
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold border ${getTypeBadgeColor(activity.type)}`}>
+                        <span
+                          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold border ${getTypeBadgeColor(activity.type)}`}
+                        >
                           {getTypeIcon(activity.type)}
                           {activity.type}
                         </span>
                       </td>
                       <td className="px-6 py-4">
-                        <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border ${getStatusBadgeColor(activity.status)}`}>
-                          {activity.status.replace('_', ' ')}
+                        <span
+                          className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border ${getStatusBadgeColor(activity.status)}`}
+                        >
+                          {activity.status.replace("_", " ")}
                         </span>
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-1.5">
-                          <div className={`w-2 h-2 rounded-full ${activity.priority === 'URGENT' ? 'bg-red-500' :
-                            activity.priority === 'HIGH' ? 'bg-orange-500' :
-                              activity.priority === 'MEDIUM' ? 'bg-blue-500' : 'bg-slate-400'
-                            }`}></div>
-                          <span className={`text-xs font-medium ${getPriorityBadgeColor(activity.priority).split(' ')[0]}`}>
+                          <div
+                            className={`w-2 h-2 rounded-full ${
+                              activity.priority === "URGENT"
+                                ? "bg-red-500"
+                                : activity.priority === "HIGH"
+                                  ? "bg-orange-500"
+                                  : activity.priority === "MEDIUM"
+                                    ? "bg-blue-500"
+                                    : "bg-slate-400"
+                            }`}
+                          ></div>
+                          <span
+                            className={`text-xs font-medium ${getPriorityBadgeColor(activity.priority).split(" ")[0]}`}
+                          >
                             {activity.priority}
                           </span>
                         </div>
                       </td>
                       <td className="px-6 py-4 text-sm text-slate-600 ">
-                        {activity.leadName || activity.contactName || activity.accountName || activity.opportunityName || '-'}
+                        {activity.leadName ||
+                          activity.contactName ||
+                          activity.accountName ||
+                          activity.opportunityName ||
+                          "-"}
                       </td>
                       <td className="px-6 py-4 text-sm text-slate-600 ">
                         <div className="flex items-center gap-1.5">
                           <Clock className="h-3.5 w-3.5 text-slate-400" />
-                          {activity.dueDate ? new Date(activity.dueDate).toLocaleDateString() : '-'}
+                          {activity.dueDate ? new Date(activity.dueDate).toLocaleDateString() : "-"}
                         </div>
                       </td>
                       <td className="px-6 py-4 text-right">
                         <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                           <button
-                            onClick={(e) => { e.stopPropagation(); router.push(`/activities/${activity.id}/edit`); }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              router.push(`/activities/${activity.id}/edit`);
+                            }}
                             className="p-2 text-slate-400 hover:text-primary hover:bg-slate-100  rounded-lg transition-colors"
                             title="Edit"
                           >
                             Edit
                           </button>
                           <button
-                            onClick={(e) => { e.stopPropagation(); handleDeleteClick(activity.id); }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteClick(activity.id);
+                            }}
                             className="p-2 text-rose-400 hover:text-rose-600 hover:bg-rose-50  rounded-lg transition-colors"
                             title="Delete"
                           >
@@ -376,7 +447,16 @@ function ActivitiesContent() {
         {filteredActivities.length > 0 && (
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white px-4 sm:px-6 py-4 rounded-2xl border border-slate-200 shadow-sm">
             <p className="text-sm text-slate-600 ">
-              Showing <span className="font-semibold text-slate-900 ">{(currentPage - 1) * itemsPerPage + 1}</span> to <span className="font-semibold text-slate-900 ">{Math.min(currentPage * itemsPerPage, filteredActivities.length)}</span> of <span className="font-semibold text-slate-900 ">{filteredActivities.length}</span> results
+              Showing{" "}
+              <span className="font-semibold text-slate-900 ">
+                {(currentPage - 1) * itemsPerPage + 1}
+              </span>{" "}
+              to{" "}
+              <span className="font-semibold text-slate-900 ">
+                {Math.min(currentPage * itemsPerPage, filteredActivities.length)}
+              </span>{" "}
+              of <span className="font-semibold text-slate-900 ">{filteredActivities.length}</span>{" "}
+              results
             </p>
             <div className="flex items-center gap-2">
               <button
@@ -396,7 +476,6 @@ function ActivitiesContent() {
             </div>
           </div>
         )}
-
       </main>
 
       <ConfirmModal
@@ -416,17 +495,19 @@ function ActivitiesContent() {
 
 export default function ActivitiesPage() {
   return (
-    <Suspense fallback={
-      <div className="flex items-center justify-center bg-slate-50 min-h-[calc(100vh-4rem)] ">
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-primary/10 rounded-full blur-3xl animate-pulse"></div>
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center bg-slate-50 min-h-[calc(100vh-4rem)] ">
+          <div className="absolute inset-0 overflow-hidden">
+            <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-primary/10 rounded-full blur-3xl animate-pulse"></div>
+          </div>
+          <div className="relative text-center space-y-4">
+            <div className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin mx-auto"></div>
+            <p className="text-slate-500 font-medium">Loading activities...</p>
+          </div>
         </div>
-        <div className="relative text-center space-y-4">
-          <div className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin mx-auto"></div>
-          <p className="text-slate-500 font-medium">Loading activities...</p>
-        </div>
-      </div>
-    }>
+      }
+    >
       <ActivitiesContent />
     </Suspense>
   );

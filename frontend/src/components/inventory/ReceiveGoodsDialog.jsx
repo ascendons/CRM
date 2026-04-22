@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -16,8 +16,8 @@ import {
   TextField,
   Alert,
   CircularProgress,
-} from '@mui/material';
-import inventoryApi from '../../services/inventoryApi';
+} from "@mui/material";
+import inventoryApi from "../../services/inventoryApi";
 
 const ReceiveGoodsDialog = ({ open, onClose, po, onSuccess }) => {
   const [loading, setLoading] = useState(false);
@@ -72,21 +72,21 @@ const ReceiveGoodsDialog = ({ open, onClose, po, onSuccess }) => {
         }));
 
       if (itemsToReceive.length === 0) {
-        setError('Please enter quantities to receive');
+        setError("Please enter quantities to receive");
         return;
       }
 
       const receiveData = {
         items: itemsToReceive,
         receivedDate: new Date().toISOString(),
-        notes: '',
+        notes: "",
       };
 
       await inventoryApi.purchaseOrders.receive(po.id, receiveData);
       onSuccess();
       handleClose();
     } catch (err) {
-      setError('Failed to receive goods: ' + err.message);
+      setError("Failed to receive goods: " + err.message);
     } finally {
       setLoading(false);
     }
@@ -159,7 +159,7 @@ const ReceiveGoodsDialog = ({ open, onClose, po, onSuccess }) => {
                     <TableCell align="right">
                       <Typography
                         variant="body2"
-                        color={item.quantityReceived > 0 ? 'success.main' : 'text.secondary'}
+                        color={item.quantityReceived > 0 ? "success.main" : "text.secondary"}
                       >
                         {item.quantityReceived}
                       </Typography>
@@ -168,7 +168,7 @@ const ReceiveGoodsDialog = ({ open, onClose, po, onSuccess }) => {
                       <Typography
                         variant="body2"
                         fontWeight="bold"
-                        color={remaining > 0 ? 'warning.main' : 'success.main'}
+                        color={remaining > 0 ? "warning.main" : "success.main"}
                       >
                         {remaining}
                       </Typography>
@@ -199,7 +199,7 @@ const ReceiveGoodsDialog = ({ open, onClose, po, onSuccess }) => {
             sx={{
               mt: 2,
               p: 2,
-              bgcolor: 'primary.lighter',
+              bgcolor: "primary.lighter",
               borderRadius: 1,
             }}
           >
@@ -219,7 +219,7 @@ const ReceiveGoodsDialog = ({ open, onClose, po, onSuccess }) => {
           variant="contained"
           disabled={loading || getTotalToReceive() === 0}
         >
-          {loading ? <CircularProgress size={24} /> : 'Confirm Receipt'}
+          {loading ? <CircularProgress size={24} /> : "Confirm Receipt"}
         </Button>
       </DialogActions>
     </Dialog>

@@ -10,9 +10,18 @@ import {
   DiscountType,
   getProposalStatusColor,
   getProposalStatusLabel,
-
 } from "@/types/proposal";
-import { ArrowLeft, Edit, Trash2, Send, CheckCircle, XCircle, Download, Eye, X } from "lucide-react";
+import {
+  ArrowLeft,
+  Edit,
+  Trash2,
+  Send,
+  CheckCircle,
+  XCircle,
+  Download,
+  Eye,
+  X,
+} from "lucide-react";
 import { proposalsService } from "@/lib/proposals";
 import { authService } from "@/lib/auth";
 import { showToast } from "@/lib/toast";
@@ -69,41 +78,46 @@ export default function ProposalDetailPage() {
         approverIds: proposal.approverIds,
         currentUserId: currentUser.userId,
         currentId: currentUser.id,
-        userRole: currentUser.role
+        userRole: currentUser.role,
       });
     }
   }, [proposal, currentUser]);
 
   const checkIsApprover = () => {
     if (!proposal || !currentUser) return false;
-    
+
     // Admin/Manager bypass
-    if (currentUser.role === 'ADMIN' || currentUser.role === 'MANAGER') return true;
-    
+    if (currentUser.role === "ADMIN" || currentUser.role === "MANAGER") return true;
+
     const approverIds = proposal.approverIds || [];
     const myId = currentUser.userId || currentUser.id;
-    
+
     // Match by ID
     if (myId && approverIds.includes(myId)) return true;
-    
+
     return false;
   };
 
   // Negotiation state
   const [showNegotiationModal, setShowNegotiationModal] = useState(false);
   const [negotiationReason, setNegotiationReason] = useState("");
-  const [activeTab, setActiveTab] = useState<'details' | 'technical' | 'commercial' | 'history'>('details');
+  const [activeTab, setActiveTab] = useState<"details" | "technical" | "commercial" | "history">(
+    "details"
+  );
 
   // Versioning state
   const [selectedVersion, setSelectedVersion] = useState<ProposalVersionResponse | null>(null);
-  const [comparison, setComparison] = useState<{ v1: ProposalVersionResponse, v2: ProposalVersionResponse } | null>(null);
+  const [comparison, setComparison] = useState<{
+    v1: ProposalVersionResponse;
+    v2: ProposalVersionResponse;
+  } | null>(null);
 
   // Preview state
   const [showInvoicePreview, setShowInvoicePreview] = useState(false);
 
   // Switch to correct tab if in negotiation
   useEffect(() => {
-    if (proposal?.status === ProposalStatus.NEGOTIATION && activeTab === 'details') {
+    if (proposal?.status === ProposalStatus.NEGOTIATION && activeTab === "details") {
       // Optional: Default to technical on load? Or keep details.
       // Let's keep detail as default, but user can switch.
     }
@@ -138,9 +152,7 @@ export default function ProposalDetailPage() {
       showToast.success("Proposal sent successfully");
       loadProposal();
     } catch (err) {
-      showToast.error(
-        err instanceof Error ? err.message : "Failed to send proposal"
-      );
+      showToast.error(err instanceof Error ? err.message : "Failed to send proposal");
     } finally {
       setActionLoading(false);
     }
@@ -154,9 +166,7 @@ export default function ProposalDetailPage() {
       showToast.success("Proposal accepted successfully");
       loadProposal();
     } catch (err) {
-      showToast.error(
-        err instanceof Error ? err.message : "Failed to accept proposal"
-      );
+      showToast.error(err instanceof Error ? err.message : "Failed to accept proposal");
     } finally {
       setActionLoading(false);
     }
@@ -175,9 +185,7 @@ export default function ProposalDetailPage() {
       setRejectionReason("");
       loadProposal();
     } catch (err) {
-      showToast.error(
-        err instanceof Error ? err.message : "Failed to reject proposal"
-      );
+      showToast.error(err instanceof Error ? err.message : "Failed to reject proposal");
     } finally {
       setActionLoading(false);
     }
@@ -190,14 +198,14 @@ export default function ProposalDetailPage() {
       console.log("[ProposalDetailPage] Fetching active users...");
       const users = await usersService.getActiveUsers();
       console.log("[ProposalDetailPage] Users fetched:", users);
-      
+
       const usersArray = Array.isArray(users) ? users : [];
       setAvailableUsers(usersArray);
-      
+
       const initialApprovers = proposal?.approverIds || [];
       console.log("[ProposalDetailPage] Initial approvers:", initialApprovers);
       setSelectedApprovers(initialApprovers);
-      
+
       console.log("[ProposalDetailPage] Showing approval modal");
       setShowApprovalModal(true);
     } catch (err) {
@@ -271,9 +279,7 @@ export default function ProposalDetailPage() {
       setShowConvertModal(false);
       loadProposal();
     } catch (err) {
-      showToast.error(
-        err instanceof Error ? err.message : "Failed to convert to proforma"
-      );
+      showToast.error(err instanceof Error ? err.message : "Failed to convert to proforma");
     } finally {
       setActionLoading(false);
     }
@@ -303,7 +309,9 @@ export default function ProposalDetailPage() {
       // Update status to NEGOTIATION and append reason to notes
       await proposalsService.updateProposal(proposal.id, {
         status: ProposalStatus.NEGOTIATION,
-        notes: proposal.notes ? `${proposal.notes}\n\nNegotiation Started: ${negotiationReason}` : `Negotiation Started: ${negotiationReason}`
+        notes: proposal.notes
+          ? `${proposal.notes}\n\nNegotiation Started: ${negotiationReason}`
+          : `Negotiation Started: ${negotiationReason}`,
       });
 
       showToast.success("Proposal moved to Negotiation");
@@ -374,13 +382,7 @@ export default function ProposalDetailPage() {
     );
   }
 
-  const DetailSection = ({
-    title,
-    children,
-  }: {
-    title: string;
-    children: React.ReactNode;
-  }) => (
+  const DetailSection = ({ title, children }: { title: string; children: React.ReactNode }) => (
     <div className="bg-white rounded-lg shadow p-6">
       <h2 className="text-xl font-semibold text-gray-900 mb-4">{title}</h2>
       {children}
@@ -397,9 +399,7 @@ export default function ProposalDetailPage() {
     <div className="py-3 border-b border-gray-200 last:border-0">
       <dt className="text-sm font-medium text-gray-500 mb-1">{label}</dt>
       <dd className="text-sm text-gray-900">
-        {value !== undefined && value !== null && value !== ""
-          ? String(value)
-          : "-"}
+        {value !== undefined && value !== null && value !== "" ? String(value) : "-"}
       </dd>
     </div>
   );
@@ -420,9 +420,7 @@ export default function ProposalDetailPage() {
           <div className="flex justify-between items-start">
             <div className="flex-1">
               <div className="flex items-center gap-3 mb-2">
-                <h1 className="text-3xl font-bold text-gray-900">
-                  {proposal.title}
-                </h1>
+                <h1 className="text-3xl font-bold text-gray-900">{proposal.title}</h1>
                 <span
                   className={`px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full bg-${getProposalStatusColor(
                     proposal.status
@@ -432,12 +430,15 @@ export default function ProposalDetailPage() {
                 </span>
               </div>
               <p className="text-gray-600">{proposal.proposalNumber}</p>
-              {proposal.customerName && (
-                <p className="text-gray-600 mt-1">
-                  Customer: {proposal.customerName}
-                </p>
+              {proposal.isTechnicalQuotation && (
+                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-purple-100 text-purple-800 mt-1">
+                  Technical Quotation
+                </span>
               )}
-              
+              {proposal.customerName && (
+                <p className="text-gray-600 mt-1">Customer: {proposal.customerName}</p>
+              )}
+
               {proposal.approvedByNames && proposal.approvedByNames.length > 0 && (
                 <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg flex items-center gap-3 text-green-800 shadow-sm">
                   <div className="bg-green-100 p-2 rounded-full">
@@ -469,7 +470,7 @@ export default function ProposalDetailPage() {
                 <Download className="h-4 w-4" />
                 {proposal.isProforma ? "Proforma" : "Quotation"}
               </button>
-              
+
               {proposal.status === ProposalStatus.DRAFT && (
                 <>
                   {!proposal.isProforma && (
@@ -525,54 +526,56 @@ export default function ProposalDetailPage() {
                 </PermissionGuard>
               )}
 
-              {proposal.status !== ProposalStatus.ACCEPTED && proposal.status !== ProposalStatus.REJECTED && (
-                <PermissionGuard resource="PROPOSAL" action="EDIT">
-                  <Link
-                    href={`/proposals/${proposal.id}/edit`}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-                  >
-                    Edit
-                  </Link>
-                </PermissionGuard>
-              )}
-              {/* Quotation Specific Actions */}
-              {(proposal.status === ProposalStatus.SENT || 
-                proposal.status === ProposalStatus.PENDING_ON_CUSTOMER ||
-                proposal.status === ProposalStatus.NEGOTIATION) && !proposal.isProforma && (
-                <div className="flex gap-2">
-                  <PermissionGuard resource="PROPOSAL" action="APPROVE">
-                    <button
-                      onClick={handleAccept}
-                      disabled={actionLoading}
-                      className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 flex items-center gap-2"
+              {proposal.status !== ProposalStatus.ACCEPTED &&
+                proposal.status !== ProposalStatus.REJECTED && (
+                  <PermissionGuard resource="PROPOSAL" action="EDIT">
+                    <Link
+                      href={`/proposals/${proposal.id}/edit`}
+                      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
                     >
-                      <CheckCircle className="h-4 w-4" />
-                      Accept
-                    </button>
+                      Edit
+                    </Link>
                   </PermissionGuard>
-                  {proposal.status === ProposalStatus.SENT && (
-                    <PermissionGuard resource="PROPOSAL" action="EDIT">
+                )}
+              {/* Quotation Specific Actions */}
+              {(proposal.status === ProposalStatus.SENT ||
+                proposal.status === ProposalStatus.PENDING_ON_CUSTOMER ||
+                proposal.status === ProposalStatus.NEGOTIATION) &&
+                !proposal.isProforma && (
+                  <div className="flex gap-2">
+                    <PermissionGuard resource="PROPOSAL" action="APPROVE">
                       <button
-                        onClick={() => setShowNegotiationModal(true)}
+                        onClick={handleAccept}
                         disabled={actionLoading}
-                        className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50"
+                        className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 flex items-center gap-2"
                       >
-                        Negotiate
+                        <CheckCircle className="h-4 w-4" />
+                        Accept
                       </button>
                     </PermissionGuard>
-                  )}
-                  <PermissionGuard resource="PROPOSAL" action="REJECT">
-                    <button
-                      onClick={() => setShowRejectModal(true)}
-                      disabled={actionLoading}
-                      className="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 disabled:opacity-50 flex items-center gap-2"
-                    >
-                      <XCircle className="h-4 w-4" />
-                      Reject
-                    </button>
-                  </PermissionGuard>
-                </div>
-              )}
+                    {proposal.status === ProposalStatus.SENT && (
+                      <PermissionGuard resource="PROPOSAL" action="EDIT">
+                        <button
+                          onClick={() => setShowNegotiationModal(true)}
+                          disabled={actionLoading}
+                          className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50"
+                        >
+                          Negotiate
+                        </button>
+                      </PermissionGuard>
+                    )}
+                    <PermissionGuard resource="PROPOSAL" action="REJECT">
+                      <button
+                        onClick={() => setShowRejectModal(true)}
+                        disabled={actionLoading}
+                        className="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 disabled:opacity-50 flex items-center gap-2"
+                      >
+                        <XCircle className="h-4 w-4" />
+                        Reject
+                      </button>
+                    </PermissionGuard>
+                  </div>
+                )}
 
               {/* Proforma Specific Actions */}
               {proposal.isProforma && (
@@ -605,29 +608,36 @@ export default function ProposalDetailPage() {
                   )}
                 </div>
               )}
-              {proposal.status === ProposalStatus.ACCEPTED && !proposal.isProforma && currentUser?.role === 'ADMIN' && (
-                <PermissionGuard resource="PROPOSAL" action="UPDATE">
-                  <button
-                    onClick={() => {
+              {proposal.status === ProposalStatus.ACCEPTED &&
+                !proposal.isProforma &&
+                currentUser?.role === "ADMIN" && (
+                  <PermissionGuard resource="PROPOSAL" action="UPDATE">
+                    <button
+                      onClick={() => {
                         setSelectedMilestones([{ name: "Full Payment", percentage: 100 }]);
                         setShowConvertModal(true);
-                    }}
-                    disabled={actionLoading || proposal.hasBeenConverted}
-                    className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 flex items-center gap-2 disabled:opacity-50"
-                  >
-                    <CheckCircle className="h-4 w-4" />
-                    {proposal.hasBeenConverted ? "Converted to Proforma" : "Convert to Proforma"}
-                  </button>
-                </PermissionGuard>
-              )}
+                      }}
+                      disabled={actionLoading || proposal.hasBeenConverted}
+                      className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 flex items-center gap-2 disabled:opacity-50"
+                    >
+                      <CheckCircle className="h-4 w-4" />
+                      {proposal.hasBeenConverted ? "Converted to Proforma" : "Convert to Proforma"}
+                    </button>
+                  </PermissionGuard>
+                )}
               <PermissionGuard resource="PROPOSAL" action="DELETE">
-                {proposal.isProforma && 
-                 proposal.status !== ProposalStatus.VOIDED && 
-                 proposal.status !== ProposalStatus.ACCEPTED && 
-                 currentUser?.role === 'ADMIN' && (
-                  <button
+                {proposal.isProforma &&
+                  proposal.status !== ProposalStatus.VOIDED &&
+                  proposal.status !== ProposalStatus.ACCEPTED &&
+                  currentUser?.role === "ADMIN" && (
+                    <button
                       onClick={async () => {
-                        if (!confirm("Are you sure you want to void this Proforma Invoice? This action cannot be undone.")) return;
+                        if (
+                          !confirm(
+                            "Are you sure you want to void this Proforma Invoice? This action cannot be undone."
+                          )
+                        )
+                          return;
                         setActionLoading(true);
                         try {
                           const updatedProposal = await proposalsService.voidProposal(id);
@@ -639,13 +649,13 @@ export default function ProposalDetailPage() {
                           setActionLoading(false);
                         }
                       }}
-                    disabled={actionLoading}
-                    className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 disabled:opacity-50"
-                    title="Void this Proforma Invoice"
-                  >
-                    Void
-                  </button>
-                )}
+                      disabled={actionLoading}
+                      className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 disabled:opacity-50"
+                      title="Void this Proforma Invoice"
+                    >
+                      Void
+                    </button>
+                  )}
                 {proposal.status === ProposalStatus.DRAFT && (
                   <button
                     onClick={() => setShowDeleteModal(true)}
@@ -660,48 +670,53 @@ export default function ProposalDetailPage() {
           </div>
         </div>
 
-
-
         {/* Navigation Tabs for Negotiation */}
         {proposal.status === ProposalStatus.NEGOTIATION && (
           <div className="border-b border-gray-200 mb-6 bg-white rounded-lg shadow px-6">
             <nav className="-mb-px flex space-x-8" aria-label="Tabs">
               <button
-                onClick={() => setActiveTab('details')}
-                className={`${activeTab === 'details'
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                  } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2`}
+                onClick={() => setActiveTab("details")}
+                className={`${
+                  activeTab === "details"
+                    ? "border-blue-500 text-blue-600"
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2`}
               >
                 <CheckCircle className="h-4 w-4" />
                 Details
               </button>
               <button
-                onClick={() => setActiveTab('technical')}
-                className={`${activeTab === 'technical'
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                  } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2`}
+                onClick={() => setActiveTab("technical")}
+                className={`${
+                  activeTab === "technical"
+                    ? "border-blue-500 text-blue-600"
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2`}
               >
                 <MessageSquare className="h-4 w-4" />
                 Technical Negotiation
               </button>
               <button
-                onClick={() => setActiveTab('commercial')}
-                className={`${activeTab === 'commercial'
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                  } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2`}
+                onClick={() => setActiveTab("commercial")}
+                className={`${
+                  activeTab === "commercial"
+                    ? "border-blue-500 text-blue-600"
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2`}
               >
                 <Gavel className="h-4 w-4" />
                 Place Bid (Commercial)
               </button>
               <button
-                onClick={() => { setActiveTab('history'); setComparison(null); }}
-                className={`${activeTab === 'history'
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                  } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2`}
+                onClick={() => {
+                  setActiveTab("history");
+                  setComparison(null);
+                }}
+                className={`${
+                  activeTab === "history"
+                    ? "border-blue-500 text-blue-600"
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2`}
               >
                 <History className="h-4 w-4" />
                 Version History
@@ -715,21 +730,26 @@ export default function ProposalDetailPage() {
           <div className="border-b border-gray-200 mb-6 bg-white rounded-lg shadow px-6">
             <nav className="-mb-px flex space-x-8" aria-label="Tabs">
               <button
-                onClick={() => setActiveTab('details')}
-                className={`${activeTab === 'details'
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                  } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2`}
+                onClick={() => setActiveTab("details")}
+                className={`${
+                  activeTab === "details"
+                    ? "border-blue-500 text-blue-600"
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2`}
               >
                 <CheckCircle className="h-4 w-4" />
                 Details
               </button>
               <button
-                onClick={() => { setActiveTab('history'); setComparison(null); }}
-                className={`${activeTab === 'history'
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                  } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2`}
+                onClick={() => {
+                  setActiveTab("history");
+                  setComparison(null);
+                }}
+                className={`${
+                  activeTab === "history"
+                    ? "border-blue-500 text-blue-600"
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2`}
               >
                 <History className="h-4 w-4" />
                 Version History
@@ -740,9 +760,10 @@ export default function ProposalDetailPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Main Content - 2 columns or full width if history/diff */}
-          <div className={`${activeTab === 'history' ? 'lg:col-span-3' : 'lg:col-span-2'} space-y-6`}>
-
-            {activeTab === 'history' && !comparison && (
+          <div
+            className={`${activeTab === "history" ? "lg:col-span-3" : "lg:col-span-2"} space-y-6`}
+          >
+            {activeTab === "history" && !comparison && (
               <ProposalVersionHistory
                 proposalId={proposal.id}
                 onVersionSelect={(v) => setSelectedVersion(v)}
@@ -750,7 +771,7 @@ export default function ProposalDetailPage() {
               />
             )}
 
-            {activeTab === 'history' && comparison && (
+            {activeTab === "history" && comparison && (
               <ProposalVersionDiff
                 version1={comparison.v1}
                 version2={comparison.v2}
@@ -758,65 +779,78 @@ export default function ProposalDetailPage() {
               />
             )}
 
-            {activeTab === 'technical' && (
-              <ProposalComments proposal={proposal} />
-            )}
+            {activeTab === "technical" && <ProposalComments proposal={proposal} />}
 
-            {activeTab === 'commercial' && (
+            {activeTab === "commercial" && (
               <CommercialNegotiation proposal={proposal} onUpdate={loadProposal} />
             )}
 
-            {activeTab === 'details' && (
+            {activeTab === "details" && (
               <div className="space-y-6">
                 {/* Milestone Progress Visual for Quotations */}
                 {!proposal.isProforma && proposal.hasBeenConverted && (
                   <div className="bg-white rounded-lg shadow p-6 border-l-4 border-blue-500">
                     <div className="flex justify-between items-center mb-2">
-                      <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wider">Billing Progress</h3>
-                      <span className="text-sm font-bold text-blue-600">Converted to Proformas</span>
+                      <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wider">
+                        Billing Progress
+                      </h3>
+                      <span className="text-sm font-bold text-blue-600">
+                        Converted to Proformas
+                      </span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2.5">
-                      <div className="bg-blue-600 h-2.5 rounded-full" style={{ width: '100%' }}></div>
+                      <div
+                        className="bg-blue-600 h-2.5 rounded-full"
+                        style={{ width: "100%" }}
+                      ></div>
                     </div>
                     <p className="text-xs text-gray-500 mt-2 italic">
-                      All milestones have been converted to Proforma Invoices. See "Related Documents" for details.
+                      All milestones have been converted to Proforma Invoices. See "Related
+                      Documents" for details.
                     </p>
                   </div>
                 )}
- 
+
                 {/* Basic Information */}
                 <DetailSection title="Proposal Details">
                   <dl>
                     <DetailRow label="Description" value={proposal.description} />
-                    <DetailRow
-                      label="Valid Until"
-                      value={formatDate(proposal.validUntil)}
-                    />
+                    <DetailRow label="Valid Until" value={formatDate(proposal.validUntil)} />
                     <DetailRow label="Owner" value={proposal.ownerName} />
                   </dl>
                 </DetailSection>
- 
+
                 {/* Approval Information for Quotations */}
                 {!proposal.isProforma && (proposal.approverIds?.length || 0) > 0 && (
                   <DetailSection title="Approval Status">
                     <div className="space-y-4">
                       <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100">
                         <span className="text-sm font-medium text-gray-700">Status</span>
-                        <span className={`px-2 py-1 text-xs font-bold rounded-full ${
-                          proposal.status === ProposalStatus.PENDING_APPROVAL ? 'bg-amber-100 text-amber-700' :
-                          proposal.status === ProposalStatus.PENDING_ON_CUSTOMER ? 'bg-emerald-100 text-emerald-700' :
-                          'bg-gray-100 text-gray-700'
-                        }`}>
+                        <span
+                          className={`px-2 py-1 text-xs font-bold rounded-full ${
+                            proposal.status === ProposalStatus.PENDING_APPROVAL
+                              ? "bg-amber-100 text-amber-700"
+                              : proposal.status === ProposalStatus.PENDING_ON_CUSTOMER
+                                ? "bg-emerald-100 text-emerald-700"
+                                : "bg-gray-100 text-gray-700"
+                          }`}
+                        >
                           {getProposalStatusLabel(proposal.status)}
                         </span>
                       </div>
                       <div>
-                        <h4 className="text-xs font-semibold text-gray-500 uppercase mb-2">Approvers</h4>
+                        <h4 className="text-xs font-semibold text-gray-500 uppercase mb-2">
+                          Approvers
+                        </h4>
                         <div className="space-y-2">
-                          {proposal.approverIds?.map(approverId => {
-                            const isApproved = proposal.approvedByIds?.includes(approverId) || false;
+                          {proposal.approverIds?.map((approverId) => {
+                            const isApproved =
+                              proposal.approvedByIds?.includes(approverId) || false;
                             return (
-                              <div key={approverId} className="flex items-center justify-between text-sm">
+                              <div
+                                key={approverId}
+                                className="flex items-center justify-between text-sm"
+                              >
                                 <span className="text-gray-900">User ID: {approverId}</span>
                                 {isApproved ? (
                                   <span className="flex items-center gap-1 text-emerald-600 font-medium">
@@ -833,50 +867,74 @@ export default function ProposalDetailPage() {
                     </div>
                   </DetailSection>
                 )}
- 
+
                 {/* Source Information */}
                 <DetailSection title="Source">
                   <dl>
                     <DetailRow
                       label="Type"
-                      value={
-                        proposal.source === ProposalSource.LEAD
-                          ? "Lead"
-                          : "Opportunity"
-                      }
+                      value={proposal.source === ProposalSource.LEAD ? "Lead" : "Opportunity"}
                     />
                     <DetailRow label="Name" value={proposal.sourceName} />
                   </dl>
                 </DetailSection>
- 
+
                 {/* Address Information */}
                 {(proposal.billingAddress || proposal.shippingAddress) && (
                   <DetailSection title="Address Information">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                       {proposal.billingAddress && (
                         <div>
-                          <h3 className="text-sm font-semibold text-gray-800 uppercase tracking-wider mb-2">Billing Address</h3>
+                          <h3 className="text-sm font-semibold text-gray-800 uppercase tracking-wider mb-2">
+                            Billing Address
+                          </h3>
                           <div className="text-sm text-gray-900 leading-relaxed space-y-1">
                             <p className="font-bold">
-                              {proposal.billingAddress.name || proposal.billingAddress.companyName || proposal.customerName}
+                              {proposal.billingAddress.name ||
+                                proposal.billingAddress.companyName ||
+                                proposal.customerName}
                             </p>
-                            {proposal.billingAddress.companyName && proposal.billingAddress.name && (
-                              <p className="text-gray-600">{proposal.billingAddress.companyName}</p>
-                            )}
+                            {proposal.billingAddress.companyName &&
+                              proposal.billingAddress.name && (
+                                <p className="text-gray-600">
+                                  {proposal.billingAddress.companyName}
+                                </p>
+                              )}
                             <p className="whitespace-pre-line text-gray-700">
-                              {proposal.billingAddress.street && `${proposal.billingAddress.street}\n`}
-                              {proposal.billingAddress.city}{proposal.billingAddress.state && `, ${proposal.billingAddress.state}`}{proposal.billingAddress.postalCode && ` - ${proposal.billingAddress.postalCode}`}
-                              {proposal.billingAddress.country && `\n${proposal.billingAddress.country}`}
+                              {proposal.billingAddress.street &&
+                                `${proposal.billingAddress.street}\n`}
+                              {proposal.billingAddress.city}
+                              {proposal.billingAddress.state &&
+                                `, ${proposal.billingAddress.state}`}
+                              {proposal.billingAddress.postalCode &&
+                                ` - ${proposal.billingAddress.postalCode}`}
+                              {proposal.billingAddress.country &&
+                                `\n${proposal.billingAddress.country}`}
                             </p>
                             <div className="pt-2 text-xs space-y-1">
                               {(proposal.billingAddress.email || proposal.customerEmail) && (
-                                <p><span className="text-gray-500 uppercase font-medium w-12 inline-block">Email:</span> {proposal.billingAddress.email || proposal.customerEmail}</p>
+                                <p>
+                                  <span className="text-gray-500 uppercase font-medium w-12 inline-block">
+                                    Email:
+                                  </span>{" "}
+                                  {proposal.billingAddress.email || proposal.customerEmail}
+                                </p>
                               )}
                               {(proposal.billingAddress.phone || proposal.customerPhone) && (
-                                <p><span className="text-gray-500 uppercase font-medium w-12 inline-block">Phone:</span> {proposal.billingAddress.phone || proposal.customerPhone}</p>
+                                <p>
+                                  <span className="text-gray-500 uppercase font-medium w-12 inline-block">
+                                    Phone:
+                                  </span>{" "}
+                                  {proposal.billingAddress.phone || proposal.customerPhone}
+                                </p>
                               )}
                               {(proposal.billingAddress.gstNumber || proposal.gstNumber) && (
-                                <p><span className="text-gray-500 uppercase font-medium w-12 inline-block">GST:</span> {proposal.billingAddress.gstNumber || proposal.gstNumber}</p>
+                                <p>
+                                  <span className="text-gray-500 uppercase font-medium w-12 inline-block">
+                                    GST:
+                                  </span>{" "}
+                                  {proposal.billingAddress.gstNumber || proposal.gstNumber}
+                                </p>
                               )}
                             </div>
                           </div>
@@ -884,28 +942,56 @@ export default function ProposalDetailPage() {
                       )}
                       {proposal.shippingAddress && (
                         <div>
-                          <h3 className="text-sm font-semibold text-gray-800 uppercase tracking-wider mb-2">Shipping Address</h3>
+                          <h3 className="text-sm font-semibold text-gray-800 uppercase tracking-wider mb-2">
+                            Shipping Address
+                          </h3>
                           <div className="text-sm text-gray-900 leading-relaxed space-y-1">
                             <p className="font-bold">
-                              {proposal.shippingAddress.name || proposal.shippingAddress.companyName || proposal.customerName}
+                              {proposal.shippingAddress.name ||
+                                proposal.shippingAddress.companyName ||
+                                proposal.customerName}
                             </p>
-                            {proposal.shippingAddress.companyName && proposal.shippingAddress.name && (
-                              <p className="text-gray-600">{proposal.shippingAddress.companyName}</p>
-                            )}
+                            {proposal.shippingAddress.companyName &&
+                              proposal.shippingAddress.name && (
+                                <p className="text-gray-600">
+                                  {proposal.shippingAddress.companyName}
+                                </p>
+                              )}
                             <p className="whitespace-pre-line text-gray-700">
-                              {proposal.shippingAddress.street && `${proposal.shippingAddress.street}\n`}
-                              {proposal.shippingAddress.city}{proposal.shippingAddress.state && `, ${proposal.shippingAddress.state}`}{proposal.shippingAddress.postalCode && ` - ${proposal.shippingAddress.postalCode}`}
-                              {proposal.shippingAddress.country && `\n${proposal.shippingAddress.country}`}
+                              {proposal.shippingAddress.street &&
+                                `${proposal.shippingAddress.street}\n`}
+                              {proposal.shippingAddress.city}
+                              {proposal.shippingAddress.state &&
+                                `, ${proposal.shippingAddress.state}`}
+                              {proposal.shippingAddress.postalCode &&
+                                ` - ${proposal.shippingAddress.postalCode}`}
+                              {proposal.shippingAddress.country &&
+                                `\n${proposal.shippingAddress.country}`}
                             </p>
                             <div className="pt-2 text-xs space-y-1">
                               {(proposal.shippingAddress.email || proposal.customerEmail) && (
-                                <p><span className="text-gray-500 uppercase font-medium w-12 inline-block">Email:</span> {proposal.shippingAddress.email || proposal.customerEmail}</p>
+                                <p>
+                                  <span className="text-gray-500 uppercase font-medium w-12 inline-block">
+                                    Email:
+                                  </span>{" "}
+                                  {proposal.shippingAddress.email || proposal.customerEmail}
+                                </p>
                               )}
                               {(proposal.shippingAddress.phone || proposal.customerPhone) && (
-                                <p><span className="text-gray-500 uppercase font-medium w-12 inline-block">Phone:</span> {proposal.shippingAddress.phone || proposal.customerPhone}</p>
+                                <p>
+                                  <span className="text-gray-500 uppercase font-medium w-12 inline-block">
+                                    Phone:
+                                  </span>{" "}
+                                  {proposal.shippingAddress.phone || proposal.customerPhone}
+                                </p>
                               )}
                               {(proposal.shippingAddress.gstNumber || proposal.gstNumber) && (
-                                <p><span className="text-gray-500 uppercase font-medium w-12 inline-block">GST:</span> {proposal.shippingAddress.gstNumber || proposal.gstNumber}</p>
+                                <p>
+                                  <span className="text-gray-500 uppercase font-medium w-12 inline-block">
+                                    GST:
+                                  </span>{" "}
+                                  {proposal.shippingAddress.gstNumber || proposal.gstNumber}
+                                </p>
                               )}
                             </div>
                           </div>
@@ -914,7 +1000,7 @@ export default function ProposalDetailPage() {
                     </div>
                   </DetailSection>
                 )}
- 
+
                 {/* Line Items */}
                 <DetailSection title="Line Items">
                   <div className="overflow-x-auto">
@@ -928,11 +1014,16 @@ export default function ProposalDetailPage() {
                             Qty
                           </th>
                           <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">
-                            Unit Price
+                            Unit
                           </th>
                           <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">
-                            Discount
+                            Unit Price
                           </th>
+                          {!proposal.isTechnicalQuotation && proposal.showDiscount !== false && (
+                            <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                              Discount
+                            </th>
+                          )}
                           <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">
                             Tax
                           </th>
@@ -945,45 +1036,45 @@ export default function ProposalDetailPage() {
                         {proposal.lineItems.map((item) => {
                           let displayName = item.productName;
                           let displayDesc = item.description;
- 
+
                           // Check for custom product name encoded in description
-                          if (item.description && item.description.includes(':::')) {
-                            const parts = item.description.split(':::');
+                          if (item.description && item.description.includes(":::")) {
+                            const parts = item.description.split(":::");
                             displayName = parts[0];
                             displayDesc = parts[1];
                           }
- 
+
                           return (
                             <tr key={item.lineItemId}>
                               <td className="px-4 py-4">
                                 <div className="text-sm font-medium text-gray-900">
                                   {displayName}
                                 </div>
-                                <div className="text-sm text-gray-500">
-                                  SKU: {item.sku}
-                                </div>
+                                <div className="text-sm text-gray-500">SKU: {item.sku}</div>
                                 {displayDesc && (
-                                  <div className="text-xs text-gray-500 mt-1">
-                                    {displayDesc}
-                                  </div>
+                                  <div className="text-xs text-gray-500 mt-1">{displayDesc}</div>
                                 )}
                               </td>
                               <td className="px-4 py-4 text-right text-sm text-gray-900">
-                                {item.quantity} {item.unit}
+                                {item.quantity}
+                              </td>
+                              <td className="px-4 py-4 text-right text-sm text-gray-900">
+                                {item.unit || "-"}
                               </td>
                               <td className="px-4 py-4 text-right text-sm text-gray-900">
                                 {formatCurrency(item.unitPrice)}
                               </td>
-                              <td className="px-4 py-4 text-right text-sm text-gray-900">
-                                {item.lineDiscountAmount > 0
-                                  ? formatCurrency(item.lineDiscountAmount)
-                                  : "-"}
-                              </td>
+                              {!proposal.isTechnicalQuotation &&
+                                proposal.showDiscount !== false && (
+                                  <td className="px-4 py-4 text-right text-sm text-gray-900">
+                                    {item.lineDiscountAmount > 0
+                                      ? formatCurrency(item.lineDiscountAmount)
+                                      : "-"}
+                                  </td>
+                                )}
                               <td className="px-4 py-4 text-right text-sm text-gray-900">
                                 {formatCurrency(item.lineTaxAmount)}
-                                <span className="text-gray-500 ml-1">
-                                  ({item.taxRate}%)
-                                </span>
+                                <span className="text-gray-500 ml-1">({item.taxRate}%)</span>
                               </td>
                               <td className="px-4 py-4 text-right text-sm font-medium text-gray-900">
                                 {formatCurrency(item.lineTotal)}
@@ -995,43 +1086,35 @@ export default function ProposalDetailPage() {
                     </table>
                   </div>
                 </DetailSection>
- 
+
                 {/* Terms */}
-                {(proposal.paymentTerms ||
-                  proposal.deliveryTerms ||
-                  proposal.notes) && (
-                    <DetailSection title="Terms & Notes">
-                      <dl>
-                        {proposal.paymentTerms && (
-                          <DetailRow
-                            label="Payment Terms"
-                            value={proposal.paymentTerms}
-                          />
-                        )}
-                        {proposal.deliveryTerms && (
-                          <DetailRow
-                            label="Delivery Terms"
-                            value={proposal.deliveryTerms}
-                          />
-                        )}
-                        {proposal.notes && (
-                          <DetailRow label="Notes" value={proposal.notes} />
-                        )}
-                      </dl>
-                    </DetailSection>
-                  )}
+                {(proposal.paymentTerms || proposal.deliveryTerms || proposal.notes) && (
+                  <DetailSection title="Terms & Notes">
+                    <dl>
+                      {proposal.paymentTerms && (
+                        <DetailRow label="Payment Terms" value={proposal.paymentTerms} />
+                      )}
+                      {proposal.deliveryTerms && (
+                        <DetailRow label="Delivery Terms" value={proposal.deliveryTerms} />
+                      )}
+                      {proposal.notes && <DetailRow label="Notes" value={proposal.notes} />}
+                    </dl>
+                  </DetailSection>
+                )}
               </div>
             )}
           </div>
 
           {/* Sidebar - 1 column - hide if history tab is full width */}
-          {activeTab !== 'history' && (
+          {activeTab !== "history" && (
             <div className="space-y-6">
               {/* Totals */}
               <DetailSection title="Summary">
                 <dl className="space-y-3">
                   <div className="flex justify-between text-sm">
-                    <dt className="text-gray-500">{proposal.isProforma ? "Total Taxable Amount" : "Subtotal"}</dt>
+                    <dt className="text-gray-500">
+                      {proposal.isProforma ? "Total Taxable Amount" : "Subtotal"}
+                    </dt>
                     <dd className="text-gray-900 font-medium">
                       {formatCurrency(proposal.subtotal)}
                     </dd>
@@ -1044,12 +1127,9 @@ export default function ProposalDetailPage() {
                           {proposal.discount && (
                             <span className="ml-1 text-xs">
                               (
-                              {proposal.discount.overallDiscountType ===
-                                DiscountType.PERCENTAGE
+                              {proposal.discount.overallDiscountType === DiscountType.PERCENTAGE
                                 ? `${proposal.discount.overallDiscountValue}%`
-                                : formatCurrency(
-                                  proposal.discount.overallDiscountValue
-                                )}
+                                : formatCurrency(proposal.discount.overallDiscountValue)}
                               )
                             </span>
                           )}
@@ -1066,107 +1146,125 @@ export default function ProposalDetailPage() {
                     </>
                   )}
                   <div className="flex justify-between text-sm">
-                    <dt className="text-gray-500">{proposal.isProforma ? "Total GST Amount" : "Tax"}</dt>
+                    <dt className="text-gray-500">
+                      {proposal.isProforma ? "Total GST Amount" : "Tax"}
+                    </dt>
                     <dd className="text-gray-900 font-medium">
                       {(() => {
                         let displayTax = proposal.taxAmount || 0;
                         if (proposal.isProforma) {
                           displayTax = proposal.parentTaxAmount ?? 0;
                           if (displayTax <= 0) {
-                            displayTax = proposal.lineItems?.reduce((sum, item) => {
-                              if (item.lineTaxAmount > 0) return sum + item.lineTaxAmount;
-                              if (item.taxRate > 0) {
-                                const base = item.lineDiscountAmount ? (item.unitPrice * item.quantity - item.lineDiscountAmount) : (item.unitPrice * item.quantity);
-                                return sum + (base * item.taxRate / 100);
-                              }
-                              return sum;
-                            }, 0) || proposal.taxAmount || 0;
+                            displayTax =
+                              proposal.lineItems?.reduce((sum, item) => {
+                                if (item.lineTaxAmount > 0) return sum + item.lineTaxAmount;
+                                if (item.taxRate > 0) {
+                                  const base = item.lineDiscountAmount
+                                    ? item.unitPrice * item.quantity - item.lineDiscountAmount
+                                    : item.unitPrice * item.quantity;
+                                  return sum + (base * item.taxRate) / 100;
+                                }
+                                return sum;
+                              }, 0) ||
+                              proposal.taxAmount ||
+                              0;
                           }
                         }
                         return formatCurrency(displayTax);
                       })()}
                     </dd>
                   </div>
-                  
+
                   {!proposal.isProforma && (
                     <div className="flex justify-between text-lg font-bold border-t pt-3">
                       <dt className="text-gray-900">Total</dt>
-                      <dd className="text-blue-600">
-                        {formatCurrency(proposal.totalAmount)}
-                      </dd>
+                      <dd className="text-blue-600">{formatCurrency(proposal.totalAmount)}</dd>
                     </div>
                   )}
 
-                  {proposal.milestonePayableAmount !== undefined && proposal.milestonePayableAmount !== null && (
-                    <div className="flex justify-between text-xl font-extrabold border-t-2 border-blue-100 pt-3 mt-2 bg-blue-50 p-2 rounded-lg">
-                      <dt className="text-blue-900 flex flex-col">
-                        <span>Net Payable</span>
-                        {proposal.isProforma && (
-                          <span className="text-xs text-blue-700 font-semibold mt-1">
-                            {(() => {
-                              let milestonePercentage = proposal.paymentMilestones?.[0]?.percentage || 100;
-                              let includesGst = proposal.milestoneIncludesGst ?? false;
-                              
-                              if (proposal.paymentMilestones?.[0]?.percentage && proposal.paymentMilestones[0].percentage !== 100) {
-                                milestonePercentage = proposal.paymentMilestones[0].percentage;
-                              } else {
-                                // Fallback native logic just in case API didn't map it properly for old proformas
-                                let computedTax = proposal.parentTaxAmount ?? 0;
-                                if (computedTax <= 0) {
-                                  computedTax = proposal.lineItems?.reduce((sum, item) => {
-                                    if (item.lineTaxAmount > 0) return sum + item.lineTaxAmount;
-                                    if (item.taxRate > 0) {
-                                      const base = item.lineDiscountAmount ? (item.unitPrice * item.quantity - item.lineDiscountAmount) : (item.unitPrice * item.quantity);
-                                      return sum + (base * item.taxRate / 100);
+                  {proposal.milestonePayableAmount !== undefined &&
+                    proposal.milestonePayableAmount !== null && (
+                      <div className="flex justify-between text-xl font-extrabold border-t-2 border-blue-100 pt-3 mt-2 bg-blue-50 p-2 rounded-lg">
+                        <dt className="text-blue-900 flex flex-col">
+                          <span>Net Payable</span>
+                          {proposal.isProforma && (
+                            <span className="text-xs text-blue-700 font-semibold mt-1">
+                              {(() => {
+                                let milestonePercentage =
+                                  proposal.paymentMilestones?.[0]?.percentage || 100;
+                                let includesGst = proposal.milestoneIncludesGst ?? false;
+
+                                if (
+                                  proposal.paymentMilestones?.[0]?.percentage &&
+                                  proposal.paymentMilestones[0].percentage !== 100
+                                ) {
+                                  milestonePercentage = proposal.paymentMilestones[0].percentage;
+                                } else {
+                                  // Fallback native logic just in case API didn't map it properly for old proformas
+                                  let computedTax = proposal.parentTaxAmount ?? 0;
+                                  if (computedTax <= 0) {
+                                    computedTax =
+                                      proposal.lineItems?.reduce((sum, item) => {
+                                        if (item.lineTaxAmount > 0) return sum + item.lineTaxAmount;
+                                        if (item.taxRate > 0) {
+                                          const base = item.lineDiscountAmount
+                                            ? item.unitPrice * item.quantity -
+                                              item.lineDiscountAmount
+                                            : item.unitPrice * item.quantity;
+                                          return sum + (base * item.taxRate) / 100;
+                                        }
+                                        return sum;
+                                      }, 0) ||
+                                      proposal.taxAmount ||
+                                      0;
+                                  }
+
+                                  const subtotal = proposal.subtotal || 0;
+                                  const tax = computedTax;
+                                  const payable = proposal.milestonePayableAmount!;
+
+                                  if (subtotal > 0) {
+                                    const ratioWithoutTax = (payable / subtotal) * 100;
+                                    const ratioWithTax = ((payable - tax) / subtotal) * 100;
+
+                                    const isRoundWithoutTax =
+                                      Math.abs(Math.round(ratioWithoutTax) - ratioWithoutTax) <
+                                      0.05;
+                                    const isRoundWithTax =
+                                      Math.abs(Math.round(ratioWithTax) - ratioWithTax) < 0.05;
+
+                                    if (tax > 0) {
+                                      if (isRoundWithoutTax && isRoundWithTax) {
+                                        if (Math.round(ratioWithoutTax) % 5 === 0) {
+                                          milestonePercentage = Math.round(ratioWithoutTax);
+                                          includesGst = false;
+                                        } else {
+                                          milestonePercentage = Math.round(ratioWithTax);
+                                          includesGst = true;
+                                        }
+                                      } else if (isRoundWithTax && ratioWithTax > 0) {
+                                        milestonePercentage = Math.round(ratioWithTax);
+                                        includesGst = true;
+                                      } else {
+                                        milestonePercentage = Math.round(ratioWithoutTax);
+                                        includesGst = false;
+                                      }
+                                    } else {
+                                      milestonePercentage = Math.round(ratioWithoutTax);
+                                      includesGst = false;
                                     }
-                                    return sum;
-                                  }, 0) || proposal.taxAmount || 0;
-                                }
-                                
-                                const subtotal = proposal.subtotal || 0;
-                                const tax = computedTax;
-                                const payable = proposal.milestonePayableAmount!;
-                                
-                                if (subtotal > 0) {
-                                  const ratioWithoutTax = (payable / subtotal) * 100;
-                                  const ratioWithTax = ((payable - tax) / subtotal) * 100;
-                                  
-                                  const isRoundWithoutTax = Math.abs(Math.round(ratioWithoutTax) - ratioWithoutTax) < 0.05;
-                                  const isRoundWithTax = Math.abs(Math.round(ratioWithTax) - ratioWithTax) < 0.05;
-                                  
-                                  if (tax > 0) {
-                                     if (isRoundWithoutTax && isRoundWithTax) {
-                                         if (Math.round(ratioWithoutTax) % 5 === 0) {
-                                             milestonePercentage = Math.round(ratioWithoutTax);
-                                             includesGst = false;
-                                         } else {
-                                             milestonePercentage = Math.round(ratioWithTax);
-                                             includesGst = true;
-                                         }
-                                     } else if (isRoundWithTax && ratioWithTax > 0) {
-                                         milestonePercentage = Math.round(ratioWithTax);
-                                         includesGst = true;
-                                     } else {
-                                         milestonePercentage = Math.round(ratioWithoutTax);
-                                         includesGst = false;
-                                     }
-                                  } else {
-                                     milestonePercentage = Math.round(ratioWithoutTax);
-                                     includesGst = false;
                                   }
                                 }
-                              }
-                              return `Based on ${milestonePercentage}% Milestone${includesGst ? ' + GST' : ''}`;
-                            })()}
-
-                          </span>
-                        )}
-                      </dt>
-                      <dd className="text-blue-700">
-                        {formatCurrency(proposal.milestonePayableAmount)}
-                      </dd>
-                    </div>
-                  )}
+                                return `Based on ${milestonePercentage}% Milestone${includesGst ? " + GST" : ""}`;
+                              })()}
+                            </span>
+                          )}
+                        </dt>
+                        <dd className="text-blue-700">
+                          {formatCurrency(proposal.milestonePayableAmount)}
+                        </dd>
+                      </div>
+                    )}
                 </dl>
               </DetailSection>
 
@@ -1174,9 +1272,18 @@ export default function ProposalDetailPage() {
               {(proposal.billingAddress?.name || proposal.customerName) && (
                 <DetailSection title="Customer Information">
                   <dl>
-                    <DetailRow label="Name" value={proposal.billingAddress?.name || proposal.customerName} />
-                    <DetailRow label="Email" value={proposal.billingAddress?.email || proposal.customerEmail} />
-                    <DetailRow label="Phone" value={proposal.billingAddress?.phone || proposal.customerPhone} />
+                    <DetailRow
+                      label="Name"
+                      value={proposal.billingAddress?.name || proposal.customerName}
+                    />
+                    <DetailRow
+                      label="Email"
+                      value={proposal.billingAddress?.email || proposal.customerEmail}
+                    />
+                    <DetailRow
+                      label="Phone"
+                      value={proposal.billingAddress?.phone || proposal.customerPhone}
+                    />
                   </dl>
                 </DetailSection>
               )}
@@ -1186,36 +1293,27 @@ export default function ProposalDetailPage() {
                 <dl>
                   <DetailRow
                     label="Created"
-                    value={`${formatDateTime(proposal.createdAt)} by ${proposal.createdByName
-                      }`}
+                    value={`${formatDateTime(proposal.createdAt)} by ${proposal.createdByName}`}
                   />
                   {proposal.lastModifiedAt && (
                     <DetailRow
                       label="Last Modified"
-                      value={`${formatDateTime(proposal.lastModifiedAt)} by ${proposal.lastModifiedByName
-                        }`}
+                      value={`${formatDateTime(proposal.lastModifiedAt)} by ${
+                        proposal.lastModifiedByName
+                      }`}
                     />
                   )}
                   {proposal.sentAt && (
                     <DetailRow label="Sent" value={formatDateTime(proposal.sentAt)} />
                   )}
                   {proposal.acceptedAt && (
-                    <DetailRow
-                      label="Accepted"
-                      value={formatDateTime(proposal.acceptedAt)}
-                    />
+                    <DetailRow label="Accepted" value={formatDateTime(proposal.acceptedAt)} />
                   )}
                   {proposal.rejectedAt && (
                     <>
-                      <DetailRow
-                        label="Rejected"
-                        value={formatDateTime(proposal.rejectedAt)}
-                      />
+                      <DetailRow label="Rejected" value={formatDateTime(proposal.rejectedAt)} />
                       {proposal.rejectionReason && (
-                        <DetailRow
-                          label="Rejection Reason"
-                          value={proposal.rejectionReason}
-                        />
+                        <DetailRow label="Rejection Reason" value={proposal.rejectionReason} />
                       )}
                     </>
                   )}
@@ -1251,88 +1349,80 @@ export default function ProposalDetailPage() {
       )}
 
       {/* Reject Modal */}
-      {
-        showRejectModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                Reject Proposal
-              </h3>
-              <p className="text-sm text-gray-600 mb-4">
-                Please provide a reason for rejecting this proposal:
-              </p>
-              <textarea
-                value={rejectionReason}
-                onChange={(e) => setRejectionReason(e.target.value)}
-                placeholder="Enter rejection reason..."
-                rows={4}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
-              />
-              <div className="flex justify-end gap-3 mt-4">
-                <button
-                  onClick={() => {
-                    setShowRejectModal(false);
-                    setRejectionReason("");
-                  }}
-                  disabled={actionLoading}
-                  className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleReject}
-                  disabled={actionLoading || !rejectionReason.trim()}
-                  className="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 disabled:opacity-50"
-                >
-                  {actionLoading ? "Rejecting..." : "Reject Proposal"}
-                </button>
-              </div>
+      {showRejectModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Reject Proposal</h3>
+            <p className="text-sm text-gray-600 mb-4">
+              Please provide a reason for rejecting this proposal:
+            </p>
+            <textarea
+              value={rejectionReason}
+              onChange={(e) => setRejectionReason(e.target.value)}
+              placeholder="Enter rejection reason..."
+              rows={4}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+            />
+            <div className="flex justify-end gap-3 mt-4">
+              <button
+                onClick={() => {
+                  setShowRejectModal(false);
+                  setRejectionReason("");
+                }}
+                disabled={actionLoading}
+                className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleReject}
+                disabled={actionLoading || !rejectionReason.trim()}
+                className="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 disabled:opacity-50"
+              >
+                {actionLoading ? "Rejecting..." : "Reject Proposal"}
+              </button>
             </div>
           </div>
-        )
-      }
+        </div>
+      )}
 
       {/* Negotiation Modal */}
-      {
-        showNegotiationModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                Start Negotiation
-              </h3>
-              <p className="text-sm text-gray-600 mb-4">
-                Please provide the customer's feedback or reason for negotiation:
-              </p>
-              <textarea
-                value={negotiationReason}
-                onChange={(e) => setNegotiationReason(e.target.value)}
-                placeholder="E.g. Customer wants 10% discount..."
-                rows={4}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-              />
-              <div className="flex justify-end gap-3 mt-4">
-                <button
-                  onClick={() => {
-                    setShowNegotiationModal(false);
-                    setNegotiationReason("");
-                  }}
-                  disabled={actionLoading}
-                  className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleStartNegotiation}
-                  disabled={actionLoading || !negotiationReason.trim()}
-                  className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50"
-                >
-                  {actionLoading ? "Starting..." : "Start Negotiation"}
-                </button>
-              </div>
+      {showNegotiationModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Start Negotiation</h3>
+            <p className="text-sm text-gray-600 mb-4">
+              Please provide the customer's feedback or reason for negotiation:
+            </p>
+            <textarea
+              value={negotiationReason}
+              onChange={(e) => setNegotiationReason(e.target.value)}
+              placeholder="E.g. Customer wants 10% discount..."
+              rows={4}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            />
+            <div className="flex justify-end gap-3 mt-4">
+              <button
+                onClick={() => {
+                  setShowNegotiationModal(false);
+                  setNegotiationReason("");
+                }}
+                disabled={actionLoading}
+                className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleStartNegotiation}
+                disabled={actionLoading || !negotiationReason.trim()}
+                className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50"
+              >
+                {actionLoading ? "Starting..." : "Start Negotiation"}
+              </button>
             </div>
           </div>
-        )
-      }
+        </div>
+      )}
 
       {selectedVersion && (
         <ProposalSnapshotModal
@@ -1346,15 +1436,15 @@ export default function ProposalDetailPage() {
       {showApprovalModal && (
         <div className="fixed inset-0 z-[100] overflow-y-auto">
           {/* Backdrop */}
-          <div 
-            className="fixed inset-0 bg-black bg-opacity-50 transition-opacity" 
-            aria-hidden="true" 
+          <div
+            className="fixed inset-0 bg-black bg-opacity-50 transition-opacity"
+            aria-hidden="true"
             onClick={() => setShowApprovalModal(false)}
           ></div>
 
           {/* Modal Container */}
           <div className="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-            <div 
+            <div
               className="relative bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg w-full"
               onClick={(e) => e.stopPropagation()}
             >
@@ -1371,7 +1461,7 @@ export default function ProposalDetailPage() {
                       <p className="text-sm text-gray-500 mb-4">
                         Select users to tag for approving this quotation.
                       </p>
-                      
+
                       <div className="max-h-60 overflow-y-auto border border-gray-200 rounded-md">
                         {Array.isArray(availableUsers) && availableUsers.length > 0 ? (
                           availableUsers.map((user, idx) => {
@@ -1379,7 +1469,10 @@ export default function ProposalDetailPage() {
                             const userId = user.id || user.userId || `unknown-${idx}`;
                             const isChecked = (selectedApprovers || []).includes(userId);
                             return (
-                              <div key={userId} className="flex items-center p-3 border-b border-gray-100 hover:bg-gray-50">
+                              <div
+                                key={userId}
+                                className="flex items-center p-3 border-b border-gray-100 hover:bg-gray-50"
+                              >
                                 <input
                                   id={`user-${userId}`}
                                   type="checkbox"
@@ -1387,21 +1480,33 @@ export default function ProposalDetailPage() {
                                   checked={isChecked}
                                   onChange={(e) => {
                                     if (e.target.checked) {
-                                      setSelectedApprovers(prev => [...prev, userId]);
+                                      setSelectedApprovers((prev) => [...prev, userId]);
                                     } else {
-                                      setSelectedApprovers(prev => prev.filter(aid => aid !== userId));
+                                      setSelectedApprovers((prev) =>
+                                        prev.filter((aid) => aid !== userId)
+                                      );
                                     }
                                   }}
                                 />
-                                <label htmlFor={`user-${userId}`} className="ml-3 block text-sm font-medium text-gray-700 cursor-pointer w-full">
-                                  {user.profile?.fullName || `${user.profile?.firstName || ""} ${user.profile?.lastName || ""}`.trim() || user.username || "System User"} 
-                                  <span className="text-gray-400 font-normal ml-1">({user.email || "No email"})</span>
+                                <label
+                                  htmlFor={`user-${userId}`}
+                                  className="ml-3 block text-sm font-medium text-gray-700 cursor-pointer w-full"
+                                >
+                                  {user.profile?.fullName ||
+                                    `${user.profile?.firstName || ""} ${user.profile?.lastName || ""}`.trim() ||
+                                    user.username ||
+                                    "System User"}
+                                  <span className="text-gray-400 font-normal ml-1">
+                                    ({user.email || "No email"})
+                                  </span>
                                 </label>
                               </div>
                             );
                           })
                         ) : (
-                          <div className="p-4 text-sm text-gray-500 text-center">No active users found.</div>
+                          <div className="p-4 text-sm text-gray-500 text-center">
+                            No active users found.
+                          </div>
                         )}
                       </div>
                     </div>
@@ -1435,15 +1540,15 @@ export default function ProposalDetailPage() {
       {showConvertModal && (
         <div className="fixed inset-0 z-[100] overflow-y-auto">
           {/* Backdrop */}
-          <div 
-            className="fixed inset-0 bg-black bg-opacity-50 transition-opacity" 
-            aria-hidden="true" 
+          <div
+            className="fixed inset-0 bg-black bg-opacity-50 transition-opacity"
+            aria-hidden="true"
             onClick={() => setShowConvertModal(false)}
           ></div>
 
           {/* Modal Container */}
           <div className="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-            <div 
+            <div
               className="relative bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-xl w-full"
               onClick={(e) => e.stopPropagation()}
             >
@@ -1458,14 +1563,17 @@ export default function ProposalDetailPage() {
                     </h3>
                     <div className="mt-2 text-left">
                       <p className="text-sm text-gray-500 mb-4">
-                        If you want to split this quotation into multiple proforma invoices based on milestones, add them below. Otherwise, keep it as a single 100% stage.
+                        If you want to split this quotation into multiple proforma invoices based on
+                        milestones, add them below. Otherwise, keep it as a single 100% stage.
                       </p>
-                      
+
                       <div className="space-y-3">
                         {selectedMilestones.map((milestone, index) => (
                           <div key={index} className="flex gap-2 items-end">
                             <div className="flex-1">
-                              <label className="block text-xs font-medium text-gray-500 mb-1">Milestone Name</label>
+                              <label className="block text-xs font-medium text-gray-500 mb-1">
+                                Milestone Name
+                              </label>
                               <input
                                 type="text"
                                 value={milestone.name}
@@ -1479,7 +1587,9 @@ export default function ProposalDetailPage() {
                               />
                             </div>
                             <div className="w-24">
-                              <label className="block text-xs font-medium text-gray-500 mb-1">Percentage (%)</label>
+                              <label className="block text-xs font-medium text-gray-500 mb-1">
+                                Percentage (%)
+                              </label>
                               <input
                                 type="number"
                                 value={milestone.percentage}
@@ -1493,25 +1603,36 @@ export default function ProposalDetailPage() {
                             </div>
                             <button
                               type="button"
-                              onClick={() => setSelectedMilestones(selectedMilestones.filter((_, i) => i !== index))}
+                              onClick={() =>
+                                setSelectedMilestones(
+                                  selectedMilestones.filter((_, i) => i !== index)
+                                )
+                              }
                               className="p-2 text-red-500 hover:text-red-700"
                             >
                               <X className="h-4 w-4" />
                             </button>
                           </div>
                         ))}
-                        
+
                         <button
                           type="button"
-                          onClick={() => setSelectedMilestones([...selectedMilestones, { name: "", percentage: 0 }])}
+                          onClick={() =>
+                            setSelectedMilestones([
+                              ...selectedMilestones,
+                              { name: "", percentage: 0 },
+                            ])
+                          }
                           className="w-full py-2 border-2 border-dashed border-gray-300 text-gray-500 rounded-lg hover:border-indigo-300 hover:text-indigo-600 transition-colors text-sm"
                         >
                           + Add Milestone
                         </button>
-                        
+
                         <div className="pt-2 flex justify-between items-center text-sm border-t border-gray-100">
                           <span className="text-gray-500 font-medium">Total Percentage:</span>
-                          <span className={`font-bold text-base ${selectedMilestones.reduce((sum, m) => sum + m.percentage, 0) === 100 ? 'text-green-600' : 'text-red-600'}`}>
+                          <span
+                            className={`font-bold text-base ${selectedMilestones.reduce((sum, m) => sum + m.percentage, 0) === 100 ? "text-green-600" : "text-red-600"}`}
+                          >
                             {selectedMilestones.reduce((sum, m) => sum + m.percentage, 0)}%
                           </span>
                         </div>
@@ -1523,7 +1644,10 @@ export default function ProposalDetailPage() {
               <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
                 <button
                   type="button"
-                  disabled={actionLoading || selectedMilestones.reduce((sum, m) => sum + m.percentage, 0) !== 100}
+                  disabled={
+                    actionLoading ||
+                    selectedMilestones.reduce((sum, m) => sum + m.percentage, 0) !== 100
+                  }
                   className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50"
                   onClick={handleConvertToProforma}
                 >
@@ -1542,7 +1666,6 @@ export default function ProposalDetailPage() {
           </div>
         </div>
       )}
-
     </div>
   );
 }

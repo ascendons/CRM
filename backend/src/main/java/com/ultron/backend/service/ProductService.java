@@ -162,13 +162,31 @@ public class ProductService extends BaseTenantService {
     }
 
     /**
-     * Search products within current tenant
+     * Search products within current tenant.
+     * Results are ranked: exact SKU match first, then exact name match,
+     * then name starts-with, then name contains.
      */
     public List<ProductResponse> searchProducts(String searchTerm) {
         String tenantId = getCurrentTenantId();
-        return productRepository.searchProductsByTenantId(searchTerm, tenantId).stream()
-                .map(this::mapToResponse)
-                .collect(Collectors.toList());
+        String lowerTerm = searchTerm.toLowerCase();
+        List<Product> raw = productRepository.searchProductsByTenantId(searchTerm, tenantId);
+
+        raw.sort((a, b) -> {
+            int rankA = rankProduct(a, lowerTerm);
+            int rankB = rankProduct(b, lowerTerm);
+            return Integer.compare(rankA, rankB);
+        });
+
+        return raw.stream().map(this::mapToResponse).collect(Collectors.toList());
+    }
+
+    private int rankProduct(Product p, String lowerTerm) {
+        String sku = p.getSku() != null ? p.getSku().toLowerCase() : "";
+        String name = p.getProductName() != null ? p.getProductName().toLowerCase() : "";
+        if (sku.equals(lowerTerm)) return 0;          // exact SKU match
+        if (name.equals(lowerTerm)) return 1;          // exact name match
+        if (name.startsWith(lowerTerm)) return 2;      // name starts-with
+        return 3;                                       // name/SKU contains
     }
 
     public Page<ProductResponse> searchProducts(String searchTerm, Pageable pageable) {

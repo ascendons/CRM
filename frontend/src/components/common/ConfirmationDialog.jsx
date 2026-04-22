@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   Dialog,
   DialogTitle,
@@ -8,13 +8,13 @@ import {
   Button,
   Box,
   Typography,
-} from '@mui/material';
+} from "@mui/material";
 import {
   Warning as WarningIcon,
   Error as ErrorIcon,
   Info as InfoIcon,
   HelpOutline as QuestionIcon,
-} from '@mui/icons-material';
+} from "@mui/icons-material";
 
 /**
  * Reusable Confirmation Dialog Component
@@ -35,11 +35,11 @@ const ConfirmationDialog = ({
   open,
   onClose,
   onConfirm,
-  title = 'Confirm Action',
+  title = "Confirm Action",
   message,
-  confirmText = 'Confirm',
-  cancelText = 'Cancel',
-  severity = 'warning',
+  confirmText = "Confirm",
+  cancelText = "Cancel",
+  severity = "warning",
   confirmColor,
   details,
   loading = false,
@@ -47,40 +47,40 @@ const ConfirmationDialog = ({
   // Determine icon and colors based on severity
   const getSeverityConfig = () => {
     switch (severity) {
-      case 'error':
+      case "error":
         return {
           icon: <ErrorIcon sx={{ fontSize: 48 }} />,
-          color: 'error.main',
-          bgColor: 'error.lighter',
-          defaultConfirmColor: 'error',
+          color: "error.main",
+          bgColor: "error.lighter",
+          defaultConfirmColor: "error",
         };
-      case 'warning':
+      case "warning":
         return {
           icon: <WarningIcon sx={{ fontSize: 48 }} />,
-          color: 'warning.main',
-          bgColor: 'warning.lighter',
-          defaultConfirmColor: 'warning',
+          color: "warning.main",
+          bgColor: "warning.lighter",
+          defaultConfirmColor: "warning",
         };
-      case 'info':
+      case "info":
         return {
           icon: <InfoIcon sx={{ fontSize: 48 }} />,
-          color: 'info.main',
-          bgColor: 'info.lighter',
-          defaultConfirmColor: 'primary',
+          color: "info.main",
+          bgColor: "info.lighter",
+          defaultConfirmColor: "primary",
         };
-      case 'question':
+      case "question":
         return {
           icon: <QuestionIcon sx={{ fontSize: 48 }} />,
-          color: 'primary.main',
-          bgColor: 'primary.lighter',
-          defaultConfirmColor: 'primary',
+          color: "primary.main",
+          bgColor: "primary.lighter",
+          defaultConfirmColor: "primary",
         };
       default:
         return {
           icon: <WarningIcon sx={{ fontSize: 48 }} />,
-          color: 'warning.main',
-          bgColor: 'warning.lighter',
-          defaultConfirmColor: 'warning',
+          color: "warning.main",
+          bgColor: "warning.lighter",
+          defaultConfirmColor: "warning",
         };
     }
   };
@@ -108,9 +108,9 @@ const ConfirmationDialog = ({
               bgcolor: config.bgColor,
               borderRadius: 2,
               p: 1,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
               color: config.color,
             }}
           >
@@ -123,16 +123,14 @@ const ConfirmationDialog = ({
       </DialogTitle>
 
       <DialogContent>
-        <DialogContentText id="confirmation-dialog-description">
-          {message}
-        </DialogContentText>
+        <DialogContentText id="confirmation-dialog-description">{message}</DialogContentText>
 
         {details && (
           <Box
             sx={{
               mt: 2,
               p: 2,
-              bgcolor: 'grey.100',
+              bgcolor: "grey.100",
               borderRadius: 1,
               borderLeft: 3,
               borderColor: config.color,
@@ -146,12 +144,7 @@ const ConfirmationDialog = ({
       </DialogContent>
 
       <DialogActions sx={{ px: 3, pb: 2 }}>
-        <Button
-          onClick={onClose}
-          disabled={loading}
-          variant="outlined"
-          color="inherit"
-        >
+        <Button onClick={onClose} disabled={loading} variant="outlined" color="inherit">
           {cancelText}
         </Button>
         <Button
@@ -161,7 +154,7 @@ const ConfirmationDialog = ({
           disabled={loading}
           autoFocus
         >
-          {loading ? 'Processing...' : confirmText}
+          {loading ? "Processing..." : confirmText}
         </Button>
       </DialogActions>
     </Dialog>

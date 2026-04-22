@@ -1,10 +1,10 @@
-import { api } from '../api-client';
+import { api } from "../api-client";
 
 export interface CreateHolidayRequest {
   date: string;
   name: string;
   description?: string;
-  type: 'NATIONAL' | 'REGIONAL' | 'OPTIONAL' | 'COMPANY_SPECIFIC';
+  type: "NATIONAL" | "REGIONAL" | "OPTIONAL" | "COMPANY_SPECIFIC";
   applicableLocations?: string[];
   applicableStates?: string[];
   isOptional?: boolean;
@@ -36,8 +36,7 @@ export const holidaysApi = {
   /**
    * Create holiday
    */
-  createHoliday: (data: CreateHolidayRequest) =>
-    api.post<HolidayResponse>('/holidays', data),
+  createHoliday: (data: CreateHolidayRequest) => api.post<HolidayResponse>("/holidays", data),
 
   /**
    * Update holiday
@@ -48,24 +47,20 @@ export const holidaysApi = {
   /**
    * Delete holiday
    */
-  deleteHoliday: (holidayId: string) =>
-    api.delete<void>(`/holidays/${holidayId}`),
+  deleteHoliday: (holidayId: string) => api.delete<void>(`/holidays/${holidayId}`),
 
   /**
    * Get holiday by ID
    */
-  getHolidayById: (holidayId: string) =>
-    api.get<HolidayResponse>(`/holidays/${holidayId}`),
+  getHolidayById: (holidayId: string) => api.get<HolidayResponse>(`/holidays/${holidayId}`),
 
   /**
    * Get holidays by year
    */
-  getHolidaysByYear: (year: number) =>
-    api.get<HolidayResponse[]>(`/holidays/year/${year}`),
+  getHolidaysByYear: (year: number) => api.get<HolidayResponse[]>(`/holidays/year/${year}`),
 
   /**
    * Get all holidays
    */
-  getAllHolidays: () =>
-    api.get<HolidayResponse[]>('/holidays')
+  getAllHolidays: () => api.get<HolidayResponse[]>("/holidays"),
 };

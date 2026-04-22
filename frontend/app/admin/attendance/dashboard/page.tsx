@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { attendanceApi } from '@/lib/api/attendance';
-import { toast } from 'react-hot-toast';
+import { useEffect, useState } from "react";
+import { attendanceApi } from "@/lib/api/attendance";
+import { toast } from "react-hot-toast";
 
 interface DailyDashboardResponse {
   date: string;
@@ -32,7 +32,7 @@ interface DailyDashboardResponse {
 export default function AttendanceDashboardPage() {
   const [dashboard, setDashboard] = useState<DailyDashboardResponse | null>(null);
   const [loading, setLoading] = useState(true);
-  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split("T")[0]);
   const [autoRefresh, setAutoRefresh] = useState(true);
 
   const loadDashboard = async () => {
@@ -40,8 +40,8 @@ export default function AttendanceDashboardPage() {
       const data = await attendanceApi.getDailyDashboard<DailyDashboardResponse>(selectedDate);
       setDashboard(data);
     } catch (error) {
-      console.error('Failed to load dashboard:', error);
-      toast.error('Failed to load dashboard');
+      console.error("Failed to load dashboard:", error);
+      toast.error("Failed to load dashboard");
     } finally {
       setLoading(false);
     }
@@ -93,19 +93,19 @@ export default function AttendanceDashboardPage() {
             type="date"
             value={selectedDate}
             onChange={(e) => setSelectedDate(e.target.value)}
-            max={new Date().toISOString().split('T')[0]}
+            max={new Date().toISOString().split("T")[0]}
             className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
           <button
             onClick={() => setAutoRefresh(!autoRefresh)}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
               autoRefresh
-                ? 'bg-blue-600 text-white hover:bg-blue-700'
-                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                ? "bg-blue-600 text-white hover:bg-blue-700"
+                : "bg-gray-200 text-gray-700 hover:bg-gray-300"
             }`}
           >
             <span className="material-symbols-outlined text-lg">
-              {autoRefresh ? 'sync' : 'sync_disabled'}
+              {autoRefresh ? "sync" : "sync_disabled"}
             </span>
             Auto
           </button>
@@ -123,9 +123,7 @@ export default function AttendanceDashboardPage() {
         <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg p-6 text-white">
           <p className="text-sm opacity-90 mb-2">Total Employees</p>
           <p className="text-4xl font-bold">{dashboard.totalEmployees}</p>
-          <p className="text-sm opacity-75 mt-1">
-            Working: {dashboard.totalWorkingEmployees}
-          </p>
+          <p className="text-sm opacity-75 mt-1">Working: {dashboard.totalWorkingEmployees}</p>
         </div>
 
         <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-xl shadow-lg p-6 text-white">
@@ -225,15 +223,18 @@ export default function AttendanceDashboardPage() {
           <div className="space-y-3 max-h-64 overflow-y-auto">
             {dashboard.recentActivities.length > 0 ? (
               dashboard.recentActivities.map((activity, index) => (
-                <div key={index} className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0">
+                <div
+                  key={index}
+                  className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0"
+                >
                   <div>
                     <p className="text-sm font-medium text-gray-900">{activity.userName}</p>
-                    <p className="text-xs text-gray-500">{activity.activity.replace('_', ' ')}</p>
+                    <p className="text-xs text-gray-500">{activity.activity.replace("_", " ")}</p>
                   </div>
                   <p className="text-xs text-gray-500">
-                    {new Date(activity.timestamp).toLocaleTimeString('en-US', {
-                      hour: '2-digit',
-                      minute: '2-digit'
+                    {new Date(activity.timestamp).toLocaleTimeString("en-US", {
+                      hour: "2-digit",
+                      minute: "2-digit",
                     })}
                   </p>
                 </div>
@@ -252,12 +253,16 @@ export default function AttendanceDashboardPage() {
           <div>
             <div className="flex justify-between text-sm mb-2">
               <span className="text-gray-600">Present (On Time)</span>
-              <span className="font-medium text-green-600">{dashboard.presentCount} / {dashboard.totalWorkingEmployees}</span>
+              <span className="font-medium text-green-600">
+                {dashboard.presentCount} / {dashboard.totalWorkingEmployees}
+              </span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-3">
               <div
                 className="bg-green-600 h-3 rounded-full transition-all duration-500"
-                style={{ width: `${(dashboard.presentCount / dashboard.totalWorkingEmployees) * 100}%` }}
+                style={{
+                  width: `${(dashboard.presentCount / dashboard.totalWorkingEmployees) * 100}%`,
+                }}
               />
             </div>
           </div>
@@ -265,12 +270,16 @@ export default function AttendanceDashboardPage() {
           <div>
             <div className="flex justify-between text-sm mb-2">
               <span className="text-gray-600">Late Arrivals</span>
-              <span className="font-medium text-yellow-600">{dashboard.lateCount} / {dashboard.totalWorkingEmployees}</span>
+              <span className="font-medium text-yellow-600">
+                {dashboard.lateCount} / {dashboard.totalWorkingEmployees}
+              </span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-3">
               <div
                 className="bg-yellow-600 h-3 rounded-full transition-all duration-500"
-                style={{ width: `${(dashboard.lateCount / dashboard.totalWorkingEmployees) * 100}%` }}
+                style={{
+                  width: `${(dashboard.lateCount / dashboard.totalWorkingEmployees) * 100}%`,
+                }}
               />
             </div>
           </div>
@@ -278,12 +287,16 @@ export default function AttendanceDashboardPage() {
           <div>
             <div className="flex justify-between text-sm mb-2">
               <span className="text-gray-600">Absent</span>
-              <span className="font-medium text-red-600">{dashboard.absentCount} / {dashboard.totalWorkingEmployees}</span>
+              <span className="font-medium text-red-600">
+                {dashboard.absentCount} / {dashboard.totalWorkingEmployees}
+              </span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-3">
               <div
                 className="bg-red-600 h-3 rounded-full transition-all duration-500"
-                style={{ width: `${(dashboard.absentCount / dashboard.totalWorkingEmployees) * 100}%` }}
+                style={{
+                  width: `${(dashboard.absentCount / dashboard.totalWorkingEmployees) * 100}%`,
+                }}
               />
             </div>
           </div>
@@ -291,12 +304,16 @@ export default function AttendanceDashboardPage() {
           <div>
             <div className="flex justify-between text-sm mb-2">
               <span className="text-gray-600">On Leave</span>
-              <span className="font-medium text-blue-600">{dashboard.onLeaveCount} / {dashboard.totalWorkingEmployees}</span>
+              <span className="font-medium text-blue-600">
+                {dashboard.onLeaveCount} / {dashboard.totalWorkingEmployees}
+              </span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-3">
               <div
                 className="bg-blue-600 h-3 rounded-full transition-all duration-500"
-                style={{ width: `${(dashboard.onLeaveCount / dashboard.totalWorkingEmployees) * 100}%` }}
+                style={{
+                  width: `${(dashboard.onLeaveCount / dashboard.totalWorkingEmployees) * 100}%`,
+                }}
               />
             </div>
           </div>

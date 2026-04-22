@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Table,
@@ -13,9 +13,9 @@ import {
   CircularProgress,
   LinearProgress,
   Button,
-} from '@mui/material';
-import { Warning as WarningIcon, ShoppingCart as OrderIcon } from '@mui/icons-material';
-import inventoryApi from '../../services/inventoryApi';
+} from "@mui/material";
+import { Warning as WarningIcon, ShoppingCart as OrderIcon } from "@mui/icons-material";
+import inventoryApi from "../../services/inventoryApi";
 
 const LowStockReport = () => {
   const [lowStockItems, setLowStockItems] = useState([]);
@@ -40,7 +40,7 @@ const LowStockReport = () => {
       setLowStockItems(lowStockRes.data.data || []);
       setOutOfStockItems(outOfStockRes.data.data || []);
     } catch (err) {
-      setError('Failed to load low stock data: ' + err.message);
+      setError("Failed to load low stock data: " + err.message);
     } finally {
       setLoading(false);
     }
@@ -52,9 +52,9 @@ const LowStockReport = () => {
   };
 
   const getStockLevelColor = (percentage) => {
-    if (percentage === 0) return 'error';
-    if (percentage <= 50) return 'warning';
-    return 'success';
+    if (percentage === 0) return "error";
+    if (percentage <= 50) return "warning";
+    return "success";
   };
 
   if (loading) {
@@ -78,11 +78,11 @@ const LowStockReport = () => {
         <Box
           sx={{
             flex: 1,
-            bgcolor: 'warning.light',
+            bgcolor: "warning.light",
             p: 2,
             borderRadius: 1,
             border: 2,
-            borderColor: 'warning.main',
+            borderColor: "warning.main",
           }}
         >
           <Box display="flex" alignItems="center" gap={1}>
@@ -97,11 +97,11 @@ const LowStockReport = () => {
         <Box
           sx={{
             flex: 1,
-            bgcolor: 'error.light',
+            bgcolor: "error.light",
             p: 2,
             borderRadius: 1,
             border: 2,
-            borderColor: 'error.main',
+            borderColor: "error.main",
           }}
         >
           <Box display="flex" alignItems="center" gap={1}>
@@ -135,28 +135,26 @@ const LowStockReport = () => {
               </TableHead>
               <TableBody>
                 {outOfStockItems.map((stock) => (
-                  <TableRow key={stock.id} sx={{ bgcolor: 'error.lighter' }}>
+                  <TableRow key={stock.id} sx={{ bgcolor: "error.lighter" }}>
                     <TableCell>
                       <Typography variant="body2" fontWeight="medium">
-                        {stock.productName || 'Unknown Product'}
+                        {stock.productName || "Unknown Product"}
                       </Typography>
                       <Typography variant="caption" color="text.secondary">
                         {stock.productId}
                       </Typography>
                     </TableCell>
                     <TableCell>
-                      <Typography variant="body2">
-                        {stock.warehouseName || 'Unknown'}
-                      </Typography>
+                      <Typography variant="body2">{stock.warehouseName || "Unknown"}</Typography>
                     </TableCell>
                     <TableCell align="right">
                       <Chip label="0" color="error" size="small" />
                     </TableCell>
                     <TableCell align="right">{stock.quantityReserved}</TableCell>
-                    <TableCell align="right">{stock.reorderPoint || '-'}</TableCell>
+                    <TableCell align="right">{stock.reorderPoint || "-"}</TableCell>
                     <TableCell align="right">
                       <Typography variant="body2" fontWeight="bold">
-                        {stock.reorderQuantity || '-'}
+                        {stock.reorderQuantity || "-"}
                       </Typography>
                     </TableCell>
                     <TableCell align="center">
@@ -203,25 +201,23 @@ const LowStockReport = () => {
                     <TableRow key={stock.id} hover>
                       <TableCell>
                         <Typography variant="body2" fontWeight="medium">
-                          {stock.productName || 'Unknown Product'}
+                          {stock.productName || "Unknown Product"}
                         </Typography>
                         <Typography variant="caption" color="text.secondary">
                           {stock.productId}
                         </Typography>
                       </TableCell>
                       <TableCell>
-                        <Typography variant="body2">
-                          {stock.warehouseName || 'Unknown'}
-                        </Typography>
+                        <Typography variant="body2">{stock.warehouseName || "Unknown"}</Typography>
                       </TableCell>
                       <TableCell align="right">
                         <Typography variant="body2" fontWeight="bold" color="warning.main">
                           {stock.quantityAvailable}
                         </Typography>
                       </TableCell>
-                      <TableCell align="right">{stock.reorderPoint || '-'}</TableCell>
+                      <TableCell align="right">{stock.reorderPoint || "-"}</TableCell>
                       <TableCell>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                           <Box sx={{ flex: 1 }}>
                             <LinearProgress
                               variant="determinate"
@@ -237,7 +233,7 @@ const LowStockReport = () => {
                       </TableCell>
                       <TableCell align="right">
                         <Typography variant="body2" fontWeight="bold">
-                          {stock.reorderQuantity || '-'}
+                          {stock.reorderQuantity || "-"}
                         </Typography>
                       </TableCell>
                       <TableCell align="center">

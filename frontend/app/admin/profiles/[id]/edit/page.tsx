@@ -1,17 +1,35 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
-import { profilesService } from '@/lib/profiles';
-import type { ProfileResponse, ObjectPermission, SystemPermissions, UpdateProfileRequest } from '@/types/profile';
-import { AdminRoute } from '@/components/AdminRoute';
-import { ArrowLeft, Save } from 'lucide-react';
-import { toast } from 'react-hot-toast';
+import { useEffect, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { profilesService } from "@/lib/profiles";
+import type {
+  ProfileResponse,
+  ObjectPermission,
+  SystemPermissions,
+  UpdateProfileRequest,
+} from "@/types/profile";
+import { AdminRoute } from "@/components/AdminRoute";
+import { ArrowLeft, Save } from "lucide-react";
+import { toast } from "react-hot-toast";
 
 // All available objects in the system (must match backend)
 const ALL_OBJECTS = [
-  'USER', 'ROLE', 'PROFILE', 'LEAD', 'OPPORTUNITY', 'CONTACT', 'ACCOUNT',
-  'ACTIVITY', 'PROPOSAL', 'PRODUCT', 'ATTENDANCE', 'SHIFT', 'LEAVE', 'HOLIDAY', 'LOCATION'
+  "USER",
+  "ROLE",
+  "PROFILE",
+  "LEAD",
+  "OPPORTUNITY",
+  "CONTACT",
+  "ACCOUNT",
+  "ACTIVITY",
+  "PROPOSAL",
+  "PRODUCT",
+  "ATTENDANCE",
+  "SHIFT",
+  "LEAVE",
+  "HOLIDAY",
+  "LOCATION",
 ];
 
 export default function ProfileEditPage() {
@@ -32,8 +50,8 @@ function ProfileEditContent() {
   const [profile, setProfile] = useState<ProfileResponse | null>(null);
 
   // Form state
-  const [profileName, setProfileName] = useState('');
-  const [description, setDescription] = useState('');
+  const [profileName, setProfileName] = useState("");
+  const [description, setDescription] = useState("");
   const [objectPermissions, setObjectPermissions] = useState<ObjectPermission[]>([]);
   const [systemPermissions, setSystemPermissions] = useState<SystemPermissions>({
     canAccessAPI: false,
@@ -58,15 +76,15 @@ function ProfileEditContent() {
       const data = await profilesService.getProfileById(profileId);
       setProfile(data);
       setProfileName(data.profileName);
-      setDescription(data.description || '');
+      setDescription(data.description || "");
 
       // Merge existing permissions with all objects to ensure completeness
       const existingPerms = data.objectPermissions || [];
-      const existingObjectNames = existingPerms.map(p => p.objectName);
+      const existingObjectNames = existingPerms.map((p) => p.objectName);
 
       // Add missing objects with default permissions
-      const completePermissions = ALL_OBJECTS.map(objectName => {
-        const existing = existingPerms.find(p => p.objectName === objectName);
+      const completePermissions = ALL_OBJECTS.map((objectName) => {
+        const existing = existingPerms.find((p) => p.objectName === objectName);
         if (existing) {
           return existing;
         }
@@ -85,8 +103,8 @@ function ProfileEditContent() {
       setObjectPermissions(completePermissions);
       setSystemPermissions(data.systemPermissions);
     } catch (error: any) {
-      console.error('Failed to load profile:', error);
-      toast.error(error.message || 'Failed to load profile');
+      console.error("Failed to load profile:", error);
+      toast.error(error.message || "Failed to load profile");
     } finally {
       setLoading(false);
     }
@@ -98,9 +116,7 @@ function ProfileEditContent() {
     value: boolean
   ) => {
     setObjectPermissions((prev) =>
-      prev.map((perm) =>
-        perm.objectName === objectName ? { ...perm, [field]: value } : perm
-      )
+      prev.map((perm) => (perm.objectName === objectName ? { ...perm, [field]: value } : perm))
     );
   };
 
@@ -115,7 +131,7 @@ function ProfileEditContent() {
     e.preventDefault();
 
     if (!profileName.trim()) {
-      toast.error('Profile name is required');
+      toast.error("Profile name is required");
       return;
     }
 
@@ -129,11 +145,11 @@ function ProfileEditContent() {
       };
 
       await profilesService.updateProfile(profileId, request);
-      toast.success('Profile updated successfully');
+      toast.success("Profile updated successfully");
       router.push(`/admin/profiles/${profileId}`);
     } catch (error: any) {
-      console.error('Failed to update profile:', error);
-      toast.error(error.message || 'Failed to update profile');
+      console.error("Failed to update profile:", error);
+      toast.error(error.message || "Failed to update profile");
     } finally {
       setSaving(false);
     }
@@ -153,7 +169,7 @@ function ProfileEditContent() {
         <div className="text-center">
           <p className="text-gray-600">Profile not found</p>
           <button
-            onClick={() => router.push('/admin/profiles')}
+            onClick={() => router.push("/admin/profiles")}
             className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
           >
             Back to Profiles
@@ -186,7 +202,7 @@ function ProfileEditContent() {
           className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
         >
           <Save className="h-4 w-4 mr-2" />
-          {saving ? 'Saving...' : 'Save Changes'}
+          {saving ? "Saving..." : "Save Changes"}
         </button>
       </div>
 
@@ -195,9 +211,7 @@ function ProfileEditContent() {
         <h2 className="text-lg font-semibold text-gray-900 mb-4">Basic Information</h2>
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Profile Name *
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Profile Name *</label>
             <input
               type="text"
               value={profileName}
@@ -208,9 +222,7 @@ function ProfileEditContent() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Description
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
@@ -229,13 +241,27 @@ function ProfileEditContent() {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Object</th>
-                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Create</th>
-                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Read</th>
-                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Edit</th>
-                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Delete</th>
-                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">View All</th>
-                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Modify All</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  Object
+                </th>
+                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">
+                  Create
+                </th>
+                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">
+                  Read
+                </th>
+                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">
+                  Edit
+                </th>
+                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">
+                  Delete
+                </th>
+                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">
+                  View All
+                </th>
+                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">
+                  Modify All
+                </th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
@@ -247,7 +273,7 @@ function ProfileEditContent() {
                       type="checkbox"
                       checked={perm.canCreate}
                       onChange={(e) =>
-                        handleObjectPermissionChange(perm.objectName, 'canCreate', e.target.checked)
+                        handleObjectPermissionChange(perm.objectName, "canCreate", e.target.checked)
                       }
                       className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
                     />
@@ -257,7 +283,7 @@ function ProfileEditContent() {
                       type="checkbox"
                       checked={perm.canRead}
                       onChange={(e) =>
-                        handleObjectPermissionChange(perm.objectName, 'canRead', e.target.checked)
+                        handleObjectPermissionChange(perm.objectName, "canRead", e.target.checked)
                       }
                       className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
                     />
@@ -267,7 +293,7 @@ function ProfileEditContent() {
                       type="checkbox"
                       checked={perm.canEdit}
                       onChange={(e) =>
-                        handleObjectPermissionChange(perm.objectName, 'canEdit', e.target.checked)
+                        handleObjectPermissionChange(perm.objectName, "canEdit", e.target.checked)
                       }
                       className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
                     />
@@ -277,7 +303,7 @@ function ProfileEditContent() {
                       type="checkbox"
                       checked={perm.canDelete}
                       onChange={(e) =>
-                        handleObjectPermissionChange(perm.objectName, 'canDelete', e.target.checked)
+                        handleObjectPermissionChange(perm.objectName, "canDelete", e.target.checked)
                       }
                       className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
                     />
@@ -287,7 +313,11 @@ function ProfileEditContent() {
                       type="checkbox"
                       checked={perm.canViewAll}
                       onChange={(e) =>
-                        handleObjectPermissionChange(perm.objectName, 'canViewAll', e.target.checked)
+                        handleObjectPermissionChange(
+                          perm.objectName,
+                          "canViewAll",
+                          e.target.checked
+                        )
                       }
                       className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
                     />
@@ -297,7 +327,11 @@ function ProfileEditContent() {
                       type="checkbox"
                       checked={perm.canModifyAll}
                       onChange={(e) =>
-                        handleObjectPermissionChange(perm.objectName, 'canModifyAll', e.target.checked)
+                        handleObjectPermissionChange(
+                          perm.objectName,
+                          "canModifyAll",
+                          e.target.checked
+                        )
                       }
                       className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
                     />
@@ -321,7 +355,7 @@ function ProfileEditContent() {
               type="checkbox"
               id="canAccessAPI"
               checked={systemPermissions.canAccessAPI}
-              onChange={(e) => handleSystemPermissionChange('canAccessAPI', e.target.checked)}
+              onChange={(e) => handleSystemPermissionChange("canAccessAPI", e.target.checked)}
               className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
             />
           </div>
@@ -336,7 +370,7 @@ function ProfileEditContent() {
                 id="apiRateLimit"
                 value={systemPermissions.apiRateLimit}
                 onChange={(e) =>
-                  handleSystemPermissionChange('apiRateLimit', parseInt(e.target.value) || 100)
+                  handleSystemPermissionChange("apiRateLimit", parseInt(e.target.value) || 100)
                 }
                 min="1"
                 max="10000"
@@ -353,9 +387,7 @@ function ProfileEditContent() {
               type="checkbox"
               id="canAccessMobileApp"
               checked={systemPermissions.canAccessMobileApp}
-              onChange={(e) =>
-                handleSystemPermissionChange('canAccessMobileApp', e.target.checked)
-              }
+              onChange={(e) => handleSystemPermissionChange("canAccessMobileApp", e.target.checked)}
               className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
             />
           </div>
@@ -368,7 +400,7 @@ function ProfileEditContent() {
               type="checkbox"
               id="canAccessReports"
               checked={systemPermissions.canAccessReports}
-              onChange={(e) => handleSystemPermissionChange('canAccessReports', e.target.checked)}
+              onChange={(e) => handleSystemPermissionChange("canAccessReports", e.target.checked)}
               className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
             />
           </div>
@@ -382,7 +414,7 @@ function ProfileEditContent() {
               id="canAccessDashboards"
               checked={systemPermissions.canAccessDashboards}
               onChange={(e) =>
-                handleSystemPermissionChange('canAccessDashboards', e.target.checked)
+                handleSystemPermissionChange("canAccessDashboards", e.target.checked)
               }
               className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
             />
@@ -396,7 +428,7 @@ function ProfileEditContent() {
               type="checkbox"
               id="canBulkUpdate"
               checked={systemPermissions.canBulkUpdate}
-              onChange={(e) => handleSystemPermissionChange('canBulkUpdate', e.target.checked)}
+              onChange={(e) => handleSystemPermissionChange("canBulkUpdate", e.target.checked)}
               className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
             />
           </div>
@@ -409,7 +441,7 @@ function ProfileEditContent() {
               type="checkbox"
               id="canBulkDelete"
               checked={systemPermissions.canBulkDelete}
-              onChange={(e) => handleSystemPermissionChange('canBulkDelete', e.target.checked)}
+              onChange={(e) => handleSystemPermissionChange("canBulkDelete", e.target.checked)}
               className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
             />
           </div>
@@ -422,7 +454,7 @@ function ProfileEditContent() {
               type="checkbox"
               id="canMassEmail"
               checked={systemPermissions.canMassEmail}
-              onChange={(e) => handleSystemPermissionChange('canMassEmail', e.target.checked)}
+              onChange={(e) => handleSystemPermissionChange("canMassEmail", e.target.checked)}
               className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
             />
           </div>
@@ -436,7 +468,7 @@ function ProfileEditContent() {
               id="canBypassValidation"
               checked={systemPermissions.canBypassValidation}
               onChange={(e) =>
-                handleSystemPermissionChange('canBypassValidation', e.target.checked)
+                handleSystemPermissionChange("canBypassValidation", e.target.checked)
               }
               className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
             />
@@ -450,7 +482,7 @@ function ProfileEditContent() {
               type="checkbox"
               id="canRunApex"
               checked={systemPermissions.canRunApex}
-              onChange={(e) => handleSystemPermissionChange('canRunApex', e.target.checked)}
+              onChange={(e) => handleSystemPermissionChange("canRunApex", e.target.checked)}
               className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
             />
           </div>
@@ -471,7 +503,7 @@ function ProfileEditContent() {
           disabled={saving}
           className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
         >
-          {saving ? 'Saving...' : 'Save Changes'}
+          {saving ? "Saving..." : "Save Changes"}
         </button>
       </div>
     </form>

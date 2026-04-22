@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useRouter, useParams } from 'next/navigation';
-import Link from 'next/link';
-import { activitiesService } from '@/lib/activities';
-import { formatLocaleIST } from '@/lib/utils/date';
-import { Activity, ActivityType, ActivityStatus, ActivityPriority } from '@/types/activity';
+import { useEffect, useState } from "react";
+import { useRouter, useParams } from "next/navigation";
+import Link from "next/link";
+import { activitiesService } from "@/lib/activities";
+import { formatLocaleIST } from "@/lib/utils/date";
+import { Activity, ActivityType, ActivityStatus, ActivityPriority } from "@/types/activity";
 
 export default function ActivityDetailPage() {
   const router = useRouter();
@@ -26,57 +26,57 @@ export default function ActivityDetailPage() {
       const data = await activitiesService.getActivityById(id);
       setActivity(data);
     } catch (error) {
-      console.error('Failed to load activity:', error);
-      alert('Failed to load activity');
-      router.push('/activities');
+      console.error("Failed to load activity:", error);
+      alert("Failed to load activity");
+      router.push("/activities");
     } finally {
       setLoading(false);
     }
   };
 
   const handleDelete = async () => {
-    if (!confirm('Are you sure you want to delete this activity?')) {
+    if (!confirm("Are you sure you want to delete this activity?")) {
       return;
     }
 
     try {
       await activitiesService.deleteActivity(id);
-      router.push('/activities');
+      router.push("/activities");
     } catch (error) {
-      console.error('Failed to delete activity:', error);
-      alert('Failed to delete activity');
+      console.error("Failed to delete activity:", error);
+      alert("Failed to delete activity");
     }
   };
 
   const getTypeBadgeColor = (type: ActivityType) => {
     const colors = {
-      TASK: 'bg-blue-100 text-blue-800',
-      EMAIL: 'bg-purple-100 text-purple-800',
-      CALL: 'bg-green-100 text-green-800',
-      MEETING: 'bg-orange-100 text-orange-800',
-      NOTE: 'bg-gray-100 text-gray-800',
+      TASK: "bg-blue-100 text-blue-800",
+      EMAIL: "bg-purple-100 text-purple-800",
+      CALL: "bg-green-100 text-green-800",
+      MEETING: "bg-orange-100 text-orange-800",
+      NOTE: "bg-gray-100 text-gray-800",
     };
-    return colors[type] || 'bg-gray-100 text-gray-800';
+    return colors[type] || "bg-gray-100 text-gray-800";
   };
 
   const getStatusBadgeColor = (status: ActivityStatus) => {
     const colors = {
-      PENDING: 'bg-yellow-100 text-yellow-800',
-      IN_PROGRESS: 'bg-blue-100 text-blue-800',
-      COMPLETED: 'bg-green-100 text-green-800',
-      CANCELLED: 'bg-red-100 text-red-800',
+      PENDING: "bg-yellow-100 text-yellow-800",
+      IN_PROGRESS: "bg-blue-100 text-blue-800",
+      COMPLETED: "bg-green-100 text-green-800",
+      CANCELLED: "bg-red-100 text-red-800",
     };
-    return colors[status] || 'bg-gray-100 text-gray-800';
+    return colors[status] || "bg-gray-100 text-gray-800";
   };
 
   const getPriorityBadgeColor = (priority: ActivityPriority) => {
     const colors = {
-      LOW: 'bg-gray-100 text-gray-800',
-      MEDIUM: 'bg-blue-100 text-blue-800',
-      HIGH: 'bg-orange-100 text-orange-800',
-      URGENT: 'bg-red-100 text-red-800',
+      LOW: "bg-gray-100 text-gray-800",
+      MEDIUM: "bg-blue-100 text-blue-800",
+      HIGH: "bg-orange-100 text-orange-800",
+      URGENT: "bg-red-100 text-red-800",
     };
-    return colors[priority] || 'bg-gray-100 text-gray-800';
+    return colors[priority] || "bg-gray-100 text-gray-800";
   };
 
   if (loading) {
@@ -135,7 +135,9 @@ export default function ActivityDetailPage() {
               <div>
                 <span className="text-sm text-gray-500">Type</span>
                 <div className="mt-1">
-                  <span className={`px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full ${getTypeBadgeColor(activity.type)}`}>
+                  <span
+                    className={`px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full ${getTypeBadgeColor(activity.type)}`}
+                  >
                     {activity.type}
                   </span>
                 </div>
@@ -143,15 +145,19 @@ export default function ActivityDetailPage() {
               <div>
                 <span className="text-sm text-gray-500">Status</span>
                 <div className="mt-1">
-                  <span className={`px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full ${getStatusBadgeColor(activity.status)}`}>
-                    {activity.status.replace('_', ' ')}
+                  <span
+                    className={`px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full ${getStatusBadgeColor(activity.status)}`}
+                  >
+                    {activity.status.replace("_", " ")}
                   </span>
                 </div>
               </div>
               <div>
                 <span className="text-sm text-gray-500">Priority</span>
                 <div className="mt-1">
-                  <span className={`px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full ${getPriorityBadgeColor(activity.priority)}`}>
+                  <span
+                    className={`px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full ${getPriorityBadgeColor(activity.priority)}`}
+                  >
                     {activity.priority}
                   </span>
                 </div>
@@ -174,7 +180,9 @@ export default function ActivityDetailPage() {
               {activity.scheduledDate && (
                 <>
                   <dt className="text-sm font-medium text-gray-500">Scheduled Date</dt>
-                  <dd className="text-sm text-gray-900">{formatLocaleIST(activity.scheduledDate)}</dd>
+                  <dd className="text-sm text-gray-900">
+                    {formatLocaleIST(activity.scheduledDate)}
+                  </dd>
                 </>
               )}
               {activity.dueDate && (
@@ -186,7 +194,9 @@ export default function ActivityDetailPage() {
               {activity.completedDate && (
                 <>
                   <dt className="text-sm font-medium text-gray-500">Completed Date</dt>
-                  <dd className="text-sm text-gray-900">{formatLocaleIST(activity.completedDate)}</dd>
+                  <dd className="text-sm text-gray-900">
+                    {formatLocaleIST(activity.completedDate)}
+                  </dd>
                 </>
               )}
               {activity.durationMinutes && (
@@ -205,7 +215,10 @@ export default function ActivityDetailPage() {
           </div>
 
           {/* Related To */}
-          {(activity.leadName || activity.contactName || activity.accountName || activity.opportunityName) && (
+          {(activity.leadName ||
+            activity.contactName ||
+            activity.accountName ||
+            activity.opportunityName) && (
             <div className="bg-white shadow rounded-lg p-6 mb-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">Related To</h2>
               <dl className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -213,7 +226,10 @@ export default function ActivityDetailPage() {
                   <>
                     <dt className="text-sm font-medium text-gray-500">Lead</dt>
                     <dd className="text-sm text-gray-900">
-                      <Link href={`/leads/${activity.leadId}`} className="text-teal-600 hover:text-teal-800">
+                      <Link
+                        href={`/leads/${activity.leadId}`}
+                        className="text-teal-600 hover:text-teal-800"
+                      >
                         {activity.leadName}
                       </Link>
                     </dd>
@@ -223,7 +239,10 @@ export default function ActivityDetailPage() {
                   <>
                     <dt className="text-sm font-medium text-gray-500">Contact</dt>
                     <dd className="text-sm text-gray-900">
-                      <Link href={`/contacts/${activity.contactId}`} className="text-teal-600 hover:text-teal-800">
+                      <Link
+                        href={`/contacts/${activity.contactId}`}
+                        className="text-teal-600 hover:text-teal-800"
+                      >
                         {activity.contactName}
                       </Link>
                     </dd>
@@ -233,7 +252,10 @@ export default function ActivityDetailPage() {
                   <>
                     <dt className="text-sm font-medium text-gray-500">Account</dt>
                     <dd className="text-sm text-gray-900">
-                      <Link href={`/accounts/${activity.accountId}`} className="text-teal-600 hover:text-teal-800">
+                      <Link
+                        href={`/accounts/${activity.accountId}`}
+                        className="text-teal-600 hover:text-teal-800"
+                      >
                         {activity.accountName}
                       </Link>
                     </dd>
@@ -243,7 +265,10 @@ export default function ActivityDetailPage() {
                   <>
                     <dt className="text-sm font-medium text-gray-500">Opportunity</dt>
                     <dd className="text-sm text-gray-900">
-                      <Link href={`/opportunities/${activity.opportunityId}`} className="text-teal-600 hover:text-teal-800">
+                      <Link
+                        href={`/opportunities/${activity.opportunityId}`}
+                        className="text-teal-600 hover:text-teal-800"
+                      >
                         {activity.opportunityName}
                       </Link>
                     </dd>
@@ -254,87 +279,98 @@ export default function ActivityDetailPage() {
           )}
 
           {/* Type-Specific Details */}
-          {activity.type === ActivityType.CALL && (activity.phoneNumber || activity.callDirection || activity.callOutcome || activity.callDuration) && (
-            <div className="bg-white shadow rounded-lg p-6 mb-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Call Details</h2>
-              <dl className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {activity.phoneNumber && (
-                  <>
-                    <dt className="text-sm font-medium text-gray-500">Phone Number</dt>
-                    <dd className="text-sm text-gray-900">{activity.phoneNumber}</dd>
-                  </>
-                )}
-                {activity.callDirection && (
-                  <>
-                    <dt className="text-sm font-medium text-gray-500">Direction</dt>
-                    <dd className="text-sm text-gray-900">{activity.callDirection}</dd>
-                  </>
-                )}
-                {activity.callOutcome && (
-                  <>
-                    <dt className="text-sm font-medium text-gray-500">Outcome</dt>
-                    <dd className="text-sm text-gray-900">{activity.callOutcome}</dd>
-                  </>
-                )}
-                {activity.callDuration && (
-                  <>
-                    <dt className="text-sm font-medium text-gray-500">Duration</dt>
-                    <dd className="text-sm text-gray-900">{activity.callDuration} seconds</dd>
-                  </>
-                )}
-              </dl>
-            </div>
-          )}
+          {activity.type === ActivityType.CALL &&
+            (activity.phoneNumber ||
+              activity.callDirection ||
+              activity.callOutcome ||
+              activity.callDuration) && (
+              <div className="bg-white shadow rounded-lg p-6 mb-6">
+                <h2 className="text-lg font-semibold text-gray-900 mb-4">Call Details</h2>
+                <dl className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {activity.phoneNumber && (
+                    <>
+                      <dt className="text-sm font-medium text-gray-500">Phone Number</dt>
+                      <dd className="text-sm text-gray-900">{activity.phoneNumber}</dd>
+                    </>
+                  )}
+                  {activity.callDirection && (
+                    <>
+                      <dt className="text-sm font-medium text-gray-500">Direction</dt>
+                      <dd className="text-sm text-gray-900">{activity.callDirection}</dd>
+                    </>
+                  )}
+                  {activity.callOutcome && (
+                    <>
+                      <dt className="text-sm font-medium text-gray-500">Outcome</dt>
+                      <dd className="text-sm text-gray-900">{activity.callOutcome}</dd>
+                    </>
+                  )}
+                  {activity.callDuration && (
+                    <>
+                      <dt className="text-sm font-medium text-gray-500">Duration</dt>
+                      <dd className="text-sm text-gray-900">{activity.callDuration} seconds</dd>
+                    </>
+                  )}
+                </dl>
+              </div>
+            )}
 
-          {activity.type === ActivityType.EMAIL && (activity.emailFrom || activity.emailTo || activity.emailSubject) && (
-            <div className="bg-white shadow rounded-lg p-6 mb-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Email Details</h2>
-              <dl className="grid grid-cols-1 gap-4">
-                {activity.emailFrom && (
-                  <>
-                    <dt className="text-sm font-medium text-gray-500">From</dt>
-                    <dd className="text-sm text-gray-900">{activity.emailFrom}</dd>
-                  </>
-                )}
-                {activity.emailTo && (
-                  <>
-                    <dt className="text-sm font-medium text-gray-500">To</dt>
-                    <dd className="text-sm text-gray-900">{activity.emailTo}</dd>
-                  </>
-                )}
-                {activity.emailSubject && (
-                  <>
-                    <dt className="text-sm font-medium text-gray-500">Subject</dt>
-                    <dd className="text-sm text-gray-900">{activity.emailSubject}</dd>
-                  </>
-                )}
-              </dl>
-            </div>
-          )}
+          {activity.type === ActivityType.EMAIL &&
+            (activity.emailFrom || activity.emailTo || activity.emailSubject) && (
+              <div className="bg-white shadow rounded-lg p-6 mb-6">
+                <h2 className="text-lg font-semibold text-gray-900 mb-4">Email Details</h2>
+                <dl className="grid grid-cols-1 gap-4">
+                  {activity.emailFrom && (
+                    <>
+                      <dt className="text-sm font-medium text-gray-500">From</dt>
+                      <dd className="text-sm text-gray-900">{activity.emailFrom}</dd>
+                    </>
+                  )}
+                  {activity.emailTo && (
+                    <>
+                      <dt className="text-sm font-medium text-gray-500">To</dt>
+                      <dd className="text-sm text-gray-900">{activity.emailTo}</dd>
+                    </>
+                  )}
+                  {activity.emailSubject && (
+                    <>
+                      <dt className="text-sm font-medium text-gray-500">Subject</dt>
+                      <dd className="text-sm text-gray-900">{activity.emailSubject}</dd>
+                    </>
+                  )}
+                </dl>
+              </div>
+            )}
 
-          {activity.type === ActivityType.MEETING && (activity.meetingLink || activity.meetingType) && (
-            <div className="bg-white shadow rounded-lg p-6 mb-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Meeting Details</h2>
-              <dl className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {activity.meetingLink && (
-                  <>
-                    <dt className="text-sm font-medium text-gray-500">Meeting Link</dt>
-                    <dd className="text-sm text-gray-900">
-                      <a href={activity.meetingLink} target="_blank" rel="noopener noreferrer" className="text-teal-600 hover:text-teal-800">
-                        {activity.meetingLink}
-                      </a>
-                    </dd>
-                  </>
-                )}
-                {activity.meetingType && (
-                  <>
-                    <dt className="text-sm font-medium text-gray-500">Meeting Type</dt>
-                    <dd className="text-sm text-gray-900">{activity.meetingType}</dd>
-                  </>
-                )}
-              </dl>
-            </div>
-          )}
+          {activity.type === ActivityType.MEETING &&
+            (activity.meetingLink || activity.meetingType) && (
+              <div className="bg-white shadow rounded-lg p-6 mb-6">
+                <h2 className="text-lg font-semibold text-gray-900 mb-4">Meeting Details</h2>
+                <dl className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {activity.meetingLink && (
+                    <>
+                      <dt className="text-sm font-medium text-gray-500">Meeting Link</dt>
+                      <dd className="text-sm text-gray-900">
+                        <a
+                          href={activity.meetingLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-teal-600 hover:text-teal-800"
+                        >
+                          {activity.meetingLink}
+                        </a>
+                      </dd>
+                    </>
+                  )}
+                  {activity.meetingType && (
+                    <>
+                      <dt className="text-sm font-medium text-gray-500">Meeting Type</dt>
+                      <dd className="text-sm text-gray-900">{activity.meetingType}</dd>
+                    </>
+                  )}
+                </dl>
+              </div>
+            )}
 
           {activity.type === ActivityType.TASK && activity.taskCategory && (
             <div className="bg-white shadow rounded-lg p-6 mb-6">
@@ -354,13 +390,17 @@ export default function ActivityDetailPage() {
                 {activity.outcome && (
                   <>
                     <dt className="text-sm font-medium text-gray-500">Outcome</dt>
-                    <dd className="text-sm text-gray-900 whitespace-pre-wrap">{activity.outcome}</dd>
+                    <dd className="text-sm text-gray-900 whitespace-pre-wrap">
+                      {activity.outcome}
+                    </dd>
                   </>
                 )}
                 {activity.nextSteps && (
                   <>
                     <dt className="text-sm font-medium text-gray-500">Next Steps</dt>
-                    <dd className="text-sm text-gray-900 whitespace-pre-wrap">{activity.nextSteps}</dd>
+                    <dd className="text-sm text-gray-900 whitespace-pre-wrap">
+                      {activity.nextSteps}
+                    </dd>
                   </>
                 )}
               </dl>

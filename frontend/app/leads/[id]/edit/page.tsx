@@ -181,8 +181,9 @@ export default function EditLeadPage() {
                   value={formData.firstName || ""}
                   onChange={handleChange}
                   required
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 ${errors.firstName ? "border-red-500" : "border-gray-300"
-                    }`}
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 ${
+                    errors.firstName ? "border-red-500" : "border-gray-300"
+                  }`}
                 />
                 {errors.firstName && (
                   <p className="mt-1 text-sm text-red-600">{errors.firstName}</p>
@@ -199,8 +200,9 @@ export default function EditLeadPage() {
                   value={formData.lastName || ""}
                   onChange={handleChange}
                   required
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 ${errors.lastName ? "border-red-500" : "border-gray-300"
-                    }`}
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 ${
+                    errors.lastName ? "border-red-500" : "border-gray-300"
+                  }`}
                 />
                 {errors.lastName && <p className="mt-1 text-sm text-red-600">{errors.lastName}</p>}
               </div>
@@ -215,8 +217,9 @@ export default function EditLeadPage() {
                   value={formData.email || ""}
                   onChange={handleChange}
                   required
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 ${errors.email ? "border-red-500" : "border-gray-300"
-                    }`}
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 ${
+                    errors.email ? "border-red-500" : "border-gray-300"
+                  }`}
                 />
                 {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
               </div>
@@ -232,8 +235,9 @@ export default function EditLeadPage() {
                   onChange={handleChange}
                   required
                   placeholder="+919876543210"
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 ${errors.phone ? "border-red-500" : "border-gray-300"
-                    }`}
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 ${
+                    errors.phone ? "border-red-500" : "border-gray-300"
+                  }`}
                 />
                 {errors.phone && <p className="mt-1 text-sm text-red-600">{errors.phone}</p>}
               </div>
@@ -248,8 +252,9 @@ export default function EditLeadPage() {
                   value={formData.companyName || ""}
                   onChange={handleChange}
                   required
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 ${errors.companyName ? "border-red-500" : "border-gray-300"
-                    }`}
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 ${
+                    errors.companyName ? "border-red-500" : "border-gray-300"
+                  }`}
                 />
                 {errors.companyName && (
                   <p className="mt-1 text-sm text-red-600">{errors.companyName}</p>

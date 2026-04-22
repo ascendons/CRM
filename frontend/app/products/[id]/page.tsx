@@ -10,11 +10,7 @@ import { showToast } from "@/lib/toast";
 import ConfirmModal from "@/components/ConfirmModal";
 import { PermissionGuard } from "@/components/common/PermissionGuard";
 
-export default function ProductDetailPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+export default function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const router = useRouter();
   const [product, setProduct] = useState<ProductResponse | null>(null);
@@ -57,7 +53,7 @@ export default function ProductDetailPage({
       if (error.response?.status === 400) {
         const message = error.response.data?.message;
 
-        if (message?.includes('active proposal')) {
+        if (message?.includes("active proposal")) {
           showToast.error(
             <div>
               <p>{message}</p>
@@ -123,13 +119,7 @@ export default function ProductDetailPage({
     );
   }
 
-  const DetailSection = ({
-    title,
-    children,
-  }: {
-    title: string;
-    children: React.ReactNode;
-  }) => (
+  const DetailSection = ({ title, children }: { title: string; children: React.ReactNode }) => (
     <div className="bg-white rounded-lg shadow p-6">
       <h2 className="text-xl font-semibold text-gray-900 mb-4">{title}</h2>
       {children}
@@ -146,9 +136,7 @@ export default function ProductDetailPage({
     <div className="py-3 border-b border-gray-200 last:border-0">
       <dt className="text-sm font-medium text-gray-500 mb-1">{label}</dt>
       <dd className="text-sm text-gray-900">
-        {value !== undefined && value !== null && value !== ""
-          ? String(value)
-          : "-"}
+        {value !== undefined && value !== null && value !== "" ? String(value) : "-"}
       </dd>
     </div>
   );
@@ -161,9 +149,7 @@ export default function ProductDetailPage({
           <div className="flex justify-between items-start">
             <div className="flex-1">
               <div className="flex items-center gap-3 mb-2">
-                <h1 className="text-3xl font-bold text-gray-900">
-                  {product.productName}
-                </h1>
+                <h1 className="text-3xl font-bold text-gray-900">{product.productName}</h1>
                 {product.isActive ? (
                   <span className="px-3 py-1 bg-green-100 text-green-800 text-sm font-semibold rounded-full">
                     Active
@@ -217,13 +203,9 @@ export default function ProductDetailPage({
             {/* Pricing */}
             <DetailSection title="Pricing">
               <dl>
-                <DetailRow
-                  label="Base Price"
-                  value={formatCurrency(product.basePrice)}
-                />
+                <DetailRow label="Base Price" value={formatCurrency(product.basePrice)} />
                 <DetailRow label="Tax Rate" value={`${product.taxRate}%`} />
-                {/* listPrice and discount removed as they don't exist on ProductResponse */
-                }
+                {/* listPrice and discount removed as they don't exist on ProductResponse */}
               </dl>
             </DetailSection>
 
@@ -233,10 +215,7 @@ export default function ProductDetailPage({
                 <dl>
                   <DetailRow label="Stock Quantity" value={product.stockQuantity} />
                   <DetailRow label="Unit" value={product.unit} />
-                  <DetailRow
-                    label="Min Stock Level"
-                    value={product.minStockLevel}
-                  />
+                  <DetailRow label="Min Stock Level" value={product.minStockLevel} />
                   <DetailRow
                     label="Stock Status"
                     value={
@@ -264,23 +243,15 @@ export default function ProductDetailPage({
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-sm text-gray-600">
-                    Tax ({product.taxRate}%)
-                  </span>
+                  <span className="text-sm text-gray-600">Tax ({product.taxRate}%)</span>
                   <span className="text-sm font-medium text-gray-900">
-                    {formatCurrency(
-                      (product.basePrice * product.taxRate) / 100
-                    )}
+                    {formatCurrency((product.basePrice * product.taxRate) / 100)}
                   </span>
                 </div>
                 <div className="flex justify-between pt-3 border-t">
-                  <span className="text-base font-semibold text-gray-900">
-                    Total Price
-                  </span>
+                  <span className="text-base font-semibold text-gray-900">Total Price</span>
                   <span className="text-base font-bold text-blue-600">
-                    {formatCurrency(
-                      product.basePrice * (1 + product.taxRate / 100)
-                    )}
+                    {formatCurrency(product.basePrice * (1 + product.taxRate / 100))}
                   </span>
                 </div>
               </div>
@@ -289,20 +260,15 @@ export default function ProductDetailPage({
             {/* System Information */}
             <DetailSection title="System Information">
               <dl>
-                <DetailRow
-                  label="Product ID"
-                  value={product.productId}
-                />
+                <DetailRow label="Product ID" value={product.productId} />
                 <DetailRow
                   label="Created"
-                  value={`${formatDate(product.createdAt)} by ${product.createdByName
-                    }`}
+                  value={`${formatDate(product.createdAt)} by ${product.createdByName}`}
                 />
                 {product.lastModifiedAt && (
                   <DetailRow
                     label="Last Modified"
-                    value={`${formatDate(product.lastModifiedAt)} by ${product.lastModifiedByName
-                      }`}
+                    value={`${formatDate(product.lastModifiedAt)} by ${product.lastModifiedByName}`}
                   />
                 )}
               </dl>

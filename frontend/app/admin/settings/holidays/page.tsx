@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { holidaysApi, HolidayResponse, CreateHolidayRequest } from '@/lib/api/holidays';
-import { toast } from 'react-hot-toast';
-import Link from 'next/link';
+import { useEffect, useState } from "react";
+import { holidaysApi, HolidayResponse, CreateHolidayRequest } from "@/lib/api/holidays";
+import { toast } from "react-hot-toast";
+import Link from "next/link";
 
 export default function HolidaysManagementPage() {
   const [holidays, setHolidays] = useState<HolidayResponse[]>([]);
@@ -11,14 +11,14 @@ export default function HolidaysManagementPage() {
   const [showForm, setShowForm] = useState(false);
   const [editingHoliday, setEditingHoliday] = useState<HolidayResponse | null>(null);
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
 
   const [formData, setFormData] = useState<CreateHolidayRequest>({
-    date: '',
-    name: '',
-    description: '',
-    type: 'NATIONAL',
-    isOptional: false
+    date: "",
+    name: "",
+    description: "",
+    type: "NATIONAL",
+    isOptional: false,
   });
 
   const loadHolidays = async () => {
@@ -27,8 +27,8 @@ export default function HolidaysManagementPage() {
       const data = await holidaysApi.getHolidaysByYear(selectedYear);
       setHolidays(data || []);
     } catch (error) {
-      console.error('Failed to load holidays:', error);
-      toast.error('Failed to load holidays');
+      console.error("Failed to load holidays:", error);
+      toast.error("Failed to load holidays");
     } finally {
       setLoading(false);
     }
@@ -45,33 +45,33 @@ export default function HolidaysManagementPage() {
     try {
       if (editingHoliday) {
         await holidaysApi.updateHoliday(editingHoliday.id, formData);
-        toast.success('Holiday updated successfully!');
+        toast.success("Holiday updated successfully!");
       } else {
         await holidaysApi.createHoliday(formData);
-        toast.success('Holiday created successfully!');
+        toast.success("Holiday created successfully!");
       }
       loadHolidays();
       resetForm();
     } catch (error: any) {
-      console.error('Failed to save holiday:', error);
-      toast.error(error.message || 'Failed to save holiday');
+      console.error("Failed to save holiday:", error);
+      toast.error(error.message || "Failed to save holiday");
     } finally {
       setLoading(false);
     }
   };
 
   const handleDelete = async (holidayId: string) => {
-    if (!confirm('Are you sure you want to delete this holiday?')) {
+    if (!confirm("Are you sure you want to delete this holiday?")) {
       return;
     }
 
     try {
       await holidaysApi.deleteHoliday(holidayId);
-      toast.success('Holiday deleted successfully!');
+      toast.success("Holiday deleted successfully!");
       loadHolidays();
     } catch (error: any) {
-      console.error('Failed to delete holiday:', error);
-      toast.error(error.message || 'Failed to delete holiday');
+      console.error("Failed to delete holiday:", error);
+      toast.error(error.message || "Failed to delete holiday");
     }
   };
 
@@ -80,60 +80,64 @@ export default function HolidaysManagementPage() {
     setFormData({
       date: holiday.date,
       name: holiday.name,
-      description: holiday.description || '',
+      description: holiday.description || "",
       type: holiday.type as any,
       isOptional: holiday.isOptional,
-      maxOptionalAllowed: holiday.maxOptionalAllowed
+      maxOptionalAllowed: holiday.maxOptionalAllowed,
     });
     setShowForm(true);
   };
 
   const resetForm = () => {
     setFormData({
-      date: '',
-      name: '',
-      description: '',
-      type: 'NATIONAL',
-      isOptional: false
+      date: "",
+      name: "",
+      description: "",
+      type: "NATIONAL",
+      isOptional: false,
     });
     setEditingHoliday(null);
     setShowForm(false);
   };
 
   const addCommonHolidays = async () => {
-    if (!confirm(`Add common holidays for ${selectedYear}? This will add Independence Day, Republic Day, Gandhi Jayanti, Diwali, and Holi.`)) {
+    if (
+      !confirm(
+        `Add common holidays for ${selectedYear}? This will add Independence Day, Republic Day, Gandhi Jayanti, Diwali, and Holi.`
+      )
+    ) {
       return;
     }
 
     const commonHolidays: CreateHolidayRequest[] = [
       {
         date: `${selectedYear}-01-26`,
-        name: 'Republic Day',
-        description: 'Republic Day of India',
-        type: 'NATIONAL',
-        isOptional: false
+        name: "Republic Day",
+        description: "Republic Day of India",
+        type: "NATIONAL",
+        isOptional: false,
       },
       {
         date: `${selectedYear}-08-15`,
-        name: 'Independence Day',
-        description: 'Independence Day of India',
-        type: 'NATIONAL',
-        isOptional: false
+        name: "Independence Day",
+        description: "Independence Day of India",
+        type: "NATIONAL",
+        isOptional: false,
       },
       {
         date: `${selectedYear}-10-02`,
-        name: 'Gandhi Jayanti',
-        description: 'Birth anniversary of Mahatma Gandhi',
-        type: 'NATIONAL',
-        isOptional: false
+        name: "Gandhi Jayanti",
+        description: "Birth anniversary of Mahatma Gandhi",
+        type: "NATIONAL",
+        isOptional: false,
       },
       {
         date: `${selectedYear}-12-25`,
-        name: 'Christmas',
-        description: 'Christmas Day',
-        type: 'NATIONAL',
-        isOptional: false
-      }
+        name: "Christmas",
+        description: "Christmas Day",
+        type: "NATIONAL",
+        isOptional: false,
+      },
     ];
 
     try {
@@ -143,45 +147,46 @@ export default function HolidaysManagementPage() {
       toast.success(`Added ${commonHolidays.length} common holidays!`);
       loadHolidays();
     } catch (error: any) {
-      console.error('Failed to add common holidays:', error);
-      toast.error('Failed to add some holidays');
+      console.error("Failed to add common holidays:", error);
+      toast.error("Failed to add some holidays");
     }
   };
 
   const getTypeBadge = (type: string) => {
     const colors = {
-      'NATIONAL': 'bg-blue-100 text-blue-800',
-      'REGIONAL': 'bg-green-100 text-green-800',
-      'OPTIONAL': 'bg-yellow-100 text-yellow-800',
-      'COMPANY_SPECIFIC': 'bg-purple-100 text-purple-800'
+      NATIONAL: "bg-blue-100 text-blue-800",
+      REGIONAL: "bg-green-100 text-green-800",
+      OPTIONAL: "bg-yellow-100 text-yellow-800",
+      COMPANY_SPECIFIC: "bg-purple-100 text-purple-800",
     };
-    return colors[type as keyof typeof colors] || 'bg-gray-100 text-gray-800';
+    return colors[type as keyof typeof colors] || "bg-gray-100 text-gray-800";
   };
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
-    return date.toLocaleDateString('en-US', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
+    return date.toLocaleDateString("en-US", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
     });
   };
 
   const getDayOfWeek = (dateStr: string) => {
     const date = new Date(dateStr);
-    return date.toLocaleDateString('en-US', { weekday: 'short' });
+    return date.toLocaleDateString("en-US", { weekday: "short" });
   };
 
   // Filter holidays based on search
-  const filteredHolidays = holidays.filter(holiday =>
-    holiday.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    holiday.description?.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredHolidays = holidays.filter(
+    (holiday) =>
+      holiday.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      holiday.description?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   // Sort holidays by date
-  const sortedHolidays = [...filteredHolidays].sort((a, b) =>
-    new Date(a.date).getTime() - new Date(b.date).getTime()
+  const sortedHolidays = [...filteredHolidays].sort(
+    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
   );
 
   if (loading && holidays.length === 0) {
@@ -217,7 +222,7 @@ export default function HolidaysManagementPage() {
             onClick={() => setShowForm(!showForm)}
             className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors"
           >
-            {showForm ? 'Cancel' : 'Add Holiday'}
+            {showForm ? "Cancel" : "Add Holiday"}
           </button>
         </div>
       </div>
@@ -232,8 +237,10 @@ export default function HolidaysManagementPage() {
               onChange={(e) => setSelectedYear(Number(e.target.value))}
               className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
-              {[selectedYear - 1, selectedYear, selectedYear + 1].map(year => (
-                <option key={year} value={year}>{year}</option>
+              {[selectedYear - 1, selectedYear, selectedYear + 1].map((year) => (
+                <option key={year} value={year}>
+                  {year}
+                </option>
               ))}
             </select>
           </div>
@@ -249,7 +256,7 @@ export default function HolidaysManagementPage() {
           </div>
 
           <div className="text-sm text-gray-600">
-            {sortedHolidays.length} {sortedHolidays.length === 1 ? 'holiday' : 'holidays'}
+            {sortedHolidays.length} {sortedHolidays.length === 1 ? "holiday" : "holidays"}
           </div>
         </div>
       </div>
@@ -258,7 +265,7 @@ export default function HolidaysManagementPage() {
       {showForm && (
         <div className="bg-white rounded-xl shadow-lg p-6">
           <h2 className="text-xl font-bold text-gray-900 mb-6">
-            {editingHoliday ? 'Edit Holiday' : 'Add New Holiday'}
+            {editingHoliday ? "Edit Holiday" : "Add New Holiday"}
           </h2>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -293,9 +300,7 @@ export default function HolidaysManagementPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Description
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
               <textarea
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
@@ -344,7 +349,7 @@ export default function HolidaysManagementPage() {
                 disabled={loading}
                 className="flex-1 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-semibold rounded-lg transition-colors"
               >
-                {loading ? 'Saving...' : editingHoliday ? 'Update Holiday' : 'Create Holiday'}
+                {loading ? "Saving..." : editingHoliday ? "Update Holiday" : "Create Holiday"}
               </button>
               <button
                 type="button"
@@ -361,9 +366,7 @@ export default function HolidaysManagementPage() {
       {/* Holidays List */}
       <div className="bg-white rounded-xl shadow">
         <div className="p-6 border-b border-gray-200">
-          <h2 className="text-xl font-bold text-gray-900">
-            Holidays in {selectedYear}
-          </h2>
+          <h2 className="text-xl font-bold text-gray-900">Holidays in {selectedYear}</h2>
         </div>
 
         {sortedHolidays.length === 0 ? (
@@ -371,7 +374,9 @@ export default function HolidaysManagementPage() {
             <span className="text-6xl mb-4 block">🎉</span>
             <h3 className="text-lg font-semibold text-gray-900 mb-2">No holidays configured</h3>
             <p className="text-gray-500 mb-6">
-              {searchQuery ? 'No holidays match your search.' : 'Add holidays for this year to get started.'}
+              {searchQuery
+                ? "No holidays match your search."
+                : "Add holidays for this year to get started."}
             </p>
             {!searchQuery && (
               <div className="flex gap-3 justify-center">
@@ -405,7 +410,7 @@ export default function HolidaysManagementPage() {
                         {new Date(holiday.date).getDate()}
                       </span>
                       <span className="text-xs text-blue-600">
-                        {new Date(holiday.date).toLocaleDateString('en-US', { month: 'short' })}
+                        {new Date(holiday.date).toLocaleDateString("en-US", { month: "short" })}
                       </span>
                     </div>
 
@@ -413,8 +418,10 @@ export default function HolidaysManagementPage() {
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
                         <h3 className="text-lg font-semibold text-gray-900">{holiday.name}</h3>
-                        <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${getTypeBadge(holiday.type)}`}>
-                          {holiday.type.replace('_', ' ')}
+                        <span
+                          className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${getTypeBadge(holiday.type)}`}
+                        >
+                          {holiday.type.replace("_", " ")}
                         </span>
                         {holiday.isOptional && (
                           <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
@@ -422,9 +429,7 @@ export default function HolidaysManagementPage() {
                           </span>
                         )}
                       </div>
-                      <p className="text-sm text-gray-600 mb-1">
-                        {formatDate(holiday.date)}
-                      </p>
+                      <p className="text-sm text-gray-600 mb-1">{formatDate(holiday.date)}</p>
                       {holiday.description && (
                         <p className="text-sm text-gray-700 mt-2">{holiday.description}</p>
                       )}

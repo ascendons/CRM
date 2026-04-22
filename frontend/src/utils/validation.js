@@ -13,111 +13,119 @@
 /**
  * Required field validator
  */
-export const required = (value, fieldName = 'This field') => {
-  const isValid = value !== null && value !== undefined && value !== '';
+export const required = (value, fieldName = "This field") => {
+  const isValid = value !== null && value !== undefined && value !== "";
   return {
     isValid,
-    error: isValid ? '' : `${fieldName} is required`,
+    error: isValid ? "" : `${fieldName} is required`,
   };
 };
 
 /**
  * Email validator
  */
-export const email = (value, fieldName = 'Email') => {
-  if (!value) return { isValid: true, error: '' }; // Optional field
+export const email = (value, fieldName = "Email") => {
+  if (!value) return { isValid: true, error: "" }; // Optional field
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const isValid = emailRegex.test(value);
 
   return {
     isValid,
-    error: isValid ? '' : `${fieldName} must be a valid email address`,
+    error: isValid ? "" : `${fieldName} must be a valid email address`,
   };
 };
 
 /**
  * Phone number validator
  */
-export const phone = (value, fieldName = 'Phone number') => {
-  if (!value) return { isValid: true, error: '' }; // Optional field
+export const phone = (value, fieldName = "Phone number") => {
+  if (!value) return { isValid: true, error: "" }; // Optional field
 
   // Accepts formats: (123) 456-7890, 123-456-7890, 1234567890, +1234567890
   const phoneRegex = /^[\+]?[(]?[0-9]{1,4}[)]?[-\s\.]?[(]?[0-9]{1,4}[)]?[-\s\.]?[0-9]{1,9}$/;
-  const isValid = phoneRegex.test(value.replace(/\s/g, ''));
+  const isValid = phoneRegex.test(value.replace(/\s/g, ""));
 
   return {
     isValid,
-    error: isValid ? '' : `${fieldName} must be a valid phone number`,
+    error: isValid ? "" : `${fieldName} must be a valid phone number`,
   };
 };
 
 /**
  * Minimum length validator
  */
-export const minLength = (min) => (value, fieldName = 'This field') => {
-  if (!value) return { isValid: true, error: '' }; // Optional field
+export const minLength =
+  (min) =>
+  (value, fieldName = "This field") => {
+    if (!value) return { isValid: true, error: "" }; // Optional field
 
-  const isValid = value.length >= min;
-  return {
-    isValid,
-    error: isValid ? '' : `${fieldName} must be at least ${min} characters`,
+    const isValid = value.length >= min;
+    return {
+      isValid,
+      error: isValid ? "" : `${fieldName} must be at least ${min} characters`,
+    };
   };
-};
 
 /**
  * Maximum length validator
  */
-export const maxLength = (max) => (value, fieldName = 'This field') => {
-  if (!value) return { isValid: true, error: '' }; // Optional field
+export const maxLength =
+  (max) =>
+  (value, fieldName = "This field") => {
+    if (!value) return { isValid: true, error: "" }; // Optional field
 
-  const isValid = value.length <= max;
-  return {
-    isValid,
-    error: isValid ? '' : `${fieldName} must not exceed ${max} characters`,
+    const isValid = value.length <= max;
+    return {
+      isValid,
+      error: isValid ? "" : `${fieldName} must not exceed ${max} characters`,
+    };
   };
-};
 
 /**
  * Minimum value validator (for numbers)
  */
-export const minValue = (min) => (value, fieldName = 'This field') => {
-  if (value === null || value === undefined || value === '') {
-    return { isValid: true, error: '' }; // Optional field
-  }
+export const minValue =
+  (min) =>
+  (value, fieldName = "This field") => {
+    if (value === null || value === undefined || value === "") {
+      return { isValid: true, error: "" }; // Optional field
+    }
 
-  const numValue = Number(value);
-  const isValid = !isNaN(numValue) && numValue >= min;
+    const numValue = Number(value);
+    const isValid = !isNaN(numValue) && numValue >= min;
 
-  return {
-    isValid,
-    error: isValid ? '' : `${fieldName} must be at least ${min}`,
+    return {
+      isValid,
+      error: isValid ? "" : `${fieldName} must be at least ${min}`,
+    };
   };
-};
 
 /**
  * Maximum value validator (for numbers)
  */
-export const maxValue = (max) => (value, fieldName = 'This field') => {
-  if (value === null || value === undefined || value === '') {
-    return { isValid: true, error: '' }; // Optional field
-  }
+export const maxValue =
+  (max) =>
+  (value, fieldName = "This field") => {
+    if (value === null || value === undefined || value === "") {
+      return { isValid: true, error: "" }; // Optional field
+    }
 
-  const numValue = Number(value);
-  const isValid = !isNaN(numValue) && numValue <= max;
+    const numValue = Number(value);
+    const isValid = !isNaN(numValue) && numValue <= max;
 
-  return {
-    isValid,
-    error: isValid ? '' : `${fieldName} must not exceed ${max}`,
+    return {
+      isValid,
+      error: isValid ? "" : `${fieldName} must not exceed ${max}`,
+    };
   };
-};
 
 /**
  * Positive number validator
  */
-export const positiveNumber = (value, fieldName = 'This field') => {
-  if (value === null || value === undefined || value === '') {
-    return { isValid: true, error: '' }; // Optional field
+export const positiveNumber = (value, fieldName = "This field") => {
+  if (value === null || value === undefined || value === "") {
+    return { isValid: true, error: "" }; // Optional field
   }
 
   const numValue = Number(value);
@@ -125,16 +133,16 @@ export const positiveNumber = (value, fieldName = 'This field') => {
 
   return {
     isValid,
-    error: isValid ? '' : `${fieldName} must be a positive number`,
+    error: isValid ? "" : `${fieldName} must be a positive number`,
   };
 };
 
 /**
  * Non-negative number validator (including zero)
  */
-export const nonNegativeNumber = (value, fieldName = 'This field') => {
-  if (value === null || value === undefined || value === '') {
-    return { isValid: true, error: '' }; // Optional field
+export const nonNegativeNumber = (value, fieldName = "This field") => {
+  if (value === null || value === undefined || value === "") {
+    return { isValid: true, error: "" }; // Optional field
   }
 
   const numValue = Number(value);
@@ -142,16 +150,16 @@ export const nonNegativeNumber = (value, fieldName = 'This field') => {
 
   return {
     isValid,
-    error: isValid ? '' : `${fieldName} must be zero or greater`,
+    error: isValid ? "" : `${fieldName} must be zero or greater`,
   };
 };
 
 /**
  * Integer validator
  */
-export const integer = (value, fieldName = 'This field') => {
-  if (value === null || value === undefined || value === '') {
-    return { isValid: true, error: '' }; // Optional field
+export const integer = (value, fieldName = "This field") => {
+  if (value === null || value === undefined || value === "") {
+    return { isValid: true, error: "" }; // Optional field
   }
 
   const numValue = Number(value);
@@ -159,30 +167,30 @@ export const integer = (value, fieldName = 'This field') => {
 
   return {
     isValid,
-    error: isValid ? '' : `${fieldName} must be a whole number`,
+    error: isValid ? "" : `${fieldName} must be a whole number`,
   };
 };
 
 /**
  * Date validator (checks if valid date)
  */
-export const validDate = (value, fieldName = 'Date') => {
-  if (!value) return { isValid: true, error: '' }; // Optional field
+export const validDate = (value, fieldName = "Date") => {
+  if (!value) return { isValid: true, error: "" }; // Optional field
 
   const date = new Date(value);
   const isValid = date instanceof Date && !isNaN(date);
 
   return {
     isValid,
-    error: isValid ? '' : `${fieldName} must be a valid date`,
+    error: isValid ? "" : `${fieldName} must be a valid date`,
   };
 };
 
 /**
  * Future date validator
  */
-export const futureDate = (value, fieldName = 'Date') => {
-  if (!value) return { isValid: true, error: '' }; // Optional field
+export const futureDate = (value, fieldName = "Date") => {
+  if (!value) return { isValid: true, error: "" }; // Optional field
 
   const date = new Date(value);
   const now = new Date();
@@ -190,15 +198,15 @@ export const futureDate = (value, fieldName = 'Date') => {
 
   return {
     isValid,
-    error: isValid ? '' : `${fieldName} must be in the future`,
+    error: isValid ? "" : `${fieldName} must be in the future`,
   };
 };
 
 /**
  * Past date validator
  */
-export const pastDate = (value, fieldName = 'Date') => {
-  if (!value) return { isValid: true, error: '' }; // Optional field
+export const pastDate = (value, fieldName = "Date") => {
+  if (!value) return { isValid: true, error: "" }; // Optional field
 
   const date = new Date(value);
   const now = new Date();
@@ -206,79 +214,89 @@ export const pastDate = (value, fieldName = 'Date') => {
 
   return {
     isValid,
-    error: isValid ? '' : `${fieldName} must be in the past`,
+    error: isValid ? "" : `${fieldName} must be in the past`,
   };
 };
 
 /**
  * Date after another date validator
  */
-export const dateAfter = (compareDate) => (value, fieldName = 'Date') => {
-  if (!value || !compareDate) return { isValid: true, error: '' };
+export const dateAfter =
+  (compareDate) =>
+  (value, fieldName = "Date") => {
+    if (!value || !compareDate) return { isValid: true, error: "" };
 
-  const date = new Date(value);
-  const compare = new Date(compareDate);
-  const isValid = date > compare;
+    const date = new Date(value);
+    const compare = new Date(compareDate);
+    const isValid = date > compare;
 
-  return {
-    isValid,
-    error: isValid ? '' : `${fieldName} must be after the reference date`,
+    return {
+      isValid,
+      error: isValid ? "" : `${fieldName} must be after the reference date`,
+    };
   };
-};
 
 /**
  * Date before another date validator
  */
-export const dateBefore = (compareDate) => (value, fieldName = 'Date') => {
-  if (!value || !compareDate) return { isValid: true, error: '' };
+export const dateBefore =
+  (compareDate) =>
+  (value, fieldName = "Date") => {
+    if (!value || !compareDate) return { isValid: true, error: "" };
 
-  const date = new Date(value);
-  const compare = new Date(compareDate);
-  const isValid = date < compare;
+    const date = new Date(value);
+    const compare = new Date(compareDate);
+    const isValid = date < compare;
 
-  return {
-    isValid,
-    error: isValid ? '' : `${fieldName} must be before the reference date`,
+    return {
+      isValid,
+      error: isValid ? "" : `${fieldName} must be before the reference date`,
+    };
   };
-};
 
 /**
  * Pattern validator (regex)
  */
-export const pattern = (regex, message) => (value, fieldName = 'This field') => {
-  if (!value) return { isValid: true, error: '' }; // Optional field
+export const pattern =
+  (regex, message) =>
+  (value, fieldName = "This field") => {
+    if (!value) return { isValid: true, error: "" }; // Optional field
 
-  const isValid = regex.test(value);
-  return {
-    isValid,
-    error: isValid ? '' : message || `${fieldName} format is invalid`,
+    const isValid = regex.test(value);
+    return {
+      isValid,
+      error: isValid ? "" : message || `${fieldName} format is invalid`,
+    };
   };
-};
 
 /**
  * Custom validator
  */
-export const custom = (validatorFn, errorMessage) => (value, fieldName = 'This field') => {
-  const isValid = validatorFn(value);
-  return {
-    isValid,
-    error: isValid ? '' : errorMessage || `${fieldName} is invalid`,
+export const custom =
+  (validatorFn, errorMessage) =>
+  (value, fieldName = "This field") => {
+    const isValid = validatorFn(value);
+    return {
+      isValid,
+      error: isValid ? "" : errorMessage || `${fieldName} is invalid`,
+    };
   };
-};
 
 /**
  * Compose multiple validators
  * Returns first error encountered or success if all pass
  */
-export const compose = (...validators) => (value, fieldName) => {
-  for (const validator of validators) {
-    const result = validator(value, fieldName);
-    if (!result.isValid) {
-      return result;
+export const compose =
+  (...validators) =>
+  (value, fieldName) => {
+    for (const validator of validators) {
+      const result = validator(value, fieldName);
+      if (!result.isValid) {
+        return result;
+      }
     }
-  }
-  return { isValid: true, error: '' };
-};
+    return { isValid: true, error: "" };
+  };
 
 /**
  * Validate entire form
@@ -320,12 +338,17 @@ export const validateField = (fieldName, value, validator) => {
  */
 export const warehouseValidationRules = {
   name: compose(required, minLength(2), maxLength(100)),
-  code: compose(required, minLength(2), maxLength(20), pattern(/^[A-Z0-9-]+$/, 'Code must contain only uppercase letters, numbers, and hyphens')),
-  'address.line1': compose(required, minLength(5), maxLength(200)),
-  'address.city': compose(required, minLength(2), maxLength(100)),
-  'address.state': compose(required, minLength(2), maxLength(100)),
-  'address.postalCode': compose(required, minLength(3), maxLength(20)),
-  'address.country': compose(required, minLength(2), maxLength(100)),
+  code: compose(
+    required,
+    minLength(2),
+    maxLength(20),
+    pattern(/^[A-Z0-9-]+$/, "Code must contain only uppercase letters, numbers, and hyphens")
+  ),
+  "address.line1": compose(required, minLength(5), maxLength(200)),
+  "address.city": compose(required, minLength(2), maxLength(100)),
+  "address.state": compose(required, minLength(2), maxLength(100)),
+  "address.postalCode": compose(required, minLength(3), maxLength(20)),
+  "address.country": compose(required, minLength(2), maxLength(100)),
   contactEmail: email,
   contactPhone: phone,
   capacity: compose(positiveNumber, integer),
@@ -374,7 +397,7 @@ export const stockTransferValidationRules = {
     required,
     custom(
       (value, formData) => formData.fromWarehouseId !== value,
-      'Cannot transfer to the same warehouse'
+      "Cannot transfer to the same warehouse"
     )
   ),
   quantity: compose(required, positiveNumber, integer),

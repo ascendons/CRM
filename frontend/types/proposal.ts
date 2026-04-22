@@ -127,6 +127,8 @@ export interface ProposalResponse {
 
   // Proforma status
   isProforma?: boolean;
+  isTechnicalQuotation?: boolean;
+  showDiscount?: boolean;
   hasBeenConverted?: boolean;
 
   // Approval Flow
@@ -165,6 +167,7 @@ export interface LineItemDTO {
   quantity: number;
   unit?: string;
   hsnCode?: string;
+  listPrice?: number;
   unitPrice?: number;
   description?: string;
   discountType?: DiscountType;
@@ -203,6 +206,8 @@ export interface CreateProposalRequest {
   deliveryTerms?: string;
   notes?: string;
   isProforma?: boolean;
+  isTechnicalQuotation?: boolean;
+  showDiscount?: boolean;
   approverIds?: string[];
 }
 
@@ -226,6 +231,8 @@ export interface UpdateProposalRequest {
   deliveryTerms?: string;
   notes?: string;
   isProforma?: boolean;
+  isTechnicalQuotation?: boolean;
+  showDiscount?: boolean;
   approverIds?: string[];
 }
 

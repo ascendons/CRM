@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -18,9 +18,9 @@ import {
   Chip,
   CircularProgress,
   Alert,
-} from '@mui/material';
-import { format } from 'date-fns';
-import inventoryApi from '../../services/inventoryApi';
+} from "@mui/material";
+import { format } from "date-fns";
+import inventoryApi from "../../services/inventoryApi";
 
 const PurchaseOrderDetails = ({ open, onClose, poId }) => {
   const [po, setPo] = useState(null);
@@ -40,7 +40,7 @@ const PurchaseOrderDetails = ({ open, onClose, poId }) => {
       const response = await inventoryApi.purchaseOrders.getById(poId);
       setPo(response.data.data || response.data);
     } catch (err) {
-      setError('Failed to load purchase order details: ' + err.message);
+      setError("Failed to load purchase order details: " + err.message);
     } finally {
       setLoading(false);
     }
@@ -48,15 +48,15 @@ const PurchaseOrderDetails = ({ open, onClose, poId }) => {
 
   const getStatusColor = (status) => {
     const colors = {
-      DRAFT: 'default',
-      SUBMITTED: 'info',
-      APPROVED: 'success',
-      RECEIVING: 'warning',
-      RECEIVED: 'success',
-      CANCELLED: 'error',
-      REJECTED: 'error',
+      DRAFT: "default",
+      SUBMITTED: "info",
+      APPROVED: "success",
+      RECEIVING: "warning",
+      RECEIVED: "success",
+      CANCELLED: "error",
+      REJECTED: "error",
     };
-    return colors[status] || 'default';
+    return colors[status] || "default";
   };
 
   if (loading || !po) {
@@ -102,7 +102,7 @@ const PurchaseOrderDetails = ({ open, onClose, poId }) => {
               Order Date
             </Typography>
             <Typography variant="body1">
-              {po.orderDate ? format(new Date(po.orderDate), 'MMM dd, yyyy') : '-'}
+              {po.orderDate ? format(new Date(po.orderDate), "MMM dd, yyyy") : "-"}
             </Typography>
           </Grid>
         </Grid>
@@ -119,19 +119,19 @@ const PurchaseOrderDetails = ({ open, onClose, poId }) => {
               <Typography variant="caption" color="text.secondary">
                 Supplier Name
               </Typography>
-              <Typography variant="body2">{po.supplierName || '-'}</Typography>
+              <Typography variant="body2">{po.supplierName || "-"}</Typography>
             </Grid>
             <Grid item xs={12} md={4}>
               <Typography variant="caption" color="text.secondary">
                 Contact Person
               </Typography>
-              <Typography variant="body2">{po.supplierContact || '-'}</Typography>
+              <Typography variant="body2">{po.supplierContact || "-"}</Typography>
             </Grid>
             <Grid item xs={12} md={4}>
               <Typography variant="caption" color="text.secondary">
                 Email
               </Typography>
-              <Typography variant="body2">{po.supplierEmail || '-'}</Typography>
+              <Typography variant="body2">{po.supplierEmail || "-"}</Typography>
             </Grid>
           </Grid>
         </Box>
@@ -148,7 +148,7 @@ const PurchaseOrderDetails = ({ open, onClose, poId }) => {
               <Typography variant="caption" color="text.secondary">
                 Warehouse
               </Typography>
-              <Typography variant="body2">{po.warehouseName || '-'}</Typography>
+              <Typography variant="body2">{po.warehouseName || "-"}</Typography>
             </Grid>
             <Grid item xs={12} md={6}>
               <Typography variant="caption" color="text.secondary">
@@ -156,8 +156,8 @@ const PurchaseOrderDetails = ({ open, onClose, poId }) => {
               </Typography>
               <Typography variant="body2">
                 {po.expectedDeliveryDate
-                  ? format(new Date(po.expectedDeliveryDate), 'MMM dd, yyyy')
-                  : '-'}
+                  ? format(new Date(po.expectedDeliveryDate), "MMM dd, yyyy")
+                  : "-"}
               </Typography>
             </Grid>
           </Grid>
@@ -172,13 +172,13 @@ const PurchaseOrderDetails = ({ open, onClose, poId }) => {
               <Typography variant="caption" color="text.secondary">
                 Payment Terms
               </Typography>
-              <Typography variant="body2">{po.paymentTerms || '-'}</Typography>
+              <Typography variant="body2">{po.paymentTerms || "-"}</Typography>
             </Grid>
             <Grid item xs={12} md={6}>
               <Typography variant="caption" color="text.secondary">
                 Notes
               </Typography>
-              <Typography variant="body2">{po.notes || '-'}</Typography>
+              <Typography variant="body2">{po.notes || "-"}</Typography>
             </Grid>
           </Grid>
         </Box>
@@ -213,13 +213,14 @@ const PurchaseOrderDetails = ({ open, onClose, poId }) => {
                       </Typography>
                     </TableCell>
                     <TableCell align="right">{item.quantityOrdered || item.quantity}</TableCell>
-                    <TableCell align="right">
-                      {item.quantityReceived || 0}
-                    </TableCell>
-                    <TableCell align="right">${item.unitCost?.toFixed(2) || '0.00'}</TableCell>
+                    <TableCell align="right">{item.quantityReceived || 0}</TableCell>
+                    <TableCell align="right">${item.unitCost?.toFixed(2) || "0.00"}</TableCell>
                     <TableCell align="right">
                       <Typography variant="body2" fontWeight="bold">
-                        ${((item.quantityOrdered || item.quantity || 0) * (item.unitCost || 0)).toFixed(2)}
+                        $
+                        {(
+                          (item.quantityOrdered || item.quantity || 0) * (item.unitCost || 0)
+                        ).toFixed(2)}
                       </Typography>
                     </TableCell>
                   </TableRow>
@@ -237,7 +238,7 @@ const PurchaseOrderDetails = ({ open, onClose, poId }) => {
                 Grand Total:
               </Typography>
               <Typography variant="h6" fontWeight="bold" color="primary">
-                ${po.totalAmount?.toFixed(2) || '0.00'}
+                ${po.totalAmount?.toFixed(2) || "0.00"}
               </Typography>
             </Box>
           </Box>

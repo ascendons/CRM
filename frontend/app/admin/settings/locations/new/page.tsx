@@ -1,39 +1,39 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { locationsApi, CreateLocationRequest } from '@/lib/api/locations';
-import { getCurrentPosition } from '@/lib/utils/geolocation';
-import { toast } from 'react-hot-toast';
-import { ArrowLeft, Save, MapPin, Navigation } from 'lucide-react';
-import Link from 'next/link';
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { locationsApi, CreateLocationRequest } from "@/lib/api/locations";
+import { getCurrentPosition } from "@/lib/utils/geolocation";
+import { toast } from "react-hot-toast";
+import { ArrowLeft, Save, MapPin, Navigation } from "lucide-react";
+import Link from "next/link";
 
-const LOCATION_TYPES = ['HEAD_OFFICE', 'BRANCH', 'CLIENT_SITE', 'COWORKING'] as const;
+const LOCATION_TYPES = ["HEAD_OFFICE", "BRANCH", "CLIENT_SITE", "COWORKING"] as const;
 
 export default function NewLocationPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [gettingLocation, setGettingLocation] = useState(false);
   const [formData, setFormData] = useState<CreateLocationRequest>({
-    name: '',
-    code: '',
-    address: '',
-    city: '',
-    state: '',
-    country: 'India',
-    postalCode: '',
+    name: "",
+    code: "",
+    address: "",
+    city: "",
+    state: "",
+    country: "India",
+    postalCode: "",
     latitude: 0,
     longitude: 0,
     radiusMeters: 100,
-    type: 'BRANCH',
+    type: "BRANCH",
     enforceGeofence: true,
     allowManualOverride: false,
     allowRemoteCheckIn: false,
     isHeadquarters: false,
     isActive: true,
-    contactPerson: '',
-    contactPhone: '',
-    contactEmail: ''
+    contactPerson: "",
+    contactPhone: "",
+    contactEmail: "",
   });
 
   const handleGetCurrentLocation = async () => {
@@ -41,16 +41,16 @@ export default function NewLocationPage() {
       setGettingLocation(true);
       const position = await getCurrentPosition();
 
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
         latitude: position.coords.latitude,
-        longitude: position.coords.longitude
+        longitude: position.coords.longitude,
       }));
 
-      toast.success('Location captured successfully!');
+      toast.success("Location captured successfully!");
     } catch (error: any) {
-      console.error('Failed to get location:', error);
-      toast.error('Failed to get current location. Please enable location access.');
+      console.error("Failed to get location:", error);
+      toast.error("Failed to get current location. Please enable location access.");
     } finally {
       setGettingLocation(false);
     }
@@ -60,18 +60,18 @@ export default function NewLocationPage() {
     e.preventDefault();
 
     if (formData.latitude === 0 || formData.longitude === 0) {
-      toast.error('Please set the location coordinates');
+      toast.error("Please set the location coordinates");
       return;
     }
 
     try {
       setLoading(true);
       await locationsApi.createLocation(formData);
-      toast.success('Location created successfully!');
-      router.push('/admin/settings/locations');
+      toast.success("Location created successfully!");
+      router.push("/admin/settings/locations");
     } catch (error: any) {
-      console.error('Failed to create location:', error);
-      toast.error(error.message || 'Failed to create location');
+      console.error("Failed to create location:", error);
+      toast.error(error.message || "Failed to create location");
     } finally {
       setLoading(false);
     }
@@ -125,9 +125,7 @@ export default function NewLocationPage() {
                 />
               </div>
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-slate-700 mb-2">
-                  Address *
-                </label>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Address *</label>
                 <textarea
                   required
                   value={formData.address}
@@ -138,9 +136,7 @@ export default function NewLocationPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">
-                  City *
-                </label>
+                <label className="block text-sm font-medium text-slate-700 mb-2">City *</label>
                 <input
                   type="text"
                   required
@@ -150,9 +146,7 @@ export default function NewLocationPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">
-                  State *
-                </label>
+                <label className="block text-sm font-medium text-slate-700 mb-2">State *</label>
                 <input
                   type="text"
                   required
@@ -162,9 +156,7 @@ export default function NewLocationPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">
-                  Postal Code
-                </label>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Postal Code</label>
                 <input
                   type="text"
                   value={formData.postalCode}
@@ -173,16 +165,21 @@ export default function NewLocationPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">
-                  Type
-                </label>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Type</label>
                 <select
                   value={formData.type}
-                  onChange={(e) => setFormData({ ...formData, type: e.target.value as CreateLocationRequest['type'] })}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      type: e.target.value as CreateLocationRequest["type"],
+                    })
+                  }
                   className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
-                  {LOCATION_TYPES.map(type => (
-                    <option key={type} value={type}>{type.replace(/_/g, ' ')}</option>
+                  {LOCATION_TYPES.map((type) => (
+                    <option key={type} value={type}>
+                      {type.replace(/_/g, " ")}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -214,29 +211,29 @@ export default function NewLocationPage() {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">
-                  Latitude *
-                </label>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Latitude *</label>
                 <input
                   type="number"
                   step="any"
                   required
                   value={formData.latitude}
-                  onChange={(e) => setFormData({ ...formData, latitude: parseFloat(e.target.value) })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, latitude: parseFloat(e.target.value) })
+                  }
                   className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-sm"
                   placeholder="19.0760"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">
-                  Longitude *
-                </label>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Longitude *</label>
                 <input
                   type="number"
                   step="any"
                   required
                   value={formData.longitude}
-                  onChange={(e) => setFormData({ ...formData, longitude: parseFloat(e.target.value) })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, longitude: parseFloat(e.target.value) })
+                  }
                   className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-sm"
                   placeholder="72.8777"
                 />
@@ -250,12 +247,12 @@ export default function NewLocationPage() {
                   min="10"
                   required
                   value={formData.radiusMeters}
-                  onChange={(e) => setFormData({ ...formData, radiusMeters: parseInt(e.target.value) })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, radiusMeters: parseInt(e.target.value) })
+                  }
                   className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
-                <p className="text-xs text-slate-500 mt-1">
-                  Typical: 50-200m
-                </p>
+                <p className="text-xs text-slate-500 mt-1">Typical: 50-200m</p>
               </div>
             </div>
 
@@ -285,31 +282,41 @@ export default function NewLocationPage() {
                 />
                 <div>
                   <span className="text-sm font-medium text-slate-700">Enforce Geofence</span>
-                  <p className="text-xs text-slate-500">Block check-in if outside geofence radius</p>
+                  <p className="text-xs text-slate-500">
+                    Block check-in if outside geofence radius
+                  </p>
                 </div>
               </label>
               <label className="flex items-center gap-3 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={formData.allowManualOverride}
-                  onChange={(e) => setFormData({ ...formData, allowManualOverride: e.target.checked })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, allowManualOverride: e.target.checked })
+                  }
                   className="w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-blue-500"
                 />
                 <div>
                   <span className="text-sm font-medium text-slate-700">Allow Manual Override</span>
-                  <p className="text-xs text-slate-500">Permit check-in with admin approval if outside geofence</p>
+                  <p className="text-xs text-slate-500">
+                    Permit check-in with admin approval if outside geofence
+                  </p>
                 </div>
               </label>
               <label className="flex items-center gap-3 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={formData.allowRemoteCheckIn}
-                  onChange={(e) => setFormData({ ...formData, allowRemoteCheckIn: e.target.checked })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, allowRemoteCheckIn: e.target.checked })
+                  }
                   className="w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-blue-500"
                 />
                 <div>
                   <span className="text-sm font-medium text-slate-700">Allow Remote Check-in</span>
-                  <p className="text-xs text-slate-500">Allow employees to check-in from anywhere</p>
+                  <p className="text-xs text-slate-500">
+                    Allow employees to check-in from anywhere
+                  </p>
                 </div>
               </label>
             </div>

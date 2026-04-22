@@ -18,7 +18,7 @@ export default function AccountDetailPage({ params }: { params: Promise<{ id: st
   const [error, setError] = useState<string | null>(null);
 
   // Tabs
-  const [activeTab, setActiveTab] = useState<'details' | 'activities'>('details');
+  const [activeTab, setActiveTab] = useState<"details" | "activities">("details");
 
   // Activities
   const [activities, setActivities] = useState<Activity[]>([]);
@@ -160,21 +160,23 @@ export default function AccountDetailPage({ params }: { params: Promise<{ id: st
         <div className="border-b border-gray-200 mb-6 font-medium">
           <nav className="-mb-px flex space-x-8" aria-label="Tabs">
             <button
-              onClick={() => setActiveTab('details')}
-              className={`${activeTab === 'details'
-                ? 'border-blue-500 text-blue-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2 transition-colors`}
+              onClick={() => setActiveTab("details")}
+              className={`${
+                activeTab === "details"
+                  ? "border-blue-500 text-blue-600"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2 transition-colors`}
             >
               <FileText className="h-4 w-4" />
               Details
             </button>
             <button
-              onClick={() => setActiveTab('activities')}
-              className={`${activeTab === 'activities'
-                ? 'border-blue-500 text-blue-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2 transition-colors`}
+              onClick={() => setActiveTab("activities")}
+              className={`${
+                activeTab === "activities"
+                  ? "border-blue-500 text-blue-600"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2 transition-colors`}
             >
               <MessageSquare className="h-4 w-4" />
               Activities
@@ -187,7 +189,7 @@ export default function AccountDetailPage({ params }: { params: Promise<{ id: st
 
         {/* Tab Content */}
         <div className="mt-6">
-          {activeTab === 'details' && (
+          {activeTab === "details" && (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Basic Information */}
               <DetailSection title="Basic Information">
@@ -200,7 +202,9 @@ export default function AccountDetailPage({ params }: { params: Promise<{ id: st
                   <DetailRow
                     label="Annual Revenue"
                     value={
-                      account.annualRevenue ? `₹${account.annualRevenue.toLocaleString()}` : undefined
+                      account.annualRevenue
+                        ? `₹${account.annualRevenue.toLocaleString()}`
+                        : undefined
                     }
                   />
                   <DetailRow label="Number of Employees" value={account.numberOfEmployees} />
@@ -280,7 +284,9 @@ export default function AccountDetailPage({ params }: { params: Promise<{ id: st
                   <DetailRow label="Credit Status" value={account.creditStatus} />
                   <DetailRow
                     label="Credit Limit"
-                    value={account.creditLimit ? `₹${account.creditLimit.toLocaleString()}` : undefined}
+                    value={
+                      account.creditLimit ? `₹${account.creditLimit.toLocaleString()}` : undefined
+                    }
                   />
                   <DetailRow label="Currency" value={account.currency} />
                 </dl>
@@ -332,7 +338,10 @@ export default function AccountDetailPage({ params }: { params: Promise<{ id: st
               <DetailSection title="System Information">
                 <dl className="divide-y divide-gray-200">
                   <DetailRow label="Created By" value={account.createdByName} />
-                  <DetailRow label="Created At" value={new Date(account.createdAt).toLocaleString()} />
+                  <DetailRow
+                    label="Created At"
+                    value={new Date(account.createdAt).toLocaleString()}
+                  />
                   <DetailRow label="Last Modified By" value={account.lastModifiedByName} />
                   <DetailRow
                     label="Last Modified At"
@@ -343,7 +352,7 @@ export default function AccountDetailPage({ params }: { params: Promise<{ id: st
             </div>
           )}
 
-          {activeTab === 'activities' && (
+          {activeTab === "activities" && (
             <div className="bg-white rounded-lg shadow p-6">
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-lg font-semibold text-gray-900">Account Activities</h2>

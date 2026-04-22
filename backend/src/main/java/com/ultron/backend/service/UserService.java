@@ -20,8 +20,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Queue;
 import java.util.stream.Collectors;
 
 @Service
@@ -421,11 +424,54 @@ public class UserService extends BaseTenantService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Recursively collect all subordinate IDs (BFS) for a given manager within the current tenant.
+     * Includes the manager's own ID as the first element.
+     */
+    public List<String> getAllSubordinateIds(String managerId) {
+        String tenantId = getCurrentTenantId();
+        List<String> result = new ArrayList<>();
+        result.add(managerId);
+        Queue<String> queue = new LinkedList<>();
+        queue.add(managerId);
+        while (!queue.isEmpty()) {
+            String currentId = queue.poll();
+            List<String> directReportIds = userRepository
+                    .findByManagerIdAndTenantIdAndIsDeletedFalse(currentId, tenantId)
+                    .stream()
+                    .map(u -> u.getId())
+                    .collect(Collectors.toList());
+            result.addAll(directReportIds);
+            queue.addAll(directReportIds);
+        }
+        return result;
+    }
+
     public List<UserResponse> searchUsers(String searchTerm) {
         String tenantId = getCurrentTenantId();
         return userRepository.searchUsersByTenantId(searchTerm, tenantId).stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void deleteUser(String id, String deletedBy) {
+        log.info("Soft-deleting user with id: {}", id);
+
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
+
+        validateResourceTenantOwnership(user.getTenantId());
+
+        user.setIsDeleted(true);
+        user.setStatus(UserStatus.INACTIVE);
+        user.setDeletedAt(LocalDateTime.now());
+        user.setDeletedBy(deletedBy);
+        user.setLastModifiedAt(LocalDateTime.now());
+        user.setLastModifiedBy(deletedBy);
+
+        userRepository.save(user);
+        log.info("User soft-deleted successfully with userId: {}", user.getUserId());
     }
 
     @Transactional

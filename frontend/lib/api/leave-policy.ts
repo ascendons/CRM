@@ -1,4 +1,4 @@
-import { api } from '@/lib/api-client';
+import { api } from "@/lib/api-client";
 
 export interface LeaveTypePolicy {
   defaultAllocation: number;
@@ -28,9 +28,7 @@ export interface LeavePolicy {
 }
 
 export const leavePolicyApi = {
-  getPolicy: () =>
-    api.get<LeavePolicy>('/admin/leave-policy'),
+  getPolicy: () => api.get<LeavePolicy>("/admin/leave-policy"),
 
-  updatePolicy: (policy: LeavePolicy) =>
-    api.put<LeavePolicy>('/admin/leave-policy', policy)
+  updatePolicy: (policy: LeavePolicy) => api.put<LeavePolicy>("/admin/leave-policy", policy),
 };

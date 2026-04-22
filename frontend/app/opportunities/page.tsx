@@ -22,7 +22,7 @@ import {
   User,
   MoreVertical,
   XCircle,
-  Briefcase
+  Briefcase,
 } from "lucide-react";
 
 export default function OpportunitiesPage() {
@@ -112,8 +112,8 @@ export default function OpportunitiesPage() {
 
   const getSortedOpportunities = (opportunitiesToSort: Opportunity[]) => {
     return [...opportunitiesToSort].sort((a, b) => {
-      let aValue: string | number = '';
-      let bValue: string | number = '';
+      let aValue: string | number = "";
+      let bValue: string | number = "";
 
       switch (sortColumn) {
         case "name":
@@ -194,9 +194,9 @@ export default function OpportunitiesPage() {
   const formatDate = (dateString: string | undefined) => {
     if (!dateString) return "-";
     return new Date(dateString).toLocaleDateString("en-IN", {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
+      year: "numeric",
+      month: "short",
+      day: "numeric",
     });
   };
 
@@ -238,8 +238,12 @@ export default function OpportunitiesPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between py-4 gap-4">
             <div>
-              <h1 className="text-2xl font-bold text-slate-900  tracking-tight">Sales Opportunities</h1>
-              <p className="text-sm text-slate-500 ">Manage your pipeline and track deal progress.</p>
+              <h1 className="text-2xl font-bold text-slate-900  tracking-tight">
+                Sales Opportunities
+              </h1>
+              <p className="text-sm text-slate-500 ">
+                Manage your pipeline and track deal progress.
+              </p>
             </div>
             <div className="flex items-center gap-3">
               <button className="flex items-center gap-2 px-4 py-2 bg-white  border border-slate-200  text-slate-700  rounded-xl text-sm font-semibold hover:bg-slate-50  transition-colors shadow-sm">
@@ -309,11 +313,11 @@ export default function OpportunitiesPage() {
               <thead>
                 <tr className="bg-slate-50/50  border-b border-slate-200 ">
                   {[
-                    { key: 'name', label: 'Opportunity / Account' },
-                    { key: 'amount', label: 'Proposal Value' },
-                    { key: 'stage', label: 'Stage' },
-                    { key: 'probability', label: 'Probability' },
-                    { key: 'closeDate', label: 'Expected Close' },
+                    { key: "name", label: "Opportunity / Account" },
+                    { key: "amount", label: "Proposal Value" },
+                    { key: "stage", label: "Stage" },
+                    { key: "probability", label: "Probability" },
+                    { key: "closeDate", label: "Expected Close" },
                   ].map((col) => (
                     <th
                       key={col.key}
@@ -322,11 +326,15 @@ export default function OpportunitiesPage() {
                     >
                       <div className="flex items-center gap-2">
                         {col.label}
-                        <ArrowUpDown className={`h-3 w-3 ${sortColumn === col.key ? 'text-primary' : 'text-slate-300 group-hover:text-slate-500'}`} />
+                        <ArrowUpDown
+                          className={`h-3 w-3 ${sortColumn === col.key ? "text-primary" : "text-slate-300 group-hover:text-slate-500"}`}
+                        />
                       </div>
                     </th>
                   ))}
-                  <th className="px-6 py-4 text-xs font-semibold text-slate-500  uppercase tracking-wider text-right">Actions</th>
+                  <th className="px-6 py-4 text-xs font-semibold text-slate-500  uppercase tracking-wider text-right">
+                    Actions
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 ">
@@ -379,7 +387,9 @@ export default function OpportunitiesPage() {
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border ${getStageBadgeColor(opportunity.stage)}`}>
+                        <span
+                          className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border ${getStageBadgeColor(opportunity.stage)}`}
+                        >
                           {getStageLabel(opportunity.stage)}
                         </span>
                       </td>
@@ -387,10 +397,13 @@ export default function OpportunitiesPage() {
                         <div className="flex items-center gap-2">
                           <div className="flex-1 w-24 h-2 bg-slate-100  rounded-full overflow-hidden">
                             <div
-                              className={`h-full rounded-full ${opportunity.probability > 75 ? 'bg-emerald-500' :
-                                opportunity.probability > 40 ? 'bg-blue-500' :
-                                  'bg-amber-500'
-                                }`}
+                              className={`h-full rounded-full ${
+                                opportunity.probability > 75
+                                  ? "bg-emerald-500"
+                                  : opportunity.probability > 40
+                                    ? "bg-blue-500"
+                                    : "bg-amber-500"
+                              }`}
                               style={{ width: `${opportunity.probability}%` }}
                             ></div>
                           </div>
@@ -408,14 +421,20 @@ export default function OpportunitiesPage() {
                       <td className="px-6 py-4 text-right">
                         <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                           <button
-                            onClick={(e) => { e.stopPropagation(); router.push(`/opportunities/${opportunity.id}/edit`); }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              router.push(`/opportunities/${opportunity.id}/edit`);
+                            }}
                             className="p-2 text-slate-400 hover:text-primary hover:bg-slate-100  rounded-lg transition-colors"
                             title="Edit"
                           >
                             Edit
                           </button>
                           <button
-                            onClick={(e) => { e.stopPropagation(); confirmDelete(opportunity.id); }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              confirmDelete(opportunity.id);
+                            }}
                             className="p-2 text-rose-400 hover:text-rose-600 hover:bg-rose-50  rounded-lg transition-colors"
                             title="Delete"
                           >
@@ -435,7 +454,16 @@ export default function OpportunitiesPage() {
         {sortedOpportunities.length > 0 && (
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white  px-6 py-4 rounded-2xl border border-slate-200  shadow-sm">
             <p className="text-sm text-slate-600 ">
-              Showing <span className="font-semibold text-slate-900 ">{(currentPage - 1) * itemsPerPage + 1}</span> to <span className="font-semibold text-slate-900 ">{Math.min(currentPage * itemsPerPage, sortedOpportunities.length)}</span> of <span className="font-semibold text-slate-900 ">{sortedOpportunities.length}</span> results
+              Showing{" "}
+              <span className="font-semibold text-slate-900 ">
+                {(currentPage - 1) * itemsPerPage + 1}
+              </span>{" "}
+              to{" "}
+              <span className="font-semibold text-slate-900 ">
+                {Math.min(currentPage * itemsPerPage, sortedOpportunities.length)}
+              </span>{" "}
+              of <span className="font-semibold text-slate-900 ">{sortedOpportunities.length}</span>{" "}
+              results
             </p>
             <div className="flex items-center gap-2">
               <button
@@ -455,7 +483,6 @@ export default function OpportunitiesPage() {
             </div>
           </div>
         )}
-
       </main>
 
       <ConfirmModal

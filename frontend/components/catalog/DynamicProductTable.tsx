@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useState } from 'react';
-import { Product } from '@/types/catalog';
-import InventoryStatusBadge from './InventoryStatusBadge';
-import EnableInventoryModal from './EnableInventoryModal';
-import { Eye, Edit, Trash2, Package } from 'lucide-react';
+import React, { useState } from "react";
+import { Product } from "@/types/catalog";
+import InventoryStatusBadge from "./InventoryStatusBadge";
+import EnableInventoryModal from "./EnableInventoryModal";
+import { Eye, Edit, Trash2, Package } from "lucide-react";
 
 interface DynamicProductTableProps {
   products: Product[];
@@ -25,14 +25,16 @@ export default function DynamicProductTable({
   onSelectionChange,
   onView,
   onEdit,
-  onDelete
+  onDelete,
 }: DynamicProductTableProps) {
   const [enableInventoryModalOpen, setEnableInventoryModalOpen] = useState(false);
-  const [selectedProductForInventory, setSelectedProductForInventory] = useState<Product | null>(null);
+  const [selectedProductForInventory, setSelectedProductForInventory] = useState<Product | null>(
+    null
+  );
 
   const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.checked) {
-      onSelectionChange(new Set(products.map(p => p.id)));
+      onSelectionChange(new Set(products.map((p) => p.id)));
     } else {
       onSelectionChange(new Set());
     }
@@ -102,10 +104,7 @@ export default function DynamicProductTable({
             </thead>
             <tbody className="divide-y divide-slate-100">
               {products.map((product) => (
-                <tr
-                  key={product.id}
-                  className="hover:bg-slate-50 transition-colors"
-                >
+                <tr key={product.id} className="hover:bg-slate-50 transition-colors">
                   <td className="px-4 py-4">
                     <input
                       type="checkbox"
@@ -141,15 +140,16 @@ export default function DynamicProductTable({
                         bulkLoading={loadingInventoryStatuses}
                       />
                       {/* Only show Enable button if inventory is NOT tracked */}
-                      {!inventoryStatuses[product.id]?.inventoryTracked && !loadingInventoryStatuses && (
-                        <button
-                          onClick={() => handleEnableInventory(product)}
-                          className="text-xs text-blue-600 hover:text-blue-700 font-medium hover:underline"
-                          title="Enable inventory tracking"
-                        >
-                          Enable
-                        </button>
-                      )}
+                      {!inventoryStatuses[product.id]?.inventoryTracked &&
+                        !loadingInventoryStatuses && (
+                          <button
+                            onClick={() => handleEnableInventory(product)}
+                            className="text-xs text-blue-600 hover:text-blue-700 font-medium hover:underline"
+                            title="Enable inventory tracking"
+                          >
+                            Enable
+                          </button>
+                        )}
                     </div>
                   </td>
                   <td className="px-4 py-4">

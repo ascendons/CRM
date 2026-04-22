@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -11,8 +11,8 @@ import {
   Box,
   Typography,
   Divider,
-} from '@mui/material';
-import inventoryApi from '../../services/inventoryApi';
+} from "@mui/material";
+import inventoryApi from "../../services/inventoryApi";
 
 /**
  * Dialog for editing stock unit cost directly
@@ -20,34 +20,34 @@ import inventoryApi from '../../services/inventoryApi';
  */
 const EditStockDialog = ({ open, onClose, stock, onSuccess }) => {
   const [formData, setFormData] = useState({
-    unitCost: '',
-    reason: '',
+    unitCost: "",
+    reason: "",
   });
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   useEffect(() => {
     if (open && stock) {
       setFormData({
-        unitCost: stock.unitCost?.toString() || '0',
-        reason: '',
+        unitCost: stock.unitCost?.toString() || "0",
+        reason: "",
       });
-      setError('');
+      setError("");
     }
   }, [open, stock]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    setError("");
 
     if (!formData.unitCost || isNaN(parseFloat(formData.unitCost))) {
-      setError('Please enter a valid unit cost');
+      setError("Please enter a valid unit cost");
       return;
     }
 
     const unitCost = parseFloat(formData.unitCost);
     if (unitCost < 0) {
-      setError('Unit cost cannot be negative');
+      setError("Unit cost cannot be negative");
       return;
     }
 
@@ -58,7 +58,7 @@ const EditStockDialog = ({ open, onClose, stock, onSuccess }) => {
         stock.productId,
         stock.warehouseId,
         unitCost,
-        formData.reason || 'Price adjustment'
+        formData.reason || "Price adjustment"
       );
 
       if (onSuccess) {
@@ -66,8 +66,8 @@ const EditStockDialog = ({ open, onClose, stock, onSuccess }) => {
       }
       onClose();
     } catch (err) {
-      console.error('Failed to update unit cost:', err);
-      setError(err.response?.data?.message || 'Failed to update unit cost');
+      console.error("Failed to update unit cost:", err);
+      setError(err.response?.data?.message || "Failed to update unit cost");
     } finally {
       setLoading(false);
     }
@@ -149,10 +149,8 @@ const EditStockDialog = ({ open, onClose, stock, onSuccess }) => {
                 type="number"
                 label="New Unit Cost"
                 value={formData.unitCost}
-                onChange={(e) =>
-                  setFormData({ ...formData, unitCost: e.target.value })
-                }
-                inputProps={{ step: '0.01', min: 0 }}
+                onChange={(e) => setFormData({ ...formData, unitCost: e.target.value })}
+                inputProps={{ step: "0.01", min: 0 }}
                 helperText="Enter the new selling price per unit"
               />
             </Grid>
@@ -162,9 +160,7 @@ const EditStockDialog = ({ open, onClose, stock, onSuccess }) => {
                 fullWidth
                 label="Reason (Optional)"
                 value={formData.reason}
-                onChange={(e) =>
-                  setFormData({ ...formData, reason: e.target.value })
-                }
+                onChange={(e) => setFormData({ ...formData, reason: e.target.value })}
                 multiline
                 rows={2}
                 placeholder="e.g., Promotional discount, Market adjustment, Clearance sale"
@@ -178,7 +174,7 @@ const EditStockDialog = ({ open, onClose, stock, onSuccess }) => {
               sx={{
                 mt: 2,
                 p: 2,
-                bgcolor: difference < 0 ? 'error.lighter' : 'success.lighter',
+                bgcolor: difference < 0 ? "error.lighter" : "success.lighter",
                 borderRadius: 1,
               }}
             >
@@ -204,9 +200,9 @@ const EditStockDialog = ({ open, onClose, stock, onSuccess }) => {
                   </Typography>
                   <Typography
                     variant="body2"
-                    color={difference < 0 ? 'error.main' : 'success.main'}
+                    color={difference < 0 ? "error.main" : "success.main"}
                   >
-                    {difference >= 0 ? '+' : ''}${difference.toFixed(2)} ({percentageChange}%)
+                    {difference >= 0 ? "+" : ""}${difference.toFixed(2)} ({percentageChange}%)
                   </Typography>
                 </Grid>
                 <Grid item xs={6}>
@@ -230,12 +226,8 @@ const EditStockDialog = ({ open, onClose, stock, onSuccess }) => {
           <Button onClick={handleClose} disabled={loading}>
             Cancel
           </Button>
-          <Button
-            type="submit"
-            variant="contained"
-            disabled={loading || !formData.unitCost}
-          >
-            {loading ? 'Updating...' : 'Update Unit Cost'}
+          <Button type="submit" variant="contained" disabled={loading || !formData.unitCost}>
+            {loading ? "Updating..." : "Update Unit Cost"}
           </Button>
         </DialogActions>
       </form>

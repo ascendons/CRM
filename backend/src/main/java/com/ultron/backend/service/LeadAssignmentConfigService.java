@@ -35,7 +35,7 @@ public class LeadAssignmentConfigService {
         String tenantId = TenantContext.getTenantId();
 
         LeadAssignmentConfig config = configRepository.findByTenantId(tenantId)
-                .orElse(createDefaultConfig(tenantId));
+                .stream().findFirst().orElseGet(() -> createDefaultConfig(tenantId));
 
         return mapToResponse(config);
     }
@@ -65,7 +65,7 @@ public class LeadAssignmentConfigService {
 
         // Get or create config
         LeadAssignmentConfig config = configRepository.findByTenantId(tenantId)
-                .orElse(createDefaultConfig(tenantId));
+                .stream().findFirst().orElseGet(() -> createDefaultConfig(tenantId));
 
         // Update fields
         if (request.getEligibleRoleIds() != null) {

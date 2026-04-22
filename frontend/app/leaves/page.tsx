@@ -1,19 +1,24 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { leavesApi, LeaveResponse, LeaveBalanceResponse, ApproveLeaveRequest } from '@/lib/api/leaves';
-import { LeaveBalanceCard } from '@/components/leaves/LeaveBalanceCard';
-import { LeaveStatusBadge } from '@/components/leaves/LeaveStatusBadge';
-import { toast } from 'react-hot-toast';
-import Link from 'next/link';
-import { usePermissionContext } from '@/providers/PermissionProvider';
+import { useEffect, useState } from "react";
+import {
+  leavesApi,
+  LeaveResponse,
+  LeaveBalanceResponse,
+  ApproveLeaveRequest,
+} from "@/lib/api/leaves";
+import { LeaveBalanceCard } from "@/components/leaves/LeaveBalanceCard";
+import { LeaveStatusBadge } from "@/components/leaves/LeaveStatusBadge";
+import { toast } from "react-hot-toast";
+import Link from "next/link";
+import { usePermissionContext } from "@/providers/PermissionProvider";
 
-type TabType = 'my-leaves' | 'team-leaves';
-type ApprovalAction = 'approve' | 'reject' | null;
+type TabType = "my-leaves" | "team-leaves";
+type ApprovalAction = "approve" | "reject" | null;
 
 export default function LeavesPage() {
   const { hasPermission } = usePermissionContext();
-  const [activeTab, setActiveTab] = useState<TabType>('my-leaves');
+  const [activeTab, setActiveTab] = useState<TabType>("my-leaves");
   const [leaves, setLeaves] = useState<LeaveResponse[]>([]);
   const [teamLeaves, setTeamLeaves] = useState<LeaveResponse[]>([]);
   const [balance, setBalance] = useState<LeaveBalanceResponse | null>(null);
@@ -23,23 +28,23 @@ export default function LeavesPage() {
   const [showApprovalModal, setShowApprovalModal] = useState(false);
   const [approvalAction, setApprovalAction] = useState<ApprovalAction>(null);
   const [selectedLeave, setSelectedLeave] = useState<LeaveResponse | null>(null);
-  const [rejectionReason, setRejectionReason] = useState('');
+  const [rejectionReason, setRejectionReason] = useState("");
 
   // Check if user is a manager (has permission to approve leaves)
-  const isManager = hasPermission('LEAVE', 'APPROVE');
+  const isManager = hasPermission("LEAVE", "APPROVE");
 
   // Debug logging
-  console.log('🔍 Leaves Page Debug:', {
+  console.log("🔍 Leaves Page Debug:", {
     isManager,
     hasPermissionFunction: typeof hasPermission,
-    teamLeavesCount: teamLeaves.length
+    teamLeavesCount: teamLeaves.length,
   });
 
   const loadData = async () => {
     try {
       const promises: Promise<any>[] = [
         leavesApi.getMyLeaves(),
-        leavesApi.getMyBalance(selectedYear)
+        leavesApi.getMyBalance(selectedYear),
       ];
 
       // If manager, also load team leaves
@@ -56,8 +61,8 @@ export default function LeavesPage() {
         setTeamLeaves(results[2]);
       }
     } catch (error) {
-      console.error('Failed to load leaves data:', error);
-      toast.error('Failed to load leaves data');
+      console.error("Failed to load leaves data:", error);
+      toast.error("Failed to load leaves data");
     } finally {
       setLoading(false);
     }
@@ -69,34 +74,34 @@ export default function LeavesPage() {
 
   const handleApprove = (leave: LeaveResponse) => {
     // Verify leave is still pending
-    if (leave.status !== 'PENDING') {
-      toast.error('This leave is no longer pending. Refreshing data...');
+    if (leave.status !== "PENDING") {
+      toast.error("This leave is no longer pending. Refreshing data...");
       loadData();
       return;
     }
     setSelectedLeave(leave);
-    setApprovalAction('approve');
+    setApprovalAction("approve");
     setShowApprovalModal(true);
   };
 
   const handleReject = (leave: LeaveResponse) => {
     // Verify leave is still pending
-    if (leave.status !== 'PENDING') {
-      toast.error('This leave is no longer pending. Refreshing data...');
+    if (leave.status !== "PENDING") {
+      toast.error("This leave is no longer pending. Refreshing data...");
       loadData();
       return;
     }
     setSelectedLeave(leave);
-    setApprovalAction('reject');
-    setRejectionReason('');
+    setApprovalAction("reject");
+    setRejectionReason("");
     setShowApprovalModal(true);
   };
 
   const handleConfirmApproval = async () => {
     if (!selectedLeave) return;
 
-    if (approvalAction === 'reject' && rejectionReason.trim().length < 10) {
-      toast.error('Rejection reason must be at least 10 characters');
+    if (approvalAction === "reject" && rejectionReason.trim().length < 10) {
+      toast.error("Rejection reason must be at least 10 characters");
       return;
     }
 
@@ -104,37 +109,39 @@ export default function LeavesPage() {
     try {
       const request: ApproveLeaveRequest = {
         leaveId: selectedLeave.leaveId,
-        approved: approvalAction === 'approve',
-        ...(approvalAction === 'reject' && { rejectionReason: rejectionReason.trim() })
+        approved: approvalAction === "approve",
+        ...(approvalAction === "reject" && { rejectionReason: rejectionReason.trim() }),
       };
 
       await leavesApi.approveLeave(request);
 
       // Optimistic update: immediately update the status in local state
-      const newStatus = approvalAction === 'approve' ? 'APPROVED' : 'REJECTED';
-      setTeamLeaves(prev => prev.map(leave =>
-        leave.leaveId === selectedLeave.leaveId
-          ? { ...leave, status: newStatus }
-          : leave
-      ));
+      const newStatus = approvalAction === "approve" ? "APPROVED" : "REJECTED";
+      setTeamLeaves((prev) =>
+        prev.map((leave) =>
+          leave.leaveId === selectedLeave.leaveId ? { ...leave, status: newStatus } : leave
+        )
+      );
 
-      toast.success(approvalAction === 'approve' ? 'Leave approved successfully!' : 'Leave rejected');
+      toast.success(
+        approvalAction === "approve" ? "Leave approved successfully!" : "Leave rejected"
+      );
       setShowApprovalModal(false);
       setSelectedLeave(null);
-      setRejectionReason('');
+      setRejectionReason("");
 
       // Reload data in background to sync with backend
       loadData();
     } catch (error: any) {
-      console.error('Approval error:', error);
+      console.error("Approval error:", error);
 
       // Check if it's a "not in pending state" error
-      if (error.message && error.message.includes('not in pending state')) {
-        toast.error('This leave has already been processed. Refreshing data...');
+      if (error.message && error.message.includes("not in pending state")) {
+        toast.error("This leave has already been processed. Refreshing data...");
         // Close modal and refresh to show correct status
         setShowApprovalModal(false);
         setSelectedLeave(null);
-        setRejectionReason('');
+        setRejectionReason("");
         loadData();
       } else {
         toast.error(error.message || `Failed to ${approvalAction} leave`);
@@ -147,30 +154,30 @@ export default function LeavesPage() {
   const handleCancelApproval = () => {
     setShowApprovalModal(false);
     setSelectedLeave(null);
-    setRejectionReason('');
+    setRejectionReason("");
     setApprovalAction(null);
   };
 
   const formatDate = (dateStr: string) => {
-    return new Date(dateStr).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
+    return new Date(dateStr).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
     });
   };
 
   const getLeaveTypeName = (type: string) => {
     const typeNames: { [key: string]: string } = {
-      'SICK': 'Sick Leave',
-      'CASUAL': 'Casual Leave',
-      'EARNED': 'Earned Leave',
-      'PAID': 'Paid Leave',
-      'UNPAID': 'Unpaid Leave',
-      'MATERNITY': 'Maternity Leave',
-      'PATERNITY': 'Paternity Leave',
-      'COMPENSATORY': 'Comp Off',
-      'BEREAVEMENT': 'Bereavement Leave',
-      'MARRIAGE': 'Marriage Leave'
+      SICK: "Sick Leave",
+      CASUAL: "Casual Leave",
+      EARNED: "Earned Leave",
+      PAID: "Paid Leave",
+      UNPAID: "Unpaid Leave",
+      MATERNITY: "Maternity Leave",
+      PATERNITY: "Paternity Leave",
+      COMPENSATORY: "Comp Off",
+      BEREAVEMENT: "Bereavement Leave",
+      MARRIAGE: "Marriage Leave",
     };
     return typeNames[type] || type;
   };
@@ -219,11 +226,7 @@ export default function LeavesPage() {
           <h2 className="text-xl font-bold text-gray-900 mb-4">Leave Balance ({selectedYear})</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {Object.entries(balance.balances).map(([type, typeBalance]) => (
-              <LeaveBalanceCard
-                key={type}
-                leaveType={type}
-                balance={typeBalance}
-              />
+              <LeaveBalanceCard key={type} leaveType={type} balance={typeBalance} />
             ))}
           </div>
         </div>
@@ -234,21 +237,21 @@ export default function LeavesPage() {
         <div className="border-b border-gray-200">
           <nav className="-mb-px flex space-x-8">
             <button
-              onClick={() => setActiveTab('my-leaves')}
+              onClick={() => setActiveTab("my-leaves")}
               className={`${
-                activeTab === 'my-leaves'
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                activeTab === "my-leaves"
+                  ? "border-blue-500 text-blue-600"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
               } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors`}
             >
               My Leaves
             </button>
             <button
-              onClick={() => setActiveTab('team-leaves')}
+              onClick={() => setActiveTab("team-leaves")}
               className={`${
-                activeTab === 'team-leaves'
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                activeTab === "team-leaves"
+                  ? "border-blue-500 text-blue-600"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
               } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors`}
             >
               Team Leaves
@@ -265,10 +268,10 @@ export default function LeavesPage() {
       {/* Leave History */}
       <div>
         <h2 className="text-xl font-bold text-gray-900 mb-4">
-          {activeTab === 'my-leaves' ? 'My Leave History' : 'Team Leave History'}
+          {activeTab === "my-leaves" ? "My Leave History" : "Team Leave History"}
         </h2>
 
-        {((activeTab === 'my-leaves' ? leaves : teamLeaves).length === 0) ? (
+        {(activeTab === "my-leaves" ? leaves : teamLeaves).length === 0 ? (
           <div className="bg-white rounded-xl shadow p-12 text-center">
             <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <span className="text-4xl">📋</span>
@@ -291,7 +294,7 @@ export default function LeavesPage() {
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Leave ID
                     </th>
-                    {activeTab === 'team-leaves' && (
+                    {activeTab === "team-leaves" && (
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Employee
                       </th>
@@ -314,12 +317,12 @@ export default function LeavesPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
-                  {(activeTab === 'my-leaves' ? leaves : teamLeaves).map((leave) => (
+                  {(activeTab === "my-leaves" ? leaves : teamLeaves).map((leave) => (
                     <tr key={leave.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                         {leave.leaveId}
                       </td>
-                      {activeTab === 'team-leaves' && (
+                      {activeTab === "team-leaves" && (
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm font-medium text-gray-900">{leave.userName}</div>
                           <div className="text-xs text-gray-500">{leave.userEmail}</div>
@@ -335,21 +338,21 @@ export default function LeavesPage() {
                         {formatDate(leave.startDate)} - {formatDate(leave.endDate)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {leave.totalDays} {leave.totalDays === 1 ? 'day' : 'days'}
+                        {leave.totalDays} {leave.totalDays === 1 ? "day" : "days"}
                         <span className="text-gray-500 ml-1">({leave.businessDays} business)</span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <LeaveStatusBadge status={leave.status as any} />
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm">
-                        {activeTab === 'team-leaves' && leave.status === 'PENDING' ? (
+                        {activeTab === "team-leaves" && leave.status === "PENDING" ? (
                           <div className="flex items-center gap-2">
                             <button
                               onClick={() => handleApprove(leave)}
                               disabled={processingId === leave.leaveId}
                               className="px-3 py-1 bg-green-600 hover:bg-green-700 text-white text-xs font-medium rounded disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                             >
-                              {processingId === leave.leaveId ? 'Processing...' : 'Approve'}
+                              {processingId === leave.leaveId ? "Processing..." : "Approve"}
                             </button>
                             <button
                               onClick={() => handleReject(leave)}
@@ -367,15 +370,18 @@ export default function LeavesPage() {
                           </div>
                         ) : (
                           <div className="flex items-center gap-2">
-                            {activeTab === 'team-leaves' && (leave.status === 'APPROVED' || leave.status === 'REJECTED') && (
-                              <span className={`px-3 py-1 text-xs font-medium rounded ${
-                                leave.status === 'APPROVED'
-                                  ? 'bg-green-100 text-green-800'
-                                  : 'bg-red-100 text-red-800'
-                              }`}>
-                                {leave.status === 'APPROVED' ? '✓ Approved' : '✗ Rejected'}
-                              </span>
-                            )}
+                            {activeTab === "team-leaves" &&
+                              (leave.status === "APPROVED" || leave.status === "REJECTED") && (
+                                <span
+                                  className={`px-3 py-1 text-xs font-medium rounded ${
+                                    leave.status === "APPROVED"
+                                      ? "bg-green-100 text-green-800"
+                                      : "bg-red-100 text-red-800"
+                                  }`}
+                                >
+                                  {leave.status === "APPROVED" ? "✓ Approved" : "✗ Rejected"}
+                                </span>
+                              )}
                             <Link
                               href={`/leaves/${leave.leaveId}`}
                               className="text-blue-600 hover:text-blue-800 font-medium transition-colors"
@@ -400,18 +406,22 @@ export default function LeavesPage() {
           <div className="bg-white rounded-xl shadow-xl max-w-md w-full mx-4">
             <div className="p-6">
               <h3 className="text-xl font-bold text-gray-900 mb-4">
-                {approvalAction === 'approve' ? 'Approve Leave Request' : 'Reject Leave Request'}
+                {approvalAction === "approve" ? "Approve Leave Request" : "Reject Leave Request"}
               </h3>
 
               {/* Leave Details */}
               <div className="bg-gray-50 rounded-lg p-4 mb-4 space-y-2">
                 <div className="flex justify-between">
                   <span className="text-sm text-gray-600">Employee:</span>
-                  <span className="text-sm font-medium text-gray-900">{selectedLeave.userName}</span>
+                  <span className="text-sm font-medium text-gray-900">
+                    {selectedLeave.userName}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-sm text-gray-600">Leave Type:</span>
-                  <span className="text-sm font-medium text-gray-900">{getLeaveTypeName(selectedLeave.leaveType)}</span>
+                  <span className="text-sm font-medium text-gray-900">
+                    {getLeaveTypeName(selectedLeave.leaveType)}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-sm text-gray-600">Duration:</span>
@@ -421,7 +431,9 @@ export default function LeavesPage() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-sm text-gray-600">Days:</span>
-                  <span className="text-sm font-medium text-gray-900">{selectedLeave.businessDays} business days</span>
+                  <span className="text-sm font-medium text-gray-900">
+                    {selectedLeave.businessDays} business days
+                  </span>
                 </div>
                 {selectedLeave.reason && (
                   <div className="pt-2 border-t border-gray-200">
@@ -432,7 +444,7 @@ export default function LeavesPage() {
               </div>
 
               {/* Rejection Reason Input */}
-              {approvalAction === 'reject' && (
+              {approvalAction === "reject" && (
                 <div className="mb-4">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Rejection Reason <span className="text-red-500">*</span>
@@ -461,14 +473,21 @@ export default function LeavesPage() {
                 </button>
                 <button
                   onClick={handleConfirmApproval}
-                  disabled={!!processingId || (approvalAction === 'reject' && rejectionReason.trim().length < 10)}
+                  disabled={
+                    !!processingId ||
+                    (approvalAction === "reject" && rejectionReason.trim().length < 10)
+                  }
                   className={`px-4 py-2 font-medium rounded-lg disabled:opacity-50 disabled:cursor-not-allowed ${
-                    approvalAction === 'approve'
-                      ? 'bg-green-600 hover:bg-green-700 text-white'
-                      : 'bg-red-600 hover:bg-red-700 text-white'
+                    approvalAction === "approve"
+                      ? "bg-green-600 hover:bg-green-700 text-white"
+                      : "bg-red-600 hover:bg-red-700 text-white"
                   }`}
                 >
-                  {processingId ? 'Processing...' : approvalAction === 'approve' ? 'Approve' : 'Reject'}
+                  {processingId
+                    ? "Processing..."
+                    : approvalAction === "approve"
+                      ? "Approve"
+                      : "Reject"}
                 </button>
               </div>
             </div>

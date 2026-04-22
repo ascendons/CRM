@@ -25,11 +25,11 @@ export default function AssignShiftPage() {
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  
+
   const [formData, setFormData] = useState<BulkShiftAssignmentRequest>({
     userIds: [],
     shiftId: "",
-    effectiveDate: new Date().toISOString().split('T')[0],
+    effectiveDate: new Date().toISOString().split("T")[0],
   });
 
   useEffect(() => {
@@ -54,10 +54,8 @@ export default function AssignShiftPage() {
   };
 
   const handleUserToggle = (userId: string) => {
-    setSelectedUsers(prev => 
-      prev.includes(userId) 
-        ? prev.filter(id => id !== userId)
-        : [...prev, userId]
+    setSelectedUsers((prev) =>
+      prev.includes(userId) ? prev.filter((id) => id !== userId) : [...prev, userId]
     );
   };
 
@@ -65,7 +63,7 @@ export default function AssignShiftPage() {
     if (selectedUsers.length === users.length) {
       setSelectedUsers([]);
     } else {
-      setSelectedUsers(users.map(u => u.id));
+      setSelectedUsers(users.map((u) => u.id));
     }
   };
 
@@ -124,9 +122,7 @@ export default function AssignShiftPage() {
             Back
           </button>
           <h1 className="text-3xl font-bold text-gray-900">Assign Shift to Users</h1>
-          <p className="mt-2 text-gray-600">
-            Select users and assign them to a shift schedule
-          </p>
+          <p className="mt-2 text-gray-600">Select users and assign them to a shift schedule</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -145,7 +141,7 @@ export default function AssignShiftPage() {
                   {selectedUsers.length === users.length ? "Deselect All" : "Select All"}
                 </button>
               </div>
-              
+
               <div className="max-h-96 overflow-y-auto space-y-2">
                 {users.length === 0 ? (
                   <p className="text-gray-500 text-sm">No active users found</p>
@@ -228,13 +224,13 @@ export default function AssignShiftPage() {
                 <input
                   type="date"
                   value={formData.endDate || ""}
-                  onChange={(e) => setFormData({ ...formData, endDate: e.target.value || undefined })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, endDate: e.target.value || undefined })
+                  }
                   min={formData.effectiveDate}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
-                <p className="text-xs text-gray-500 mt-1">
-                  Leave empty for ongoing assignment
-                </p>
+                <p className="text-xs text-gray-500 mt-1">Leave empty for ongoing assignment</p>
               </div>
 
               <div>
@@ -273,13 +269,14 @@ export default function AssignShiftPage() {
                   <p className="text-sm font-medium text-gray-900">
                     You are about to assign{" "}
                     <span className="font-bold">
-                      {shifts.find(s => s.shiftId === formData.shiftId)?.name}
+                      {shifts.find((s) => s.shiftId === formData.shiftId)?.name}
                     </span>{" "}
                     to <span className="font-bold">{selectedUsers.length}</span> user(s)
                   </p>
                   <p className="text-xs text-gray-600 mt-1">
                     Effective from: {new Date(formData.effectiveDate).toLocaleDateString()}
-                    {formData.endDate && ` until ${new Date(formData.endDate).toLocaleDateString()}`}
+                    {formData.endDate &&
+                      ` until ${new Date(formData.endDate).toLocaleDateString()}`}
                   </p>
                 </div>
               </div>
@@ -298,7 +295,9 @@ export default function AssignShiftPage() {
             </button>
             <button
               type="submit"
-              disabled={submitting || selectedUsers.length === 0 || !formData.shiftId || shifts.length === 0}
+              disabled={
+                submitting || selectedUsers.length === 0 || !formData.shiftId || shifts.length === 0
+              }
               className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors disabled:bg-blue-300 disabled:cursor-not-allowed"
             >
               {submitting ? "Assigning..." : `Assign Shift to ${selectedUsers.length} User(s)`}

@@ -1,17 +1,17 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { reportsApi, TeamAttendanceResponse } from '@/lib/api/reports';
-import { toast } from 'react-hot-toast';
-import Link from 'next/link';
+import { useEffect, useState } from "react";
+import { reportsApi, TeamAttendanceResponse } from "@/lib/api/reports";
+import { toast } from "react-hot-toast";
+import Link from "next/link";
 
 export default function TeamAttendancePage() {
   const [teamData, setTeamData] = useState<TeamAttendanceResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [startDate, setStartDate] = useState(
-    new Date(new Date().setDate(1)).toISOString().split('T')[0]
+    new Date(new Date().setDate(1)).toISOString().split("T")[0]
   );
-  const [endDate, setEndDate] = useState(new Date().toISOString().split('T')[0]);
+  const [endDate, setEndDate] = useState(new Date().toISOString().split("T")[0]);
 
   const loadTeamAttendance = async () => {
     setLoading(true);
@@ -19,8 +19,8 @@ export default function TeamAttendancePage() {
       const data = await reportsApi.getTeamAttendance(startDate, endDate);
       setTeamData(data);
     } catch (error) {
-      console.error('Failed to load team attendance:', error);
-      toast.error('Failed to load team attendance');
+      console.error("Failed to load team attendance:", error);
+      toast.error("Failed to load team attendance");
     } finally {
       setLoading(false);
     }
@@ -31,10 +31,10 @@ export default function TeamAttendancePage() {
   }, [startDate, endDate]);
 
   const getStatusColor = (percentage: number) => {
-    if (percentage >= 95) return 'text-green-600';
-    if (percentage >= 85) return 'text-blue-600';
-    if (percentage >= 75) return 'text-yellow-600';
-    return 'text-red-600';
+    if (percentage >= 95) return "text-green-600";
+    if (percentage >= 85) return "text-blue-600";
+    if (percentage >= 75) return "text-yellow-600";
+    return "text-red-600";
   };
 
   if (loading) {
@@ -61,9 +61,7 @@ export default function TeamAttendancePage() {
       <div className="bg-white rounded-xl shadow p-6">
         <div className="flex flex-wrap gap-4 items-end">
           <div className="flex-1 min-w-[200px]">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Start Date
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Start Date</label>
             <input
               type="date"
               value={startDate}
@@ -73,15 +71,13 @@ export default function TeamAttendancePage() {
             />
           </div>
           <div className="flex-1 min-w-[200px]">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              End Date
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">End Date</label>
             <input
               type="date"
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
               min={startDate}
-              max={new Date().toISOString().split('T')[0]}
+              max={new Date().toISOString().split("T")[0]}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
@@ -169,15 +165,17 @@ export default function TeamAttendancePage() {
                   <td className="px-6 py-4 whitespace-nowrap">
                     {member.todayStatus ? (
                       <div>
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          member.todayStatus === 'PRESENT' || member.todayStatus === 'LATE'
-                            ? 'bg-green-100 text-green-800'
-                            : member.todayStatus === 'ABSENT'
-                            ? 'bg-red-100 text-red-800'
-                            : member.todayStatus === 'ON_LEAVE'
-                            ? 'bg-blue-100 text-blue-800'
-                            : 'bg-gray-100 text-gray-800'
-                        }`}>
+                        <span
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                            member.todayStatus === "PRESENT" || member.todayStatus === "LATE"
+                              ? "bg-green-100 text-green-800"
+                              : member.todayStatus === "ABSENT"
+                                ? "bg-red-100 text-red-800"
+                                : member.todayStatus === "ON_LEAVE"
+                                  ? "bg-blue-100 text-blue-800"
+                                  : "bg-gray-100 text-gray-800"
+                          }`}
+                        >
                           {member.todayStatus}
                         </span>
                         {member.isTodayCheckedIn && (
@@ -191,7 +189,9 @@ export default function TeamAttendancePage() {
                     )}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <p className={`text-lg font-bold ${getStatusColor(member.attendancePercentage)}`}>
+                    <p
+                      className={`text-lg font-bold ${getStatusColor(member.attendancePercentage)}`}
+                    >
                       {member.attendancePercentage.toFixed(1)}%
                     </p>
                   </td>
@@ -230,7 +230,7 @@ export default function TeamAttendancePage() {
         <div className="bg-white rounded-xl shadow p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Excellent (≥95%)</h3>
           <p className="text-4xl font-bold text-green-600">
-            {teamData.teamMembers.filter(m => m.attendancePercentage >= 95).length}
+            {teamData.teamMembers.filter((m) => m.attendancePercentage >= 95).length}
           </p>
           <p className="text-sm text-gray-500 mt-2">team members</p>
         </div>
@@ -238,7 +238,11 @@ export default function TeamAttendancePage() {
         <div className="bg-white rounded-xl shadow p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Good (85-95%)</h3>
           <p className="text-4xl font-bold text-blue-600">
-            {teamData.teamMembers.filter(m => m.attendancePercentage >= 85 && m.attendancePercentage < 95).length}
+            {
+              teamData.teamMembers.filter(
+                (m) => m.attendancePercentage >= 85 && m.attendancePercentage < 95
+              ).length
+            }
           </p>
           <p className="text-sm text-gray-500 mt-2">team members</p>
         </div>
@@ -246,7 +250,7 @@ export default function TeamAttendancePage() {
         <div className="bg-white rounded-xl shadow p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Needs Improvement (&lt;85%)</h3>
           <p className="text-4xl font-bold text-red-600">
-            {teamData.teamMembers.filter(m => m.attendancePercentage < 85).length}
+            {teamData.teamMembers.filter((m) => m.attendancePercentage < 85).length}
           </p>
           <p className="text-sm text-gray-500 mt-2">team members</p>
         </div>

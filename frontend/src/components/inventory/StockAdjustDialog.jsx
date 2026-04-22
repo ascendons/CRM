@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -13,16 +13,16 @@ import {
   Typography,
   Box,
   Divider,
-} from '@mui/material';
-import inventoryApi from '../../services/inventoryApi';
+} from "@mui/material";
+import inventoryApi from "../../services/inventoryApi";
 
 const StockAdjustDialog = ({ open, stock, onClose }) => {
   const [formData, setFormData] = useState({
-    quantity: '',
-    direction: 'IN',
-    reason: '',
-    unitCost: '',
-    notes: '',
+    quantity: "",
+    direction: "IN",
+    reason: "",
+    unitCost: "",
+    notes: "",
   });
 
   const [loading, setLoading] = useState(false);
@@ -45,7 +45,7 @@ const StockAdjustDialog = ({ open, stock, onClose }) => {
 
       onClose(true); // Refresh parent
     } catch (err) {
-      setError(err.response?.data?.message || err.message || 'Failed to adjust stock');
+      setError(err.response?.data?.message || err.message || "Failed to adjust stock");
     } finally {
       setLoading(false);
     }
@@ -53,20 +53,17 @@ const StockAdjustDialog = ({ open, stock, onClose }) => {
 
   const isFormValid = () => {
     return (
-      formData.quantity &&
-      parseInt(formData.quantity) > 0 &&
-      formData.direction &&
-      formData.reason
+      formData.quantity && parseInt(formData.quantity) > 0 && formData.direction && formData.reason
     );
   };
 
   const handleClose = () => {
     setFormData({
-      quantity: '',
-      direction: 'IN',
-      reason: '',
-      unitCost: '',
-      notes: '',
+      quantity: "",
+      direction: "IN",
+      reason: "",
+      unitCost: "",
+      notes: "",
     });
     setError(null);
     onClose(false);
@@ -84,7 +81,7 @@ const StockAdjustDialog = ({ open, stock, onClose }) => {
         )}
 
         {/* Stock Info */}
-        <Box sx={{ bgcolor: 'grey.50', p: 2, borderRadius: 1, mb: 3 }}>
+        <Box sx={{ bgcolor: "grey.50", p: 2, borderRadius: 1, mb: 3 }}>
           <Grid container spacing={1}>
             <Grid item xs={6}>
               <Typography variant="caption" color="text.secondary">
@@ -140,9 +137,7 @@ const StockAdjustDialog = ({ open, stock, onClose }) => {
               select
               label="Direction"
               value={formData.direction}
-              onChange={(e) =>
-                setFormData({ ...formData, direction: e.target.value })
-              }
+              onChange={(e) => setFormData({ ...formData, direction: e.target.value })}
             >
               <MenuItem value="IN">Stock IN (Increase)</MenuItem>
               <MenuItem value="OUT">Stock OUT (Decrease)</MenuItem>
@@ -156,9 +151,7 @@ const StockAdjustDialog = ({ open, stock, onClose }) => {
               type="number"
               label="Quantity"
               value={formData.quantity}
-              onChange={(e) =>
-                setFormData({ ...formData, quantity: e.target.value })
-              }
+              onChange={(e) => setFormData({ ...formData, quantity: e.target.value })}
               inputProps={{ min: 1 }}
             />
           </Grid>
@@ -169,9 +162,7 @@ const StockAdjustDialog = ({ open, stock, onClose }) => {
               required
               label="Reason"
               value={formData.reason}
-              onChange={(e) =>
-                setFormData({ ...formData, reason: e.target.value })
-              }
+              onChange={(e) => setFormData({ ...formData, reason: e.target.value })}
               placeholder="e.g., Purchase receipt, Damaged goods, Correction"
             />
           </Grid>
@@ -182,10 +173,8 @@ const StockAdjustDialog = ({ open, stock, onClose }) => {
               type="number"
               label="Unit Cost (Optional)"
               value={formData.unitCost}
-              onChange={(e) =>
-                setFormData({ ...formData, unitCost: e.target.value })
-              }
-              inputProps={{ step: '0.01', min: 0 }}
+              onChange={(e) => setFormData({ ...formData, unitCost: e.target.value })}
+              inputProps={{ step: "0.01", min: 0 }}
               helperText="For stock IN, provide cost for weighted average calculation"
             />
           </Grid>
@@ -197,9 +186,7 @@ const StockAdjustDialog = ({ open, stock, onClose }) => {
               rows={3}
               label="Notes (Optional)"
               value={formData.notes}
-              onChange={(e) =>
-                setFormData({ ...formData, notes: e.target.value })
-              }
+              onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
             />
           </Grid>
         </Grid>
@@ -213,14 +200,14 @@ const StockAdjustDialog = ({ open, stock, onClose }) => {
           onClick={handleSubmit}
           variant="contained"
           disabled={!isFormValid() || loading}
-          color={formData.direction === 'IN' ? 'success' : 'error'}
+          color={formData.direction === "IN" ? "success" : "error"}
         >
           {loading ? (
             <CircularProgress size={24} />
-          ) : formData.direction === 'IN' ? (
-            'Add Stock'
+          ) : formData.direction === "IN" ? (
+            "Add Stock"
           ) : (
-            'Remove Stock'
+            "Remove Stock"
           )}
         </Button>
       </DialogActions>

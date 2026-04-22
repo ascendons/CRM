@@ -40,8 +40,8 @@ export default function NewShiftPage() {
 
   // Calculate work hours in minutes from start and end time
   const calculateWorkHours = (startTime: string, endTime: string): number => {
-    const [startHour, startMin] = startTime.split(':').map(Number);
-    const [endHour, endMin] = endTime.split(':').map(Number);
+    const [startHour, startMin] = startTime.split(":").map(Number);
+    const [endHour, endMin] = endTime.split(":").map(Number);
 
     let startMinutes = startHour * 60 + startMin;
     let endMinutes = endHour * 60 + endMin;
@@ -206,7 +206,9 @@ export default function NewShiftPage() {
                 <input
                   type="number"
                   value={formData.graceMinutes || ""}
-                  onChange={(e) => setFormData({ ...formData, graceMinutes: parseInt(e.target.value) || 0 })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, graceMinutes: parseInt(e.target.value) || 0 })
+                  }
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="15"
                   min="0"
@@ -228,7 +230,9 @@ export default function NewShiftPage() {
                       return mins > 0 ? `${hours}h ${mins}m` : `${hours}h`;
                     })()}
                   </span>
-                  <span className="text-gray-500 text-xs">({calculateWorkHours(formData.startTime, formData.endTime)} minutes)</span>
+                  <span className="text-gray-500 text-xs">
+                    ({calculateWorkHours(formData.startTime, formData.endTime)} minutes)
+                  </span>
                 </div>
               </div>
             )}
@@ -246,7 +250,12 @@ export default function NewShiftPage() {
                   <input
                     type="number"
                     value={formData.flexibleStartMinutes || ""}
-                    onChange={(e) => setFormData({ ...formData, flexibleStartMinutes: parseInt(e.target.value) || 0 })}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        flexibleStartMinutes: parseInt(e.target.value) || 0,
+                      })
+                    }
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="60"
                     min="0"
@@ -260,7 +269,12 @@ export default function NewShiftPage() {
                   <input
                     type="number"
                     value={formData.flexibleEndMinutes || ""}
-                    onChange={(e) => setFormData({ ...formData, flexibleEndMinutes: parseInt(e.target.value) || 0 })}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        flexibleEndMinutes: parseInt(e.target.value) || 0,
+                      })
+                    }
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="60"
                     min="0"
@@ -281,7 +295,12 @@ export default function NewShiftPage() {
                 <input
                   type="number"
                   value={formData.mandatoryBreakMinutes || ""}
-                  onChange={(e) => setFormData({ ...formData, mandatoryBreakMinutes: parseInt(e.target.value) || 0 })}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      mandatoryBreakMinutes: parseInt(e.target.value) || 0,
+                    })
+                  }
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="60"
                   min="0"
@@ -295,7 +314,9 @@ export default function NewShiftPage() {
                 <input
                   type="number"
                   value={formData.maxBreakMinutes || ""}
-                  onChange={(e) => setFormData({ ...formData, maxBreakMinutes: parseInt(e.target.value) || 0 })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, maxBreakMinutes: parseInt(e.target.value) || 0 })
+                  }
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="90"
                   min="0"
@@ -352,7 +373,12 @@ export default function NewShiftPage() {
                     <input
                       type="number"
                       value={formData.maxOvertimeMinutesPerDay || ""}
-                      onChange={(e) => setFormData({ ...formData, maxOvertimeMinutesPerDay: parseInt(e.target.value) || 0 })}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          maxOvertimeMinutesPerDay: parseInt(e.target.value) || 0,
+                        })
+                      }
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       placeholder="180"
                       min="0"
@@ -366,7 +392,12 @@ export default function NewShiftPage() {
                     <input
                       type="number"
                       value={formData.minOvertimeMinutes || ""}
-                      onChange={(e) => setFormData({ ...formData, minOvertimeMinutes: parseInt(e.target.value) || 0 })}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          minOvertimeMinutes: parseInt(e.target.value) || 0,
+                        })
+                      }
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       placeholder="30"
                       min="0"
@@ -388,7 +419,9 @@ export default function NewShiftPage() {
                 className="rounded text-blue-600 focus:ring-blue-500"
               />
               <span className="text-sm font-medium">Set as Default Shift</span>
-              <span className="text-xs text-gray-500">(New users will be assigned to this shift by default)</span>
+              <span className="text-xs text-gray-500">
+                (New users will be assigned to this shift by default)
+              </span>
             </label>
           </div>
 

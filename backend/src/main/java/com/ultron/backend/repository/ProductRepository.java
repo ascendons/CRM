@@ -65,14 +65,12 @@ public interface ProductRepository extends MongoRepository<Product, String> {
      */
     @Query("{ 'tenantId': ?1, 'isDeleted': false, '$or': [ " +
            "{ 'productName': { $regex: ?0, $options: 'i' } }, " +
-           "{ 'sku': { $regex: ?0, $options: 'i' } }, " +
-           "{ 'description': { $regex: ?0, $options: 'i' } } ] }")
+           "{ 'sku': { $regex: ?0, $options: 'i' } } ] }")
     List<Product> searchProductsByTenantId(String searchTerm, String tenantId);
 
     @Query("{ 'tenantId': ?1, 'isDeleted': false, '$or': [ " +
            "{ 'productName': { $regex: ?0, $options: 'i' } }, " +
-           "{ 'sku': { $regex: ?0, $options: 'i' } }, " +
-           "{ 'description': { $regex: ?0, $options: 'i' } } ] }")
+           "{ 'sku': { $regex: ?0, $options: 'i' } } ] }")
     Page<Product> searchProductsByTenantId(String searchTerm, String tenantId, Pageable pageable);
 
     /**

@@ -270,7 +270,9 @@ export default function ProductsPage() {
                       <td className="px-6 py-4 whitespace-nowrap">
                         {product.stockQuantity !== undefined && product.stockQuantity !== null ? (
                           <div className="text-sm">
-                            <div className="text-gray-900">{product.stockQuantity} {product.unit}</div>
+                            <div className="text-gray-900">
+                              {product.stockQuantity} {product.unit}
+                            </div>
                             {product.minStockLevel && (
                               <div className="text-xs text-gray-500">
                                 Min: {product.minStockLevel}

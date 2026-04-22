@@ -95,7 +95,9 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
               <h1 className="text-3xl font-bold tracking-tight">{product.productName}</h1>
               {getStatusBadge(product.status)}
             </div>
-            <p className="text-muted-foreground">SKU: {product.sku} • ID: {product.productId}</p>
+            <p className="text-muted-foreground">
+              SKU: {product.sku} • ID: {product.productId}
+            </p>
           </div>
         </div>
 
@@ -253,7 +255,9 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
                 )}
               </>
             ) : (
-              <p className="text-muted-foreground">Inventory tracking not enabled for this product</p>
+              <p className="text-muted-foreground">
+                Inventory tracking not enabled for this product
+              </p>
             )}
           </CardContent>
         </Card>

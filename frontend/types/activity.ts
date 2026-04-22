@@ -1,23 +1,23 @@
 export enum ActivityType {
-  TASK = 'TASK',
-  EMAIL = 'EMAIL',
-  CALL = 'CALL',
-  MEETING = 'MEETING',
-  NOTE = 'NOTE',
+  TASK = "TASK",
+  EMAIL = "EMAIL",
+  CALL = "CALL",
+  MEETING = "MEETING",
+  NOTE = "NOTE",
 }
 
 export enum ActivityStatus {
-  PENDING = 'PENDING',
-  IN_PROGRESS = 'IN_PROGRESS',
-  COMPLETED = 'COMPLETED',
-  CANCELLED = 'CANCELLED',
+  PENDING = "PENDING",
+  IN_PROGRESS = "IN_PROGRESS",
+  COMPLETED = "COMPLETED",
+  CANCELLED = "CANCELLED",
 }
 
 export enum ActivityPriority {
-  LOW = 'LOW',
-  MEDIUM = 'MEDIUM',
-  HIGH = 'HIGH',
-  URGENT = 'URGENT',
+  LOW = "LOW",
+  MEDIUM = "MEDIUM",
+  HIGH = "HIGH",
+  URGENT = "URGENT",
 }
 
 export interface Activity {

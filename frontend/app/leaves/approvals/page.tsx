@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { leavesApi, LeaveResponse, ApproveLeaveRequest } from '@/lib/api/leaves';
-import { LeaveStatusBadge } from '@/components/leaves/LeaveStatusBadge';
-import { toast } from 'react-hot-toast';
+import { useEffect, useState } from "react";
+import { leavesApi, LeaveResponse, ApproveLeaveRequest } from "@/lib/api/leaves";
+import { LeaveStatusBadge } from "@/components/leaves/LeaveStatusBadge";
+import { toast } from "react-hot-toast";
 
 export default function LeaveApprovalsPage() {
   const [pendingLeaves, setPendingLeaves] = useState<LeaveResponse[]>([]);
@@ -15,8 +15,8 @@ export default function LeaveApprovalsPage() {
       const leaves = await leavesApi.getPendingApprovals();
       setPendingLeaves(leaves);
     } catch (error) {
-      console.error('Failed to load pending approvals:', error);
-      toast.error('Failed to load pending approvals');
+      console.error("Failed to load pending approvals:", error);
+      toast.error("Failed to load pending approvals");
     } finally {
       setLoading(false);
     }
@@ -27,7 +27,7 @@ export default function LeaveApprovalsPage() {
   }, []);
 
   const handleApprove = async (leaveId: string) => {
-    if (!confirm('Are you sure you want to approve this leave request?')) {
+    if (!confirm("Are you sure you want to approve this leave request?")) {
       return;
     }
 
@@ -35,24 +35,24 @@ export default function LeaveApprovalsPage() {
     try {
       const request: ApproveLeaveRequest = {
         leaveId,
-        approved: true
+        approved: true,
       };
 
       await leavesApi.approveLeave(request);
-      toast.success('Leave approved successfully!');
+      toast.success("Leave approved successfully!");
       loadPendingApprovals();
     } catch (error: any) {
-      console.error('Approval error:', error);
-      toast.error(error.message || 'Failed to approve leave');
+      console.error("Approval error:", error);
+      toast.error(error.message || "Failed to approve leave");
     } finally {
       setProcessingId(null);
     }
   };
 
   const handleReject = async (leaveId: string) => {
-    const reason = prompt('Please provide a reason for rejecting this leave:');
+    const reason = prompt("Please provide a reason for rejecting this leave:");
     if (!reason || reason.trim().length < 10) {
-      toast.error('Rejection reason must be at least 10 characters');
+      toast.error("Rejection reason must be at least 10 characters");
       return;
     }
 
@@ -61,40 +61,40 @@ export default function LeaveApprovalsPage() {
       const request: ApproveLeaveRequest = {
         leaveId,
         approved: false,
-        rejectionReason: reason
+        rejectionReason: reason,
       };
 
       await leavesApi.approveLeave(request);
-      toast.success('Leave rejected');
+      toast.success("Leave rejected");
       loadPendingApprovals();
     } catch (error: any) {
-      console.error('Rejection error:', error);
-      toast.error(error.message || 'Failed to reject leave');
+      console.error("Rejection error:", error);
+      toast.error(error.message || "Failed to reject leave");
     } finally {
       setProcessingId(null);
     }
   };
 
   const formatDate = (dateStr: string) => {
-    return new Date(dateStr).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
+    return new Date(dateStr).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
     });
   };
 
   const getLeaveTypeName = (type: string) => {
     const typeNames: { [key: string]: string } = {
-      'SICK': 'Sick Leave',
-      'CASUAL': 'Casual Leave',
-      'EARNED': 'Earned Leave',
-      'PAID': 'Paid Leave',
-      'UNPAID': 'Unpaid Leave',
-      'MATERNITY': 'Maternity Leave',
-      'PATERNITY': 'Paternity Leave',
-      'COMPENSATORY': 'Comp Off',
-      'BEREAVEMENT': 'Bereavement Leave',
-      'MARRIAGE': 'Marriage Leave'
+      SICK: "Sick Leave",
+      CASUAL: "Casual Leave",
+      EARNED: "Earned Leave",
+      PAID: "Paid Leave",
+      UNPAID: "Unpaid Leave",
+      MATERNITY: "Maternity Leave",
+      PATERNITY: "Paternity Leave",
+      COMPENSATORY: "Comp Off",
+      BEREAVEMENT: "Bereavement Leave",
+      MARRIAGE: "Marriage Leave",
     };
     return typeNames[type] || type;
   };
@@ -120,7 +120,8 @@ export default function LeaveApprovalsPage() {
       {/* Pending Count */}
       <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
         <p className="text-blue-900 font-medium">
-          {pendingLeaves.length} {pendingLeaves.length === 1 ? 'request' : 'requests'} pending approval
+          {pendingLeaves.length} {pendingLeaves.length === 1 ? "request" : "requests"} pending
+          approval
         </p>
       </div>
 
@@ -139,9 +140,7 @@ export default function LeaveApprovalsPage() {
             <div key={leave.id} className="bg-white rounded-xl shadow p-6">
               <div className="flex justify-between items-start mb-4">
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900">
-                    {leave.userName}
-                  </h3>
+                  <h3 className="text-lg font-semibold text-gray-900">{leave.userName}</h3>
                   <p className="text-sm text-gray-600">{leave.userEmail}</p>
                 </div>
                 <LeaveStatusBadge status={leave.status as any} />
@@ -166,7 +165,7 @@ export default function LeaveApprovalsPage() {
                 <div>
                   <p className="text-xs text-gray-500 mb-1">Total Days</p>
                   <p className="text-sm font-medium text-gray-900">
-                    {leave.totalDays} {leave.totalDays === 1 ? 'day' : 'days'}
+                    {leave.totalDays} {leave.totalDays === 1 ? "day" : "days"}
                   </p>
                 </div>
                 <div>
@@ -177,9 +176,7 @@ export default function LeaveApprovalsPage() {
 
               <div className="mb-4">
                 <p className="text-xs text-gray-500 mb-1">Reason</p>
-                <p className="text-sm text-gray-900 bg-gray-50 rounded-lg p-3">
-                  {leave.reason}
-                </p>
+                <p className="text-sm text-gray-900 bg-gray-50 rounded-lg p-3">{leave.reason}</p>
               </div>
 
               {leave.isEmergencyLeave && (
@@ -199,14 +196,14 @@ export default function LeaveApprovalsPage() {
                   disabled={processingId === leave.leaveId}
                   className="flex-1 py-2 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white font-semibold rounded-lg transition-colors"
                 >
-                  {processingId === leave.leaveId ? 'Processing...' : 'Approve'}
+                  {processingId === leave.leaveId ? "Processing..." : "Approve"}
                 </button>
                 <button
                   onClick={() => handleReject(leave.leaveId)}
                   disabled={processingId === leave.leaveId}
                   className="flex-1 py-2 bg-red-600 hover:bg-red-700 disabled:bg-gray-400 text-white font-semibold rounded-lg transition-colors"
                 >
-                  {processingId === leave.leaveId ? 'Processing...' : 'Reject'}
+                  {processingId === leave.leaveId ? "Processing..." : "Reject"}
                 </button>
               </div>
             </div>

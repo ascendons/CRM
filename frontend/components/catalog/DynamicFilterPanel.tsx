@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import { FilterRequest, FilterType } from '@/types/catalog';
-import { Filter, X } from 'lucide-react';
-import { api } from '@/lib/api-client';
+import React, { useState, useEffect } from "react";
+import { FilterRequest, FilterType } from "@/types/catalog";
+import { Filter, X } from "lucide-react";
+import { api } from "@/lib/api-client";
 
 interface DynamicFilterPanelProps {
   onFiltersChange: (filters: Record<string, FilterRequest>) => void;
@@ -12,7 +12,7 @@ interface DynamicFilterPanelProps {
 interface AvailableFilter {
   key: string;
   displayName: string;
-  type: 'TEXT' | 'NUMBER' | 'SELECT';
+  type: "TEXT" | "NUMBER" | "SELECT";
   values?: string[];
 }
 
@@ -27,10 +27,10 @@ export default function DynamicFilterPanel({ onFiltersChange }: DynamicFilterPan
 
   const fetchAvailableFilters = async () => {
     try {
-      const data = await api.get<AvailableFilter[]>('/catalog/filters');
+      const data = await api.get<AvailableFilter[]>("/catalog/filters");
       setAvailableFilters(data);
     } catch (error) {
-      console.error('Failed to fetch filters:', error);
+      console.error("Failed to fetch filters:", error);
     } finally {
       setLoading(false);
     }
@@ -106,14 +106,14 @@ interface FilterControlProps {
 }
 
 function FilterControl({ filter, value, onChange }: FilterControlProps) {
-  const [inputValue, setInputValue] = useState('');
+  const [inputValue, setInputValue] = useState("");
 
   const handleTextChange = (text: string) => {
     setInputValue(text);
     if (text.trim()) {
       onChange({
         type: FilterType.CONTAINS,
-        value: text.trim()
+        value: text.trim(),
       });
     } else {
       onChange(null);
@@ -124,7 +124,7 @@ function FilterControl({ filter, value, onChange }: FilterControlProps) {
     if (selected) {
       onChange({
         type: FilterType.EXACT,
-        value: selected
+        value: selected,
       });
     } else {
       onChange(null);
@@ -133,11 +133,9 @@ function FilterControl({ filter, value, onChange }: FilterControlProps) {
 
   return (
     <div className="space-y-2">
-      <label className="text-xs font-medium text-slate-700">
-        {filter.displayName}
-      </label>
+      <label className="text-xs font-medium text-slate-700">{filter.displayName}</label>
 
-      {filter.type === 'TEXT' && (
+      {filter.type === "TEXT" && (
         <div className="relative">
           <input
             type="text"
@@ -149,7 +147,7 @@ function FilterControl({ filter, value, onChange }: FilterControlProps) {
           {value && (
             <button
               onClick={() => {
-                setInputValue('');
+                setInputValue("");
                 onChange(null);
               }}
               className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600"
@@ -160,9 +158,9 @@ function FilterControl({ filter, value, onChange }: FilterControlProps) {
         </div>
       )}
 
-      {filter.type === 'SELECT' && filter.values && (
+      {filter.type === "SELECT" && filter.values && (
         <select
-          value={value?.value || ''}
+          value={value?.value || ""}
           onChange={(e) => handleSelectChange(e.target.value)}
           className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
         >
@@ -175,18 +173,18 @@ function FilterControl({ filter, value, onChange }: FilterControlProps) {
         </select>
       )}
 
-      {filter.type === 'NUMBER' && (
+      {filter.type === "NUMBER" && (
         <div className="grid grid-cols-2 gap-2">
           <input
             type="number"
             placeholder="Min"
-            value={value?.min || ''}
+            value={value?.min || ""}
             onChange={(e) => {
               const min = e.target.value ? parseFloat(e.target.value) : undefined;
               onChange({
                 type: FilterType.RANGE,
                 min,
-                max: value?.max
+                max: value?.max,
               });
             }}
             className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
@@ -194,13 +192,13 @@ function FilterControl({ filter, value, onChange }: FilterControlProps) {
           <input
             type="number"
             placeholder="Max"
-            value={value?.max || ''}
+            value={value?.max || ""}
             onChange={(e) => {
               const max = e.target.value ? parseFloat(e.target.value) : undefined;
               onChange({
                 type: FilterType.RANGE,
                 min: value?.min,
-                max
+                max,
               });
             }}
             className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"

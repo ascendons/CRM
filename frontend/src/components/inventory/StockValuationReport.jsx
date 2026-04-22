@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Table,
@@ -13,15 +13,15 @@ import {
   CircularProgress,
   TextField,
   InputAdornment,
-} from '@mui/material';
-import { Search as SearchIcon } from '@mui/icons-material';
-import inventoryApi from '../../services/inventoryApi';
+} from "@mui/material";
+import { Search as SearchIcon } from "@mui/icons-material";
+import inventoryApi from "../../services/inventoryApi";
 
 const StockValuationReport = () => {
   const [stockData, setStockData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     fetchStockValuation();
@@ -35,7 +35,7 @@ const StockValuationReport = () => {
       const response = await inventoryApi.stock.getAll({ size: 1000 });
       setStockData(response.data.content || []);
     } catch (err) {
-      setError('Failed to load stock valuation: ' + err.message);
+      setError("Failed to load stock valuation: " + err.message);
     } finally {
       setLoading(false);
     }
@@ -49,10 +49,7 @@ const StockValuationReport = () => {
       stock.warehouseName?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const totalValuation = filteredStock.reduce(
-    (sum, stock) => sum + (stock.totalValue || 0),
-    0
-  );
+  const totalValuation = filteredStock.reduce((sum, stock) => sum + (stock.totalValue || 0), 0);
 
   if (loading) {
     return (
@@ -71,9 +68,10 @@ const StockValuationReport = () => {
       )}
 
       {/* Summary */}
-      <Box sx={{ bgcolor: 'primary.light', p: 2, borderRadius: 1, mb: 3 }}>
+      <Box sx={{ bgcolor: "primary.light", p: 2, borderRadius: 1, mb: 3 }}>
         <Typography variant="h6" fontWeight="bold">
-          Total Stock Valuation: ${totalValuation.toLocaleString(undefined, {
+          Total Stock Valuation: $
+          {totalValuation.toLocaleString(undefined, {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2,
           })}
@@ -118,7 +116,7 @@ const StockValuationReport = () => {
               <TableRow key={stock.id} hover>
                 <TableCell>
                   <Typography variant="body2" fontWeight="medium">
-                    {stock.productName || 'Unknown Product'}
+                    {stock.productName || "Unknown Product"}
                   </Typography>
                   <Typography variant="caption" color="text.secondary">
                     ID: {stock.productId}
@@ -126,7 +124,7 @@ const StockValuationReport = () => {
                 </TableCell>
                 <TableCell>
                   <Typography variant="body2">
-                    {stock.warehouseName || 'Unknown Warehouse'}
+                    {stock.warehouseName || "Unknown Warehouse"}
                   </Typography>
                   {stock.warehouseCode && (
                     <Typography variant="caption" color="text.secondary">
@@ -135,20 +133,18 @@ const StockValuationReport = () => {
                   )}
                 </TableCell>
                 <TableCell align="right">{stock.quantityOnHand}</TableCell>
-                <TableCell align="right">
-                  ${stock.unitCost?.toFixed(2) || '0.00'}
-                </TableCell>
+                <TableCell align="right">${stock.unitCost?.toFixed(2) || "0.00"}</TableCell>
                 <TableCell align="right">
                   <Typography variant="body2" fontWeight="bold">
-                    ${stock.totalValue?.toFixed(2) || '0.00'}
+                    ${stock.totalValue?.toFixed(2) || "0.00"}
                   </Typography>
                 </TableCell>
                 <TableCell>
                   <Chip
-                    label={stock.costingMethod || 'Not Set'}
+                    label={stock.costingMethod || "Not Set"}
                     size="small"
                     variant="outlined"
-                    color={stock.costingMethod ? 'default' : 'warning'}
+                    color={stock.costingMethod ? "default" : "warning"}
                   />
                 </TableCell>
               </TableRow>

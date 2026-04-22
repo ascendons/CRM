@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { locationsApi } from '@/lib/api/locations';
-import { toast } from 'react-hot-toast';
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { locationsApi } from "@/lib/api/locations";
+import { toast } from "react-hot-toast";
 import {
   Plus,
   MapPin,
@@ -13,8 +13,8 @@ import {
   Building2,
   CheckCircle2,
   XCircle,
-  Navigation
-} from 'lucide-react';
+  Navigation,
+} from "lucide-react";
 
 export default function LocationsPage() {
   const router = useRouter();
@@ -32,8 +32,8 @@ export default function LocationsPage() {
       const data = await locationsApi.getAllLocations();
       setLocations(Array.isArray(data) ? data : []);
     } catch (error) {
-      console.error('Failed to load locations:', error);
-      toast.error('Failed to load locations');
+      console.error("Failed to load locations:", error);
+      toast.error("Failed to load locations");
       setLocations([]);
     } finally {
       setLoading(false);
@@ -41,18 +41,18 @@ export default function LocationsPage() {
   };
 
   const handleDelete = async (locationId: string) => {
-    if (!confirm('Are you sure you want to delete this location?')) {
+    if (!confirm("Are you sure you want to delete this location?")) {
       return;
     }
 
     try {
       setDeleteLoading(locationId);
       await locationsApi.deleteLocation(locationId);
-      toast.success('Location deleted successfully');
+      toast.success("Location deleted successfully");
       loadLocations();
     } catch (error: any) {
-      console.error('Failed to delete location:', error);
-      toast.error(error.message || 'Failed to delete location');
+      console.error("Failed to delete location:", error);
+      toast.error(error.message || "Failed to delete location");
     } finally {
       setDeleteLoading(null);
     }
@@ -89,7 +89,9 @@ export default function LocationsPage() {
           <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-12 text-center">
             <MapPin className="h-16 w-16 text-slate-300 mx-auto mb-4" />
             <h3 className="text-xl font-semibold text-slate-900 mb-2">No Locations Added</h3>
-            <p className="text-slate-600 mb-6">Add your first office location to enable GPS-based attendance.</p>
+            <p className="text-slate-600 mb-6">
+              Add your first office location to enable GPS-based attendance.
+            </p>
             <Link
               href="/admin/settings/locations/new"
               className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold transition-colors"
@@ -117,9 +119,7 @@ export default function LocationsPage() {
                           </span>
                         )}
                       </div>
-                      {location.code && (
-                        <p className="text-sm text-slate-500">{location.code}</p>
-                      )}
+                      {location.code && <p className="text-sm text-slate-500">{location.code}</p>}
                     </div>
                     <div className="flex items-center gap-1">
                       {location.isActive ? (
@@ -137,7 +137,9 @@ export default function LocationsPage() {
                       <div className="flex-1">
                         <p className="text-sm text-slate-900">{location.address}</p>
                         <p className="text-xs text-slate-500 mt-1">
-                          {[location.city, location.state, location.postalCode].filter(Boolean).join(', ')}
+                          {[location.city, location.state, location.postalCode]
+                            .filter(Boolean)
+                            .join(", ")}
                         </p>
                       </div>
                     </div>
@@ -150,9 +152,7 @@ export default function LocationsPage() {
                         <Navigation className="h-4 w-4 text-blue-600" />
                         <p className="text-xs text-blue-600 font-medium">Radius</p>
                       </div>
-                      <p className="text-sm font-bold text-blue-900">
-                        {location.radiusMeters}m
-                      </p>
+                      <p className="text-sm font-bold text-blue-900">{location.radiusMeters}m</p>
                     </div>
                     <div className="bg-purple-50 rounded-lg p-3">
                       <div className="flex items-center gap-2 mb-1">
@@ -160,7 +160,7 @@ export default function LocationsPage() {
                         <p className="text-xs text-purple-600 font-medium">Type</p>
                       </div>
                       <p className="text-sm font-bold text-purple-900">
-                        {location.type || 'OFFICE'}
+                        {location.type || "OFFICE"}
                       </p>
                     </div>
                   </div>

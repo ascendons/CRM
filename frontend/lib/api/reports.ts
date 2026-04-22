@@ -1,4 +1,4 @@
-import { api } from '../api-client';
+import { api } from "../api-client";
 
 export interface DailyDashboardResponse {
   date: string;
@@ -128,7 +128,7 @@ export const reportsApi = {
    * Get daily attendance dashboard
    */
   getDailyDashboard: (date?: string) =>
-    api.get(`/attendance/admin/dashboard/daily${date ? `?date=${date}` : ''}`),
+    api.get(`/attendance/admin/dashboard/daily${date ? `?date=${date}` : ""}`),
 
   /**
    * Get monthly report for a user (admin)
@@ -146,5 +146,7 @@ export const reportsApi = {
    * Get team attendance (manager)
    */
   getTeamAttendance: (startDate: string, endDate: string) =>
-    api.get<TeamAttendanceResponse>(`/attendance/admin/team?startDate=${startDate}&endDate=${endDate}`)
+    api.get<TeamAttendanceResponse>(
+      `/attendance/admin/team?startDate=${startDate}&endDate=${endDate}`
+    ),
 };

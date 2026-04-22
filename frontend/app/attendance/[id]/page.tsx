@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
-import { attendanceApi } from '@/lib/api/attendance';
-import { toast } from 'react-hot-toast';
+import { useEffect, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { attendanceApi } from "@/lib/api/attendance";
+import { toast } from "react-hot-toast";
 import {
   ArrowLeft,
   Calendar,
@@ -15,8 +15,8 @@ import {
   Coffee,
   Building2,
   Home,
-  Briefcase
-} from 'lucide-react';
+  Briefcase,
+} from "lucide-react";
 
 interface AttendanceLocation {
   latitude: number;
@@ -85,9 +85,9 @@ export default function AttendanceDetailPage() {
       const data = await attendanceApi.getAttendanceById<Attendance>(attendanceId);
       setAttendance(data);
     } catch (error) {
-      console.error('Failed to load attendance:', error);
-      toast.error('Failed to load attendance details');
-      router.push('/attendance');
+      console.error("Failed to load attendance:", error);
+      toast.error("Failed to load attendance details");
+      router.push("/attendance");
     } finally {
       setLoading(false);
     }
@@ -95,21 +95,23 @@ export default function AttendanceDetailPage() {
 
   const getStatusBadge = (status: string) => {
     const statusConfig = {
-      PRESENT: { bg: 'bg-green-100', text: 'text-green-800', icon: CheckCircle, label: 'Present' },
-      LATE: { bg: 'bg-yellow-100', text: 'text-yellow-800', icon: AlertCircle, label: 'Late' },
-      HALF_DAY: { bg: 'bg-blue-100', text: 'text-blue-800', icon: Clock, label: 'Half Day' },
-      ABSENT: { bg: 'bg-red-100', text: 'text-red-800', icon: XCircle, label: 'Absent' },
-      ON_LEAVE: { bg: 'bg-purple-100', text: 'text-purple-800', icon: Calendar, label: 'On Leave' },
-      HOLIDAY: { bg: 'bg-gray-100', text: 'text-gray-800', icon: Calendar, label: 'Holiday' },
-      WEEK_OFF: { bg: 'bg-gray-100', text: 'text-gray-800', icon: Home, label: 'Week Off' },
-      PENDING: { bg: 'bg-amber-100', text: 'text-amber-800', icon: Clock, label: 'Pending' },
+      PRESENT: { bg: "bg-green-100", text: "text-green-800", icon: CheckCircle, label: "Present" },
+      LATE: { bg: "bg-yellow-100", text: "text-yellow-800", icon: AlertCircle, label: "Late" },
+      HALF_DAY: { bg: "bg-blue-100", text: "text-blue-800", icon: Clock, label: "Half Day" },
+      ABSENT: { bg: "bg-red-100", text: "text-red-800", icon: XCircle, label: "Absent" },
+      ON_LEAVE: { bg: "bg-purple-100", text: "text-purple-800", icon: Calendar, label: "On Leave" },
+      HOLIDAY: { bg: "bg-gray-100", text: "text-gray-800", icon: Calendar, label: "Holiday" },
+      WEEK_OFF: { bg: "bg-gray-100", text: "text-gray-800", icon: Home, label: "Week Off" },
+      PENDING: { bg: "bg-amber-100", text: "text-amber-800", icon: Clock, label: "Pending" },
     };
 
     const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.PENDING;
     const Icon = config.icon;
 
     return (
-      <span className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium ${config.bg} ${config.text}`}>
+      <span
+        className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium ${config.bg} ${config.text}`}
+      >
         <Icon className="h-4 w-4" />
         {config.label}
       </span>
@@ -129,52 +131,52 @@ export default function AttendanceDetailPage() {
 
   const getBreakTypeLabel = (type: string) => {
     const labels: Record<string, string> = {
-      LUNCH: '🍽️ Lunch Break',
-      TEA: '☕ Tea Break',
-      PERSONAL: '🚶 Personal',
-      PRAYER: '🕌 Prayer',
-      SMOKING: '🚬 Smoking',
-      MEETING: '👥 Meeting',
+      LUNCH: "🍽️ Lunch Break",
+      TEA: "☕ Tea Break",
+      PERSONAL: "🚶 Personal",
+      PRAYER: "🕌 Prayer",
+      SMOKING: "🚬 Smoking",
+      MEETING: "👥 Meeting",
     };
     return labels[type] || type;
   };
 
   const formatTime = (dateTime: string) => {
-    return new Date(dateTime).toLocaleTimeString('en-US', {
-      hour: '2-digit',
-      minute: '2-digit'
+    return new Date(dateTime).toLocaleTimeString("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
   const formatDateTime = (dateTime: string) => {
-    return new Date(dateTime).toLocaleString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+    return new Date(dateTime).toLocaleString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
   const formatDuration = (minutes?: number) => {
-    if (!minutes) return '0h 0m';
+    if (!minutes) return "0h 0m";
     const hours = Math.floor(minutes / 60);
     const mins = minutes % 60;
     return `${hours}h ${mins}m`;
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
+    return new Date(dateString).toLocaleDateString("en-US", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
     });
   };
 
   const openMaps = (latitude: number, longitude: number) => {
     const url = `https://www.google.com/maps?q=${latitude},${longitude}`;
-    window.open(url, '_blank');
+    window.open(url, "_blank");
   };
 
   if (loading) {
@@ -197,7 +199,7 @@ export default function AttendanceDetailPage() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <button
-            onClick={() => router.push('/attendance')}
+            onClick={() => router.push("/attendance")}
             className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
           >
             <ArrowLeft className="h-5 w-5 text-slate-600" />
@@ -239,26 +241,38 @@ export default function AttendanceDetailPage() {
                 <Clock className="h-5 w-5" />
                 Check-in Time
               </div>
-              <p className="text-3xl font-bold text-green-900 mb-3">{formatTime(attendance.checkInTime)}</p>
+              <p className="text-3xl font-bold text-green-900 mb-3">
+                {formatTime(attendance.checkInTime)}
+              </p>
               {attendance.lateMinutes! > 0 && (
                 <div className="bg-yellow-100 border border-yellow-200 rounded-lg px-3 py-2 text-sm">
-                  <span className="text-yellow-800 font-medium">⚠ Late by {attendance.lateMinutes} minutes</span>
+                  <span className="text-yellow-800 font-medium">
+                    ⚠ Late by {attendance.lateMinutes} minutes
+                  </span>
                 </div>
               )}
             </div>
 
             {/* Check-out */}
-            <div className={`${attendance.checkOutTime ? 'bg-blue-50 border-blue-200' : 'bg-gray-50 border-gray-200'} border rounded-xl p-4`}>
-              <div className={`flex items-center gap-2 ${attendance.checkOutTime ? 'text-blue-800' : 'text-gray-600'} font-semibold mb-3`}>
+            <div
+              className={`${attendance.checkOutTime ? "bg-blue-50 border-blue-200" : "bg-gray-50 border-gray-200"} border rounded-xl p-4`}
+            >
+              <div
+                className={`flex items-center gap-2 ${attendance.checkOutTime ? "text-blue-800" : "text-gray-600"} font-semibold mb-3`}
+              >
                 <Clock className="h-5 w-5" />
                 Check-out Time
               </div>
               {attendance.checkOutTime ? (
                 <>
-                  <p className="text-3xl font-bold text-blue-900 mb-3">{formatTime(attendance.checkOutTime)}</p>
+                  <p className="text-3xl font-bold text-blue-900 mb-3">
+                    {formatTime(attendance.checkOutTime)}
+                  </p>
                   {attendance.earlyLeaveMinutes! > 0 && (
                     <div className="bg-orange-100 border border-orange-200 rounded-lg px-3 py-2 text-sm">
-                      <span className="text-orange-800 font-medium">⚠ Early leave by {attendance.earlyLeaveMinutes} minutes</span>
+                      <span className="text-orange-800 font-medium">
+                        ⚠ Early leave by {attendance.earlyLeaveMinutes} minutes
+                      </span>
                     </div>
                   )}
                 </>
@@ -274,19 +288,27 @@ export default function AttendanceDetailPage() {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="bg-blue-50 rounded-xl p-4 text-center">
                 <p className="text-sm text-blue-600 mb-1">Total Work</p>
-                <p className="text-2xl font-bold text-blue-900">{formatDuration(attendance.totalWorkMinutes)}</p>
+                <p className="text-2xl font-bold text-blue-900">
+                  {formatDuration(attendance.totalWorkMinutes)}
+                </p>
               </div>
               <div className="bg-purple-50 rounded-xl p-4 text-center">
                 <p className="text-sm text-purple-600 mb-1">Overtime</p>
-                <p className="text-2xl font-bold text-purple-900">{formatDuration(attendance.overtimeMinutes)}</p>
+                <p className="text-2xl font-bold text-purple-900">
+                  {formatDuration(attendance.overtimeMinutes)}
+                </p>
               </div>
               <div className="bg-yellow-50 rounded-xl p-4 text-center">
                 <p className="text-sm text-yellow-600 mb-1">Late</p>
-                <p className="text-2xl font-bold text-yellow-900">{attendance.lateMinutes || 0} min</p>
+                <p className="text-2xl font-bold text-yellow-900">
+                  {attendance.lateMinutes || 0} min
+                </p>
               </div>
               <div className="bg-orange-50 rounded-xl p-4 text-center">
                 <p className="text-sm text-orange-600 mb-1">Early Leave</p>
-                <p className="text-2xl font-bold text-orange-900">{attendance.earlyLeaveMinutes || 0} min</p>
+                <p className="text-2xl font-bold text-orange-900">
+                  {attendance.earlyLeaveMinutes || 0} min
+                </p>
               </div>
             </div>
           </div>
@@ -300,11 +322,18 @@ export default function AttendanceDetailPage() {
               </h3>
               <div className="space-y-3">
                 {attendance.breaks.map((breakRecord) => (
-                  <div key={breakRecord.breakId} className="bg-slate-50 rounded-xl p-4 flex items-center justify-between">
+                  <div
+                    key={breakRecord.breakId}
+                    className="bg-slate-50 rounded-xl p-4 flex items-center justify-between"
+                  >
                     <div className="flex items-center gap-4">
-                      <span className="text-2xl">{getBreakTypeLabel(breakRecord.type).split(' ')[0]}</span>
+                      <span className="text-2xl">
+                        {getBreakTypeLabel(breakRecord.type).split(" ")[0]}
+                      </span>
                       <div>
-                        <p className="font-medium text-slate-900">{getBreakTypeLabel(breakRecord.type).substring(2)}</p>
+                        <p className="font-medium text-slate-900">
+                          {getBreakTypeLabel(breakRecord.type).substring(2)}
+                        </p>
                         <p className="text-sm text-slate-600">
                           {formatTime(breakRecord.startTime)}
                           {breakRecord.endTime && ` - ${formatTime(breakRecord.endTime)}`}
@@ -314,7 +343,9 @@ export default function AttendanceDetailPage() {
                     {breakRecord.durationMinutes !== undefined && (
                       <div className="text-right">
                         <p className="text-sm text-slate-600">Duration</p>
-                        <p className="font-bold text-slate-900">{formatDuration(breakRecord.durationMinutes)}</p>
+                        <p className="font-bold text-slate-900">
+                          {formatDuration(breakRecord.durationMinutes)}
+                        </p>
                       </div>
                     )}
                   </div>
@@ -322,8 +353,11 @@ export default function AttendanceDetailPage() {
               </div>
               <div className="mt-3 bg-blue-50 rounded-lg p-3">
                 <p className="text-sm text-blue-800">
-                  Total break time: <span className="font-bold">
-                    {formatDuration(attendance.breaks.reduce((sum, b) => sum + (b.durationMinutes || 0), 0))}
+                  Total break time:{" "}
+                  <span className="font-bold">
+                    {formatDuration(
+                      attendance.breaks.reduce((sum, b) => sum + (b.durationMinutes || 0), 0)
+                    )}
                   </span>
                 </p>
               </div>
@@ -356,7 +390,9 @@ export default function AttendanceDetailPage() {
             )}
 
             {/* GPS Verification */}
-            <div className={`${attendance.isLocationVerified ? 'bg-green-50 border-green-200' : 'bg-yellow-50 border-yellow-200'} border rounded-xl p-4 mb-4`}>
+            <div
+              className={`${attendance.isLocationVerified ? "bg-green-50 border-green-200" : "bg-yellow-50 border-yellow-200"} border rounded-xl p-4 mb-4`}
+            >
               <div className="flex items-center gap-2 mb-2">
                 {attendance.isLocationVerified ? (
                   <>
@@ -380,16 +416,24 @@ export default function AttendanceDetailPage() {
               <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4">
                 <p className="text-sm text-emerald-700 font-medium mb-2">Check-in Location</p>
                 <button
-                  onClick={() => openMaps(attendance.checkInLocation.latitude, attendance.checkInLocation.longitude)}
+                  onClick={() =>
+                    openMaps(
+                      attendance.checkInLocation.latitude,
+                      attendance.checkInLocation.longitude
+                    )
+                  }
                   className="text-xs font-mono text-emerald-900 hover:underline mb-2 block"
                 >
-                  📍 {attendance.checkInLocation.latitude.toFixed(6)}, {attendance.checkInLocation.longitude.toFixed(6)}
+                  📍 {attendance.checkInLocation.latitude.toFixed(6)},{" "}
+                  {attendance.checkInLocation.longitude.toFixed(6)}
                 </button>
                 {attendance.checkInLocation.address && (
                   <p className="text-sm text-emerald-800">{attendance.checkInLocation.address}</p>
                 )}
                 {attendance.checkInLocation.accuracy && (
-                  <p className="text-xs text-emerald-600 mt-1">Accuracy: ±{attendance.checkInLocation.accuracy.toFixed(0)}m</p>
+                  <p className="text-xs text-emerald-600 mt-1">
+                    Accuracy: ±{attendance.checkInLocation.accuracy.toFixed(0)}m
+                  </p>
                 )}
               </div>
 
@@ -397,16 +441,24 @@ export default function AttendanceDetailPage() {
                 <div className="bg-sky-50 border border-sky-200 rounded-xl p-4">
                   <p className="text-sm text-sky-700 font-medium mb-2">Check-out Location</p>
                   <button
-                    onClick={() => openMaps(attendance.checkOutLocation!.latitude, attendance.checkOutLocation!.longitude)}
+                    onClick={() =>
+                      openMaps(
+                        attendance.checkOutLocation!.latitude,
+                        attendance.checkOutLocation!.longitude
+                      )
+                    }
                     className="text-xs font-mono text-sky-900 hover:underline mb-2 block"
                   >
-                    📍 {attendance.checkOutLocation.latitude.toFixed(6)}, {attendance.checkOutLocation.longitude.toFixed(6)}
+                    📍 {attendance.checkOutLocation.latitude.toFixed(6)},{" "}
+                    {attendance.checkOutLocation.longitude.toFixed(6)}
                   </button>
                   {attendance.checkOutLocation.address && (
                     <p className="text-sm text-sky-800">{attendance.checkOutLocation.address}</p>
                   )}
                   {attendance.checkOutLocation.accuracy && (
-                    <p className="text-xs text-sky-600 mt-1">Accuracy: ±{attendance.checkOutLocation.accuracy.toFixed(0)}m</p>
+                    <p className="text-xs text-sky-600 mt-1">
+                      Accuracy: ±{attendance.checkOutLocation.accuracy.toFixed(0)}m
+                    </p>
                   )}
                 </div>
               )}
@@ -448,9 +500,13 @@ export default function AttendanceDetailPage() {
                 Approved
               </div>
               <div className="text-sm space-y-1">
-                <p className="text-green-800">Approved by: <span className="font-semibold">{attendance.approvedBy}</span></p>
+                <p className="text-green-800">
+                  Approved by: <span className="font-semibold">{attendance.approvedBy}</span>
+                </p>
                 {attendance.approvedAt && (
-                  <p className="text-green-700">Approved at: {formatDateTime(attendance.approvedAt)}</p>
+                  <p className="text-green-700">
+                    Approved at: {formatDateTime(attendance.approvedAt)}
+                  </p>
                 )}
               </div>
             </div>

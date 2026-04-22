@@ -28,7 +28,7 @@ export default function OpportunityDetailPage({ params }: { params: Promise<{ id
   const [proposalsLoading, setProposalsLoading] = useState(false);
 
   // Tabs
-  const [activeTab, setActiveTab] = useState<'details' | 'proposals' | 'activities'>('details');
+  const [activeTab, setActiveTab] = useState<"details" | "proposals" | "activities">("details");
 
   // Activities
   const [activities, setActivities] = useState<Activity[]>([]);
@@ -60,7 +60,7 @@ export default function OpportunityDetailPage({ params }: { params: Promise<{ id
     try {
       setProposalsLoading(true);
       const data = await proposalsService.getProposalsBySource(ProposalSource.OPPORTUNITY, id);
-      if ('content' in data) {
+      if ("content" in data) {
         setProposals(data.content);
       } else {
         setProposals(data || []);
@@ -272,21 +272,23 @@ export default function OpportunityDetailPage({ params }: { params: Promise<{ id
         <div className="border-b border-gray-200 mb-6">
           <nav className="-mb-px flex space-x-8" aria-label="Tabs">
             <button
-              onClick={() => setActiveTab('details')}
-              className={`${activeTab === 'details'
-                ? 'border-orange-500 text-orange-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2 transition-colors`}
+              onClick={() => setActiveTab("details")}
+              className={`${
+                activeTab === "details"
+                  ? "border-orange-500 text-orange-600"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2 transition-colors`}
             >
               <FileText className="h-4 w-4" />
               Details
             </button>
             <button
-              onClick={() => setActiveTab('proposals')}
-              className={`${activeTab === 'proposals'
-                ? 'border-orange-500 text-orange-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2 transition-colors`}
+              onClick={() => setActiveTab("proposals")}
+              className={`${
+                activeTab === "proposals"
+                  ? "border-orange-500 text-orange-600"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2 transition-colors`}
             >
               <CheckSquare className="h-4 w-4" />
               Proposals
@@ -295,11 +297,12 @@ export default function OpportunityDetailPage({ params }: { params: Promise<{ id
               </span>
             </button>
             <button
-              onClick={() => setActiveTab('activities')}
-              className={`${activeTab === 'activities'
-                ? 'border-orange-500 text-orange-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2 transition-colors`}
+              onClick={() => setActiveTab("activities")}
+              className={`${
+                activeTab === "activities"
+                  ? "border-orange-500 text-orange-600"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2 transition-colors`}
             >
               <MessageSquare className="h-4 w-4" />
               Activities
@@ -312,7 +315,7 @@ export default function OpportunityDetailPage({ params }: { params: Promise<{ id
 
         {/* Tab Content */}
         <div className="mt-6">
-          {activeTab === 'details' && (
+          {activeTab === "details" && (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Basic Information */}
               <DetailSection title="Basic Information">
@@ -340,7 +343,10 @@ export default function OpportunityDetailPage({ params }: { params: Promise<{ id
                   <DetailRow label="Primary Contact" value={opportunity.primaryContactName} />
                   {opportunity.convertedFromLeadId && (
                     <>
-                      <DetailRow label="Converted From Lead" value={opportunity.convertedFromLeadId} />
+                      <DetailRow
+                        label="Converted From Lead"
+                        value={opportunity.convertedFromLeadId}
+                      />
                       <DetailRow
                         label="Conversion Date"
                         value={formatDate(opportunity.convertedDate)}
@@ -412,7 +418,10 @@ export default function OpportunityDetailPage({ params }: { params: Promise<{ id
                         : undefined
                     }
                   />
-                  <DetailRow label="Competitive Advantage" value={opportunity.competitiveAdvantage} />
+                  <DetailRow
+                    label="Competitive Advantage"
+                    value={opportunity.competitiveAdvantage}
+                  />
                   {opportunity.lossReason && (
                     <DetailRow label="Loss Reason" value={opportunity.lossReason} />
                   )}
@@ -478,7 +487,10 @@ export default function OpportunityDetailPage({ params }: { params: Promise<{ id
               {/* Stage History */}
               <DetailSection title="Stage History">
                 <dl className="divide-y divide-gray-200">
-                  <DetailRow label="Prospecting Date" value={formatDate(opportunity.prospectingDate)} />
+                  <DetailRow
+                    label="Prospecting Date"
+                    value={formatDate(opportunity.prospectingDate)}
+                  />
                   <DetailRow
                     label="Qualification Date"
                     value={formatDate(opportunity.qualificationDate)}
@@ -488,7 +500,10 @@ export default function OpportunityDetailPage({ params }: { params: Promise<{ id
                     value={formatDate(opportunity.needsAnalysisDate)}
                   />
                   <DetailRow label="Proposal Date" value={formatDate(opportunity.proposalDate)} />
-                  <DetailRow label="Negotiation Date" value={formatDate(opportunity.negotiationDate)} />
+                  <DetailRow
+                    label="Negotiation Date"
+                    value={formatDate(opportunity.negotiationDate)}
+                  />
                   <DetailRow label="Closed Date" value={formatDate(opportunity.closedDate)} />
                 </dl>
               </DetailSection>
@@ -511,7 +526,7 @@ export default function OpportunityDetailPage({ params }: { params: Promise<{ id
             </div>
           )}
 
-          {activeTab === 'proposals' && (
+          {activeTab === "proposals" && (
             <div className="bg-white rounded-lg shadow p-6">
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-lg font-semibold text-gray-900">Proposals</h2>
@@ -542,41 +557,69 @@ export default function OpportunityDetailPage({ params }: { params: Promise<{ id
                   <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-50">
                       <tr>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Proposal #</th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Title</th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Total</th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Valid Until</th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                          Proposal #
+                        </th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                          Title
+                        </th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                          Total
+                        </th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                          Type
+                        </th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                          Status
+                        </th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                          Valid Until
+                        </th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                          Actions
+                        </th>
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
                       {proposals.map((proposal) => (
                         <tr key={proposal.id} className="hover:bg-gray-50">
                           <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-blue-600">
-                            <Link href={`/proposals/${proposal.id}`}>{proposal.proposalNumber}</Link>
+                            <Link href={`/proposals/${proposal.id}`}>
+                              {proposal.proposalNumber}
+                            </Link>
                           </td>
                           <td className="px-4 py-4 text-sm text-gray-900">{proposal.title}</td>
-                          <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">₹{proposal.totalAmount.toLocaleString()}</td>
+                          <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
+                            ₹{proposal.totalAmount.toLocaleString()}
+                          </td>
                           <td className="px-4 py-4 whitespace-nowrap">
                             <span
-                              className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${proposal.isProforma
+                              className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                                proposal.isProforma
                                   ? "bg-purple-100 text-purple-800"
                                   : "bg-blue-100 text-blue-800"
-                                }`}
+                              }`}
                             >
                               {proposal.isProforma ? "Proforma" : "Quotation"}
                             </span>
                           </td>
                           <td className="px-4 py-4 whitespace-nowrap">
-                            <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-${getProposalStatusColor(proposal.status)}-100 text-${getProposalStatusColor(proposal.status)}-800`}>
+                            <span
+                              className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-${getProposalStatusColor(proposal.status)}-100 text-${getProposalStatusColor(proposal.status)}-800`}
+                            >
                               {getProposalStatusLabel(proposal.status)}
                             </span>
                           </td>
-                          <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">{new Date(proposal.validUntil).toLocaleDateString()}</td>
+                          <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {new Date(proposal.validUntil).toLocaleDateString()}
+                          </td>
                           <td className="px-4 py-4 whitespace-nowrap text-sm font-medium">
-                            <Link href={`/proposals/${proposal.id}`} className="text-blue-600 hover:text-blue-900">View</Link>
+                            <Link
+                              href={`/proposals/${proposal.id}`}
+                              className="text-blue-600 hover:text-blue-900"
+                            >
+                              View
+                            </Link>
                           </td>
                         </tr>
                       ))}
@@ -587,7 +630,7 @@ export default function OpportunityDetailPage({ params }: { params: Promise<{ id
             </div>
           )}
 
-          {activeTab === 'activities' && (
+          {activeTab === "activities" && (
             <div className="bg-white rounded-lg shadow p-6">
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-lg font-semibold text-gray-900">Discussion & Activities</h2>

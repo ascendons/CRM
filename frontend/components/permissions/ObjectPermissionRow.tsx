@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { ChevronDown, ChevronRight } from 'lucide-react';
-import { ObjectPermissions } from '@/lib/api/permissions';
-import { PermissionToggle } from './PermissionToggle';
+import { useState } from "react";
+import { ChevronDown, ChevronRight } from "lucide-react";
+import { ObjectPermissions } from "@/lib/api/permissions";
+import { PermissionToggle } from "./PermissionToggle";
 
 interface ObjectPermissionRowProps {
   object: ObjectPermissions;
@@ -16,14 +16,14 @@ export function ObjectPermissionRow({
   object,
   onGrant,
   onRevoke,
-  disabled = false
+  disabled = false,
 }: ObjectPermissionRowProps) {
   const [expanded, setExpanded] = useState(false);
 
   // Count granted permissions
-  const grantedCount = Object.values(object.permissions).filter(p => p.granted).length;
+  const grantedCount = Object.values(object.permissions).filter((p) => p.granted).length;
   const totalCount = Object.keys(object.permissions).length;
-  const hasOverrides = Object.values(object.permissions).some(p => p.isOverride);
+  const hasOverrides = Object.values(object.permissions).some((p) => p.isOverride);
 
   return (
     <div className="border border-gray-200 rounded-lg overflow-hidden">

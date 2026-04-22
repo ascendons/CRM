@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { FileText, CheckCircle, Loader2 } from 'lucide-react';
-import { proposalsService } from '@/lib/proposals';
+import { useState, useEffect } from "react";
+import { FileText, CheckCircle, Loader2 } from "lucide-react";
+import { proposalsService } from "@/lib/proposals";
 
 interface Template {
   type: string;
@@ -22,7 +22,7 @@ export default function InvoiceTemplateSelector({
   proposalId,
   onSelect,
   selectedTemplate,
-  className = ''
+  className = "",
 }: InvoiceTemplateSelectorProps) {
   const [templates, setTemplates] = useState<Template[]>([]);
   const [loading, setLoading] = useState(true);
@@ -36,7 +36,7 @@ export default function InvoiceTemplateSelector({
       const data = await proposalsService.getAvailableTemplates(proposalId);
       setTemplates(data);
     } catch (error) {
-      console.error('Failed to load templates', error);
+      console.error("Failed to load templates", error);
     } finally {
       setLoading(false);
     }
@@ -62,29 +62,30 @@ export default function InvoiceTemplateSelector({
             disabled={!template.available}
             className={`
               relative p-4 rounded-xl border-2 text-left transition-all
-              ${selectedTemplate === template.type
-                ? 'border-blue-500 bg-blue-50 shadow-md'
-                : 'border-gray-200 hover:border-blue-300 bg-white'
+              ${
+                selectedTemplate === template.type
+                  ? "border-blue-500 bg-blue-50 shadow-md"
+                  : "border-gray-200 hover:border-blue-300 bg-white"
               }
-              ${!template.available
-                ? 'opacity-50 cursor-not-allowed'
-                : 'cursor-pointer hover:shadow-sm'
+              ${
+                !template.available
+                  ? "opacity-50 cursor-not-allowed"
+                  : "cursor-pointer hover:shadow-sm"
               }
             `}
           >
             <div className="flex items-start gap-3">
-              <div className={`
+              <div
+                className={`
                 p-2 rounded-lg
-                ${selectedTemplate === template.type
-                  ? 'bg-blue-100'
-                  : 'bg-gray-100'
-                }
-              `}>
-                <FileText className={`w-5 h-5 ${
-                  selectedTemplate === template.type
-                    ? 'text-blue-600'
-                    : 'text-gray-500'
-                }`} />
+                ${selectedTemplate === template.type ? "bg-blue-100" : "bg-gray-100"}
+              `}
+              >
+                <FileText
+                  className={`w-5 h-5 ${
+                    selectedTemplate === template.type ? "text-blue-600" : "text-gray-500"
+                  }`}
+                />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">

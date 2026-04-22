@@ -1,18 +1,23 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { activitiesService } from '@/lib/activities';
-import { leadsService } from '@/lib/leads';
-import { contactsService } from '@/lib/contacts';
-import { accountsService } from '@/lib/accounts';
-import { opportunitiesService } from '@/lib/opportunities';
-import { ActivityType, ActivityStatus, ActivityPriority, CreateActivityRequest } from '@/types/activity';
-import { Lead } from '@/types/lead';
-import { Contact } from '@/types/contact';
-import { Account } from '@/types/account';
-import { Opportunity } from '@/types/opportunity';
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { activitiesService } from "@/lib/activities";
+import { leadsService } from "@/lib/leads";
+import { contactsService } from "@/lib/contacts";
+import { accountsService } from "@/lib/accounts";
+import { opportunitiesService } from "@/lib/opportunities";
+import {
+  ActivityType,
+  ActivityStatus,
+  ActivityPriority,
+  CreateActivityRequest,
+} from "@/types/activity";
+import { Lead } from "@/types/lead";
+import { Contact } from "@/types/contact";
+import { Account } from "@/types/account";
+import { Opportunity } from "@/types/opportunity";
 
 export default function NewActivityPage() {
   const router = useRouter();
@@ -23,31 +28,31 @@ export default function NewActivityPage() {
   const [opportunities, setOpportunities] = useState<Opportunity[]>([]);
 
   const [formData, setFormData] = useState<CreateActivityRequest>({
-    subject: '',
+    subject: "",
     type: ActivityType.TASK,
     status: ActivityStatus.PENDING,
     priority: ActivityPriority.MEDIUM,
-    description: '',
-    scheduledDate: '',
-    dueDate: '',
+    description: "",
+    scheduledDate: "",
+    dueDate: "",
     durationMinutes: undefined,
-    location: '',
-    leadId: '',
-    contactId: '',
-    accountId: '',
-    opportunityId: '',
-    assignedToId: '',
-    phoneNumber: '',
-    callDirection: '',
-    emailFrom: '',
-    emailTo: '',
-    emailSubject: '',
-    meetingLink: '',
-    meetingType: '',
-    taskCategory: '',
+    location: "",
+    leadId: "",
+    contactId: "",
+    accountId: "",
+    opportunityId: "",
+    assignedToId: "",
+    phoneNumber: "",
+    callDirection: "",
+    emailFrom: "",
+    emailTo: "",
+    emailSubject: "",
+    meetingLink: "",
+    meetingType: "",
+    taskCategory: "",
     tags: [],
-    outcome: '',
-    nextSteps: '',
+    outcome: "",
+    nextSteps: "",
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -69,7 +74,7 @@ export default function NewActivityPage() {
       setAccounts(accountsData);
       setOpportunities(opportunitiesData);
     } catch (error) {
-      console.error('Failed to load related data:', error);
+      console.error("Failed to load related data:", error);
     }
   };
 
@@ -105,20 +110,22 @@ export default function NewActivityPage() {
       };
 
       await activitiesService.createActivity(cleanedData);
-      router.push('/activities');
+      router.push("/activities");
     } catch (error: any) {
-      console.error('Failed to create activity:', error);
-      setErrors({ submit: error.message || 'Failed to create activity' });
+      console.error("Failed to create activity:", error);
+      setErrors({ submit: error.message || "Failed to create activity" });
     } finally {
       setLoading(false);
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: name === 'durationMinutes' ? (value ? parseInt(value) : undefined) : value
+      [name]: name === "durationMinutes" ? (value ? parseInt(value) : undefined) : value,
     }));
   };
 
@@ -172,8 +179,10 @@ export default function NewActivityPage() {
                     required
                     className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500"
                   >
-                    {Object.values(ActivityType).map(type => (
-                      <option key={type} value={type}>{type}</option>
+                    {Object.values(ActivityType).map((type) => (
+                      <option key={type} value={type}>
+                        {type}
+                      </option>
                     ))}
                   </select>
                 </div>
@@ -189,8 +198,10 @@ export default function NewActivityPage() {
                     required
                     className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500"
                   >
-                    {Object.values(ActivityStatus).map(status => (
-                      <option key={status} value={status}>{status.replace('_', ' ')}</option>
+                    {Object.values(ActivityStatus).map((status) => (
+                      <option key={status} value={status}>
+                        {status.replace("_", " ")}
+                      </option>
                     ))}
                   </select>
                 </div>
@@ -203,8 +214,10 @@ export default function NewActivityPage() {
                     onChange={handleChange}
                     className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500"
                   >
-                    {Object.values(ActivityPriority).map(priority => (
-                      <option key={priority} value={priority}>{priority}</option>
+                    {Object.values(ActivityPriority).map((priority) => (
+                      <option key={priority} value={priority}>
+                        {priority}
+                      </option>
                     ))}
                   </select>
                 </div>
@@ -249,11 +262,13 @@ export default function NewActivityPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Duration (minutes)</label>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Duration (minutes)
+                  </label>
                   <input
                     type="number"
                     name="durationMinutes"
-                    value={formData.durationMinutes || ''}
+                    value={formData.durationMinutes || ""}
                     onChange={handleChange}
                     className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500"
                   />
@@ -285,7 +300,7 @@ export default function NewActivityPage() {
                     className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500"
                   >
                     <option value="">None</option>
-                    {leads.map(lead => (
+                    {leads.map((lead) => (
                       <option key={lead.id} value={lead.id}>
                         {lead.firstName} {lead.lastName} - {lead.companyName}
                       </option>
@@ -302,7 +317,7 @@ export default function NewActivityPage() {
                     className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500"
                   >
                     <option value="">None</option>
-                    {contacts.map(contact => (
+                    {contacts.map((contact) => (
                       <option key={contact.id} value={contact.id}>
                         {contact.firstName} {contact.lastName}
                       </option>
@@ -319,7 +334,7 @@ export default function NewActivityPage() {
                     className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500"
                   >
                     <option value="">None</option>
-                    {accounts.map(account => (
+                    {accounts.map((account) => (
                       <option key={account.id} value={account.id}>
                         {account.accountName}
                       </option>
@@ -336,7 +351,7 @@ export default function NewActivityPage() {
                     className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500"
                   >
                     <option value="">None</option>
-                    {opportunities.map(opp => (
+                    {opportunities.map((opp) => (
                       <option key={opp.id} value={opp.id}>
                         {opp.opportunityName}
                       </option>
@@ -506,7 +521,7 @@ export default function NewActivityPage() {
                 disabled={loading}
                 className="px-4 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-700 disabled:bg-gray-400"
               >
-                {loading ? 'Creating...' : 'Create Activity'}
+                {loading ? "Creating..." : "Create Activity"}
               </button>
             </div>
           </form>

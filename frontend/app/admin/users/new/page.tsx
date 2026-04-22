@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { ChevronLeft, Eye, EyeOff } from "lucide-react";
 import { usersService } from "@/lib/users";
 import { rolesService } from "@/lib/roles";
 import { profilesService } from "@/lib/profiles";
@@ -21,6 +22,7 @@ interface UserOption {
 export default function CreateUserPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [roles, setRoles] = useState<RoleResponse[]>([]);
   const [profiles, setProfiles] = useState<ProfileResponse[]>([]);
   const [managers, setManagers] = useState<UserOption[]>([]);
@@ -73,7 +75,7 @@ export default function CreateUserPage() {
         id: user.id,
         userId: user.userId,
         userName: user.fullName || user.username || user.email,
-        email: user.email
+        email: user.email,
       }));
       setManagers(managerOptions);
     } catch (error) {
@@ -90,7 +92,8 @@ export default function CreateUserPage() {
     if (!formData.username.trim()) {
       newErrors.username = "Username is required";
     } else if (!/^[a-zA-Z0-9._-]+$/.test(formData.username)) {
-      newErrors.username = "Username can only contain letters, numbers, dots, underscores, and hyphens";
+      newErrors.username =
+        "Username can only contain letters, numbers, dots, underscores, and hyphens";
     }
 
     if (!formData.email.trim()) {
@@ -103,8 +106,13 @@ export default function CreateUserPage() {
       newErrors.password = "Password is required";
     } else if (formData.password.length < 8) {
       newErrors.password = "Password must be at least 8 characters";
-    } else if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(formData.password)) {
-      newErrors.password = "Password must contain uppercase, lowercase, number, and special character (@$!%*?&)";
+    } else if (
+      !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(
+        formData.password
+      )
+    ) {
+      newErrors.password =
+        "Password must contain uppercase, lowercase, number, and special character (@$!%*?&)";
     }
 
     if (!formData.firstName.trim()) {
@@ -176,6 +184,12 @@ export default function CreateUserPage() {
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
+          <button
+            onClick={() => router.back()}
+            className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-900 mb-6"
+          >
+            <ChevronLeft className="w-4 h-4" /> Back
+          </button>
           <h1 className="text-3xl font-bold text-gray-900">Create New User</h1>
           <p className="mt-2 text-gray-600">Add a new user to the system</p>
         </div>
@@ -195,8 +209,9 @@ export default function CreateUserPage() {
                   name="username"
                   value={formData.username}
                   onChange={handleChange}
-                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.username ? "border-red-500" : "border-gray-300"
-                    }`}
+                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                    errors.username ? "border-red-500" : "border-gray-300"
+                  }`}
                   placeholder="john.doe"
                 />
                 {errors.username && <p className="mt-1 text-sm text-red-600">{errors.username}</p>}
@@ -211,8 +226,9 @@ export default function CreateUserPage() {
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
-                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.email ? "border-red-500" : "border-gray-300"
-                    }`}
+                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                    errors.email ? "border-red-500" : "border-gray-300"
+                  }`}
                   placeholder="john.doe@company.com"
                 />
                 {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
@@ -222,15 +238,25 @@ export default function CreateUserPage() {
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Password <span className="text-red-500">*</span>
                 </label>
-                <input
-                  type="password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.password ? "border-red-500" : "border-gray-300"
+                <div className="relative">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    name="password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    className={`w-full px-3 py-2 pr-10 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                      errors.password ? "border-red-500" : "border-gray-300"
                     }`}
-                  placeholder="Minimum 8 characters with uppercase, lowercase, number, and special character"
-                />
+                    placeholder="Minimum 8 characters with uppercase, lowercase, number, and special character"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
                 {errors.password && <p className="mt-1 text-sm text-red-600">{errors.password}</p>}
                 <p className="mt-1 text-xs text-gray-500">
                   Must contain uppercase, lowercase, number, and special character (@$!%*?&)
@@ -252,10 +278,13 @@ export default function CreateUserPage() {
                   name="firstName"
                   value={formData.firstName}
                   onChange={handleChange}
-                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.firstName ? "border-red-500" : "border-gray-300"
-                    }`}
+                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                    errors.firstName ? "border-red-500" : "border-gray-300"
+                  }`}
                 />
-                {errors.firstName && <p className="mt-1 text-sm text-red-600">{errors.firstName}</p>}
+                {errors.firstName && (
+                  <p className="mt-1 text-sm text-red-600">{errors.firstName}</p>
+                )}
               </div>
 
               <div>
@@ -267,8 +296,9 @@ export default function CreateUserPage() {
                   name="lastName"
                   value={formData.lastName}
                   onChange={handleChange}
-                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.lastName ? "border-red-500" : "border-gray-300"
-                    }`}
+                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                    errors.lastName ? "border-red-500" : "border-gray-300"
+                  }`}
                 />
                 {errors.lastName && <p className="mt-1 text-sm text-red-600">{errors.lastName}</p>}
               </div>
@@ -336,8 +366,9 @@ export default function CreateUserPage() {
                   value={formData.roleId}
                   onChange={handleChange}
                   disabled={loadingData}
-                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.roleId ? "border-red-500" : "border-gray-300"
-                    } ${loadingData ? "bg-gray-100 cursor-not-allowed" : ""}`}
+                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                    errors.roleId ? "border-red-500" : "border-gray-300"
+                  } ${loadingData ? "bg-gray-100 cursor-not-allowed" : ""}`}
                 >
                   <option value="">Select a role...</option>
                   {roles.map((role) => (
@@ -359,8 +390,9 @@ export default function CreateUserPage() {
                   value={formData.profileId}
                   onChange={handleChange}
                   disabled={loadingData}
-                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.profileId ? "border-red-500" : "border-gray-300"
-                    } ${loadingData ? "bg-gray-100 cursor-not-allowed" : ""}`}
+                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                    errors.profileId ? "border-red-500" : "border-gray-300"
+                  } ${loadingData ? "bg-gray-100 cursor-not-allowed" : ""}`}
                 >
                   <option value="">Select a profile...</option>
                   {profiles.map((profile) => (
@@ -369,7 +401,9 @@ export default function CreateUserPage() {
                     </option>
                   ))}
                 </select>
-                {errors.profileId && <p className="mt-1 text-sm text-red-600">{errors.profileId}</p>}
+                {errors.profileId && (
+                  <p className="mt-1 text-sm text-red-600">{errors.profileId}</p>
+                )}
                 {loadingData && <p className="mt-1 text-xs text-gray-500">Loading profiles...</p>}
               </div>
 
@@ -393,7 +427,9 @@ export default function CreateUserPage() {
                     </option>
                   ))}
                 </select>
-                {errors.managerId && <p className="mt-1 text-sm text-red-600">{errors.managerId}</p>}
+                {errors.managerId && (
+                  <p className="mt-1 text-sm text-red-600">{errors.managerId}</p>
+                )}
                 {loadingData && <p className="mt-1 text-xs text-gray-500">Loading users...</p>}
                 <p className="mt-1 text-xs text-gray-500">
                   Select the reporting manager for this user (required for leave approvals)

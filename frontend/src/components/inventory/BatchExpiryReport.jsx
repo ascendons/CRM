@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Card,
@@ -16,13 +16,13 @@ import {
   Chip,
   Tabs,
   Tab,
-} from '@mui/material';
+} from "@mui/material";
 import {
   Warning as WarningIcon,
   Error as ErrorIcon,
   CheckCircle as OkIcon,
-} from '@mui/icons-material';
-import inventoryApi from '../../services/inventoryApi';
+} from "@mui/icons-material";
+import inventoryApi from "../../services/inventoryApi";
 
 const BatchExpiryReport = () => {
   const [expiringSoon, setExpiringSoon] = useState([]);
@@ -48,7 +48,7 @@ const BatchExpiryReport = () => {
       setExpiringSoon(expiringSoonRes.data.data || []);
       setExpired(expiredRes.data.data || []);
     } catch (err) {
-      setError('Failed to load batch expiry data: ' + err.message);
+      setError("Failed to load batch expiry data: " + err.message);
     } finally {
       setLoading(false);
     }
@@ -67,12 +67,7 @@ const BatchExpiryReport = () => {
       return <Chip label="Expired" color="error" size="small" icon={<ErrorIcon />} />;
     } else if (daysUntilExpiry <= 7) {
       return (
-        <Chip
-          label={`${daysUntilExpiry} days`}
-          color="error"
-          size="small"
-          icon={<WarningIcon />}
-        />
+        <Chip label={`${daysUntilExpiry} days`} color="error" size="small" icon={<WarningIcon />} />
       );
     } else if (daysUntilExpiry <= 30) {
       return (
@@ -106,7 +101,7 @@ const BatchExpiryReport = () => {
       {/* Summary Cards */}
       <Grid container spacing={3} mb={4}>
         <Grid item xs={12} sm={6} md={4}>
-          <Card sx={{ bgcolor: 'error.lighter', borderLeft: 4, borderColor: 'error.main' }}>
+          <Card sx={{ bgcolor: "error.lighter", borderLeft: 4, borderColor: "error.main" }}>
             <CardContent>
               <Box display="flex" alignItems="center" gap={2}>
                 <ErrorIcon color="error" sx={{ fontSize: 32 }} />
@@ -127,7 +122,7 @@ const BatchExpiryReport = () => {
         </Grid>
 
         <Grid item xs={12} sm={6} md={4}>
-          <Card sx={{ bgcolor: 'warning.lighter', borderLeft: 4, borderColor: 'warning.main' }}>
+          <Card sx={{ bgcolor: "warning.lighter", borderLeft: 4, borderColor: "warning.main" }}>
             <CardContent>
               <Box display="flex" alignItems="center" gap={2}>
                 <WarningIcon color="warning" sx={{ fontSize: 32 }} />
@@ -148,7 +143,7 @@ const BatchExpiryReport = () => {
         </Grid>
 
         <Grid item xs={12} sm={6} md={4}>
-          <Card sx={{ bgcolor: 'success.lighter', borderLeft: 4, borderColor: 'success.main' }}>
+          <Card sx={{ bgcolor: "success.lighter", borderLeft: 4, borderColor: "success.main" }}>
             <CardContent>
               <Box display="flex" alignItems="center" gap={2}>
                 <OkIcon color="success" sx={{ fontSize: 32 }} />
@@ -210,15 +205,13 @@ const BatchExpiryReport = () => {
                               {batch.quantityAvailable}
                             </Typography>
                           </TableCell>
-                          <TableCell>
-                            {new Date(batch.expiryDate).toLocaleDateString()}
-                          </TableCell>
+                          <TableCell>{new Date(batch.expiryDate).toLocaleDateString()}</TableCell>
                           <TableCell>{getExpiryChip(daysUntilExpiry)}</TableCell>
                           <TableCell>
                             <Chip
-                              label={batch.status || 'Active'}
+                              label={batch.status || "Active"}
                               size="small"
-                              color={batch.status === 'QUARANTINED' ? 'error' : 'default'}
+                              color={batch.status === "QUARANTINED" ? "error" : "default"}
                             />
                           </TableCell>
                         </TableRow>
@@ -261,7 +254,7 @@ const BatchExpiryReport = () => {
                     {expired.map((batch) => {
                       const daysExpired = Math.abs(getDaysUntilExpiry(batch.expiryDate));
                       return (
-                        <TableRow key={batch.id} sx={{ bgcolor: 'error.lighter' }}>
+                        <TableRow key={batch.id} sx={{ bgcolor: "error.lighter" }}>
                           <TableCell>
                             <Typography variant="body2" fontWeight="medium">
                               {batch.batchNumber}
@@ -273,9 +266,7 @@ const BatchExpiryReport = () => {
                               {batch.quantityAvailable}
                             </Typography>
                           </TableCell>
-                          <TableCell>
-                            {new Date(batch.expiryDate).toLocaleDateString()}
-                          </TableCell>
+                          <TableCell>{new Date(batch.expiryDate).toLocaleDateString()}</TableCell>
                           <TableCell>
                             <Chip
                               label={`${daysExpired} days ago`}
@@ -285,11 +276,7 @@ const BatchExpiryReport = () => {
                             />
                           </TableCell>
                           <TableCell>
-                            <Chip
-                              label={batch.status || 'Expired'}
-                              size="small"
-                              color="error"
-                            />
+                            <Chip label={batch.status || "Expired"} size="small" color="error" />
                           </TableCell>
                         </TableRow>
                       );
@@ -299,7 +286,7 @@ const BatchExpiryReport = () => {
                       <TableRow>
                         <TableCell colSpan={6} align="center">
                           <Box py={4}>
-                            <OkIcon sx={{ fontSize: 48, color: 'success.main', mb: 2 }} />
+                            <OkIcon sx={{ fontSize: 48, color: "success.main", mb: 2 }} />
                             <Typography variant="body2" color="text.secondary">
                               No expired batches found. All batches are within date!
                             </Typography>

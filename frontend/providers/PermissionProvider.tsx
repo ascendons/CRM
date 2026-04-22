@@ -92,11 +92,7 @@ interface PermissionProviderProps {
 export function PermissionProvider({ children }: PermissionProviderProps) {
   const permissionHook = usePermissions();
 
-  return (
-    <PermissionContext.Provider value={permissionHook}>
-      {children}
-    </PermissionContext.Provider>
-  );
+  return <PermissionContext.Provider value={permissionHook}>{children}</PermissionContext.Provider>;
 }
 
 // ===== HOOK =====
@@ -117,7 +113,7 @@ export function usePermissionContext() {
   if (context === undefined) {
     throw new Error(
       "usePermissionContext must be used within a PermissionProvider. " +
-      "Wrap your app with <PermissionProvider> in layout.tsx"
+        "Wrap your app with <PermissionProvider> in layout.tsx"
     );
   }
 

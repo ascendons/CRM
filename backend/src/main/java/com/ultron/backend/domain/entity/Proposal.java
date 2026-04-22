@@ -134,6 +134,10 @@ public class Proposal {
     @Builder.Default
     private Boolean isProforma = false;
     @Builder.Default
+    private Boolean isTechnicalQuotation = false;
+    @Builder.Default
+    private Boolean showDiscount = true;
+    @Builder.Default
     private Boolean hasBeenConverted = false;
     private String parentProposalId;
     private BigDecimal parentTaxAmount;
@@ -170,7 +174,8 @@ public class Proposal {
         private BigDecimal quantity;
         private String unit;
         private String hsnCode;
-        private BigDecimal unitPrice;  // Price per unit
+        private BigDecimal listPrice;  // MRP — original catalogue price before discount
+        private BigDecimal unitPrice;  // Price per unit (post-discount)
         private BigDecimal taxRate;  // Percentage
 
         // Line-item discount

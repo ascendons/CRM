@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import { Umbrella, CalendarDays, ArrowUpRight, AlertCircle } from 'lucide-react';
+import Link from "next/link";
+import { Umbrella, CalendarDays, ArrowUpRight, AlertCircle } from "lucide-react";
 
 interface LeaveSummaryCardProps {
   leaveBalance: any;
@@ -27,10 +27,13 @@ export function LeaveSummaryCard({ leaveBalance, loading }: LeaveSummaryCardProp
     ? Object.entries(leaveBalance.balances)
         .slice(0, 2)
         .map(([type, balance]: [string, any]) => ({
-          type: type.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, (l: string) => l.toUpperCase()),
+          type: type
+            .replace(/_/g, " ")
+            .toLowerCase()
+            .replace(/\b\w/g, (l: string) => l.toUpperCase()),
           available: balance.available,
           total: balance.total,
-          used: balance.used
+          used: balance.used,
         }))
     : [];
 
@@ -66,7 +69,10 @@ export function LeaveSummaryCard({ leaveBalance, loading }: LeaveSummaryCardProp
           <div className="space-y-3">
             <div className="grid grid-cols-2 gap-3">
               {topLeaveTypes.map((leave) => (
-                <div key={leave.type} className="bg-gradient-to-br from-teal-50 to-cyan-50 rounded-lg p-3 border border-teal-100">
+                <div
+                  key={leave.type}
+                  className="bg-gradient-to-br from-teal-50 to-cyan-50 rounded-lg p-3 border border-teal-100"
+                >
                   <p className="text-xs text-teal-600 font-medium mb-2">{leave.type}</p>
                   <div className="flex items-baseline gap-1">
                     <p className="text-2xl font-bold text-slate-900">{leave.available}</p>

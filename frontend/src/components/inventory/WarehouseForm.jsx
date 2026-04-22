@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -13,27 +13,27 @@ import {
   Alert,
   CircularProgress,
   Box,
-} from '@mui/material';
-import inventoryApi from '../../services/inventoryApi';
+} from "@mui/material";
+import inventoryApi from "../../services/inventoryApi";
 
-const WAREHOUSE_TYPES = ['MAIN', 'BRANCH', 'VIRTUAL', 'TRANSIT'];
+const WAREHOUSE_TYPES = ["MAIN", "BRANCH", "VIRTUAL", "TRANSIT"];
 
 const WarehouseForm = ({ open, warehouse, onClose }) => {
   const [formData, setFormData] = useState({
-    code: '',
-    name: '',
-    type: 'MAIN',
+    code: "",
+    name: "",
+    type: "MAIN",
     address: {
-      line1: '',
-      line2: '',
-      city: '',
-      state: '',
-      country: '',
-      postalCode: '',
-      landmark: '',
+      line1: "",
+      line2: "",
+      city: "",
+      state: "",
+      country: "",
+      postalCode: "",
+      landmark: "",
     },
-    managerId: '',
-    managerName: '',
+    managerId: "",
+    managerName: "",
     isActive: true,
     isDefault: false,
   });
@@ -44,40 +44,40 @@ const WarehouseForm = ({ open, warehouse, onClose }) => {
   useEffect(() => {
     if (warehouse) {
       setFormData({
-        code: warehouse.code || '',
-        name: warehouse.name || '',
-        type: warehouse.type || 'MAIN',
+        code: warehouse.code || "",
+        name: warehouse.name || "",
+        type: warehouse.type || "MAIN",
         address: warehouse.address || {
-          line1: '',
-          line2: '',
-          city: '',
-          state: '',
-          country: '',
-          postalCode: '',
-          landmark: '',
+          line1: "",
+          line2: "",
+          city: "",
+          state: "",
+          country: "",
+          postalCode: "",
+          landmark: "",
         },
-        managerId: warehouse.managerId || '',
-        managerName: warehouse.managerName || '',
+        managerId: warehouse.managerId || "",
+        managerName: warehouse.managerName || "",
         isActive: warehouse.isActive ?? true,
         isDefault: warehouse.isDefault ?? false,
       });
     } else {
       // Reset form for new warehouse
       setFormData({
-        code: '',
-        name: '',
-        type: 'MAIN',
+        code: "",
+        name: "",
+        type: "MAIN",
         address: {
-          line1: '',
-          line2: '',
-          city: '',
-          state: '',
-          country: '',
-          postalCode: '',
-          landmark: '',
+          line1: "",
+          line2: "",
+          city: "",
+          state: "",
+          country: "",
+          postalCode: "",
+          landmark: "",
         },
-        managerId: '',
-        managerName: '',
+        managerId: "",
+        managerName: "",
         isActive: true,
         isDefault: false,
       });
@@ -117,7 +117,7 @@ const WarehouseForm = ({ open, warehouse, onClose }) => {
 
       onClose(true); // Pass true to indicate save was successful
     } catch (err) {
-      setError(err.response?.data?.message || err.message || 'Failed to save warehouse');
+      setError(err.response?.data?.message || err.message || "Failed to save warehouse");
     } finally {
       setLoading(false);
     }
@@ -137,9 +137,7 @@ const WarehouseForm = ({ open, warehouse, onClose }) => {
 
   return (
     <Dialog open={open} onClose={() => onClose(false)} maxWidth="md" fullWidth>
-      <DialogTitle>
-        {warehouse ? 'Edit Warehouse' : 'Create New Warehouse'}
-      </DialogTitle>
+      <DialogTitle>{warehouse ? "Edit Warehouse" : "Create New Warehouse"}</DialogTitle>
 
       <DialogContent>
         {error && (
@@ -155,7 +153,7 @@ const WarehouseForm = ({ open, warehouse, onClose }) => {
               fullWidth
               label="Warehouse Code"
               value={formData.code}
-              onChange={(e) => handleChange('code', e.target.value)}
+              onChange={(e) => handleChange("code", e.target.value)}
               placeholder="Auto-generated if empty"
               helperText="Leave empty for auto-generation"
             />
@@ -167,7 +165,7 @@ const WarehouseForm = ({ open, warehouse, onClose }) => {
               required
               label="Warehouse Name"
               value={formData.name}
-              onChange={(e) => handleChange('name', e.target.value)}
+              onChange={(e) => handleChange("name", e.target.value)}
             />
           </Grid>
 
@@ -178,7 +176,7 @@ const WarehouseForm = ({ open, warehouse, onClose }) => {
               select
               label="Type"
               value={formData.type}
-              onChange={(e) => handleChange('type', e.target.value)}
+              onChange={(e) => handleChange("type", e.target.value)}
             >
               {WAREHOUSE_TYPES.map((type) => (
                 <MenuItem key={type} value={type}>
@@ -193,13 +191,13 @@ const WarehouseForm = ({ open, warehouse, onClose }) => {
               fullWidth
               label="Manager Name"
               value={formData.managerName}
-              onChange={(e) => handleChange('managerName', e.target.value)}
+              onChange={(e) => handleChange("managerName", e.target.value)}
             />
           </Grid>
 
           {/* Address */}
           <Grid item xs={12}>
-            <Box sx={{ bgcolor: 'grey.50', p: 2, borderRadius: 1 }}>
+            <Box sx={{ bgcolor: "grey.50", p: 2, borderRadius: 1 }}>
               <Grid container spacing={2}>
                 <Grid item xs={12}>
                   <TextField
@@ -207,7 +205,7 @@ const WarehouseForm = ({ open, warehouse, onClose }) => {
                     required
                     label="Address Line 1"
                     value={formData.address.line1}
-                    onChange={(e) => handleAddressChange('line1', e.target.value)}
+                    onChange={(e) => handleAddressChange("line1", e.target.value)}
                   />
                 </Grid>
 
@@ -216,7 +214,7 @@ const WarehouseForm = ({ open, warehouse, onClose }) => {
                     fullWidth
                     label="Address Line 2"
                     value={formData.address.line2}
-                    onChange={(e) => handleAddressChange('line2', e.target.value)}
+                    onChange={(e) => handleAddressChange("line2", e.target.value)}
                   />
                 </Grid>
 
@@ -226,7 +224,7 @@ const WarehouseForm = ({ open, warehouse, onClose }) => {
                     required
                     label="City"
                     value={formData.address.city}
-                    onChange={(e) => handleAddressChange('city', e.target.value)}
+                    onChange={(e) => handleAddressChange("city", e.target.value)}
                   />
                 </Grid>
 
@@ -236,7 +234,7 @@ const WarehouseForm = ({ open, warehouse, onClose }) => {
                     required
                     label="State"
                     value={formData.address.state}
-                    onChange={(e) => handleAddressChange('state', e.target.value)}
+                    onChange={(e) => handleAddressChange("state", e.target.value)}
                   />
                 </Grid>
 
@@ -246,7 +244,7 @@ const WarehouseForm = ({ open, warehouse, onClose }) => {
                     required
                     label="Country"
                     value={formData.address.country}
-                    onChange={(e) => handleAddressChange('country', e.target.value)}
+                    onChange={(e) => handleAddressChange("country", e.target.value)}
                   />
                 </Grid>
 
@@ -256,7 +254,7 @@ const WarehouseForm = ({ open, warehouse, onClose }) => {
                     required
                     label="Postal Code"
                     value={formData.address.postalCode}
-                    onChange={(e) => handleAddressChange('postalCode', e.target.value)}
+                    onChange={(e) => handleAddressChange("postalCode", e.target.value)}
                   />
                 </Grid>
 
@@ -265,7 +263,7 @@ const WarehouseForm = ({ open, warehouse, onClose }) => {
                     fullWidth
                     label="Landmark"
                     value={formData.address.landmark}
-                    onChange={(e) => handleAddressChange('landmark', e.target.value)}
+                    onChange={(e) => handleAddressChange("landmark", e.target.value)}
                   />
                 </Grid>
               </Grid>
@@ -278,7 +276,7 @@ const WarehouseForm = ({ open, warehouse, onClose }) => {
               control={
                 <Checkbox
                   checked={formData.isActive}
-                  onChange={(e) => handleChange('isActive', e.target.checked)}
+                  onChange={(e) => handleChange("isActive", e.target.checked)}
                 />
               }
               label="Active"
@@ -290,7 +288,7 @@ const WarehouseForm = ({ open, warehouse, onClose }) => {
               control={
                 <Checkbox
                   checked={formData.isDefault}
-                  onChange={(e) => handleChange('isDefault', e.target.checked)}
+                  onChange={(e) => handleChange("isDefault", e.target.checked)}
                 />
               }
               label="Set as Default Warehouse"
@@ -303,12 +301,8 @@ const WarehouseForm = ({ open, warehouse, onClose }) => {
         <Button onClick={() => onClose(false)} disabled={loading}>
           Cancel
         </Button>
-        <Button
-          onClick={handleSubmit}
-          variant="contained"
-          disabled={!isFormValid() || loading}
-        >
-          {loading ? <CircularProgress size={24} /> : warehouse ? 'Update' : 'Create'}
+        <Button onClick={handleSubmit} variant="contained" disabled={!isFormValid() || loading}>
+          {loading ? <CircularProgress size={24} /> : warehouse ? "Update" : "Create"}
         </Button>
       </DialogActions>
     </Dialog>

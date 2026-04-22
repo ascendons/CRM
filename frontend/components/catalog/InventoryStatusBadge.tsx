@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
-import { Package, AlertTriangle, CheckCircle, XCircle, Loader2 } from 'lucide-react';
-import { api } from '@/lib/api-client';
+import React, { useEffect, useState } from "react";
+import { Package, AlertTriangle, CheckCircle, XCircle, Loader2 } from "lucide-react";
+import { api } from "@/lib/api-client";
 
 interface InventoryStatusBadgeProps {
   productId: string;
@@ -37,7 +37,7 @@ export default function InventoryStatusBadge({
   status: providedStatus,
   compact = false,
   showDetails = false,
-  bulkLoading = false
+  bulkLoading = false,
 }: InventoryStatusBadgeProps) {
   const [status, setStatus] = useState<InventoryStatus | null>(providedStatus || null);
   const [loading, setLoading] = useState(!providedStatus);
@@ -65,7 +65,7 @@ export default function InventoryStatusBadge({
         setStatus({ inventoryTracked: false } as InventoryStatus);
       }
     } catch (err) {
-      console.error('Failed to fetch inventory status:', err);
+      console.error("Failed to fetch inventory status:", err);
       // Set as not tracked on error
       setStatus({ inventoryTracked: false } as InventoryStatus);
       setError(null); // Don't show error, just show as not tracked
@@ -100,28 +100,28 @@ export default function InventoryStatusBadge({
   const getBadgeStyle = () => {
     if (status.isOutOfStock) {
       return {
-        bg: 'bg-red-100',
-        text: 'text-red-700',
-        border: 'border-red-200',
+        bg: "bg-red-100",
+        text: "text-red-700",
+        border: "border-red-200",
         icon: XCircle,
-        label: 'Out of Stock'
+        label: "Out of Stock",
       };
     }
     if (status.isLowStock || status.needsReorder) {
       return {
-        bg: 'bg-amber-100',
-        text: 'text-amber-700',
-        border: 'border-amber-200',
+        bg: "bg-amber-100",
+        text: "text-amber-700",
+        border: "border-amber-200",
         icon: AlertTriangle,
-        label: 'Low Stock'
+        label: "Low Stock",
       };
     }
     return {
-      bg: 'bg-green-100',
-      text: 'text-green-700',
-      border: 'border-green-200',
+      bg: "bg-green-100",
+      text: "text-green-700",
+      border: "border-green-200",
       icon: CheckCircle,
-      label: 'In Stock'
+      label: "In Stock",
     };
   };
 
@@ -147,9 +147,7 @@ export default function InventoryStatusBadge({
         <Icon className="w-3.5 h-3.5 mr-1.5" />
         <span>{badgeStyle.label}</span>
         {status.availableStock !== undefined && (
-          <span className="ml-1.5 font-semibold">
-            ({status.availableStock})
-          </span>
+          <span className="ml-1.5 font-semibold">({status.availableStock})</span>
         )}
       </div>
 

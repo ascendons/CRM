@@ -1,16 +1,11 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { leadsService } from "@/lib/leads";
 import { authService } from "@/lib/auth";
-import {
-  Lead,
-  LeadStatus,
-  LeadStatistics,
-  formatLeadName,
-} from "@/types/lead";
+import { Lead, LeadStatus, formatLeadName } from "@/types/lead";
 import { EmptyState } from "@/components/EmptyState";
 import ConfirmModal from "@/components/ConfirmModal";
 import { showToast } from "@/lib/toast";
@@ -31,7 +26,7 @@ import {
   LucideIcon,
   LayoutList,
   KanbanSquare,
-  Filter
+  Filter,
 } from "lucide-react";
 import { LeadKanbanBoard } from "@/components/leads/LeadKanbanBoard";
 import { MultiSelectDropdown } from "@/components/common/MultiSelectDropdown";
@@ -41,7 +36,6 @@ export default function LeadsPage() {
   const router = useRouter();
   const [leads, setLeads] = useState<Lead[]>([]);
   const [filteredLeads, setFilteredLeads] = useState<Lead[]>([]);
-  const [statistics, setStatistics] = useState<LeadStatistics | null>(null);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<LeadStatus[]>([]);
@@ -65,6 +59,20 @@ export default function LeadsPage() {
   const [showAssignModal, setShowAssignModal] = useState(false);
   const [leadToAssign, setLeadToAssign] = useState<Lead | null>(null);
 
+  const currentUser = authService.getUser();
+  const canAssignLeads = currentUser?.role === "ADMIN";
+
+  const statistics = useMemo(
+    () => ({
+      totalLeads: leads.length,
+      newLeads: leads.filter((l) => l.leadStatus === LeadStatus.NEW).length,
+      contactedLeads: leads.filter((l) => l.leadStatus === LeadStatus.CONTACTED).length,
+      qualifiedLeads: leads.filter((l) => l.leadStatus === LeadStatus.QUALIFIED).length,
+      convertedLeads: leads.filter((l) => l.leadStatus === LeadStatus.CONVERTED).length,
+    }),
+    [leads]
+  );
+
   useEffect(() => {
     if (!authService.isAuthenticated()) {
       router.push("/login");
@@ -72,7 +80,6 @@ export default function LeadsPage() {
     }
 
     loadLeads();
-    loadStatistics();
   }, [router]);
 
   const filterLeads = useCallback(() => {
@@ -114,15 +121,6 @@ export default function LeadsPage() {
     }
   };
 
-  const loadStatistics = async () => {
-    try {
-      const stats = await leadsService.getStatistics();
-      setStatistics(stats);
-    } catch (err) {
-      console.error("Failed to load statistics:", err);
-    }
-  };
-
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
     setCurrentPage(1);
@@ -145,8 +143,8 @@ export default function LeadsPage() {
 
   const getSortedLeads = (leadsToSort: Lead[]) => {
     return [...leadsToSort].sort((a, b) => {
-      let aValue: string | number | Date = '';
-      let bValue: string | number | Date = '';
+      let aValue: string | number | Date = "";
+      let bValue: string | number | Date = "";
 
       switch (sortColumn) {
         case "name":
@@ -210,14 +208,11 @@ export default function LeadsPage() {
   const handleBulkDelete = async () => {
     try {
       setBulkActionLoading(true);
-      await Promise.all(
-        selectedLeads.map((leadId) => leadsService.deleteLead(leadId))
-      );
+      await Promise.all(selectedLeads.map((leadId) => leadsService.deleteLead(leadId)));
       showToast.success(`Successfully deleted ${selectedLeads.length} lead(s)`);
       setShowBulkDeleteModal(false);
       setSelectedLeads([]);
       await loadLeads();
-      await loadStatistics();
     } catch {
       showToast.error("Failed to delete some leads. Please try again.");
     } finally {
@@ -245,7 +240,10 @@ export default function LeadsPage() {
       <div className="flex items-center justify-center bg-slate-50 min-h-[calc(100vh-4rem)] ">
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-primary/10 rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+          <div
+            className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl animate-pulse"
+            style={{ animationDelay: "1s" }}
+          ></div>
         </div>
         <div className="relative text-center space-y-4">
           <div className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin mx-auto"></div>
@@ -262,7 +260,9 @@ export default function LeadsPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between py-4 gap-4">
             <div>
-              <h1 className="text-2xl font-bold text-slate-900  tracking-tight">Lead Prospecting</h1>
+              <h1 className="text-2xl font-bold text-slate-900  tracking-tight">
+                Lead Prospecting
+              </h1>
               <p className="text-sm text-slate-500 ">Manage and convert your incoming prospects.</p>
             </div>
             <div className="flex items-center gap-3">
@@ -300,13 +300,43 @@ export default function LeadsPage() {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6 animate-fade-in-up">
         {/* Statistics Cards */}
-        {statistics && (
+        {leads.length >= 0 && (
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-            <StatCard icon={Briefcase} title="Total Leads" value={statistics.totalLeads} color="blue" delay={0} />
-            <StatCard icon={CheckCircle2} title="New" value={statistics.newLeads} color="indigo" delay={0.1} />
-            <StatCard icon={Clock} title="Contacted" value={statistics.contactedLeads} color="yellow" delay={0.2} />
-            <StatCard icon={CheckCircle2} title="Qualified" value={statistics.qualifiedLeads} color="emerald" delay={0.3} />
-            <StatCard icon={TrendingUp} title="Converted" value={statistics.convertedLeads} color="purple" delay={0.4} />
+            <StatCard
+              icon={Briefcase}
+              title="Total Leads"
+              value={statistics.totalLeads}
+              color="blue"
+              delay={0}
+            />
+            <StatCard
+              icon={CheckCircle2}
+              title="New"
+              value={statistics.newLeads}
+              color="indigo"
+              delay={0.1}
+            />
+            <StatCard
+              icon={Clock}
+              title="Contacted"
+              value={statistics.contactedLeads}
+              color="yellow"
+              delay={0.2}
+            />
+            <StatCard
+              icon={CheckCircle2}
+              title="Qualified"
+              value={statistics.qualifiedLeads}
+              color="emerald"
+              delay={0.3}
+            />
+            <StatCard
+              icon={TrendingUp}
+              title="Converted"
+              value={statistics.convertedLeads}
+              color="purple"
+              delay={0.4}
+            />
           </div>
         )}
 
@@ -318,7 +348,10 @@ export default function LeadsPage() {
             <MultiSelectDropdown
               label="Status"
               options={Object.values(LeadStatus).map((status) => ({
-                label: status.replace(/_/g, " ").toLowerCase().replace(/\b\w/g, l => l.toUpperCase()),
+                label: status
+                  .replace(/_/g, " ")
+                  .toLowerCase()
+                  .replace(/\b\w/g, (l) => l.toUpperCase()),
                 value: status,
               }))}
               selectedValues={statusFilter}
@@ -331,7 +364,9 @@ export default function LeadsPage() {
                 <div className="flex items-center gap-3 bg-blue-50  text-blue-700  px-4 py-2 rounded-xl text-sm font-medium w-full md:w-auto animate-fade-in">
                   <span>{selectedLeads.length} selected</span>
                   <div className="h-4 w-px bg-blue-200  mx-1"></div>
-                  <button onClick={() => setSelectedLeads([])} className="hover:underline">Clear</button>
+                  <button onClick={() => setSelectedLeads([])} className="hover:underline">
+                    Clear
+                  </button>
                   <button
                     onClick={() => setShowBulkDeleteModal(true)}
                     className="flex items-center gap-1.5 text-red-600 hover:text-red-700 ml-2"
@@ -386,12 +421,12 @@ export default function LeadsPage() {
                         </div>
                       </th>
                       {[
-                        { key: 'name', label: 'Lead Name' },
-                        { key: 'company', label: 'Company' },
-                        { key: 'score', label: 'Lead Score' },
-                        { key: 'status', label: 'Status' },
-                        { key: 'assignedTo', label: 'Assigned To' },
-                        { key: 'createdAt', label: 'Created' },
+                        { key: "name", label: "Lead Name" },
+                        { key: "company", label: "Company" },
+                        { key: "score", label: "Lead Score" },
+                        { key: "status", label: "Status" },
+                        { key: "assignedTo", label: "Assigned To" },
+                        { key: "createdAt", label: "Created" },
                       ].map((col) => (
                         <th
                           key={col.key}
@@ -400,7 +435,9 @@ export default function LeadsPage() {
                         >
                           <div className="flex items-center gap-2">
                             {col.label}
-                            <ArrowUpDown className={`h-3 w-3 ${sortColumn === col.key ? 'text-primary' : 'text-slate-300 group-hover:text-slate-500'}`} />
+                            <ArrowUpDown
+                              className={`h-3 w-3 ${sortColumn === col.key ? "text-primary" : "text-slate-300 group-hover:text-slate-500"}`}
+                            />
                           </div>
                         </th>
                       ))}
@@ -450,7 +487,8 @@ export default function LeadsPage() {
                           <td className="px-6 py-4">
                             <div className="flex items-center gap-3">
                               <div className="h-9 w-9 rounded-full bg-gradient-to-br from-blue-100 to-indigo-100   flex items-center justify-center text-blue-700  font-bold text-xs ring-2 ring-white  shadow-sm">
-                                {lead.firstName[0]}{lead.lastName[0]}
+                                {lead.firstName[0]}
+                                {lead.lastName[0]}
                               </div>
                               <div>
                                 <p className="text-sm font-semibold text-slate-900 ">
@@ -470,7 +508,7 @@ export default function LeadsPage() {
                             <div className="flex items-center gap-2">
                               <div className="flex-1 h-2 w-16 bg-slate-100  rounded-full overflow-hidden">
                                 <div
-                                  className={`h-full rounded-full ${lead.leadScore && lead.leadScore > 70 ? 'bg-emerald-500' : lead.leadScore && lead.leadScore > 40 ? 'bg-yellow-500' : 'bg-red-500'}`}
+                                  className={`h-full rounded-full ${lead.leadScore && lead.leadScore > 70 ? "bg-emerald-500" : lead.leadScore && lead.leadScore > 40 ? "bg-yellow-500" : "bg-red-500"}`}
                                   style={{ width: `${lead.leadScore || 0}%` }}
                                 ></div>
                               </div>
@@ -481,17 +519,27 @@ export default function LeadsPage() {
                           </td>
                           <td className="px-6 py-4">
                             <span
-                              className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold capitalize border ${lead.leadStatus === LeadStatus.NEW ? 'bg-blue-50 text-blue-700 border-blue-100' :
-                                lead.leadStatus === LeadStatus.QUALIFIED ? 'bg-emerald-50 text-emerald-700 border-emerald-100' :
-                                  lead.leadStatus === LeadStatus.CONTACTED ? 'bg-yellow-50 text-yellow-700 border-yellow-100' :
-                                    'bg-slate-100 text-slate-700 border-slate-200'
-                                }`}
+                              className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold capitalize border ${
+                                lead.leadStatus === LeadStatus.NEW
+                                  ? "bg-blue-50 text-blue-700 border-blue-100"
+                                  : lead.leadStatus === LeadStatus.QUALIFIED
+                                    ? "bg-emerald-50 text-emerald-700 border-emerald-100"
+                                    : lead.leadStatus === LeadStatus.CONTACTED
+                                      ? "bg-yellow-50 text-yellow-700 border-yellow-100"
+                                      : "bg-slate-100 text-slate-700 border-slate-200"
+                              }`}
                             >
-                              <span className={`h-1.5 w-1.5 rounded-full ${lead.leadStatus === LeadStatus.NEW ? 'bg-blue-500' :
-                                lead.leadStatus === LeadStatus.QUALIFIED ? 'bg-emerald-500' :
-                                  lead.leadStatus === LeadStatus.CONTACTED ? 'bg-yellow-500' :
-                                    'bg-slate-500'
-                                }`}></span>
+                              <span
+                                className={`h-1.5 w-1.5 rounded-full ${
+                                  lead.leadStatus === LeadStatus.NEW
+                                    ? "bg-blue-500"
+                                    : lead.leadStatus === LeadStatus.QUALIFIED
+                                      ? "bg-emerald-500"
+                                      : lead.leadStatus === LeadStatus.CONTACTED
+                                        ? "bg-yellow-500"
+                                        : "bg-slate-500"
+                                }`}
+                              ></span>
                               {lead.leadStatus.toLowerCase().replace("_", " ")}
                             </span>
                           </td>
@@ -501,16 +549,20 @@ export default function LeadsPage() {
                                 <div className="h-7 w-7 rounded-full bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center text-purple-700 font-bold text-xs">
                                   {lead.assignedUserName.charAt(0).toUpperCase()}
                                 </div>
-                                <span className="text-sm text-slate-700">{lead.assignedUserName}</span>
-                                <button
-                                  onClick={(e) => handleAssignClick(lead, e)}
-                                  className="ml-1 p-1 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
-                                  title="Reassign lead"
-                                >
-                                  <UserPlus className="h-3.5 w-3.5" />
-                                </button>
+                                <span className="text-sm text-slate-700">
+                                  {lead.assignedUserName}
+                                </span>
+                                {canAssignLeads && (
+                                  <button
+                                    onClick={(e) => handleAssignClick(lead, e)}
+                                    className="ml-1 p-1 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                                    title="Reassign lead"
+                                  >
+                                    <UserPlus className="h-3.5 w-3.5" />
+                                  </button>
+                                )}
                               </div>
-                            ) : (
+                            ) : canAssignLeads ? (
                               <button
                                 onClick={(e) => handleAssignClick(lead, e)}
                                 className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors"
@@ -518,6 +570,8 @@ export default function LeadsPage() {
                                 <UserPlus className="h-3.5 w-3.5" />
                                 Assign
                               </button>
+                            ) : (
+                              <span className="text-xs text-slate-400">Unassigned</span>
                             )}
                           </td>
                           <td className="px-6 py-4 text-xs text-slate-500 ">
@@ -540,7 +594,16 @@ export default function LeadsPage() {
             {sortedLeads.length > 0 && (
               <div className="flex flex-col md:flex-row items-center justify-between gap-4 bg-white  px-6 py-4 rounded-2xl border border-slate-200  shadow-sm">
                 <p className="text-sm text-slate-600 ">
-                  Showing <span className="font-semibold text-slate-900 ">{(currentPage - 1) * itemsPerPage + 1}</span> to <span className="font-semibold text-slate-900 ">{Math.min(currentPage * itemsPerPage, sortedLeads.length)}</span> of <span className="font-semibold text-slate-900 ">{sortedLeads.length}</span> results
+                  Showing{" "}
+                  <span className="font-semibold text-slate-900 ">
+                    {(currentPage - 1) * itemsPerPage + 1}
+                  </span>{" "}
+                  to{" "}
+                  <span className="font-semibold text-slate-900 ">
+                    {Math.min(currentPage * itemsPerPage, sortedLeads.length)}
+                  </span>{" "}
+                  of <span className="font-semibold text-slate-900 ">{sortedLeads.length}</span>{" "}
+                  results
                 </p>
                 <div className="flex items-center gap-2">
                   <button
@@ -551,16 +614,22 @@ export default function LeadsPage() {
                     <ChevronLeft className="h-5 w-5 text-slate-600 " />
                   </button>
                   {Array.from({ length: totalPages }, (_, i) => i + 1)
-                    .filter(page => page === 1 || page === totalPages || Math.abs(page - currentPage) <= 1)
+                    .filter(
+                      (page) =>
+                        page === 1 || page === totalPages || Math.abs(page - currentPage) <= 1
+                    )
                     .map((page, index, array) => (
                       <div key={page} className="flex items-center">
-                        {index > 0 && array[index - 1] !== page - 1 && <span className="mx-1 text-slate-400">...</span>}
+                        {index > 0 && array[index - 1] !== page - 1 && (
+                          <span className="mx-1 text-slate-400">...</span>
+                        )}
                         <button
                           onClick={() => handlePageChange(page)}
-                          className={`h-9 w-9 flex items-center justify-center rounded-lg text-sm font-medium transition-colors ${currentPage === page
-                            ? "bg-primary text-white shadow-lg shadow-primary/25"
-                            : "text-slate-600  hover:bg-slate-50 "
-                            }`}
+                          className={`h-9 w-9 flex items-center justify-center rounded-lg text-sm font-medium transition-colors ${
+                            currentPage === page
+                              ? "bg-primary text-white shadow-lg shadow-primary/25"
+                              : "text-slate-600  hover:bg-slate-50 "
+                          }`}
                         >
                           {page}
                         </button>
@@ -583,7 +652,6 @@ export default function LeadsPage() {
             filter={statusFilter}
             onStatusChange={() => {
               loadLeads();
-              loadStatistics();
               router.refresh();
             }}
           />
@@ -621,7 +689,19 @@ export default function LeadsPage() {
   );
 }
 
-function StatCard({ icon: Icon, title, value, color, delay }: { icon: LucideIcon, title: string; value: number; color: string, delay: number }) {
+function StatCard({
+  icon: Icon,
+  title,
+  value,
+  color,
+  delay,
+}: {
+  icon: LucideIcon;
+  title: string;
+  value: number;
+  color: string;
+  delay: number;
+}) {
   const colorStyles: Record<string, string> = {
     blue: "text-blue-600 bg-blue-50  ",
     indigo: "text-indigo-600 bg-indigo-50  ",
@@ -635,7 +715,7 @@ function StatCard({ icon: Icon, title, value, color, delay }: { icon: LucideIcon
   return (
     <div
       className="bg-white  p-4 rounded-2xl shadow-sm border border-slate-200  hover:-translate-y-1 transition-transform duration-300 animate-fade-in-up"
-      style={{ animationDelay: `${delay}s`, animationFillMode: 'both' }}
+      style={{ animationDelay: `${delay}s`, animationFillMode: "both" }}
     >
       <div className={`h-10 w-10 rounded-xl ${style} flex items-center justify-center mb-3`}>
         <Icon className="h-5 w-5" />

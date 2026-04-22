@@ -26,7 +26,9 @@ export const profilesService = {
   },
 
   async searchProfiles(query: string): Promise<ProfileResponse[]> {
-    const response = await api.get<ProfileResponse[]>(`/profiles/search?query=${encodeURIComponent(query)}`);
+    const response = await api.get<ProfileResponse[]>(
+      `/profiles/search?query=${encodeURIComponent(query)}`
+    );
     return response;
   },
 

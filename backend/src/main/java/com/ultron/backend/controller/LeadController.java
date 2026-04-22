@@ -267,7 +267,7 @@ public class LeadController {
      * POST /api/v1/leads/{id}/assign
      */
     @PostMapping("/{id}/assign")
-    @PreAuthorize("hasPermission('LEAD', 'EDIT')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<LeadResponse>> assignLead(
             @PathVariable String id,
             @Valid @RequestBody AssignLeadRequest request) {
@@ -338,6 +338,25 @@ public class LeadController {
         log.info("Fetching lead statistics");
 
         LeadService.LeadStatistics stats = leadService.getStatistics();
+
+        return ResponseEntity.ok(
+                ApiResponse.<LeadService.LeadStatistics>builder()
+                        .success(true)
+                        .message("Statistics retrieved successfully")
+                        .data(stats)
+                        .build());
+    }
+
+    /**
+     * Get lead statistics
+     * GET /api/v1/leads/personalstats
+     */
+    @GetMapping("/personalstats")
+    @PreAuthorize("hasPermission('LEAD', 'READ')")
+    public ResponseEntity<ApiResponse<LeadService.LeadStatistics>> getPersonalStatistics() {
+        log.info("Fetching lead statistics");
+
+        LeadService.LeadStatistics stats = leadService.getPersonalStatistics();
 
         return ResponseEntity.ok(
                 ApiResponse.<LeadService.LeadStatistics>builder()

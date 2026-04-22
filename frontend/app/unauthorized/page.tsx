@@ -54,9 +54,7 @@ export default function UnauthorizedPage() {
 
         {/* Additional info */}
         <div className="mt-12 pt-8 border-t border-gray-200">
-          <p className="text-sm text-gray-500">
-            Need help? Contact your system administrator.
-          </p>
+          <p className="text-sm text-gray-500">Need help? Contact your system administrator.</p>
         </div>
       </div>
     </div>
