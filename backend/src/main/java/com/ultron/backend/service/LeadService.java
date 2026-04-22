@@ -884,6 +884,35 @@ public class LeadService extends BaseTenantService {
     }
 
     /**
+     * Get statistics scoped to the current user's reporting hierarchy.
+     * Admin → full tenant; others → self + all recursive subordinates.
+     */
+    public LeadStatistics getPersonalStatistics() {
+        String tenantId = getCurrentTenantId();
+        String currentUserId = getCurrentUserId();
+
+        if (isCurrentUserTenantAdmin() || isCurrentUserSystemAdmin()) {
+            return getStatistics();
+        }
+
+        List<String> userIds = userService.getAllSubordinateIds(currentUserId);
+
+        long totalLeads = leadRepository.countByLeadOwnerIdInAndTenantIdAndIsDeletedFalse(userIds, tenantId);
+        long newLeads = leadRepository.countByLeadOwnerIdInAndLeadStatusAndTenantIdAndIsDeletedFalse(userIds, LeadStatus.NEW, tenantId);
+        long contactedLeads = leadRepository.countByLeadOwnerIdInAndLeadStatusAndTenantIdAndIsDeletedFalse(userIds, LeadStatus.CONTACTED, tenantId);
+        long qualifiedLeads = leadRepository.countByLeadOwnerIdInAndLeadStatusAndTenantIdAndIsDeletedFalse(userIds, LeadStatus.QUALIFIED, tenantId);
+        long convertedLeads = leadRepository.countByLeadOwnerIdInAndLeadStatusAndTenantIdAndIsDeletedFalse(userIds, LeadStatus.CONVERTED, tenantId);
+
+        return LeadStatistics.builder()
+                .totalLeads(totalLeads)
+                .newLeads(newLeads)
+                .contactedLeads(contactedLeads)
+                .qualifiedLeads(qualifiedLeads)
+                .convertedLeads(convertedLeads)
+                .build();
+    }
+
+    /**
      * Get statistics for current tenant
      */
     public LeadStatistics getStatistics() {

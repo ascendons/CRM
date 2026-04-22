@@ -34,6 +34,7 @@ export default function InvoicePreviewModal({
   // Fetch organization data
   useEffect(() => {
     loadOrganizationData();
+    setSelectedTemplate(proposal.isProforma ? 'PROFORMA' : 'QUOTATION');
   }, []);
 
   const loadOrganizationData = async () => {

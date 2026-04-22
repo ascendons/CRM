@@ -348,6 +348,25 @@ public class LeadController {
     }
 
     /**
+     * Get lead statistics
+     * GET /api/v1/leads/personalstats
+     */
+    @GetMapping("/personalstats")
+    @PreAuthorize("hasPermission('LEAD', 'READ')")
+    public ResponseEntity<ApiResponse<LeadService.LeadStatistics>> getPersonalStatistics() {
+        log.info("Fetching lead statistics");
+
+        LeadService.LeadStatistics stats = leadService.getPersonalStatistics();
+
+        return ResponseEntity.ok(
+                ApiResponse.<LeadService.LeadStatistics>builder()
+                        .success(true)
+                        .message("Statistics retrieved successfully")
+                        .data(stats)
+                        .build());
+    }
+
+    /**
      * Get current user ID from security context
      */
     private String getCurrentUserId() {
