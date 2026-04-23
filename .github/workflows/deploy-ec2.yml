@@ -19,13 +19,18 @@ jobs:
           chmod 600 ~/.ssh/ec2-key.pem
           ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
 
+      - name: 📦 Build frontend
+        run: |
+          cd frontend
+          npm install
+          npm run build
+
       - name: 📤 Copy files to EC2
         run: |
           rsync -avz -e "ssh -i ~/.ssh/ec2-key.pem -o StrictHostKeyChecking=no" \
             --exclude 'node_modules' \
             --exclude '.git' \
             --exclude 'backend/target' \
-            --exclude 'frontend/.next' \
             --exclude 'frontend/node_modules' \
             --exclude '*.log' \
             --exclude '.DS_Store' \
