@@ -53,6 +53,10 @@ jobs:
           NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
           NEXT_PUBLIC_APP_URL: ${{ secrets.NEXT_PUBLIC_APP_URL }}
 
+      # ── Prepare active nginx config locally before rsync ──
+      - name: Prepare nginx config
+        run: cp nginx/nginx.http.conf nginx/active.conf
+
       # ── Copy all artifacts to EC2 ──
       - name: Copy files to EC2
         run: |
@@ -147,6 +151,57 @@ jobs:
           sudo docker-compose -f docker-compose.ec2.yml ps
           echo ""
           echo "Deployment successful!"
+          ENDSSH
+
+      # ── Setup SSL via Let's Encrypt (skipped if cert already valid) ──
+      - name: Setup SSL
+        run: |
+          ssh -i ~/.ssh/ec2-key.pem \
+            -o ServerAliveInterval=60 \
+            -o ServerAliveCountMax=10 \
+            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'ENDSSH'
+          set -e
+          cd ~/crm
+
+          CERT_PATH="/etc/letsencrypt/live/crm.ascendons.com/fullchain.pem"
+
+          # Check if cert is valid for >30 days; if so, skip
+          if openssl x509 -checkend 2592000 -noout -in "$CERT_PATH" 2>/dev/null; then
+            echo "SSL cert is valid, skipping certbot."
+          else
+            echo "Obtaining SSL certificate from Let's Encrypt..."
+
+            # Install certbot if needed
+            if ! command -v certbot &>/dev/null; then
+              sudo apt-get install -y certbot
+            fi
+
+            # Use webroot — nginx is already serving port 80
+            sudo certbot certonly --webroot \
+              -w ~/crm/nginx/certbot \
+              -d crm.ascendons.com \
+              -d ascendons.com \
+              --email dev@ascendons.in \
+              --agree-tos \
+              --non-interactive \
+              --keep-until-expiring
+
+            echo "Copying certs..."
+            sudo mkdir -p ~/crm/nginx/ssl
+            sudo cp /etc/letsencrypt/live/crm.ascendons.com/fullchain.pem ~/crm/nginx/ssl/
+            sudo cp /etc/letsencrypt/live/crm.ascendons.com/privkey.pem ~/crm/nginx/ssl/
+            sudo chown ubuntu:ubuntu ~/crm/nginx/ssl/*.pem
+          fi
+
+          # Switch to HTTPS nginx config if cert exists
+          if [ -f ~/crm/nginx/ssl/fullchain.pem ]; then
+            echo "Switching nginx to HTTPS config..."
+            cp ~/crm/nginx/nginx.conf ~/crm/nginx/active.conf
+            sudo docker exec crm-nginx nginx -s reload
+            echo "nginx reloaded with HTTPS config."
+          else
+            echo "No cert found, staying on HTTP config."
+          fi
           ENDSSH
 
       - name: Cleanup SSH key

@@ -65,3 +65,5 @@ build/
 *.pem
 *.key
 secrets/
+nginx/active.conf
+nginx/ssl/

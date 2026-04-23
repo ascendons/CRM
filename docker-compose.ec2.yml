@@ -76,9 +76,10 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - ./nginx/nginx.http.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/active.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
       - ./nginx/logs:/var/log/nginx
-      - ./nginx/certbot:/var/www/certbot:ro
+      - ./nginx/certbot:/var/www/certbot
     depends_on:
       - backend
       - frontend
