@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { use, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Package, Edit, Trash2, DollarSign, Tag, BarChart3 } from "lucide-react";
 import Link from "next/link";
@@ -13,12 +13,13 @@ import { toast } from "sonner";
 import ConfirmModal from "@/components/ConfirmModal";
 
 interface ProductDetailPageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 export default function ProductDetailPage({ params }: ProductDetailPageProps) {
+  const { id } = use(params);
   const router = useRouter();
   const [product, setProduct] = useState<ProductResponse | null>(null);
   const [loading, setLoading] = useState(true);
@@ -27,12 +28,12 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
 
   useEffect(() => {
     fetchProduct();
-  }, [params.id]);
+  }, [id]);
 
   const fetchProduct = async () => {
     try {
       setLoading(true);
-      const data = await productsService.getProductById(params.id);
+      const data = await productsService.getProductById(id);
       setProduct(data);
     } catch (error: any) {
       toast.error(error.message || "Failed to fetch product");
@@ -45,7 +46,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
   const handleDelete = async () => {
     try {
       setDeleting(true);
-      await productsService.deleteProduct(params.id);
+      await productsService.deleteProduct(id);
       toast.success("Product deleted successfully");
       router.push("/admin/products");
     } catch (error: any) {

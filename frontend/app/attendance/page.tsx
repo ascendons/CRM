@@ -70,10 +70,8 @@ export default function AttendancePage() {
 
   const loadTodayAttendance = async () => {
     try {
-      const response = await attendanceApi.getMyToday();
-      if (response.success) {
-        setTodayAttendance(response.data);
-      }
+      const data = await attendanceApi.getMyToday();
+      setTodayAttendance(data ?? null);
     } catch (error) {
       console.error("Failed to load attendance:", error);
     } finally {

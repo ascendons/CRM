@@ -201,19 +201,21 @@ public class LeadService extends BaseTenantService {
         String tenantId = getCurrentTenantId();
         log.info("[Tenant: {}] User {} fetching leads with data visibility filtering", tenantId, userId);
 
-        // Get list of user IDs whose data this user can view
-        List<String> visibleUserIds = dataVisibilityService.getVisibleUserIds(userId);
-
-        if (visibleUserIds.isEmpty()) {
-            log.warn("[Tenant: {}] User {} has no visible users, returning empty list", tenantId, userId);
-            return Collections.emptyList();
+        // Admin (ALL visibility) gets every lead in tenant regardless of owner
+        String visibilityLevel = dataVisibilityService.getDataVisibilityLevel(userId);
+        List<Lead> leads;
+        if ("ALL".equals(visibilityLevel)) {
+            leads = leadRepository.findByTenantIdAndIsDeletedFalse(tenantId);
+            log.info("[Tenant: {}] Admin user {} fetching all {} leads", tenantId, userId, leads.size());
+        } else {
+            List<String> visibleUserIds = dataVisibilityService.getVisibleUserIds(userId);
+            if (visibleUserIds.isEmpty()) {
+                log.warn("[Tenant: {}] User {} has no visible users, returning empty list", tenantId, userId);
+                return Collections.emptyList();
+            }
+            log.debug("[Tenant: {}] User {} can see {} users' leads", tenantId, userId, visibleUserIds.size());
+            leads = leadRepository.findByLeadOwnerIdInAndTenantIdAndIsDeletedFalse(visibleUserIds, tenantId);
         }
-
-        log.debug("[Tenant: {}] User {} can see {} users' leads", tenantId, userId, visibleUserIds.size());
-
-        // Query leads owned by visible users
-        List<Lead> leads = leadRepository.findByLeadOwnerIdInAndTenantIdAndIsDeletedFalse(
-                visibleUserIds, tenantId);
 
         log.info("[Tenant: {}] Returning {} leads for user {}", tenantId, leads.size(), userId);
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { use, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
@@ -21,12 +21,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { toast } from "sonner";
 
 interface EditProductPageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 export default function EditProductPage({ params }: EditProductPageProps) {
+  const { id } = use(params);
   const router = useRouter();
   const [product, setProduct] = useState<ProductResponse | null>(null);
   const [loading, setLoading] = useState(true);
@@ -36,12 +37,12 @@ export default function EditProductPage({ params }: EditProductPageProps) {
 
   useEffect(() => {
     fetchProduct();
-  }, [params.id]);
+  }, [id]);
 
   const fetchProduct = async () => {
     try {
       setLoading(true);
-      const data = await productsService.getProductById(params.id);
+      const data = await productsService.getProductById(id);
       setProduct(data);
       setFormData({
         productName: data.productName,
@@ -95,9 +96,9 @@ export default function EditProductPage({ params }: EditProductPageProps) {
 
     try {
       setSaving(true);
-      await productsService.updateProduct(params.id, formData);
+      await productsService.updateProduct(id, formData);
       toast.success("Product updated successfully");
-      router.push(`/admin/products/${params.id}`);
+      router.push(`/admin/products/${id}`);
     } catch (error: any) {
       toast.error(error.message || "Failed to update product");
     } finally {
@@ -130,7 +131,7 @@ export default function EditProductPage({ params }: EditProductPageProps) {
       {/* Header */}
       <div className="flex items-center gap-4">
         <Button variant="ghost" size="icon" asChild>
-          <Link href={`/admin/products/${params.id}`}>
+          <Link href={`/admin/products/${id}`}>
             <ArrowLeft className="h-4 w-4" />
           </Link>
         </Button>
@@ -378,7 +379,7 @@ export default function EditProductPage({ params }: EditProductPageProps) {
             {saving ? "Saving..." : "Save Changes"}
           </Button>
           <Button type="button" variant="outline" asChild>
-            <Link href={`/admin/products/${params.id}`}>Cancel</Link>
+            <Link href={`/admin/products/${id}`}>Cancel</Link>
           </Button>
         </div>
       </form>

@@ -68,6 +68,16 @@ public class Product {
     private Integer maxStockLevel;
     private Integer reorderLevel;
 
+    // Field Service — Spare Parts Extension
+    private String partNumber;
+    private List<String> compatibleModels;
+    private String partCategory;           // Compressor / Filter / PCB / Motor / Valve
+    private String vendorId;
+    private Integer warrantyPeriodDays;
+    private String criticality;            // FastMoving / SlowMoving / NonStocking
+    private Integer reorderPoint;
+    private Integer reorderQty;
+
     // Status
     private ProductStatus status;  // ACTIVE, DISCONTINUED, OUT_OF_STOCK
     private Boolean isActive;

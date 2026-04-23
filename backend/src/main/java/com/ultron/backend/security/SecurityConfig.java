@@ -52,6 +52,10 @@ public class SecurityConfig {
                         .requestMatchers("/api-docs/**").permitAll()
                         .requestMatchers("/v3/api-docs/**").permitAll()
                         .requestMatchers("/ws/**").permitAll()
+                        .requestMatchers("/forms/*/submit").permitAll()
+                        .requestMatchers("/landing-pages/public/**").permitAll()
+                        .requestMatchers("/esignature/sign/**").permitAll()
+                        .requestMatchers("/portal/auth/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

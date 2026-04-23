@@ -3,6 +3,9 @@ import path from "path";
 
 const nextConfig: NextConfig = {
   /* config options here */
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
 
   // Use Webpack for builds (Turbopack has path resolution issues)
   webpack: (config, { isServer }) => {

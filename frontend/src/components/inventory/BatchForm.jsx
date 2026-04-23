@@ -13,9 +13,6 @@ import {
   Typography,
   Divider,
 } from "@mui/material";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import inventoryApi from "../../services/inventoryApi";
 
 const BatchForm = ({ open, batch, onClose }) => {
@@ -150,120 +147,139 @@ const BatchForm = ({ open, batch, onClose }) => {
           </Box>
         )}
 
-        <LocalizationProvider dateAdapter={AdapterDateFns}>
-          <Grid container spacing={2}>
-            {/* Basic Information */}
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                required
-                label="Product ID"
-                value={formData.productId}
-                onChange={(e) => setFormData({ ...formData, productId: e.target.value })}
-                disabled={!!batch}
-              />
-            </Grid>
-
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                required
-                label="Warehouse ID"
-                value={formData.warehouseId}
-                onChange={(e) => setFormData({ ...formData, warehouseId: e.target.value })}
-                disabled={!!batch}
-              />
-            </Grid>
-
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                required
-                label="Batch Number"
-                value={formData.batchNumber}
-                onChange={(e) => setFormData({ ...formData, batchNumber: e.target.value })}
-                disabled={!!batch}
-              />
-            </Grid>
-
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                type="number"
-                label="Quantity"
-                value={formData.quantity}
-                onChange={(e) => setFormData({ ...formData, quantity: e.target.value })}
-                disabled={!!batch}
-              />
-            </Grid>
-
-            {/* Dates */}
-            <Grid item xs={12} sm={6}>
-              <DatePicker
-                label="Manufacturing Date"
-                value={formData.manufacturingDate}
-                onChange={(newValue) => setFormData({ ...formData, manufacturingDate: newValue })}
-                renderInput={(params) => <TextField {...params} fullWidth />}
-                disabled={!!batch}
-              />
-            </Grid>
-
-            <Grid item xs={12} sm={6}>
-              <DatePicker
-                label="Expiry Date *"
-                value={formData.expiryDate}
-                onChange={(newValue) => setFormData({ ...formData, expiryDate: newValue })}
-                renderInput={(params) => <TextField {...params} fullWidth required />}
-                disabled={!!batch}
-              />
-            </Grid>
-
-            <Grid item xs={12}>
-              <Divider sx={{ my: 1 }} />
-            </Grid>
-
-            {/* Supplier Information */}
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                label="Supplier ID"
-                value={formData.supplierId}
-                onChange={(e) => setFormData({ ...formData, supplierId: e.target.value })}
-              />
-            </Grid>
-
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                label="Supplier Name"
-                value={formData.supplierName}
-                onChange={(e) => setFormData({ ...formData, supplierName: e.target.value })}
-              />
-            </Grid>
-
-            {/* QC Information */}
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                label="QC Status"
-                value={formData.qcStatus}
-                onChange={(e) => setFormData({ ...formData, qcStatus: e.target.value })}
-                placeholder="e.g., PASSED, PENDING"
-              />
-            </Grid>
-
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                multiline
-                rows={3}
-                label="QC Notes"
-                value={formData.qcNotes}
-                onChange={(e) => setFormData({ ...formData, qcNotes: e.target.value })}
-              />
-            </Grid>
+        <Grid container spacing={2}>
+          {/* Basic Information */}
+          <Grid item xs={12} sm={6}>
+            <TextField
+              fullWidth
+              required
+              label="Product ID"
+              value={formData.productId}
+              onChange={(e) => setFormData({ ...formData, productId: e.target.value })}
+              disabled={!!batch}
+            />
           </Grid>
-        </LocalizationProvider>
+
+          <Grid item xs={12} sm={6}>
+            <TextField
+              fullWidth
+              required
+              label="Warehouse ID"
+              value={formData.warehouseId}
+              onChange={(e) => setFormData({ ...formData, warehouseId: e.target.value })}
+              disabled={!!batch}
+            />
+          </Grid>
+
+          <Grid item xs={12} sm={6}>
+            <TextField
+              fullWidth
+              required
+              label="Batch Number"
+              value={formData.batchNumber}
+              onChange={(e) => setFormData({ ...formData, batchNumber: e.target.value })}
+              disabled={!!batch}
+            />
+          </Grid>
+
+          <Grid item xs={12} sm={6}>
+            <TextField
+              fullWidth
+              type="number"
+              label="Quantity"
+              value={formData.quantity}
+              onChange={(e) => setFormData({ ...formData, quantity: e.target.value })}
+              disabled={!!batch}
+            />
+          </Grid>
+
+          {/* Dates */}
+          <Grid item xs={12} sm={6}>
+            <TextField
+              fullWidth
+              type="date"
+              label="Manufacturing Date"
+              value={
+                formData.manufacturingDate
+                  ? new Date(formData.manufacturingDate).toISOString().split("T")[0]
+                  : ""
+              }
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  manufacturingDate: e.target.value ? new Date(e.target.value) : null,
+                })
+              }
+              disabled={!!batch}
+              InputLabelProps={{ shrink: true }}
+            />
+          </Grid>
+
+          <Grid item xs={12} sm={6}>
+            <TextField
+              fullWidth
+              required
+              type="date"
+              label="Expiry Date"
+              value={
+                formData.expiryDate ? new Date(formData.expiryDate).toISOString().split("T")[0] : ""
+              }
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  expiryDate: e.target.value ? new Date(e.target.value) : null,
+                })
+              }
+              disabled={!!batch}
+              InputLabelProps={{ shrink: true }}
+            />
+          </Grid>
+
+          <Grid item xs={12}>
+            <Divider sx={{ my: 1 }} />
+          </Grid>
+
+          {/* Supplier Information */}
+          <Grid item xs={12} sm={6}>
+            <TextField
+              fullWidth
+              label="Supplier ID"
+              value={formData.supplierId}
+              onChange={(e) => setFormData({ ...formData, supplierId: e.target.value })}
+            />
+          </Grid>
+
+          <Grid item xs={12} sm={6}>
+            <TextField
+              fullWidth
+              label="Supplier Name"
+              value={formData.supplierName}
+              onChange={(e) => setFormData({ ...formData, supplierName: e.target.value })}
+            />
+          </Grid>
+
+          {/* QC Information */}
+          <Grid item xs={12} sm={6}>
+            <TextField
+              fullWidth
+              label="QC Status"
+              value={formData.qcStatus}
+              onChange={(e) => setFormData({ ...formData, qcStatus: e.target.value })}
+              placeholder="e.g., PASSED, PENDING"
+            />
+          </Grid>
+
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              multiline
+              rows={3}
+              label="QC Notes"
+              value={formData.qcNotes}
+              onChange={(e) => setFormData({ ...formData, qcNotes: e.target.value })}
+            />
+          </Grid>
+        </Grid>
       </DialogContent>
 
       <DialogActions>
