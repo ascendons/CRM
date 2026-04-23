@@ -45,6 +45,7 @@ jobs:
         run: |
           cd frontend
           npm ci
+          npm rebuild lightningcss
           npm run build
         env:
           NEXT_TELEMETRY_DISABLED: 1
