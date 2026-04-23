@@ -1,134 +1,151 @@
 name: Deploy to EC2
 
 on:
-  workflow_dispatch:  # Manual trigger only
+  workflow_dispatch:
 
 jobs:
   deploy:
-    name: Deploy to EC2 t3.micro
+    name: Build & Deploy to EC2 t3.micro
     runs-on: ubuntu-latest
 
     steps:
-      - name: 📥 Checkout code
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: 🔐 Setup SSH
+      - name: Setup SSH
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/ec2-key.pem
           chmod 600 ~/.ssh/ec2-key.pem
           ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
 
-      - name: 📦 Build frontend
+      # ── Build backend JAR on the runner (7 GB RAM, not the 1 GB t3.micro) ──
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: maven
+
+      - name: Build backend JAR
+        run: |
+          cd backend
+          ./mvnw clean package -DskipTests -q
+          echo "JAR built: $(ls target/*.jar)"
+
+      # ── Build frontend on the runner ──
+      - name: Setup Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Build frontend
         run: |
           cd frontend
-
-          # Clean install (important)
-          rm -rf node_modules package-lock.json
-
-          # Install with correct platform binaries
-          npm install --platform=linux --arch=x64
-
-          # Force rebuild native modules
-          npm rebuild lightningcss
-
-          # Build
+          npm ci
           npm run build
         env:
           NEXT_TELEMETRY_DISABLED: 1
+          NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
+          NEXT_PUBLIC_APP_URL: ${{ secrets.NEXT_PUBLIC_APP_URL }}
 
-      - name: 📤 Copy files to EC2
+      # ── Copy all artifacts to EC2 ──
+      - name: Copy files to EC2
         run: |
           rsync -avz -e "ssh -i ~/.ssh/ec2-key.pem -o StrictHostKeyChecking=no" \
-            --exclude 'node_modules' \
             --exclude '.git' \
-            --exclude 'backend/target' \
+            --exclude 'backend/src' \
+            --exclude 'backend/.mvn' \
+            --exclude 'backend/mvnw' \
+            --exclude 'backend/target/classes' \
+            --exclude 'backend/target/generated-sources' \
+            --exclude 'backend/target/generated-test-sources' \
+            --exclude 'backend/target/test-classes' \
+            --exclude 'backend/target/maven-*' \
             --exclude 'frontend/node_modules' \
+            --exclude 'frontend/.next/cache' \
             --exclude '*.log' \
             --exclude '.DS_Store' \
             ./ ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:~/crm/
 
-      - name: 🚀 Deploy on EC2
-        timeout-minutes: 20
+      # ── Write .env on EC2 with JWT_SECRET ──
+      - name: Write .env on EC2
+        run: |
+          ssh -i ~/.ssh/ec2-key.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
+          cat > ~/crm/.env << ENVEOF
+          JWT_SECRET=${{ secrets.JWT_SECRET }}
+          ENVEOF
+          chmod 600 ~/crm/.env
+          EOF
+
+      # ── Start containers on EC2 (no build — images use pre-built artifacts) ──
+      - name: Deploy on EC2
+        timeout-minutes: 15
         run: |
           ssh -i ~/.ssh/ec2-key.pem \
             -o ServerAliveInterval=60 \
-            -o ServerAliveCountMax=30 \
-            -o ConnectTimeout=30 \
+            -o ServerAliveCountMax=20 \
             ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'ENDSSH'
           set -e
           cd ~/crm
 
-          # Free up memory before building (t3.micro has 1GB total)
-          echo "🧹 Freeing memory..."
+          echo "Freeing memory..."
           sudo sync && sudo sh -c 'echo 3 > /proc/sys/vm/drop_caches' || true
           free -h
 
-          echo "📊 Stopping containers..."
+          echo "Stopping old containers..."
           sudo docker-compose -f docker-compose.ec2.yml down --remove-orphans || true
-
-          # Prune old images to free disk/memory
           sudo docker image prune -f || true
 
-          echo "🏗️  Building backend first (sequential to avoid OOM on t3.micro)..."
-          sudo docker-compose -f docker-compose.ec2.yml build --no-cache backend 2>&1 | tee /tmp/build-backend.log
+          echo "Building Docker images from pre-built artifacts..."
+          sudo docker-compose -f docker-compose.ec2.yml build --no-cache 2>&1 | tee /tmp/build.log
           if [ ${PIPESTATUS[0]} -ne 0 ]; then
-            echo "❌ Backend build failed:"
-            tail -50 /tmp/build-backend.log
+            echo "Build failed:"
+            tail -50 /tmp/build.log
             exit 1
           fi
 
-          echo "🏗️  Building frontend..."
-          sudo docker-compose -f docker-compose.ec2.yml build --no-cache frontend 2>&1 | tee /tmp/build-frontend.log
+          echo "Starting containers..."
+          sudo docker-compose -f docker-compose.ec2.yml up -d 2>&1 | tee /tmp/up.log
           if [ ${PIPESTATUS[0]} -ne 0 ]; then
-            echo "❌ Frontend build failed:"
-            tail -50 /tmp/build-frontend.log
+            cat /tmp/up.log
             exit 1
           fi
 
-          echo "🚀 Starting all containers..."
-          sudo docker-compose -f docker-compose.ec2.yml up -d 2>&1 | tee /tmp/deploy-up.log
-          if [ ${PIPESTATUS[0]} -ne 0 ]; then
-            echo "❌ Container startup failed:"
-            cat /tmp/deploy-up.log
-            exit 1
-          fi
-
-          echo "⏳ Waiting for backend to be healthy (up to 5 min)..."
-          timeout 300 bash -c '
+          echo "Waiting for backend to be healthy (up to 4 min)..."
+          timeout 240 bash -c '
             until sudo docker inspect --format="{{.State.Health.Status}}" crm-backend 2>/dev/null | grep -q "healthy"; do
-              STATUS=$(sudo docker inspect --format="{{.State.Health.Status}}" crm-backend 2>/dev/null || echo "unknown")
-              echo "  backend status: $STATUS"
+              STATUS=$(sudo docker inspect --format="{{.State.Health.Status}}" crm-backend 2>/dev/null || echo "starting")
+              echo "  backend: $STATUS"
               sleep 10
             done
           ' || {
-            echo "❌ Backend did not become healthy in time. Logs:"
-            sudo docker logs crm-backend --tail 50
+            echo "Backend did not become healthy. Logs:"
+            sudo docker logs crm-backend --tail 60
             exit 1
           }
 
-          echo "⏳ Waiting for frontend to be healthy (up to 2 min)..."
+          echo "Waiting for frontend to be healthy (up to 2 min)..."
           timeout 120 bash -c '
             until sudo docker inspect --format="{{.State.Health.Status}}" crm-frontend 2>/dev/null | grep -q "healthy"; do
-              STATUS=$(sudo docker inspect --format="{{.State.Health.Status}}" crm-frontend 2>/dev/null || echo "unknown")
-              echo "  frontend status: $STATUS"
+              STATUS=$(sudo docker inspect --format="{{.State.Health.Status}}" crm-frontend 2>/dev/null || echo "starting")
+              echo "  frontend: $STATUS"
               sleep 10
             done
           ' || {
-            echo "❌ Frontend did not become healthy in time. Logs:"
-            sudo docker logs crm-frontend --tail 50
+            echo "Frontend did not become healthy. Logs:"
+            sudo docker logs crm-frontend --tail 60
             exit 1
           }
 
           echo ""
-          echo "📊 Final container status:"
           sudo docker-compose -f docker-compose.ec2.yml ps
-
           echo ""
-          echo "✅ Deployment successful!"
+          echo "Deployment successful!"
           ENDSSH
 
-      - name: 🧹 Cleanup
+      - name: Cleanup SSH key
         if: always()
-        run: |
-          rm -f ~/.ssh/ec2-key.pem
+        run: rm -f ~/.ssh/ec2-key.pem

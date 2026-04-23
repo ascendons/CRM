@@ -47,6 +47,36 @@ Value: ubuntu
 3. Name: `EC2_USER`
 4. Value: `ubuntu`
 
+### 4. JWT_SECRET (required)
+**Secret key used to sign JWT tokens — minimum 64 characters**
+
+```bash
+# Generate a secure random secret
+openssl rand -base64 64
+```
+
+**How to add:**
+1. Settings → Secrets and variables → Actions
+2. Click "New repository secret"
+3. Name: `JWT_SECRET`
+4. Value: paste the generated string
+
+### 5. NEXT_PUBLIC_API_URL (required)
+**The public URL where the backend API is reachable from the browser**
+
+```
+Value: http://52.20.26.167/api/v1
+```
+(Update to `https://api.ascendons.com/api/v1` after SSL is configured)
+
+### 6. NEXT_PUBLIC_APP_URL (required)
+**The public URL of the frontend app**
+
+```
+Value: http://52.20.26.167
+```
+(Update to `https://crm.ascendons.com` after SSL is configured)
+
 ---
 
 ## Quick Setup Commands

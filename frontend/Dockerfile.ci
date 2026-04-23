@@ -1,0 +1,22 @@
+FROM node:20-alpine
+WORKDIR /app
+
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV PORT=3000
+
+# Install only production runtime deps
+COPY package*.json ./
+RUN npm ci --omit=dev
+
+# Copy pre-built output from CI runner (via rsync)
+COPY public ./public
+COPY .next/standalone ./
+COPY .next/static ./.next/static
+
+EXPOSE 3000
+
+HEALTHCHECK --interval=30s --timeout=3s --start-period=60s --retries=3 \
+  CMD wget --no-verbose --tries=1 --spider http://localhost:3000/api/ping || exit 1
+
+CMD ["node", "server.js"]
