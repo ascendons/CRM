@@ -130,15 +130,15 @@ jobs:
             exit 1
           }
 
-          echo "Waiting for frontend to be healthy (up to 2 min)..."
+          echo "Waiting for frontend to respond (up to 2 min)..."
           timeout 120 bash -c '
-            until sudo docker inspect --format="{{.State.Health.Status}}" crm-frontend 2>/dev/null | grep -q "healthy"; do
-              STATUS=$(sudo docker inspect --format="{{.State.Health.Status}}" crm-frontend 2>/dev/null || echo "starting")
-              echo "  frontend: $STATUS"
+            until curl -sf http://localhost:3000 > /dev/null 2>&1; do
+              STATUS=$(sudo docker inspect --format="{{.State.Status}}" crm-frontend 2>/dev/null || echo "unknown")
+              echo "  frontend container: $STATUS"
               sleep 10
             done
           ' || {
-            echo "Frontend did not become healthy. Logs:"
+            echo "Frontend did not respond. Logs:"
             sudo docker logs crm-frontend --tail 60
             exit 1
           }
