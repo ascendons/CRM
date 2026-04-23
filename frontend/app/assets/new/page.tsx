@@ -10,14 +10,14 @@ import { authService } from "@/lib/auth";
 import { Account } from "@/types/account";
 import { UserResponse } from "@/types/user";
 import { showToast } from "@/lib/toast";
-import { 
-  ChevronLeft, 
-  Save, 
-  Laptop, 
-  Settings2, 
-  Building2, 
+import {
+  ChevronLeft,
+  Save,
+  Laptop,
+  Settings2,
+  Building2,
   Calendar,
-  AlertCircle
+  AlertCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -54,9 +54,9 @@ export default function NewAssetPage() {
       const [accountsData, categoriesData, usersData] = await Promise.all([
         accountsService.getAllAccounts(),
         fieldService.getAllAssetCategories(),
-        usersService.getActiveUsers()
+        usersService.getActiveUsers(),
       ]);
-      
+
       setAccounts(Array.isArray(accountsData) ? accountsData : []);
       setCategories(categoriesData);
       setEngineers(usersData);
@@ -108,7 +108,9 @@ export default function NewAssetPage() {
       <div className="flex items-center justify-center bg-slate-50 min-h-[calc(100vh-4rem)]">
         <div className="relative text-center space-y-4">
           <div className="w-10 h-10 border-4 border-primary/20 border-t-primary rounded-full animate-spin mx-auto"></div>
-          <p className="text-slate-500 font-medium tracking-tight">Preparing asset registry form...</p>
+          <p className="text-slate-500 font-medium tracking-tight">
+            Preparing asset registry form...
+          </p>
         </div>
       </div>
     );
@@ -121,17 +123,21 @@ export default function NewAssetPage() {
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between py-4">
             <div className="flex items-center gap-4">
-              <Button 
-                variant="ghost" 
-                size="icon" 
+              <Button
+                variant="ghost"
+                size="icon"
                 onClick={() => router.back()}
                 className="rounded-full hover:bg-slate-100"
               >
                 <ChevronLeft className="h-5 w-5 text-slate-600" />
               </Button>
               <div>
-                <h1 className="text-xl font-bold text-slate-900 tracking-tight">Register New Asset</h1>
-                <p className="text-xs text-slate-500 font-medium">Add equipment to customer inventory</p>
+                <h1 className="text-xl font-bold text-slate-900 tracking-tight">
+                  Register New Asset
+                </h1>
+                <p className="text-xs text-slate-500 font-medium">
+                  Add equipment to customer inventory
+                </p>
               </div>
             </div>
             <div className="flex items-center gap-3">
@@ -163,9 +169,11 @@ export default function NewAssetPage() {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500"
+        >
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            
             {/* Left Column: Core Identity */}
             <div className="lg:col-span-2 space-y-8">
               <Card className="border-slate-200 shadow-sm rounded-2xl overflow-hidden overflow-visible transition-shadow hover:shadow-md">
@@ -179,7 +187,12 @@ export default function NewAssetPage() {
                 <CardContent className="pt-6 space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
-                      <Label htmlFor="brand" className="text-slate-700 font-bold text-xs uppercase tracking-wider">Brand / Make *</Label>
+                      <Label
+                        htmlFor="brand"
+                        className="text-slate-700 font-bold text-xs uppercase tracking-wider"
+                      >
+                        Brand / Make *
+                      </Label>
                       <Input
                         id="brand"
                         name="brand"
@@ -191,7 +204,12 @@ export default function NewAssetPage() {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="model" className="text-slate-700 font-bold text-xs uppercase tracking-wider">Model Number *</Label>
+                      <Label
+                        htmlFor="model"
+                        className="text-slate-700 font-bold text-xs uppercase tracking-wider"
+                      >
+                        Model Number *
+                      </Label>
                       <Input
                         id="model"
                         name="model"
@@ -203,7 +221,12 @@ export default function NewAssetPage() {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="serialNo" className="text-slate-700 font-bold text-xs uppercase tracking-wider">Serial Number *</Label>
+                      <Label
+                        htmlFor="serialNo"
+                        className="text-slate-700 font-bold text-xs uppercase tracking-wider"
+                      >
+                        Serial Number *
+                      </Label>
                       <Input
                         id="serialNo"
                         name="serialNo"
@@ -215,7 +238,12 @@ export default function NewAssetPage() {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="categoryId" className="text-slate-700 font-bold text-xs uppercase tracking-wider">Equipment Category *</Label>
+                      <Label
+                        htmlFor="categoryId"
+                        className="text-slate-700 font-bold text-xs uppercase tracking-wider"
+                      >
+                        Equipment Category *
+                      </Label>
                       <div className="relative">
                         <select
                           id="categoryId"
@@ -250,7 +278,12 @@ export default function NewAssetPage() {
                 <CardContent className="pt-6 space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2 md:col-span-2">
-                      <Label htmlFor="accountId" className="text-slate-700 font-bold text-xs uppercase tracking-wider">Customer / Account *</Label>
+                      <Label
+                        htmlFor="accountId"
+                        className="text-slate-700 font-bold text-xs uppercase tracking-wider"
+                      >
+                        Customer / Account *
+                      </Label>
                       <select
                         id="accountId"
                         name="accountId"
@@ -268,7 +301,12 @@ export default function NewAssetPage() {
                       </select>
                     </div>
                     <div className="space-y-2 md:col-span-2">
-                      <Label htmlFor="siteAddress" className="text-slate-700 font-bold text-xs uppercase tracking-wider">Installation Address</Label>
+                      <Label
+                        htmlFor="siteAddress"
+                        className="text-slate-700 font-bold text-xs uppercase tracking-wider"
+                      >
+                        Installation Address
+                      </Label>
                       <textarea
                         id="siteAddress"
                         name="siteAddress"
@@ -280,7 +318,12 @@ export default function NewAssetPage() {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="assignedEngineerId" className="text-slate-700 font-bold text-xs uppercase tracking-wider">Primary Engineer</Label>
+                      <Label
+                        htmlFor="assignedEngineerId"
+                        className="text-slate-700 font-bold text-xs uppercase tracking-wider"
+                      >
+                        Primary Engineer
+                      </Label>
                       <select
                         id="assignedEngineerId"
                         name="assignedEngineerId"
@@ -312,7 +355,12 @@ export default function NewAssetPage() {
                 </CardHeader>
                 <CardContent className="pt-6 space-y-6">
                   <div className="space-y-2">
-                    <Label htmlFor="status" className="text-slate-700 font-bold text-xs uppercase tracking-wider">Current Status</Label>
+                    <Label
+                      htmlFor="status"
+                      className="text-slate-700 font-bold text-xs uppercase tracking-wider"
+                    >
+                      Current Status
+                    </Label>
                     <select
                       id="status"
                       name="status"
@@ -320,13 +368,20 @@ export default function NewAssetPage() {
                       onChange={handleChange}
                       className="w-full flex h-10 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 font-bold text-primary"
                     >
-                      {Object.values(AssetStatus).map(status => (
-                        <option key={status} value={status}>{status.replace('_', ' ')}</option>
+                      {Object.values(AssetStatus).map((status) => (
+                        <option key={status} value={status}>
+                          {status.replace("_", " ")}
+                        </option>
                       ))}
                     </select>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="installDate" className="text-slate-700 font-bold text-xs uppercase tracking-wider">Installation Date</Label>
+                    <Label
+                      htmlFor="installDate"
+                      className="text-slate-700 font-bold text-xs uppercase tracking-wider"
+                    >
+                      Installation Date
+                    </Label>
                     <Input
                       id="installDate"
                       type="date"
@@ -337,7 +392,12 @@ export default function NewAssetPage() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="warrantyExpiry" className="text-slate-700 font-bold text-xs uppercase tracking-wider">Warranty Expiry</Label>
+                    <Label
+                      htmlFor="warrantyExpiry"
+                      className="text-slate-700 font-bold text-xs uppercase tracking-wider"
+                    >
+                      Warranty Expiry
+                    </Label>
                     <Input
                       id="warrantyExpiry"
                       type="date"
@@ -367,9 +427,12 @@ export default function NewAssetPage() {
               </Card>
 
               <div className="p-4 bg-primary/5 rounded-2xl border border-primary/10">
-                <p className="text-[11px] text-slate-500 font-bold uppercase tracking-widest mb-1">Information</p>
+                <p className="text-[11px] text-slate-500 font-bold uppercase tracking-widest mb-1">
+                  Information
+                </p>
                 <p className="text-xs text-slate-600 font-medium leading-relaxed">
-                  Registering an asset will automatically generate a unique Asset ID. This ID will be used for all future Service Requests and Work Orders.
+                  Registering an asset will automatically generate a unique Asset ID. This ID will
+                  be used for all future Service Requests and Work Orders.
                 </p>
               </div>
             </div>

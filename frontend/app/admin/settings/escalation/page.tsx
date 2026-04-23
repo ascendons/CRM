@@ -126,17 +126,23 @@ function RuleModal({ rule: initial, onClose, onSave }: RuleModalProps) {
             <label className="block text-sm font-medium text-slate-700 mb-1">Trigger</label>
             <select
               value={form.trigger}
-              onChange={(e) => setForm((f) => ({ ...f, trigger: e.target.value as EscalationRule["trigger"] }))}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, trigger: e.target.value as EscalationRule["trigger"] }))
+              }
               className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               {TRIGGER_OPTIONS.map((opt) => (
-                <option key={opt.value} value={opt.value}>{opt.label}</option>
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
               ))}
             </select>
           </div>
           {/* Condition Minutes */}
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Condition (minutes)</label>
+            <label className="block text-sm font-medium text-slate-700 mb-1">
+              Condition (minutes)
+            </label>
             <input
               type="number"
               min={1}
@@ -150,11 +156,15 @@ function RuleModal({ rule: initial, onClose, onSave }: RuleModalProps) {
             <label className="block text-sm font-medium text-slate-700 mb-1">Level</label>
             <select
               value={form.level}
-              onChange={(e) => setForm((f) => ({ ...f, level: e.target.value as EscalationRule["level"] }))}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, level: e.target.value as EscalationRule["level"] }))
+              }
               className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               {LEVEL_OPTIONS.map((l) => (
-                <option key={l} value={l}>{l}</option>
+                <option key={l} value={l}>
+                  {l}
+                </option>
               ))}
             </select>
           </div>
@@ -173,7 +183,9 @@ function RuleModal({ rule: initial, onClose, onSave }: RuleModalProps) {
           </div>
           {/* Notification Channels */}
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">Notification Channels</label>
+            <label className="block text-sm font-medium text-slate-700 mb-2">
+              Notification Channels
+            </label>
             <div className="flex gap-4">
               {CHANNEL_OPTIONS.map((ch) => (
                 <label key={ch} className="flex items-center gap-2 cursor-pointer">
@@ -190,12 +202,16 @@ function RuleModal({ rule: initial, onClose, onSave }: RuleModalProps) {
           </div>
           {/* Auto Escalate After */}
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Auto-escalate After (minutes)</label>
+            <label className="block text-sm font-medium text-slate-700 mb-1">
+              Auto-escalate After (minutes)
+            </label>
             <input
               type="number"
               min={1}
               value={form.autoEscalateAfterMinutes}
-              onChange={(e) => setForm((f) => ({ ...f, autoEscalateAfterMinutes: Number(e.target.value) }))}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, autoEscalateAfterMinutes: Number(e.target.value) }))
+              }
               className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
@@ -208,7 +224,9 @@ function RuleModal({ rule: initial, onClose, onSave }: RuleModalProps) {
               onChange={(e) => setForm((f) => ({ ...f, active: e.target.checked }))}
               className="rounded border-slate-300 text-blue-600 focus:ring-blue-500"
             />
-            <label htmlFor="active" className="text-sm font-medium text-slate-700">Active</label>
+            <label htmlFor="active" className="text-sm font-medium text-slate-700">
+              Active
+            </label>
           </div>
 
           <div className="flex gap-3 pt-2">
@@ -241,7 +259,9 @@ export default function EscalationSettingsPage() {
   const [loadingRules, setLoadingRules] = useState(false);
   const [loadingOpen, setLoadingOpen] = useState(false);
   const [loadingAll, setLoadingAll] = useState(false);
-  const [modalRule, setModalRule] = useState<(Omit<EscalationRule, "id"> & { id?: string }) | null>(null);
+  const [modalRule, setModalRule] = useState<(Omit<EscalationRule, "id"> & { id?: string }) | null>(
+    null
+  );
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
 
   const fetchRules = useCallback(async () => {
@@ -292,7 +312,10 @@ export default function EscalationSettingsPage() {
   const handleSaveRule = async (rule: Omit<EscalationRule, "id"> & { id?: string }) => {
     try {
       if (rule.id) {
-        const updated = await api.put<EscalationRule>(`/admin/settings/escalation/rules/${rule.id}`, rule);
+        const updated = await api.put<EscalationRule>(
+          `/admin/settings/escalation/rules/${rule.id}`,
+          rule
+        );
         setRules((prev) => prev.map((r) => (r.id === rule.id ? updated : r)));
         showToast.success("Rule updated");
       } else {
@@ -365,7 +388,9 @@ export default function EscalationSettingsPage() {
       L3: "bg-red-100 text-red-800",
     };
     return (
-      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold ${colors[level] ?? "bg-slate-100 text-slate-600"}`}>
+      <span
+        className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold ${colors[level] ?? "bg-slate-100 text-slate-600"}`}
+      >
         {level}
       </span>
     );
@@ -377,7 +402,9 @@ export default function EscalationSettingsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-slate-800">Escalation Settings</h1>
-          <p className="text-sm text-slate-500 mt-0.5">Configure escalation rules and monitor active escalations</p>
+          <p className="text-sm text-slate-500 mt-0.5">
+            Configure escalation rules and monitor active escalations
+          </p>
         </div>
         {activeTab === "rules" && (
           <button
@@ -415,7 +442,9 @@ export default function EscalationSettingsPage() {
             <>
               {loadingRules ? (
                 <div className="flex items-center justify-center h-48">
-                  <span className="material-symbols-outlined animate-spin text-4xl text-blue-500">progress_activity</span>
+                  <span className="material-symbols-outlined animate-spin text-4xl text-blue-500">
+                    progress_activity
+                  </span>
                 </div>
               ) : rules.length === 0 ? (
                 <div className="text-center py-12">
@@ -433,13 +462,27 @@ export default function EscalationSettingsPage() {
                   <table className="min-w-full text-sm">
                     <thead>
                       <tr className="bg-slate-50 border-b border-slate-200">
-                        <th className="text-left text-xs font-semibold text-slate-500 uppercase px-3 py-2.5">Name</th>
-                        <th className="text-left text-xs font-semibold text-slate-500 uppercase px-3 py-2.5">Trigger</th>
-                        <th className="text-right text-xs font-semibold text-slate-500 uppercase px-3 py-2.5">Condition</th>
-                        <th className="text-center text-xs font-semibold text-slate-500 uppercase px-3 py-2.5">Level</th>
-                        <th className="text-left text-xs font-semibold text-slate-500 uppercase px-3 py-2.5">Channels</th>
-                        <th className="text-right text-xs font-semibold text-slate-500 uppercase px-3 py-2.5">Auto-escalate</th>
-                        <th className="text-center text-xs font-semibold text-slate-500 uppercase px-3 py-2.5">Active</th>
+                        <th className="text-left text-xs font-semibold text-slate-500 uppercase px-3 py-2.5">
+                          Name
+                        </th>
+                        <th className="text-left text-xs font-semibold text-slate-500 uppercase px-3 py-2.5">
+                          Trigger
+                        </th>
+                        <th className="text-right text-xs font-semibold text-slate-500 uppercase px-3 py-2.5">
+                          Condition
+                        </th>
+                        <th className="text-center text-xs font-semibold text-slate-500 uppercase px-3 py-2.5">
+                          Level
+                        </th>
+                        <th className="text-left text-xs font-semibold text-slate-500 uppercase px-3 py-2.5">
+                          Channels
+                        </th>
+                        <th className="text-right text-xs font-semibold text-slate-500 uppercase px-3 py-2.5">
+                          Auto-escalate
+                        </th>
+                        <th className="text-center text-xs font-semibold text-slate-500 uppercase px-3 py-2.5">
+                          Active
+                        </th>
                         <th className="px-3 py-2.5"></th>
                       </tr>
                     </thead>
@@ -448,20 +491,28 @@ export default function EscalationSettingsPage() {
                         <tr key={rule.id} className="border-b border-slate-50 hover:bg-slate-50">
                           <td className="px-3 py-3 font-medium text-slate-800">{rule.name}</td>
                           <td className="px-3 py-3 text-slate-600 text-xs">
-                            {TRIGGER_OPTIONS.find((t) => t.value === rule.trigger)?.label ?? rule.trigger}
+                            {TRIGGER_OPTIONS.find((t) => t.value === rule.trigger)?.label ??
+                              rule.trigger}
                           </td>
-                          <td className="px-3 py-3 text-right text-slate-700">{rule.conditionMinutes} min</td>
+                          <td className="px-3 py-3 text-right text-slate-700">
+                            {rule.conditionMinutes} min
+                          </td>
                           <td className="px-3 py-3 text-center">{levelBadge(rule.level)}</td>
                           <td className="px-3 py-3">
                             <div className="flex flex-wrap gap-1">
                               {rule.notificationChannels.map((ch) => (
-                                <span key={ch} className="bg-slate-100 text-slate-600 text-xs px-1.5 py-0.5 rounded">
+                                <span
+                                  key={ch}
+                                  className="bg-slate-100 text-slate-600 text-xs px-1.5 py-0.5 rounded"
+                                >
                                   {ch}
                                 </span>
                               ))}
                             </div>
                           </td>
-                          <td className="px-3 py-3 text-right text-slate-700">{rule.autoEscalateAfterMinutes} min</td>
+                          <td className="px-3 py-3 text-right text-slate-700">
+                            {rule.autoEscalateAfterMinutes} min
+                          </td>
                           <td className="px-3 py-3 text-center">
                             <button
                               onClick={() => handleToggleActive(rule)}
@@ -508,11 +559,15 @@ export default function EscalationSettingsPage() {
             <>
               {loadingOpen ? (
                 <div className="flex items-center justify-center h-48">
-                  <span className="material-symbols-outlined animate-spin text-4xl text-blue-500">progress_activity</span>
+                  <span className="material-symbols-outlined animate-spin text-4xl text-blue-500">
+                    progress_activity
+                  </span>
                 </div>
               ) : openLogs.length === 0 ? (
                 <div className="text-center py-12">
-                  <span className="material-symbols-outlined text-4xl text-green-400">check_circle</span>
+                  <span className="material-symbols-outlined text-4xl text-green-400">
+                    check_circle
+                  </span>
                   <p className="text-slate-500 mt-2">No open escalations</p>
                 </div>
               ) : (
@@ -520,12 +575,24 @@ export default function EscalationSettingsPage() {
                   <table className="min-w-full text-sm">
                     <thead>
                       <tr className="bg-slate-50 border-b border-slate-200">
-                        <th className="text-left text-xs font-semibold text-slate-500 uppercase px-3 py-2.5">Entity Type</th>
-                        <th className="text-left text-xs font-semibold text-slate-500 uppercase px-3 py-2.5">Entity ID</th>
-                        <th className="text-left text-xs font-semibold text-slate-500 uppercase px-3 py-2.5">Triggered At</th>
-                        <th className="text-center text-xs font-semibold text-slate-500 uppercase px-3 py-2.5">Level</th>
-                        <th className="text-right text-xs font-semibold text-slate-500 uppercase px-3 py-2.5">Notified</th>
-                        <th className="text-left text-xs font-semibold text-slate-500 uppercase px-3 py-2.5">Acknowledged At</th>
+                        <th className="text-left text-xs font-semibold text-slate-500 uppercase px-3 py-2.5">
+                          Entity Type
+                        </th>
+                        <th className="text-left text-xs font-semibold text-slate-500 uppercase px-3 py-2.5">
+                          Entity ID
+                        </th>
+                        <th className="text-left text-xs font-semibold text-slate-500 uppercase px-3 py-2.5">
+                          Triggered At
+                        </th>
+                        <th className="text-center text-xs font-semibold text-slate-500 uppercase px-3 py-2.5">
+                          Level
+                        </th>
+                        <th className="text-right text-xs font-semibold text-slate-500 uppercase px-3 py-2.5">
+                          Notified
+                        </th>
+                        <th className="text-left text-xs font-semibold text-slate-500 uppercase px-3 py-2.5">
+                          Acknowledged At
+                        </th>
                         <th className="px-3 py-2.5"></th>
                       </tr>
                     </thead>
@@ -533,11 +600,19 @@ export default function EscalationSettingsPage() {
                       {openLogs.map((log) => (
                         <tr key={log.id} className="border-b border-slate-50 hover:bg-slate-50">
                           <td className="px-3 py-3 text-slate-700">{log.entityType}</td>
-                          <td className="px-3 py-3 font-mono text-xs text-slate-500">{log.entityId}</td>
-                          <td className="px-3 py-3 text-slate-600 text-xs">{formatDate(log.triggeredAt)}</td>
+                          <td className="px-3 py-3 font-mono text-xs text-slate-500">
+                            {log.entityId}
+                          </td>
+                          <td className="px-3 py-3 text-slate-600 text-xs">
+                            {formatDate(log.triggeredAt)}
+                          </td>
                           <td className="px-3 py-3 text-center">{levelBadge(log.level)}</td>
-                          <td className="px-3 py-3 text-right text-slate-700">{log.notifiedUserIds?.length ?? 0}</td>
-                          <td className="px-3 py-3 text-xs text-slate-500">{formatDate(log.acknowledgedAt)}</td>
+                          <td className="px-3 py-3 text-right text-slate-700">
+                            {log.notifiedUserIds?.length ?? 0}
+                          </td>
+                          <td className="px-3 py-3 text-xs text-slate-500">
+                            {formatDate(log.acknowledgedAt)}
+                          </td>
                           <td className="px-3 py-3">
                             <div className="flex items-center gap-2">
                               {!log.acknowledgedAt && (
@@ -570,7 +645,9 @@ export default function EscalationSettingsPage() {
             <>
               {loadingAll ? (
                 <div className="flex items-center justify-center h-48">
-                  <span className="material-symbols-outlined animate-spin text-4xl text-blue-500">progress_activity</span>
+                  <span className="material-symbols-outlined animate-spin text-4xl text-blue-500">
+                    progress_activity
+                  </span>
                 </div>
               ) : allLogs.length === 0 ? (
                 <div className="text-center py-12">
@@ -582,24 +659,46 @@ export default function EscalationSettingsPage() {
                   <table className="min-w-full text-sm">
                     <thead>
                       <tr className="bg-slate-50 border-b border-slate-200">
-                        <th className="text-left text-xs font-semibold text-slate-500 uppercase px-3 py-2.5">Entity Type</th>
-                        <th className="text-left text-xs font-semibold text-slate-500 uppercase px-3 py-2.5">Entity ID</th>
-                        <th className="text-left text-xs font-semibold text-slate-500 uppercase px-3 py-2.5">Triggered At</th>
-                        <th className="text-center text-xs font-semibold text-slate-500 uppercase px-3 py-2.5">Level</th>
-                        <th className="text-right text-xs font-semibold text-slate-500 uppercase px-3 py-2.5">Notified</th>
-                        <th className="text-left text-xs font-semibold text-slate-500 uppercase px-3 py-2.5">Acknowledged At</th>
-                        <th className="text-left text-xs font-semibold text-slate-500 uppercase px-3 py-2.5">Resolved At</th>
+                        <th className="text-left text-xs font-semibold text-slate-500 uppercase px-3 py-2.5">
+                          Entity Type
+                        </th>
+                        <th className="text-left text-xs font-semibold text-slate-500 uppercase px-3 py-2.5">
+                          Entity ID
+                        </th>
+                        <th className="text-left text-xs font-semibold text-slate-500 uppercase px-3 py-2.5">
+                          Triggered At
+                        </th>
+                        <th className="text-center text-xs font-semibold text-slate-500 uppercase px-3 py-2.5">
+                          Level
+                        </th>
+                        <th className="text-right text-xs font-semibold text-slate-500 uppercase px-3 py-2.5">
+                          Notified
+                        </th>
+                        <th className="text-left text-xs font-semibold text-slate-500 uppercase px-3 py-2.5">
+                          Acknowledged At
+                        </th>
+                        <th className="text-left text-xs font-semibold text-slate-500 uppercase px-3 py-2.5">
+                          Resolved At
+                        </th>
                       </tr>
                     </thead>
                     <tbody>
                       {allLogs.map((log) => (
                         <tr key={log.id} className="border-b border-slate-50 hover:bg-slate-50">
                           <td className="px-3 py-3 text-slate-700">{log.entityType}</td>
-                          <td className="px-3 py-3 font-mono text-xs text-slate-500">{log.entityId}</td>
-                          <td className="px-3 py-3 text-slate-600 text-xs">{formatDate(log.triggeredAt)}</td>
+                          <td className="px-3 py-3 font-mono text-xs text-slate-500">
+                            {log.entityId}
+                          </td>
+                          <td className="px-3 py-3 text-slate-600 text-xs">
+                            {formatDate(log.triggeredAt)}
+                          </td>
                           <td className="px-3 py-3 text-center">{levelBadge(log.level)}</td>
-                          <td className="px-3 py-3 text-right text-slate-700">{log.notifiedUserIds?.length ?? 0}</td>
-                          <td className="px-3 py-3 text-xs text-slate-500">{formatDate(log.acknowledgedAt)}</td>
+                          <td className="px-3 py-3 text-right text-slate-700">
+                            {log.notifiedUserIds?.length ?? 0}
+                          </td>
+                          <td className="px-3 py-3 text-xs text-slate-500">
+                            {formatDate(log.acknowledgedAt)}
+                          </td>
                           <td className="px-3 py-3 text-xs">
                             {log.resolvedAt ? (
                               <span className="text-green-600">{formatDate(log.resolvedAt)}</span>
@@ -620,11 +719,7 @@ export default function EscalationSettingsPage() {
 
       {/* Rule Modal */}
       {modalRule && (
-        <RuleModal
-          rule={modalRule}
-          onClose={() => setModalRule(null)}
-          onSave={handleSaveRule}
-        />
+        <RuleModal rule={modalRule} onClose={() => setModalRule(null)} onSave={handleSaveRule} />
       )}
 
       {/* Delete Confirm Dialog */}

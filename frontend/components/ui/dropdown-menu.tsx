@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { Check, ChevronRight, Circle } from "lucide-react"
-import { cn } from "@/lib/utils/cn"
+import * as React from "react";
+import { Check, ChevronRight, Circle } from "lucide-react";
+import { cn } from "@/lib/utils/cn";
 
 /**
  * Custom DropdownMenu implementation that does NOT rely on @radix-ui/react-dropdown-menu
@@ -20,16 +20,18 @@ const DropdownMenuContext = React.createContext<{
   setOpen: (open: boolean) => void;
 } | null>(null);
 
-const DropdownMenu: React.FC<DropdownMenuProps> = ({ children, open: controlledOpen, onOpenChange }) => {
+const DropdownMenu: React.FC<DropdownMenuProps> = ({
+  children,
+  open: controlledOpen,
+  onOpenChange,
+}) => {
   const [uncontrolledOpen, setUncontrolledOpen] = React.useState(false);
   const open = controlledOpen !== undefined ? controlledOpen : uncontrolledOpen;
   const setOpen = onOpenChange !== undefined ? onOpenChange : setUncontrolledOpen;
 
   return (
     <DropdownMenuContext.Provider value={{ open, setOpen }}>
-      <div className="relative inline-block text-left">
-        {children}
-      </div>
+      <div className="relative inline-block text-left">{children}</div>
     </DropdownMenuContext.Provider>
   );
 };
@@ -47,20 +49,17 @@ const DropdownMenuTrigger = React.forwardRef<
   };
 
   if (asChild) {
-    return React.cloneElement(children as React.ReactElement, {
-      onClick: handleClick,
-      ref,
-    } as any);
+    return React.cloneElement(
+      children as React.ReactElement,
+      {
+        onClick: handleClick,
+        ref,
+      } as any
+    );
   }
 
   return (
-    <button
-      ref={ref}
-      type="button"
-      className={cn("", className)}
-      onClick={handleClick}
-      {...props}
-    >
+    <button ref={ref} type="button" className={cn("", className)} onClick={handleClick} {...props}>
       {children}
     </button>
   );
@@ -69,8 +68,8 @@ DropdownMenuTrigger.displayName = "DropdownMenuTrigger";
 
 const DropdownMenuContent = React.forwardRef<
   HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement> & { sideOffset?: number, align?: 'start' | 'end' | 'center' }
->(({ className, children, sideOffset = 4, align = 'center', ...props }, ref) => {
+  React.HTMLAttributes<HTMLDivElement> & { sideOffset?: number; align?: "start" | "end" | "center" }
+>(({ className, children, sideOffset = 4, align = "center", ...props }, ref) => {
   const context = React.useContext(DropdownMenuContext);
   const contentRef = React.useRef<HTMLDivElement>(null);
 
@@ -91,7 +90,7 @@ const DropdownMenuContent = React.forwardRef<
   const alignStyles = {
     start: "left-0",
     end: "right-0",
-    center: "left-1/2 -translate-x-1/2"
+    center: "left-1/2 -translate-x-1/2",
   }[align];
 
   return (
@@ -144,11 +143,7 @@ const DropdownMenuLabel = React.forwardRef<
 >(({ className, inset, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn(
-      "px-2 py-1.5 text-sm font-semibold",
-      inset && "pl-8",
-      className
-    )}
+    className={cn("px-2 py-1.5 text-sm font-semibold", inset && "pl-8", className)}
     {...props}
   />
 ));
@@ -158,31 +153,28 @@ const DropdownMenuSeparator = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => (
-  <div
-    ref={ref}
-    className={cn("-mx-1 my-1 h-px bg-muted", className)}
-    {...props}
-  />
+  <div ref={ref} className={cn("-mx-1 my-1 h-px bg-muted", className)} {...props} />
 ));
 DropdownMenuSeparator.displayName = "DropdownMenuSeparator";
 
-const DropdownMenuShortcut = ({
-  className,
-  ...props
-}: React.HTMLAttributes<HTMLSpanElement>) => {
+const DropdownMenuShortcut = ({ className, ...props }: React.HTMLAttributes<HTMLSpanElement>) => {
   return (
-    <span
-      className={cn("ml-auto text-xs tracking-widest opacity-60", className)}
-      {...props}
-    />
-  )
-}
-DropdownMenuShortcut.displayName = "DropdownMenuShortcut"
+    <span className={cn("ml-auto text-xs tracking-widest opacity-60", className)} {...props} />
+  );
+};
+DropdownMenuShortcut.displayName = "DropdownMenuShortcut";
 
 // Mocked portal and sub-menu components for compatibility
-const DropdownMenuPortal: React.FC<{ children: React.ReactNode }> = ({ children }) => <>{children}</>;
-const DropdownMenuGroup: React.FC<{ children: React.ReactNode, className?: string }> = ({ children, className }) => <div className={className}>{children}</div>;
-const DropdownMenuSub: React.FC<{ children: React.ReactNode }> = ({ children }) => <div className="relative">{children}</div>;
+const DropdownMenuPortal: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+  <>{children}</>
+);
+const DropdownMenuGroup: React.FC<{ children: React.ReactNode; className?: string }> = ({
+  children,
+  className,
+}) => <div className={className}>{children}</div>;
+const DropdownMenuSub: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+  <div className="relative">{children}</div>
+);
 const DropdownMenuSubTrigger = DropdownMenuItem; // Simplified
 const DropdownMenuSubContent = DropdownMenuContent; // Simplified
 const DropdownMenuRadioGroup = DropdownMenuGroup;
@@ -201,4 +193,4 @@ export {
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
   DropdownMenuRadioGroup,
-}
+};

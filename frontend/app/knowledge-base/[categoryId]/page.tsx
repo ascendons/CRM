@@ -24,27 +24,37 @@ export default function CategoryPage() {
         kbService.getCategories(),
         kbService.getArticles(categoryId as string),
       ]);
-      const cat = cats.find(c => c.categoryId === categoryId);
+      const cat = cats.find((c) => c.categoryId === categoryId);
       setCategory(cat || null);
       setArticles(arts);
     } catch {
-      showToast("Failed to load articles", "error");
+      showToast.error("Failed to load articles");
     } finally {
       setLoading(false);
     }
   };
 
-  if (loading) return <div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" /></div>;
+  if (loading)
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
+      </div>
+    );
 
   return (
     <div className="p-6">
       <div className="flex items-center gap-3 mb-6">
-        <Link href="/knowledge-base" className="text-gray-500 hover:text-gray-700"><ArrowLeft className="w-5 h-5" /></Link>
+        <Link href="/knowledge-base" className="text-gray-500 hover:text-gray-700">
+          <ArrowLeft className="w-5 h-5" />
+        </Link>
         <div className="flex-1">
           <h1 className="text-2xl font-bold text-gray-900">{category?.name || "Category"}</h1>
           {category?.description && <p className="text-gray-500 text-sm">{category.description}</p>}
         </div>
-        <Link href="/knowledge-base/articles/new" className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700">
+        <Link
+          href="/knowledge-base/articles/new"
+          className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700"
+        >
           <PlusCircle className="w-4 h-4" /> New Article
         </Link>
       </div>
@@ -56,7 +66,7 @@ export default function CategoryPage() {
         </div>
       ) : (
         <div className="space-y-3">
-          {articles.map(article => (
+          {articles.map((article) => (
             <Link key={article.articleId} href={`/knowledge-base/articles/${article.articleId}`}>
               <div className="bg-white rounded-xl border border-gray-200 p-5 hover:shadow-md transition-shadow">
                 <div className="flex items-start justify-between">
@@ -68,8 +78,10 @@ export default function CategoryPage() {
                       </p>
                     )}
                     <div className="flex items-center gap-3 mt-2">
-                      {article.tags?.map(t => (
-                        <span key={t} className="bg-gray-100 text-xs px-2 py-0.5 rounded">{t}</span>
+                      {article.tags?.map((t) => (
+                        <span key={t} className="bg-gray-100 text-xs px-2 py-0.5 rounded">
+                          {t}
+                        </span>
                       ))}
                     </div>
                   </div>
@@ -78,7 +90,9 @@ export default function CategoryPage() {
                   </div>
                 </div>
                 <p className="text-xs text-gray-400 mt-2">
-                  {article.publishedAt ? new Date(article.publishedAt).toLocaleDateString("en-IN") : "Draft"}
+                  {article.publishedAt
+                    ? new Date(article.publishedAt).toLocaleDateString("en-IN")
+                    : "Draft"}
                 </p>
               </div>
             </Link>

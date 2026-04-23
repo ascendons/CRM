@@ -2,11 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
-import {
-  procurementService,
-  RFQ,
-  VendorResponseItem,
-} from "@/lib/procurement";
+import { procurementService, RFQ, VendorResponseItem } from "@/lib/procurement";
 import { authService } from "@/lib/auth";
 import { showToast } from "@/lib/toast";
 import { ArrowLeft, CheckCircle } from "lucide-react";
@@ -101,7 +97,9 @@ export default function RfqDetailPage() {
   if (error || !rfq) {
     return (
       <div className="p-6">
-        <div className="text-red-600 text-sm bg-red-50 p-4 rounded-lg">{error ?? "RFQ not found"}</div>
+        <div className="text-red-600 text-sm bg-red-50 p-4 rounded-lg">
+          {error ?? "RFQ not found"}
+        </div>
       </div>
     );
   }
@@ -127,8 +125,8 @@ export default function RfqDetailPage() {
                   rfq.status === "OPEN"
                     ? "bg-green-100 text-green-800"
                     : rfq.status === "CANCELLED"
-                    ? "bg-red-100 text-red-800"
-                    : "bg-slate-100 text-slate-700"
+                      ? "bg-red-100 text-red-800"
+                      : "bg-slate-100 text-slate-700"
                 }`}
               >
                 {rfq.status}
@@ -157,7 +155,10 @@ export default function RfqDetailPage() {
           <div className="mt-3">
             <span className="text-xs text-slate-500">Vendors invited: </span>
             {rfq.vendorIds.map((vid) => (
-              <span key={vid} className="ml-1 bg-slate-100 text-slate-700 text-xs px-2 py-0.5 rounded">
+              <span
+                key={vid}
+                className="ml-1 bg-slate-100 text-slate-700 text-xs px-2 py-0.5 rounded"
+              >
                 {vid}
               </span>
             ))}
@@ -216,7 +217,9 @@ export default function RfqDetailPage() {
                 <tr className="bg-slate-50">
                   <th className="text-left px-4 py-3 font-semibold text-slate-600">Vendor ID</th>
                   <th className="text-left px-4 py-3 font-semibold text-slate-600">Unit Price</th>
-                  <th className="text-left px-4 py-3 font-semibold text-slate-600">Delivery (days)</th>
+                  <th className="text-left px-4 py-3 font-semibold text-slate-600">
+                    Delivery (days)
+                  </th>
                   <th className="text-left px-4 py-3 font-semibold text-slate-600">Notes</th>
                 </tr>
               </thead>
@@ -236,7 +239,9 @@ export default function RfqDetailPage() {
                         </span>
                       )}
                     </td>
-                    <td className="px-4 py-3 text-slate-600">₹{resp.unitPrice?.toLocaleString()}</td>
+                    <td className="px-4 py-3 text-slate-600">
+                      ₹{resp.unitPrice?.toLocaleString()}
+                    </td>
                     <td className="px-4 py-3 text-slate-600">{resp.deliveryDays}</td>
                     <td className="px-4 py-3 text-slate-600">{resp.notes ?? "-"}</td>
                   </tr>
@@ -291,15 +296,15 @@ export default function RfqDetailPage() {
                 <input
                   type="text"
                   value={responseForm.vendorId ?? ""}
-                  onChange={(e) =>
-                    setResponseForm((p) => ({ ...p, vendorId: e.target.value }))
-                  }
+                  onChange={(e) => setResponseForm((p) => ({ ...p, vendorId: e.target.value }))}
                   className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-medium text-slate-600 mb-1">Unit Price (₹)</label>
+                  <label className="block text-xs font-medium text-slate-600 mb-1">
+                    Unit Price (₹)
+                  </label>
                   <input
                     type="number"
                     min={0}
@@ -311,7 +316,9 @@ export default function RfqDetailPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-slate-600 mb-1">Delivery Days</label>
+                  <label className="block text-xs font-medium text-slate-600 mb-1">
+                    Delivery Days
+                  </label>
                   <input
                     type="number"
                     min={0}

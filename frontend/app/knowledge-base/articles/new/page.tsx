@@ -3,7 +3,12 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { kbService, KbCategory, KbArticleStatus, CreateKbArticleRequest } from "@/lib/knowledge-base";
+import {
+  kbService,
+  KbCategory,
+  KbArticleStatus,
+  CreateKbArticleRequest,
+} from "@/lib/knowledge-base";
 import { showToast } from "@/lib/toast";
 import { ArrowLeft, Save, Eye } from "lucide-react";
 
@@ -23,23 +28,31 @@ export default function NewArticlePage() {
   const [tagsInput, setTagsInput] = useState("");
 
   useEffect(() => {
-    kbService.getCategories().then(setCategories).catch(() => {});
+    kbService
+      .getCategories()
+      .then(setCategories)
+      .catch(() => {});
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.title.trim()) {
-      showToast("Title is required", "error");
+      showToast.error("Title is required");
       return;
     }
     try {
       setSaving(true);
-      const tags = tagsInput ? tagsInput.split(",").map(t => t.trim()).filter(Boolean) : [];
+      const tags = tagsInput
+        ? tagsInput
+            .split(",")
+            .map((t) => t.trim())
+            .filter(Boolean)
+        : [];
       const article = await kbService.createArticle({ ...form, tags });
-      showToast("Article created successfully", "success");
+      showToast.success("Article created successfully");
       router.push(`/knowledge-base/articles/${article.articleId}`);
     } catch {
-      showToast("Failed to create article", "error");
+      showToast.error("Failed to create article");
     } finally {
       setSaving(false);
     }
@@ -61,7 +74,7 @@ export default function NewArticlePage() {
             <input
               type="text"
               value={form.title}
-              onChange={e => setForm({ ...form, title: e.target.value })}
+              onChange={(e) => setForm({ ...form, title: e.target.value })}
               className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Article title"
             />
@@ -72,12 +85,14 @@ export default function NewArticlePage() {
               <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
               <select
                 value={form.categoryId}
-                onChange={e => setForm({ ...form, categoryId: e.target.value })}
+                onChange={(e) => setForm({ ...form, categoryId: e.target.value })}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="">Select category</option>
-                {categories.map(c => (
-                  <option key={c.categoryId} value={c.categoryId}>{c.name}</option>
+                {categories.map((c) => (
+                  <option key={c.categoryId} value={c.categoryId}>
+                    {c.name}
+                  </option>
                 ))}
               </select>
             </div>
@@ -85,7 +100,7 @@ export default function NewArticlePage() {
               <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
               <select
                 value={form.status}
-                onChange={e => setForm({ ...form, status: e.target.value as KbArticleStatus })}
+                onChange={(e) => setForm({ ...form, status: e.target.value as KbArticleStatus })}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="DRAFT">Draft</option>
@@ -96,11 +111,13 @@ export default function NewArticlePage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Tags (comma-separated)</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Tags (comma-separated)
+            </label>
             <input
               type="text"
               value={tagsInput}
-              onChange={e => setTagsInput(e.target.value)}
+              onChange={(e) => setTagsInput(e.target.value)}
               className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="tag1, tag2, tag3"
             />
@@ -130,12 +147,14 @@ export default function NewArticlePage() {
           {preview ? (
             <div
               className="p-6 min-h-64 prose prose-gray max-w-none text-gray-700"
-              dangerouslySetInnerHTML={{ __html: form.body || "<p class='text-gray-400'>Nothing to preview</p>" }}
+              dangerouslySetInnerHTML={{
+                __html: form.body || "<p class='text-gray-400'>Nothing to preview</p>",
+              }}
             />
           ) : (
             <textarea
               value={form.body}
-              onChange={e => setForm({ ...form, body: e.target.value })}
+              onChange={(e) => setForm({ ...form, body: e.target.value })}
               className="w-full p-4 text-sm font-mono text-gray-700 min-h-64 focus:outline-none resize-y"
               placeholder="Write your article content here. HTML is supported."
             />
@@ -143,7 +162,10 @@ export default function NewArticlePage() {
         </div>
 
         <div className="flex justify-end gap-3">
-          <Link href="/knowledge-base" className="px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 hover:bg-gray-50">
+          <Link
+            href="/knowledge-base"
+            className="px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 hover:bg-gray-50"
+          >
             Cancel
           </Link>
           <button

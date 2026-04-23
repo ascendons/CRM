@@ -3,22 +3,14 @@
 import { useEffect, useState, useCallback } from "react";
 import { api } from "@/lib/api-client";
 import { showToast } from "@/lib/toast";
-import {
-  MapPin,
-  RefreshCw,
-  Clock,
-  User,
-  Briefcase,
-  Navigation,
-  AlertCircle,
-} from "lucide-react";
+import { MapPin, RefreshCw, Clock, User, Briefcase, Navigation, AlertCircle } from "lucide-react";
 
 interface EngineerLocation {
   id: string;
   engineerId: string;
   engineerName?: string;
-  latitude: number;
-  longitude: number;
+  lat: number;
+  lng: number;
   accuracy?: number;
   workOrderId?: string;
   timestamp: string;
@@ -89,7 +81,7 @@ export default function DispatchMapPage() {
   const fetchLocations = useCallback(async (silent = false) => {
     if (!silent) setRefreshing(true);
     try {
-      const data = await api.get<EngineerLocation[]>("/engineer-locations");
+      const data = await api.get<EngineerLocation[]>("/geo/locations");
       setLocations(data ?? []);
     } catch {
       showToast.error("Failed to fetch engineer locations");
@@ -103,9 +95,7 @@ export default function DispatchMapPage() {
     setHistoryLoading(true);
     setHistory([]);
     try {
-      const data = await api.get<EngineerLocation[]>(
-        `/engineer-locations/${engineerId}/history`
-      );
+      const data = await api.get<EngineerLocation[]>(`/geo/locations/${engineerId}/history`);
       setHistory((data ?? []).slice(0, 10));
     } catch {
       showToast.error("Failed to load location history");
@@ -132,9 +122,7 @@ export default function DispatchMapPage() {
     }
   }, [selectedEngineerId, fetchHistory]);
 
-  const selectedLocation = locations.find(
-    (l) => l.engineerId === selectedEngineerId
-  );
+  const selectedLocation = locations.find((l) => l.engineerId === selectedEngineerId);
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -146,9 +134,7 @@ export default function DispatchMapPage() {
             <h1 className="text-lg font-semibold text-gray-900">
               Field Map — Live Engineer Locations
             </h1>
-            <p className="text-xs text-gray-500 mt-0.5">
-              Auto-refreshes every 2 minutes
-            </p>
+            <p className="text-xs text-gray-500 mt-0.5">Auto-refreshes every 2 minutes</p>
           </div>
         </div>
         <button
@@ -189,9 +175,7 @@ export default function DispatchMapPage() {
                       <button
                         onClick={() => setSelectedEngineerId(loc.engineerId)}
                         className={`w-full text-left px-4 py-3 flex items-start gap-3 transition-colors ${
-                          selected
-                            ? "bg-blue-50 border-l-2 border-blue-600"
-                            : "hover:bg-gray-50"
+                          selected ? "bg-blue-50 border-l-2 border-blue-600" : "hover:bg-gray-50"
                         }`}
                       >
                         {/* Avatar */}
@@ -242,10 +226,7 @@ export default function DispatchMapPage() {
                   <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
                     <div className="flex items-center gap-4">
                       <div className="w-14 h-14 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold text-lg">
-                        {getInitials(
-                          selectedLocation.engineerName,
-                          selectedLocation.engineerId
-                        )}
+                        {getInitials(selectedLocation.engineerName, selectedLocation.engineerId)}
                       </div>
                       <div>
                         <h2 className="text-base font-semibold text-gray-900">
@@ -271,9 +252,7 @@ export default function DispatchMapPage() {
                         >
                           <span
                             className={`w-1.5 h-1.5 rounded-full ${
-                              isFresh(selectedLocation.timestamp)
-                                ? "bg-green-500"
-                                : "bg-orange-400"
+                              isFresh(selectedLocation.timestamp) ? "bg-green-500" : "bg-orange-400"
                             }`}
                           />
                           {isFresh(selectedLocation.timestamp) ? "Active" : "Inactive"}
@@ -292,13 +271,13 @@ export default function DispatchMapPage() {
                       <div className="bg-gray-50 rounded-lg p-3">
                         <p className="text-xs text-gray-500 mb-1">Latitude</p>
                         <p className="text-sm font-mono font-medium text-gray-900">
-                          {formatCoord(selectedLocation.latitude)}°
+                          {formatCoord(selectedLocation.lat)}°
                         </p>
                       </div>
                       <div className="bg-gray-50 rounded-lg p-3">
                         <p className="text-xs text-gray-500 mb-1">Longitude</p>
                         <p className="text-sm font-mono font-medium text-gray-900">
-                          {formatCoord(selectedLocation.longitude)}°
+                          {formatCoord(selectedLocation.lng)}°
                         </p>
                       </div>
                       {selectedLocation.accuracy != null && (
@@ -322,7 +301,7 @@ export default function DispatchMapPage() {
 
                     {/* Open in Maps link */}
                     <a
-                      href={`https://www.google.com/maps?q=${selectedLocation.latitude},${selectedLocation.longitude}`}
+                      href={`https://www.google.com/maps?q=${selectedLocation.lat},${selectedLocation.lng}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="mt-4 inline-flex items-center gap-2 text-xs text-blue-600 hover:text-blue-800 font-medium"
@@ -386,15 +365,13 @@ export default function DispatchMapPage() {
                                   </div>
                                 </td>
                                 <td className="px-4 py-2.5 font-mono text-xs text-gray-700">
-                                  {formatCoord(entry.latitude)}°
+                                  {formatCoord(entry.lat)}°
                                 </td>
                                 <td className="px-4 py-2.5 font-mono text-xs text-gray-700">
-                                  {formatCoord(entry.longitude)}°
+                                  {formatCoord(entry.lng)}°
                                 </td>
                                 <td className="px-4 py-2.5 text-xs text-gray-500">
-                                  {entry.accuracy != null
-                                    ? `±${entry.accuracy.toFixed(1)} m`
-                                    : "—"}
+                                  {entry.accuracy != null ? `±${entry.accuracy.toFixed(1)} m` : "—"}
                                 </td>
                               </tr>
                             ))}

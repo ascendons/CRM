@@ -9,10 +9,18 @@ export default function KanbanPage() {
   return (
     <div className="p-6">
       <div className="flex items-center gap-3 mb-6">
-        <Link href={`/projects/${id}`} className="text-gray-500 hover:text-gray-700"><ArrowLeft className="w-5 h-5" /></Link>
+        <Link href={`/projects/${id}`} className="text-gray-500 hover:text-gray-700">
+          <ArrowLeft className="w-5 h-5" />
+        </Link>
         <h1 className="text-2xl font-bold text-gray-900">Kanban Board</h1>
       </div>
-      <p className="text-gray-500">View the Kanban board on the <Link href={`/projects/${id}`} className="text-blue-600 hover:underline">project detail page</Link> under the Kanban tab.</p>
+      <p className="text-gray-500">
+        View the Kanban board on the{" "}
+        <Link href={`/projects/${id}`} className="text-blue-600 hover:underline">
+          project detail page
+        </Link>{" "}
+        under the Kanban tab.
+      </p>
     </div>
   );
 }

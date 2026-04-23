@@ -19,13 +19,18 @@ export default function WorkloadPage() {
       const data = await timesheetsService.getWorkload();
       setWorkload(data);
     } catch {
-      showToast("Failed to load workload", "error");
+      showToast.error("Failed to load workload");
     } finally {
       setLoading(false);
     }
   };
 
-  if (loading) return <div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" /></div>;
+  if (loading)
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
+      </div>
+    );
 
   return (
     <div className="p-6">
@@ -41,10 +46,11 @@ export default function WorkloadPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {workload.map(member => {
-            const completionRate = member.assignedTasks > 0
-              ? Math.round((member.completedTasks / member.assignedTasks) * 100)
-              : 0;
+          {workload.map((member) => {
+            const completionRate =
+              member.assignedTasks > 0
+                ? Math.round((member.completedTasks / member.assignedTasks) * 100)
+                : 0;
             return (
               <div key={member.userId} className="bg-white rounded-xl border border-gray-200 p-5">
                 <div className="flex items-center gap-3 mb-4">
@@ -71,7 +77,9 @@ export default function WorkloadPage() {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-500">Pending Hours</span>
-                    <span className="font-medium text-orange-600">{member.pendingHours.toFixed(1)}h</span>
+                    <span className="font-medium text-orange-600">
+                      {member.pendingHours.toFixed(1)}h
+                    </span>
                   </div>
                   <div>
                     <div className="flex justify-between text-xs text-gray-500 mb-1">

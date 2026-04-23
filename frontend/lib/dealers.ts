@@ -90,17 +90,11 @@ export const dealersService = {
     return await api.post<Dealer>("/dealers", data);
   },
 
-  async updateDealer(
-    id: string,
-    data: Partial<CreateDealerRequest>
-  ): Promise<Dealer> {
+  async updateDealer(id: string, data: Partial<CreateDealerRequest>): Promise<Dealer> {
     return await api.put<Dealer>(`/dealers/${id}`, data);
   },
 
-  async updateStatus(
-    id: string,
-    status: "ACTIVE" | "INACTIVE" | "SUSPENDED"
-  ): Promise<Dealer> {
+  async updateStatus(id: string, status: "ACTIVE" | "INACTIVE" | "SUSPENDED"): Promise<Dealer> {
     return await api.post<Dealer>(`/dealers/${id}/status`, { status });
   },
 
@@ -120,23 +114,14 @@ export const dealersService = {
     return await api.post<DealerOrder>(`/dealers/${id}/orders`, data);
   },
 
-  async getDealerPerformance(
-    id: string,
-    month: number,
-    year: number
-  ): Promise<DealerPerformance> {
+  async getDealerPerformance(id: string, month: number, year: number): Promise<DealerPerformance> {
     return await api.get<DealerPerformance>(
       `/dealers/${id}/performance?month=${month}&year=${year}`
     );
   },
 
-  async getAllDealersPerformance(
-    month: number,
-    year: number
-  ): Promise<DealerPerformance[]> {
-    const response = await api.get<any>(
-      `/dealers/performance/monthly?month=${month}&year=${year}`
-    );
+  async getAllDealersPerformance(month: number, year: number): Promise<DealerPerformance[]> {
+    const response = await api.get<any>(`/dealers/performance/monthly?month=${month}&year=${year}`);
     if (response && response.content && Array.isArray(response.content)) {
       return response.content;
     }

@@ -72,11 +72,7 @@ export default function GrnListPage() {
     setLineItems([emptyLineItem()]);
   };
 
-  const updateLineItem = (
-    index: number,
-    field: keyof GrnLineItem,
-    value: string | number
-  ) => {
+  const updateLineItem = (index: number, field: keyof GrnLineItem, value: string | number) => {
     setLineItems((prev) =>
       prev.map((item, i) => (i === index ? { ...item, [field]: value } : item))
     );
@@ -121,7 +117,9 @@ export default function GrnListPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-slate-800">Goods Receipt Notes</h1>
-          <p className="text-slate-500 text-sm mt-1">Track received goods against purchase orders</p>
+          <p className="text-slate-500 text-sm mt-1">
+            Track received goods against purchase orders
+          </p>
         </div>
         <button
           onClick={() => setShowModal(true)}
@@ -147,9 +145,13 @@ export default function GrnListPage() {
                 <tr className="bg-slate-50 border-b border-slate-200">
                   <th className="text-left px-4 py-3 font-semibold text-slate-600">GRN Number</th>
                   <th className="text-left px-4 py-3 font-semibold text-slate-600">PO ID</th>
-                  <th className="text-left px-4 py-3 font-semibold text-slate-600">Received Date</th>
+                  <th className="text-left px-4 py-3 font-semibold text-slate-600">
+                    Received Date
+                  </th>
                   <th className="text-left px-4 py-3 font-semibold text-slate-600">Received By</th>
-                  <th className="text-left px-4 py-3 font-semibold text-slate-600">Quality Status</th>
+                  <th className="text-left px-4 py-3 font-semibold text-slate-600">
+                    Quality Status
+                  </th>
                   <th className="text-left px-4 py-3 font-semibold text-slate-600">Items</th>
                   <th className="text-left px-4 py-3 font-semibold text-slate-600">Remarks</th>
                 </tr>
@@ -163,7 +165,10 @@ export default function GrnListPage() {
                   </tr>
                 ) : (
                   grns.map((grn) => (
-                    <tr key={grn.id} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
+                    <tr
+                      key={grn.id}
+                      className="border-b border-slate-100 hover:bg-slate-50 transition-colors"
+                    >
                       <td className="px-4 py-3 font-medium text-slate-800">
                         {grn.grnNumber ?? grn.id.slice(0, 8)}
                       </td>
@@ -244,7 +249,9 @@ export default function GrnListPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-slate-600 mb-1">Quality Status</label>
+                  <label className="block text-xs font-medium text-slate-600 mb-1">
+                    Quality Status
+                  </label>
                   <select
                     value={qualityStatus}
                     onChange={(e) => setQualityStatus(e.target.value as QualityStatus)}
@@ -314,9 +321,7 @@ export default function GrnListPage() {
                       />
                       <button
                         type="button"
-                        onClick={() =>
-                          setLineItems((prev) => prev.filter((_, idx) => idx !== i))
-                        }
+                        onClick={() => setLineItems((prev) => prev.filter((_, idx) => idx !== i))}
                         disabled={lineItems.length === 1}
                         className="text-red-400 hover:text-red-600 p-2 disabled:opacity-30"
                       >

@@ -48,8 +48,7 @@ function formatCurrency(val: number) {
 
 function CreditBar({ used, limit }: { used: number; limit: number }) {
   const pct = limit > 0 ? Math.min((used / limit) * 100, 100) : 0;
-  const color =
-    pct > 80 ? "bg-red-500" : pct > 60 ? "bg-yellow-500" : "bg-green-500";
+  const color = pct > 80 ? "bg-red-500" : pct > 60 ? "bg-yellow-500" : "bg-green-500";
   return (
     <div className="space-y-1">
       <div className="flex justify-between text-xs text-slate-500">
@@ -59,10 +58,7 @@ function CreditBar({ used, limit }: { used: number; limit: number }) {
         <span>{pct.toFixed(1)}%</span>
       </div>
       <div className="w-full bg-slate-200 rounded-full h-3">
-        <div
-          className={`h-3 rounded-full transition-all ${color}`}
-          style={{ width: `${pct}%` }}
-        />
+        <div className={`h-3 rounded-full transition-all ${color}`} style={{ width: `${pct}%` }} />
       </div>
     </div>
   );
@@ -127,9 +123,7 @@ function PlaceOrderModal({
   onSubmit: (data: PlaceOrderRequest) => void;
   loading: boolean;
 }) {
-  const [products, setProducts] = useState([
-    { productId: "", qty: 1, unitPrice: 0 },
-  ]);
+  const [products, setProducts] = useState([{ productId: "", qty: 1, unitPrice: 0 }]);
   const [creditUsed, setCreditUsed] = useState(0);
 
   if (!open) return null;
@@ -154,8 +148,7 @@ function PlaceOrderModal({
         idx === i
           ? {
               ...p,
-              [field]:
-                field === "productId" ? value : parseFloat(value as string) || 0,
+              [field]: field === "productId" ? value : parseFloat(value as string) || 0,
             }
           : p
       )
@@ -172,10 +165,7 @@ function PlaceOrderModal({
       <div className="bg-white rounded-xl shadow-xl p-6 max-w-xl w-full mx-4 max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold text-slate-900">Place Order</h3>
-          <button
-            onClick={onClose}
-            className="p-1 rounded-lg hover:bg-slate-100 transition-colors"
-          >
+          <button onClick={onClose} className="p-1 rounded-lg hover:bg-slate-100 transition-colors">
             <X className="w-5 h-5 text-slate-500" />
           </button>
         </div>
@@ -183,9 +173,7 @@ function PlaceOrderModal({
           {/* Products */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <label className="text-sm font-medium text-slate-700">
-                Products
-              </label>
+              <label className="text-sm font-medium text-slate-700">Products</label>
               <button
                 type="button"
                 onClick={addProduct}
@@ -201,9 +189,7 @@ function PlaceOrderModal({
                     type="text"
                     placeholder="Product ID"
                     value={p.productId}
-                    onChange={(e) =>
-                      updateProduct(i, "productId", e.target.value)
-                    }
+                    onChange={(e) => updateProduct(i, "productId", e.target.value)}
                     className="col-span-5 px-2 py-1.5 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                   <input
@@ -219,9 +205,7 @@ function PlaceOrderModal({
                     placeholder="Unit Price"
                     value={p.unitPrice}
                     min={0}
-                    onChange={(e) =>
-                      updateProduct(i, "unitPrice", e.target.value)
-                    }
+                    onChange={(e) => updateProduct(i, "unitPrice", e.target.value)}
                     className="col-span-4 px-2 py-1.5 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                   <button
@@ -238,12 +222,8 @@ function PlaceOrderModal({
           </div>
 
           <div className="flex items-center justify-between py-3 px-3 bg-slate-50 rounded-lg">
-            <span className="text-sm font-medium text-slate-700">
-              Total Value
-            </span>
-            <span className="font-bold text-slate-900">
-              {formatCurrency(totalValue)}
-            </span>
+            <span className="text-sm font-medium text-slate-700">Total Value</span>
+            <span className="font-bold text-slate-900">{formatCurrency(totalValue)}</span>
           </div>
 
           <div>
@@ -290,9 +270,7 @@ export default function DealerDetailPage() {
 
   const [dealer, setDealer] = useState<Dealer | null>(null);
   const [orders, setOrders] = useState<DealerOrder[]>([]);
-  const [performance, setPerformance] = useState<DealerPerformance | null>(
-    null
-  );
+  const [performance, setPerformance] = useState<DealerPerformance | null>(null);
   const [activeTab, setActiveTab] = useState<Tab>("overview");
   const [loading, setLoading] = useState(true);
   const [ordersLoading, setOrdersLoading] = useState(false);
@@ -351,11 +329,7 @@ export default function DealerDetailPage() {
   async function loadPerformance() {
     setPerfLoading(true);
     try {
-      const data = await dealersService.getDealerPerformance(
-        id,
-        perfMonth,
-        perfYear
-      );
+      const data = await dealersService.getDealerPerformance(id, perfMonth, perfYear);
       setPerformance(data);
     } catch {
       setPerformance(null);
@@ -364,9 +338,7 @@ export default function DealerDetailPage() {
     }
   }
 
-  async function handleStatusChange(
-    newStatus: "ACTIVE" | "INACTIVE" | "SUSPENDED"
-  ) {
+  async function handleStatusChange(newStatus: "ACTIVE" | "INACTIVE" | "SUSPENDED") {
     setActionLoading(true);
     try {
       const updated = await dealersService.updateStatus(id, newStatus);
@@ -449,13 +421,9 @@ export default function DealerDetailPage() {
         }
         confirmLabel={isSuspended ? "Reactivate" : "Suspend"}
         confirmClass={
-          isSuspended
-            ? "bg-green-600 hover:bg-green-700"
-            : "bg-red-600 hover:bg-red-700"
+          isSuspended ? "bg-green-600 hover:bg-green-700" : "bg-red-600 hover:bg-red-700"
         }
-        onConfirm={() =>
-          handleStatusChange(isSuspended ? "ACTIVE" : "SUSPENDED")
-        }
+        onConfirm={() => handleStatusChange(isSuspended ? "ACTIVE" : "SUSPENDED")}
         onCancel={() => setShowSuspendModal(false)}
         loading={actionLoading}
       />
@@ -479,17 +447,12 @@ export default function DealerDetailPage() {
         {/* Header */}
         <div className="flex items-start justify-between mb-6">
           <div className="flex items-center gap-3">
-            <Link
-              href="/dealers"
-              className="p-2 rounded-lg hover:bg-slate-200 transition-colors"
-            >
+            <Link href="/dealers" className="p-2 rounded-lg hover:bg-slate-200 transition-colors">
               <ArrowLeft className="w-5 h-5 text-slate-600" />
             </Link>
             <div>
               <div className="flex items-center gap-3">
-                <h1 className="text-2xl font-bold text-slate-900">
-                  {dealer.companyName}
-                </h1>
+                <h1 className="text-2xl font-bold text-slate-900">{dealer.companyName}</h1>
                 <span
                   className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${
                     TIER_STYLES[dealer.tier] || ""
@@ -506,9 +469,7 @@ export default function DealerDetailPage() {
                 </span>
               </div>
               {dealer.dealerCode && (
-                <p className="text-sm text-slate-500 mt-0.5 font-mono">
-                  {dealer.dealerCode}
-                </p>
+                <p className="text-sm text-slate-500 mt-0.5 font-mono">{dealer.dealerCode}</p>
               )}
             </div>
           </div>
@@ -587,12 +548,8 @@ export default function DealerDetailPage() {
                     },
                   ].map((item) => (
                     <div key={item.label}>
-                      <dt className="text-xs text-slate-500 mb-0.5">
-                        {item.label}
-                      </dt>
-                      <dd className="text-sm font-medium text-slate-900">
-                        {item.value || "—"}
-                      </dd>
+                      <dt className="text-xs text-slate-500 mb-0.5">{item.label}</dt>
+                      <dd className="text-sm font-medium text-slate-900">{item.value || "—"}</dd>
                     </div>
                   ))}
                 </dl>
@@ -603,10 +560,7 @@ export default function DealerDetailPage() {
                 <h2 className="text-sm font-semibold text-slate-700 uppercase tracking-wider mb-4">
                   Credit Utilization
                 </h2>
-                <CreditBar
-                  used={dealer.currentCreditUsed || 0}
-                  limit={dealer.creditLimit || 0}
-                />
+                <CreditBar used={dealer.currentCreditUsed || 0} limit={dealer.creditLimit || 0} />
                 <div className="grid grid-cols-2 gap-4 mt-4">
                   <div className="bg-slate-50 rounded-lg p-3">
                     <p className="text-xs text-slate-500 mb-1">Credit Limit</p>
@@ -675,9 +629,7 @@ export default function DealerDetailPage() {
         {activeTab === "orders" && (
           <div>
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-base font-semibold text-slate-900">
-                Order History
-              </h2>
+              <h2 className="text-base font-semibold text-slate-900">Order History</h2>
               <button
                 onClick={() => setShowOrderModal(true)}
                 className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors"
@@ -710,9 +662,7 @@ export default function DealerDetailPage() {
                         <th className="text-left px-4 py-3 font-medium text-slate-600">
                           Credit Used
                         </th>
-                        <th className="text-left px-4 py-3 font-medium text-slate-600">
-                          Status
-                        </th>
+                        <th className="text-left px-4 py-3 font-medium text-slate-600">Status</th>
                         <th className="text-left px-4 py-3 font-medium text-slate-600">
                           Placed At
                         </th>
@@ -740,16 +690,12 @@ export default function DealerDetailPage() {
                           </td>
                           <td className="px-4 py-3 text-slate-500 text-xs">
                             {order.placedAt
-                              ? new Date(order.placedAt).toLocaleDateString(
-                                  "en-IN"
-                                )
+                              ? new Date(order.placedAt).toLocaleDateString("en-IN")
                               : "—"}
                           </td>
                           <td className="px-4 py-3 text-slate-500 text-xs">
                             {order.deliveredAt
-                              ? new Date(order.deliveredAt).toLocaleDateString(
-                                  "en-IN"
-                                )
+                              ? new Date(order.deliveredAt).toLocaleDateString("en-IN")
                               : "—"}
                           </td>
                         </tr>
@@ -766,9 +712,7 @@ export default function DealerDetailPage() {
         {activeTab === "performance" && (
           <div>
             <div className="flex items-center gap-3 mb-4">
-              <h2 className="text-base font-semibold text-slate-900">
-                Monthly Performance
-              </h2>
+              <h2 className="text-base font-semibold text-slate-900">Monthly Performance</h2>
               <select
                 value={perfMonth}
                 onChange={(e) => setPerfMonth(parseInt(e.target.value))}
@@ -805,9 +749,7 @@ export default function DealerDetailPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {/* Target vs Actual */}
                 <div className="bg-white rounded-xl border border-slate-200 p-5 sm:col-span-2 lg:col-span-3">
-                  <h3 className="text-sm font-semibold text-slate-700 mb-3">
-                    Sales Performance
-                  </h3>
+                  <h3 className="text-sm font-semibold text-slate-700 mb-3">Sales Performance</h3>
                   <div className="flex items-end gap-6">
                     <div>
                       <p className="text-xs text-slate-500 mb-1">Target</p>
@@ -816,9 +758,7 @@ export default function DealerDetailPage() {
                       </p>
                     </div>
                     <div>
-                      <p className="text-xs text-slate-500 mb-1">
-                        Actual Sales
-                      </p>
+                      <p className="text-xs text-slate-500 mb-1">Actual Sales</p>
                       <p
                         className={`text-2xl font-bold ${
                           performance.actualSales >= performance.target
@@ -833,10 +773,7 @@ export default function DealerDetailPage() {
                       <p className="text-xs text-slate-500 mb-1">Achievement</p>
                       <p className="text-base font-semibold text-slate-700">
                         {performance.target > 0
-                          ? (
-                              (performance.actualSales / performance.target) *
-                              100
-                            ).toFixed(1)
+                          ? ((performance.actualSales / performance.target) * 100).toFixed(1)
                           : 0}
                         %
                       </p>
@@ -854,8 +791,7 @@ export default function DealerDetailPage() {
                         style={{
                           width: `${Math.min(
                             performance.target > 0
-                              ? (performance.actualSales / performance.target) *
-                                  100
+                              ? (performance.actualSales / performance.target) * 100
                               : 0,
                             100
                           )}%`,
@@ -867,22 +803,16 @@ export default function DealerDetailPage() {
 
                 <div className="bg-white rounded-xl border border-slate-200 p-5">
                   <p className="text-xs text-slate-500 mb-1">Open Orders</p>
-                  <p className="text-2xl font-bold text-slate-900">
-                    {performance.openOrders}
-                  </p>
+                  <p className="text-2xl font-bold text-slate-900">{performance.openOrders}</p>
                 </div>
                 <div className="bg-white rounded-xl border border-slate-200 p-5">
-                  <p className="text-xs text-slate-500 mb-1">
-                    Pending Payments
-                  </p>
+                  <p className="text-xs text-slate-500 mb-1">Pending Payments</p>
                   <p className="text-2xl font-bold text-amber-600">
                     {formatCurrency(performance.pendingPayments)}
                   </p>
                 </div>
                 <div className="bg-white rounded-xl border border-slate-200 p-5">
-                  <p className="text-xs text-slate-500 mb-1">
-                    Incentives Earned
-                  </p>
+                  <p className="text-xs text-slate-500 mb-1">Incentives Earned</p>
                   <p className="text-2xl font-bold text-green-600">
                     {formatCurrency(performance.incentivesEarned)}
                   </p>

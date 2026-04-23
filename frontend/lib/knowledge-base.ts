@@ -1,6 +1,6 @@
-import { api } from './api-client';
+import { api } from "./api-client";
 
-export type KbArticleStatus = 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
+export type KbArticleStatus = "DRAFT" | "PUBLISHED" | "ARCHIVED";
 
 export interface KbCategory {
   id: string;
@@ -44,20 +44,20 @@ export interface CreateKbArticleRequest {
 
 export const kbService = {
   async getCategories(): Promise<KbCategory[]> {
-    return await api.get<KbCategory[]>('/kb/categories');
+    return await api.get<KbCategory[]>("/kb/categories");
   },
 
   async createCategory(data: Partial<KbCategory>): Promise<KbCategory> {
-    return await api.post<KbCategory>('/kb/categories', data);
+    return await api.post<KbCategory>("/kb/categories", data);
   },
 
   async getArticles(categoryId?: string): Promise<KbArticle[]> {
-    const url = categoryId ? `/kb/articles?categoryId=${categoryId}` : '/kb/articles';
+    const url = categoryId ? `/kb/articles?categoryId=${categoryId}` : "/kb/articles";
     return await api.get<KbArticle[]>(url);
   },
 
   async getAllArticles(): Promise<KbArticle[]> {
-    return await api.get<KbArticle[]>('/kb/articles/all');
+    return await api.get<KbArticle[]>("/kb/articles/all");
   },
 
   async getArticleById(articleId: string): Promise<KbArticle> {
@@ -65,7 +65,7 @@ export const kbService = {
   },
 
   async createArticle(request: CreateKbArticleRequest): Promise<KbArticle> {
-    return await api.post<KbArticle>('/kb/articles', request);
+    return await api.post<KbArticle>("/kb/articles", request);
   },
 
   async updateArticle(articleId: string, request: CreateKbArticleRequest): Promise<KbArticle> {

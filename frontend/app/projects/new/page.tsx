@@ -23,7 +23,7 @@ export default function NewProjectPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.name.trim()) {
-      showToast("Project name is required", "error");
+      showToast.error("Project name is required");
       return;
     }
     try {
@@ -35,12 +35,17 @@ export default function NewProjectPage() {
         startDate: form.startDate || undefined,
         dueDate: form.dueDate || undefined,
         budget: form.budget ? Number(form.budget) : undefined,
-        tags: form.tags ? form.tags.split(",").map(t => t.trim()).filter(Boolean) : undefined,
+        tags: form.tags
+          ? form.tags
+              .split(",")
+              .map((t) => t.trim())
+              .filter(Boolean)
+          : undefined,
       });
-      showToast("Project created successfully", "success");
+      showToast.success("Project created successfully");
       router.push(`/projects/${project.projectId}`);
     } catch (err) {
-      showToast("Failed to create project", "error");
+      showToast.error("Failed to create project");
     } finally {
       setSaving(false);
     }
@@ -55,13 +60,16 @@ export default function NewProjectPage() {
         <h1 className="text-2xl font-bold text-gray-900">New Project</h1>
       </div>
 
-      <form onSubmit={handleSubmit} className="bg-white rounded-xl border border-gray-200 p-6 space-y-5">
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white rounded-xl border border-gray-200 p-6 space-y-5"
+      >
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Project Name *</label>
           <input
             type="text"
             value={form.name}
-            onChange={e => setForm({ ...form, name: e.target.value })}
+            onChange={(e) => setForm({ ...form, name: e.target.value })}
             className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="Enter project name"
           />
@@ -72,7 +80,7 @@ export default function NewProjectPage() {
           <textarea
             rows={3}
             value={form.description}
-            onChange={e => setForm({ ...form, description: e.target.value })}
+            onChange={(e) => setForm({ ...form, description: e.target.value })}
             className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="Project description"
           />
@@ -82,7 +90,7 @@ export default function NewProjectPage() {
           <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
           <select
             value={form.status}
-            onChange={e => setForm({ ...form, status: e.target.value as ProjectStatus })}
+            onChange={(e) => setForm({ ...form, status: e.target.value as ProjectStatus })}
             className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="PLANNING">Planning</option>
@@ -99,7 +107,7 @@ export default function NewProjectPage() {
             <input
               type="date"
               value={form.startDate}
-              onChange={e => setForm({ ...form, startDate: e.target.value })}
+              onChange={(e) => setForm({ ...form, startDate: e.target.value })}
               className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
@@ -108,7 +116,7 @@ export default function NewProjectPage() {
             <input
               type="date"
               value={form.dueDate}
-              onChange={e => setForm({ ...form, dueDate: e.target.value })}
+              onChange={(e) => setForm({ ...form, dueDate: e.target.value })}
               className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
@@ -119,25 +127,30 @@ export default function NewProjectPage() {
           <input
             type="number"
             value={form.budget}
-            onChange={e => setForm({ ...form, budget: e.target.value })}
+            onChange={(e) => setForm({ ...form, budget: e.target.value })}
             className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="0.00"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Tags (comma-separated)</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Tags (comma-separated)
+          </label>
           <input
             type="text"
             value={form.tags}
-            onChange={e => setForm({ ...form, tags: e.target.value })}
+            onChange={(e) => setForm({ ...form, tags: e.target.value })}
             className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="design, frontend, api"
           />
         </div>
 
         <div className="flex justify-end gap-3 pt-2">
-          <Link href="/projects" className="px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 hover:bg-gray-50">
+          <Link
+            href="/projects"
+            className="px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 hover:bg-gray-50"
+          >
             Cancel
           </Link>
           <button

@@ -23,9 +23,9 @@ export default function TaskTimer({ taskId, projectId, taskTitle }: TaskTimerPro
       setActiveEntry(entry);
       setRunning(true);
       setElapsed(0);
-      showToast("Timer started", "success");
+      showToast.success("Timer started");
     } catch {
-      showToast("Failed to start timer", "error");
+      showToast.error("Failed to start timer");
     }
   };
 
@@ -36,16 +36,16 @@ export default function TaskTimer({ taskId, projectId, taskTitle }: TaskTimerPro
       setRunning(false);
       setActiveEntry(null);
       setElapsed(0);
-      showToast("Timer stopped and saved", "success");
+      showToast.success("Timer stopped and saved");
     } catch {
-      showToast("Failed to stop timer", "error");
+      showToast.error("Failed to stop timer");
     }
   };
 
   useEffect(() => {
     if (running) {
       intervalRef.current = setInterval(() => {
-        setElapsed(s => s + 1);
+        setElapsed((s) => s + 1);
       }, 1000);
     } else {
       if (intervalRef.current) clearInterval(intervalRef.current);
@@ -67,7 +67,9 @@ export default function TaskTimer({ taskId, projectId, taskTitle }: TaskTimerPro
       <Clock className="w-4 h-4 text-gray-400" />
       {taskTitle && <span className="text-sm text-gray-600 truncate max-w-32">{taskTitle}</span>}
       {running && (
-        <span className="text-sm font-mono text-blue-600 font-medium">{formatElapsed(elapsed)}</span>
+        <span className="text-sm font-mono text-blue-600 font-medium">
+          {formatElapsed(elapsed)}
+        </span>
       )}
       {running ? (
         <button

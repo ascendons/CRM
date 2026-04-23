@@ -28,7 +28,7 @@ export default function KnowledgeBasePage() {
       setCategories(cats);
       setRecent(articles.slice(0, 6));
     } catch {
-      showToast("Failed to load knowledge base", "error");
+      showToast.error("Failed to load knowledge base");
     } finally {
       setLoading(false);
     }
@@ -42,13 +42,18 @@ export default function KnowledgeBasePage() {
       const results = await kbService.searchArticles(searchQuery);
       setSearchResults(results);
     } catch {
-      showToast("Search failed", "error");
+      showToast.error("Search failed");
     } finally {
       setSearching(false);
     }
   };
 
-  if (loading) return <div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" /></div>;
+  if (loading)
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
+      </div>
+    );
 
   return (
     <div className="p-6">
@@ -72,7 +77,10 @@ export default function KnowledgeBasePage() {
           <input
             type="text"
             value={searchQuery}
-            onChange={e => { setSearchQuery(e.target.value); if (!e.target.value) setSearchResults([]); }}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              if (!e.target.value) setSearchResults([]);
+            }}
             placeholder="Search articles..."
             className="pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-sm w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
@@ -89,9 +97,11 @@ export default function KnowledgeBasePage() {
       {/* Search Results */}
       {searchResults.length > 0 && (
         <div className="mb-8">
-          <h2 className="text-lg font-semibold text-gray-800 mb-4">Search Results ({searchResults.length})</h2>
+          <h2 className="text-lg font-semibold text-gray-800 mb-4">
+            Search Results ({searchResults.length})
+          </h2>
           <div className="space-y-2">
-            {searchResults.map(article => (
+            {searchResults.map((article) => (
               <Link key={article.articleId} href={`/knowledge-base/articles/${article.articleId}`}>
                 <div className="bg-white rounded-lg border border-gray-200 p-4 hover:shadow-sm transition-shadow">
                   <div className="flex items-center justify-between">
@@ -102,7 +112,11 @@ export default function KnowledgeBasePage() {
                   </div>
                   {article.tags && article.tags.length > 0 && (
                     <div className="flex gap-1 mt-2">
-                      {article.tags.map(t => <span key={t} className="bg-gray-100 text-xs px-2 py-0.5 rounded">{t}</span>)}
+                      {article.tags.map((t) => (
+                        <span key={t} className="bg-gray-100 text-xs px-2 py-0.5 rounded">
+                          {t}
+                        </span>
+                      ))}
                     </div>
                   )}
                 </div>
@@ -122,7 +136,7 @@ export default function KnowledgeBasePage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {categories.map(cat => (
+            {categories.map((cat) => (
               <Link key={cat.categoryId} href={`/knowledge-base/${cat.categoryId}`}>
                 <div className="bg-white rounded-xl border border-gray-200 p-5 hover:shadow-md transition-shadow cursor-pointer">
                   <div className="flex items-center gap-3 mb-2">
@@ -143,17 +157,24 @@ export default function KnowledgeBasePage() {
         {recent.length === 0 ? (
           <div className="text-center py-8 text-gray-400">
             <BookOpen className="w-8 h-8 mx-auto mb-2" />
-            <p>No articles yet. <Link href="/knowledge-base/articles/new" className="text-blue-600">Create one</Link></p>
+            <p>
+              No articles yet.{" "}
+              <Link href="/knowledge-base/articles/new" className="text-blue-600">
+                Create one
+              </Link>
+            </p>
           </div>
         ) : (
           <div className="space-y-2">
-            {recent.map(article => (
+            {recent.map((article) => (
               <Link key={article.articleId} href={`/knowledge-base/articles/${article.articleId}`}>
                 <div className="flex items-center justify-between bg-white rounded-lg border border-gray-200 p-4 hover:shadow-sm transition-shadow">
                   <div>
                     <h3 className="font-medium text-gray-800">{article.title}</h3>
                     <p className="text-xs text-gray-400 mt-0.5">
-                      {article.createdAt ? new Date(article.createdAt).toLocaleDateString("en-IN") : ""}
+                      {article.createdAt
+                        ? new Date(article.createdAt).toLocaleDateString("en-IN")
+                        : ""}
                     </p>
                   </div>
                   <div className="flex items-center gap-1 text-xs text-gray-400">

@@ -20,7 +20,7 @@ import {
   XCircle,
   Calendar,
   Building2,
-  Settings2
+  Settings2,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -76,17 +76,18 @@ export default function AssetsPage() {
     // Search filter
     if (searchQuery.trim()) {
       const term = searchQuery.toLowerCase();
-      result = result.filter(a =>
-        a.assetCode.toLowerCase().includes(term) ||
-        a.serialNo.toLowerCase().includes(term) ||
-        a.model.toLowerCase().includes(term) ||
-        a.brand.toLowerCase().includes(term)
+      result = result.filter(
+        (a) =>
+          a.assetCode.toLowerCase().includes(term) ||
+          a.serialNo.toLowerCase().includes(term) ||
+          a.model.toLowerCase().includes(term) ||
+          a.brand.toLowerCase().includes(term)
       );
     }
 
     // Status filter
     if (statusFilter !== "ALL") {
-      result = result.filter(a => a.status === statusFilter);
+      result = result.filter((a) => a.status === statusFilter);
     }
 
     setFilteredAssets(result);
@@ -169,22 +170,44 @@ export default function AssetsPage() {
   const getStatusBadge = (status: AssetStatus) => {
     switch (status) {
       case AssetStatus.ACTIVE:
-        return <Badge className="bg-emerald-50 text-emerald-700 border-emerald-100 uppercase text-[10px] font-bold">Active</Badge>;
+        return (
+          <Badge className="bg-emerald-50 text-emerald-700 border-emerald-100 uppercase text-[10px] font-bold">
+            Active
+          </Badge>
+        );
       case AssetStatus.UNDER_REPAIR:
-        return <Badge className="bg-amber-50 text-amber-700 border-amber-100 uppercase text-[10px] font-bold">Under Repair</Badge>;
+        return (
+          <Badge className="bg-amber-50 text-amber-700 border-amber-100 uppercase text-[10px] font-bold">
+            Under Repair
+          </Badge>
+        );
       case AssetStatus.DECOMMISSIONED:
-        return <Badge className="bg-slate-100 text-slate-700 border-slate-200 uppercase text-[10px] font-bold">Decommissioned</Badge>;
+        return (
+          <Badge className="bg-slate-100 text-slate-700 border-slate-200 uppercase text-[10px] font-bold">
+            Decommissioned
+          </Badge>
+        );
       case AssetStatus.IN_TRANSIT:
-        return <Badge className="bg-blue-50 text-blue-700 border-blue-100 uppercase text-[10px] font-bold">In Transit</Badge>;
+        return (
+          <Badge className="bg-blue-50 text-blue-700 border-blue-100 uppercase text-[10px] font-bold">
+            In Transit
+          </Badge>
+        );
       case AssetStatus.SCRAPPED:
-        return <Badge className="bg-rose-50 text-rose-700 border-rose-100 uppercase text-[10px] font-bold">Scrapped</Badge>;
+        return (
+          <Badge className="bg-rose-50 text-rose-700 border-rose-100 uppercase text-[10px] font-bold">
+            Scrapped
+          </Badge>
+        );
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
   };
 
-  const isAllSelected = paginatedAssets.length > 0 && selectedAssets.length === paginatedAssets.length;
-  const isSomeSelected = selectedAssets.length > 0 && selectedAssets.length < paginatedAssets.length;
+  const isAllSelected =
+    paginatedAssets.length > 0 && selectedAssets.length === paginatedAssets.length;
+  const isSomeSelected =
+    selectedAssets.length > 0 && selectedAssets.length < paginatedAssets.length;
 
   if (loading) {
     return (
@@ -210,7 +233,9 @@ export default function AssetsPage() {
                 </div>
                 <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Asset Registry</h1>
               </div>
-              <p className="text-sm text-slate-500 font-medium">Manage equipment, serial numbers, and warranty tracking.</p>
+              <p className="text-sm text-slate-500 font-medium">
+                Manage equipment, serial numbers, and warranty tracking.
+              </p>
             </div>
             <div className="flex items-center gap-3">
               <Button variant="outline" className="hidden sm:flex gap-2 rounded-xl">
@@ -259,23 +284,27 @@ export default function AssetsPage() {
                 className="px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-medium min-w-[160px]"
               >
                 <option value="ALL">All Statuses</option>
-                {Object.values(AssetStatus).map(status => (
-                  <option key={status} value={status}>{status.replace('_', ' ')}</option>
+                {Object.values(AssetStatus).map((status) => (
+                  <option key={status} value={status}>
+                    {status.replace("_", " ")}
+                  </option>
                 ))}
               </select>
             </div>
-            
+
             {selectedAssets.length > 0 && (
               <div className="flex items-center gap-3 bg-primary/5 text-primary px-4 py-2 rounded-xl text-sm font-semibold animate-in fade-in zoom-in duration-200 border border-primary/10">
                 <span>{selectedAssets.length} Selected</span>
                 <div className="h-4 w-px bg-primary/20 mx-1"></div>
-                <button 
-                  onClick={() => confirmDelete(selectedAssets[0])} 
+                <button
+                  onClick={() => confirmDelete(selectedAssets[0])}
                   className="text-rose-600 hover:text-rose-700 transition-colors"
                 >
                   <Trash2 className="h-4 w-4" />
                 </button>
-                <button onClick={() => setSelectedAssets([])} className="hover:underline">Clear</button>
+                <button onClick={() => setSelectedAssets([])} className="hover:underline">
+                  Clear
+                </button>
               </div>
             )}
           </div>
@@ -299,19 +328,21 @@ export default function AssetsPage() {
                       <input
                         type="checkbox"
                         checked={isAllSelected}
-                        ref={(el) => { if (el) el.indeterminate = isSomeSelected; }}
+                        ref={(el) => {
+                          if (el) el.indeterminate = isSomeSelected;
+                        }}
                         onChange={(e) => handleSelectAll(e.target.checked)}
                         className="w-4 h-4 text-primary bg-white border-slate-300 rounded focus:ring-primary focus:ring-2 cursor-pointer transition-all"
                       />
                     </div>
                   </th>
                   {[
-                    { key: 'assetCode', label: 'Asset ID' },
-                    { key: 'serialNo', label: 'Serial No' },
-                    { key: 'brand', label: 'Brand & Model' },
-                    { key: 'accountName', label: 'Account' },
-                    { key: 'warrantyExpiry', label: 'Warranty' },
-                    { key: 'status', label: 'Status' },
+                    { key: "assetCode", label: "Asset ID" },
+                    { key: "serialNo", label: "Serial No" },
+                    { key: "brand", label: "Brand & Model" },
+                    { key: "accountName", label: "Account" },
+                    { key: "warrantyExpiry", label: "Warranty" },
+                    { key: "status", label: "Status" },
                   ].map((col) => (
                     <th
                       key={col.key}
@@ -320,11 +351,15 @@ export default function AssetsPage() {
                     >
                       <div className="flex items-center gap-2">
                         {col.label}
-                        <ArrowUpDown className={`h-3 w-3 transition-opacity ${sortColumn === col.key ? 'text-primary' : 'text-slate-300 opacity-0 group-hover:opacity-100'}`} />
+                        <ArrowUpDown
+                          className={`h-3 w-3 transition-opacity ${sortColumn === col.key ? "text-primary" : "text-slate-300 opacity-0 group-hover:opacity-100"}`}
+                        />
                       </div>
                     </th>
                   ))}
-                  <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest text-right">Actions</th>
+                  <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest text-right">
+                    Actions
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -334,8 +369,16 @@ export default function AssetsPage() {
                       <EmptyState
                         icon="inventory"
                         title={searchQuery ? "No matching assets" : "Empty Registry"}
-                        description={searchQuery ? "Try adjusting your search or filters." : "Start tracking your equipment by adding your first asset."}
-                        action={!searchQuery ? { label: "Add Your First Asset", href: "/assets/new" } : undefined}
+                        description={
+                          searchQuery
+                            ? "Try adjusting your search or filters."
+                            : "Start tracking your equipment by adding your first asset."
+                        }
+                        action={
+                          !searchQuery
+                            ? { label: "Add Your First Asset", href: "/assets/new" }
+                            : undefined
+                        }
                       />
                     </td>
                   </tr>
@@ -370,7 +413,9 @@ export default function AssetsPage() {
                             <Laptop className="h-4 w-4" />
                           </div>
                           <div>
-                            <p className="text-sm font-bold text-slate-900 tracking-tight">{asset.brand}</p>
+                            <p className="text-sm font-bold text-slate-900 tracking-tight">
+                              {asset.brand}
+                            </p>
                             <p className="text-[11px] text-slate-500 font-medium">{asset.model}</p>
                           </div>
                         </div>
@@ -378,24 +423,28 @@ export default function AssetsPage() {
                       <td className="px-6 py-5">
                         <div className="flex items-center gap-2">
                           <Building2 className="h-3.5 w-3.5 text-slate-400" />
-                          <span className="text-sm font-medium text-slate-700">{asset.accountName || "N/A"}</span>
+                          <span className="text-sm font-medium text-slate-700">
+                            {asset.accountName || "N/A"}
+                          </span>
                         </div>
                       </td>
                       <td className="px-6 py-5">
                         <div className="flex items-center gap-2">
                           <Calendar className="h-3.5 w-3.5 text-slate-400" />
-                          <span className={`text-sm font-medium ${
-                            asset.warrantyExpiry && new Date(asset.warrantyExpiry) < new Date() 
-                              ? "text-rose-500 font-bold" 
-                              : "text-slate-600"
-                          }`}>
-                            {asset.warrantyExpiry ? new Date(asset.warrantyExpiry).toLocaleDateString() : "No Warranty"}
+                          <span
+                            className={`text-sm font-medium ${
+                              asset.warrantyExpiry && new Date(asset.warrantyExpiry) < new Date()
+                                ? "text-rose-500 font-bold"
+                                : "text-slate-600"
+                            }`}
+                          >
+                            {asset.warrantyExpiry
+                              ? new Date(asset.warrantyExpiry).toLocaleDateString()
+                              : "No Warranty"}
                           </span>
                         </div>
                       </td>
-                      <td className="px-6 py-5">
-                        {getStatusBadge(asset.status)}
-                      </td>
+                      <td className="px-6 py-5">{getStatusBadge(asset.status)}</td>
                       <td className="px-6 py-5 text-right" onClick={(e) => e.stopPropagation()}>
                         <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-all translate-x-1 group-hover:translate-x-0">
                           <Button
@@ -428,7 +477,15 @@ export default function AssetsPage() {
         {sortedAssets.length > 0 && (
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white px-6 py-5 rounded-2xl border border-slate-200 shadow-sm">
             <p className="text-sm text-slate-500 font-medium">
-              Showing <span className="text-slate-900 font-bold">{(currentPage - 1) * itemsPerPage + 1}</span> to <span className="text-slate-900 font-bold">{Math.min(currentPage * itemsPerPage, sortedAssets.length)}</span> of <span className="text-slate-900 font-bold">{sortedAssets.length}</span> Assets
+              Showing{" "}
+              <span className="text-slate-900 font-bold">
+                {(currentPage - 1) * itemsPerPage + 1}
+              </span>{" "}
+              to{" "}
+              <span className="text-slate-900 font-bold">
+                {Math.min(currentPage * itemsPerPage, sortedAssets.length)}
+              </span>{" "}
+              of <span className="text-slate-900 font-bold">{sortedAssets.length}</span> Assets
             </p>
             <div className="flex items-center gap-1.5">
               <Button

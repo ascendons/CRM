@@ -44,7 +44,7 @@ export default function TimesheetsPage() {
       const data = await timesheetsService.getEntries(undefined, from, to);
       setEntries(data);
     } catch {
-      showToast("Failed to load time entries", "error");
+      showToast.error("Failed to load time entries");
     } finally {
       setLoading(false);
     }
@@ -52,12 +52,17 @@ export default function TimesheetsPage() {
 
   const totalMinutes = entries.reduce((sum, e) => sum + (e.durationMinutes || 0), 0);
 
-  const entriesByDay = weekDates.map(date => {
+  const entriesByDay = weekDates.map((date) => {
     const dateStr = date.toISOString().split("T")[0];
-    return entries.filter(e => e.startTime?.startsWith(dateStr));
+    return entries.filter((e) => e.startTime?.startsWith(dateStr));
   });
 
-  if (loading) return <div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" /></div>;
+  if (loading)
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
+      </div>
+    );
 
   return (
     <div className="p-6">
@@ -67,13 +72,22 @@ export default function TimesheetsPage() {
           <p className="text-gray-500 text-sm">Total this week: {formatDuration(totalMinutes)}</p>
         </div>
         <div className="flex gap-2">
-          <button onClick={() => setWeekOffset(w => w - 1)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50">
+          <button
+            onClick={() => setWeekOffset((w) => w - 1)}
+            className="px-3 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50"
+          >
             &lt; Prev
           </button>
-          <button onClick={() => setWeekOffset(0)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50">
+          <button
+            onClick={() => setWeekOffset(0)}
+            className="px-3 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50"
+          >
             This Week
           </button>
-          <button onClick={() => setWeekOffset(w => w + 1)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50">
+          <button
+            onClick={() => setWeekOffset((w) => w + 1)}
+            className="px-3 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50"
+          >
             Next &gt;
           </button>
         </div>
@@ -86,9 +100,7 @@ export default function TimesheetsPage() {
           {DAYS.map((day, i) => (
             <div key={day} className="p-3 text-center bg-gray-50 border-l border-gray-100">
               <p className="text-xs font-medium text-gray-500">{day}</p>
-              <p className="text-sm font-bold text-gray-700 mt-0.5">
-                {weekDates[i].getDate()}
-              </p>
+              <p className="text-sm font-bold text-gray-700 mt-0.5">{weekDates[i].getDate()}</p>
             </div>
           ))}
         </div>
@@ -98,9 +110,14 @@ export default function TimesheetsPage() {
           </div>
           {entriesByDay.map((dayEntries, i) => (
             <div key={i} className="border-l border-gray-100 p-2 min-h-24">
-              {dayEntries.map(entry => (
-                <div key={entry.entryId} className="bg-blue-50 border border-blue-200 rounded p-1 mb-1">
-                  <p className="text-xs font-medium text-blue-800 truncate">{entry.description || entry.taskId || "Time entry"}</p>
+              {dayEntries.map((entry) => (
+                <div
+                  key={entry.entryId}
+                  className="bg-blue-50 border border-blue-200 rounded p-1 mb-1"
+                >
+                  <p className="text-xs font-medium text-blue-800 truncate">
+                    {entry.description || entry.taskId || "Time entry"}
+                  </p>
                   <p className="text-xs text-blue-600">{formatDuration(entry.durationMinutes)}</p>
                 </div>
               ))}
@@ -133,23 +150,33 @@ export default function TimesheetsPage() {
             </tr>
           </thead>
           <tbody>
-            {entries.map(entry => (
+            {entries.map((entry) => (
               <tr key={entry.entryId} className="border-b border-gray-50 hover:bg-gray-50">
                 <td className="p-3 text-gray-600">
                   {entry.startTime ? new Date(entry.startTime).toLocaleDateString("en-IN") : "-"}
                 </td>
                 <td className="p-3 text-gray-700">{entry.description || "-"}</td>
-                <td className="p-3 text-gray-500 text-xs">{entry.taskId || entry.projectId || "-"}</td>
+                <td className="p-3 text-gray-500 text-xs">
+                  {entry.taskId || entry.projectId || "-"}
+                </td>
                 <td className="p-3">
-                  <span className={`text-xs px-2 py-0.5 rounded-full ${entry.isBillable ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-600"}`}>
+                  <span
+                    className={`text-xs px-2 py-0.5 rounded-full ${entry.isBillable ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-600"}`}
+                  >
                     {entry.type || "NON_BILLABLE"}
                   </span>
                 </td>
-                <td className="p-3 text-right font-medium text-gray-800">{formatDuration(entry.durationMinutes)}</td>
+                <td className="p-3 text-right font-medium text-gray-800">
+                  {formatDuration(entry.durationMinutes)}
+                </td>
               </tr>
             ))}
             {entries.length === 0 && (
-              <tr><td colSpan={5} className="p-8 text-center text-gray-400">No entries this week</td></tr>
+              <tr>
+                <td colSpan={5} className="p-8 text-center text-gray-400">
+                  No entries this week
+                </td>
+              </tr>
             )}
           </tbody>
         </table>

@@ -39,12 +39,14 @@ public class DynamicProductSearchService extends BaseTenantService {
     public Page<DynamicProduct> search(SearchRequest searchRequest, Pageable pageable) {
         String tenantId = getCurrentTenantId();
 
+        boolean hasKeywordSearch = searchRequest.getKeyword() != null && !searchRequest.getKeyword().trim().isEmpty();
+
         Query query = new Query();
         query.addCriteria(Criteria.where("tenantId").is(tenantId));
         query.addCriteria(Criteria.where("isDeleted").is(false));
 
         // Apply keyword search
-        if (searchRequest.getKeyword() != null && !searchRequest.getKeyword().trim().isEmpty()) {
+        if (hasKeywordSearch) {
             String originalKeyword = searchRequest.getKeyword().trim();
             String normalizedKeyword = headerNormalizer.normalizeSearchQuery(originalKeyword);
             applyKeywordSearch(query, originalKeyword, normalizedKeyword);
@@ -60,64 +62,44 @@ public class DynamicProductSearchService extends BaseTenantService {
             applyDynamicFilters(query, searchRequest.getFilters());
         }
 
-        // Count total
-        long total = mongoTemplate.count(query, DynamicProduct.class);
-
         List<DynamicProduct> products;
-        boolean hasKeywordSearch = searchRequest.getKeyword() != null && !searchRequest.getKeyword().trim().isEmpty();
 
         if (hasKeywordSearch) {
-            // For keyword searches: fetch more results to rank properly
-            // Fetch up to 200 results or all if less, then rank and paginate in memory
-            int fetchSize = (int) Math.min(total, 200);
-            query.limit(fetchSize);
+            // Fetch ALL matching results so ranking is global, then paginate in memory
             products = mongoTemplate.find(query, DynamicProduct.class);
 
-            // --- BACKWARD COMPATIBILITY FIX ---
-            // Ensure displayName forces 'ProductName' if it exists
-            products.forEach(p -> {
-                if (p.getAttributes() != null) {
-                    for (ProductAttribute attr : p.getAttributes()) {
-                        String key = attr.getKey().toLowerCase();
-                        if (key.equals("productname") || key.equals("product_name") || key.equals("itemname") || key.equals("item_name") || key.equals("name")) {
-                            p.setDisplayName(attr.getValue());
-                            break;
-                        }
-                    }
-                }
-            });
+            // Ensure displayName is populated from known name attributes (backward compat)
+            products.forEach(this::backfillDisplayName);
 
             // Rank by relevance BEFORE pagination
-            products = rankByRelevance(products, searchRequest.getKeyword());
+            products = rankByRelevance(products, searchRequest.getKeyword().trim());
 
-            // Now apply manual pagination to ranked results
+            long total = products.size();
+
+            // Apply manual pagination to ranked results
             int start = (int) pageable.getOffset();
-            int end = Math.min(start + pageable.getPageSize(), products.size());
-            if (start < products.size()) {
-                products = products.subList(start, end);
-            } else {
-                products = new ArrayList<>();
-            }
+            int end = (int) Math.min(start + pageable.getPageSize(), total);
+            List<DynamicProduct> page = start < total ? products.subList(start, end) : new ArrayList<>();
+            return new PageImpl<>(page, pageable, total);
         } else {
-            // For non-keyword searches: use standard pagination with sorting
+            long total = mongoTemplate.count(query, DynamicProduct.class);
             query.with(pageable);
             products = mongoTemplate.find(query, DynamicProduct.class);
-
-            // --- BACKWARD COMPATIBILITY FIX ---
-            products.forEach(p -> {
-                if (p.getAttributes() != null) {
-                    for (ProductAttribute attr : p.getAttributes()) {
-                        String key = attr.getKey().toLowerCase();
-                        if (key.equals("productname") || key.equals("product_name") || key.equals("itemname") || key.equals("item_name") || key.equals("name")) {
-                            p.setDisplayName(attr.getValue());
-                            break;
-                        }
-                    }
-                }
-            });
+            products.forEach(this::backfillDisplayName);
+            return new PageImpl<>(products, pageable, total);
         }
+    }
 
-        return new PageImpl<>(products, pageable, total);
+    private void backfillDisplayName(DynamicProduct p) {
+        if (p.getAttributes() == null) return;
+        if (p.getDisplayName() != null && !p.getDisplayName().isBlank()) return;
+        for (ProductAttribute attr : p.getAttributes()) {
+            String key = attr.getKey().toLowerCase();
+            if (key.equals("productname") || key.equals("product_name") || key.equals("itemname") || key.equals("item_name") || key.equals("name")) {
+                p.setDisplayName(attr.getValue());
+                return;
+            }
+        }
     }
 
     /**
@@ -148,10 +130,9 @@ public class DynamicProductSearchService extends BaseTenantService {
             criteriaList.add(Criteria.where("normalizedTokens").in(tokens));
         }
 
-        // Searchable attribute values contain original keyword
+        // Any attribute value contains original keyword (searchable flag only affects token indexing, not ad-hoc search)
         criteriaList.add(Criteria.where("attributes").elemMatch(
                 Criteria.where("value").regex(originalKeyword, "i")
-                        .and("searchable").is(true)
         ));
 
         Criteria criteria = new Criteria().orOperator(criteriaList.toArray(new Criteria[0]));
@@ -267,22 +248,17 @@ public class DynamicProductSearchService extends BaseTenantService {
             }
         }
 
-        // Count searchable attribute matches
+        // Attribute value matches (all attributes, not just searchable)
         if (product.getAttributes() != null) {
             for (ProductAttribute attr : product.getAttributes()) {
-                // Only count searchable attributes
-                if (attr.isSearchable()) {
-                    String lowerValue = attr.getValue().toLowerCase();
-                    if (lowerValue.equals(keyword)) {
-                        score += 150;
-                    } else if (lowerValue.contains(keyword)) {
-                        score += 25;
-                    }
-
-                    // Bonus for key match
-                    if (attr.getKey().toLowerCase().contains(keyword)) {
-                        score += 10;
-                    }
+                String lowerValue = attr.getValue() != null ? attr.getValue().toLowerCase() : "";
+                if (lowerValue.equals(keyword)) {
+                    score += 150;
+                } else if (lowerValue.contains(keyword)) {
+                    score += 25;
+                }
+                if (attr.getKey().toLowerCase().contains(keyword)) {
+                    score += 10;
                 }
             }
         }

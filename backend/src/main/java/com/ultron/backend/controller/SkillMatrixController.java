@@ -3,6 +3,7 @@ package com.ultron.backend.controller;
 import com.ultron.backend.dto.request.CreateTechnicianSkillRequest;
 import com.ultron.backend.dto.request.CreateTrainingRecordRequest;
 import com.ultron.backend.dto.response.ApiResponse;
+import com.ultron.backend.dto.response.EngineerSkillProfileResponse;
 import com.ultron.backend.dto.response.TechnicianSkillResponse;
 import com.ultron.backend.dto.response.TrainingRecordResponse;
 import com.ultron.backend.service.SkillMatrixService;
@@ -25,6 +26,13 @@ import java.util.List;
 public class SkillMatrixController {
 
     private final SkillMatrixService skillMatrixService;
+
+    @GetMapping("/engineers")
+    @PreAuthorize("hasPermission('SKILL_MATRIX', 'VIEW')")
+    public ResponseEntity<ApiResponse<List<EngineerSkillProfileResponse>>> getAllEngineers() {
+        return ResponseEntity.ok(ApiResponse.success("Engineers retrieved",
+                skillMatrixService.getAllEngineers()));
+    }
 
     @PostMapping("/skills")
     @PreAuthorize("hasPermission('SKILL_MATRIX', 'EDIT')")

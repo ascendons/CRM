@@ -6,16 +6,21 @@ import com.ultron.backend.dto.request.CreateTechnicianSkillRequest;
 import com.ultron.backend.dto.request.CreateTrainingRecordRequest;
 import com.ultron.backend.dto.response.TechnicianSkillResponse;
 import com.ultron.backend.dto.response.TrainingRecordResponse;
+import com.ultron.backend.dto.response.EngineerSkillProfileResponse;
 import com.ultron.backend.exception.ResourceNotFoundException;
 import com.ultron.backend.repository.TechnicianSkillRepository;
 import com.ultron.backend.repository.TrainingRecordRepository;
+import com.ultron.backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -25,6 +30,7 @@ public class SkillMatrixService extends BaseTenantService {
 
     private final TechnicianSkillRepository skillRepository;
     private final TrainingRecordRepository trainingRepository;
+    private final UserRepository userRepository;
 
     public TechnicianSkillResponse addSkill(CreateTechnicianSkillRequest request, String userId) {
         String tenantId = getCurrentTenantId();
@@ -88,6 +94,36 @@ public class SkillMatrixService extends BaseTenantService {
                 .createdBy(userId)
                 .build();
         return toTrainingResponse(trainingRepository.save(record));
+    }
+
+    public List<EngineerSkillProfileResponse> getAllEngineers() {
+        String tenantId = getCurrentTenantId();
+        List<TechnicianSkill> allSkills = skillRepository.findByTenantIdAndIsDeletedFalse(tenantId);
+        List<TrainingRecord> allTraining = trainingRepository.findByTenantIdAndIsDeletedFalse(tenantId);
+
+        Map<String, EngineerSkillProfileResponse> byUser = new LinkedHashMap<>();
+
+        for (TechnicianSkill s : allSkills) {
+            byUser.computeIfAbsent(s.getUserId(), uid -> {
+                String name = userRepository.findById(uid)
+                        .map(u -> u.getFullName() != null ? u.getFullName() : u.getUsername()).orElse(uid);
+                return EngineerSkillProfileResponse.builder()
+                        .engineerId(uid).engineerName(name)
+                        .skills(new ArrayList<>()).trainingRecords(new ArrayList<>()).build();
+            }).getSkills().add(toSkillResponse(s));
+        }
+
+        for (TrainingRecord r : allTraining) {
+            byUser.computeIfAbsent(r.getUserId(), uid -> {
+                String name = userRepository.findById(uid)
+                        .map(u -> u.getFullName() != null ? u.getFullName() : u.getUsername()).orElse(uid);
+                return EngineerSkillProfileResponse.builder()
+                        .engineerId(uid).engineerName(name)
+                        .skills(new ArrayList<>()).trainingRecords(new ArrayList<>()).build();
+            }).getTrainingRecords().add(toTrainingResponse(r));
+        }
+
+        return new ArrayList<>(byUser.values());
     }
 
     public List<TrainingRecordResponse> getTrainingByUser(String userId) {

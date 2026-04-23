@@ -29,7 +29,9 @@ function statusBadge(status: PartsStatus) {
   };
   const { label, cls } = map[status] ?? { label: status, cls: "bg-slate-100 text-slate-600" };
   return (
-    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${cls}`}>
+    <span
+      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${cls}`}
+    >
       {label}
     </span>
   );
@@ -99,7 +101,10 @@ function RejectModal({ request, onClose, onSuccess }: RejectModalProps) {
           />
         </div>
         <div className="flex justify-end gap-3 px-6 py-4 border-t border-slate-100">
-          <button onClick={onClose} className="px-4 py-2 text-sm rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 text-sm rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50"
+          >
             Cancel
           </button>
           <button
@@ -136,7 +141,12 @@ function StatsBar({ requests }: StatsBarProps) {
     { label: "Total", value: requests.length, cls: "text-slate-700", bg: "bg-slate-50" },
     { label: "Pending", value: counts.PENDING || 0, cls: "text-yellow-700", bg: "bg-yellow-50" },
     { label: "Approved", value: counts.APPROVED || 0, cls: "text-blue-700", bg: "bg-blue-50" },
-    { label: "Dispatched", value: counts.DISPATCHED || 0, cls: "text-purple-700", bg: "bg-purple-50" },
+    {
+      label: "Dispatched",
+      value: counts.DISPATCHED || 0,
+      cls: "text-purple-700",
+      bg: "bg-purple-50",
+    },
     { label: "Received", value: counts.RECEIVED || 0, cls: "text-green-700", bg: "bg-green-50" },
   ];
 
@@ -186,8 +196,7 @@ export default function PartsRequestsPage() {
     loadData();
   }, [loadData]);
 
-  const filtered =
-    activeTab === "ALL" ? requests : requests.filter((r) => r.status === activeTab);
+  const filtered = activeTab === "ALL" ? requests : requests.filter((r) => r.status === activeTab);
 
   async function handleApprove(req: PartsRequest) {
     setActioningId(req.id);
@@ -234,7 +243,9 @@ export default function PartsRequestsPage() {
       <div className="bg-white border-b border-slate-200 px-6 py-4">
         <div className="max-w-7xl mx-auto">
           <h1 className="text-2xl font-bold text-slate-800">Parts Requests</h1>
-          <p className="text-sm text-slate-500 mt-0.5">Manage warehouse parts requests from field engineers</p>
+          <p className="text-sm text-slate-500 mt-0.5">
+            Manage warehouse parts requests from field engineers
+          </p>
         </div>
       </div>
 
@@ -283,13 +294,27 @@ export default function PartsRequestsPage() {
               <table className="w-full text-sm">
                 <thead className="bg-slate-50 text-left">
                   <tr>
-                    <th className="px-5 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Request #</th>
-                    <th className="px-5 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Work Order</th>
-                    <th className="px-5 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Engineer</th>
-                    <th className="px-5 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Parts</th>
-                    <th className="px-5 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Status</th>
-                    <th className="px-5 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Requested At</th>
-                    <th className="px-5 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Actions</th>
+                    <th className="px-5 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">
+                      Request #
+                    </th>
+                    <th className="px-5 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">
+                      Work Order
+                    </th>
+                    <th className="px-5 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">
+                      Engineer
+                    </th>
+                    <th className="px-5 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">
+                      Parts
+                    </th>
+                    <th className="px-5 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">
+                      Status
+                    </th>
+                    <th className="px-5 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">
+                      Requested At
+                    </th>
+                    <th className="px-5 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">
+                      Actions
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-50">
@@ -300,12 +325,17 @@ export default function PartsRequestsPage() {
                           {req.requestNumber}
                         </span>
                       </td>
-                      <td className="px-5 py-3 text-slate-600 font-mono text-xs">{req.workOrderId}</td>
-                      <td className="px-5 py-3 text-slate-600 font-mono text-xs">{req.engineerId}</td>
+                      <td className="px-5 py-3 text-slate-600 font-mono text-xs">
+                        {req.workOrderId}
+                      </td>
+                      <td className="px-5 py-3 text-slate-600 font-mono text-xs">
+                        {req.engineerId}
+                      </td>
                       <td className="px-5 py-3">
                         <span className="flex items-center gap-1 text-slate-600">
                           <Package size={13} className="text-slate-400" />
-                          {req.requestedParts?.length ?? 0} item{(req.requestedParts?.length ?? 0) !== 1 ? "s" : ""}
+                          {req.requestedParts?.length ?? 0} item
+                          {(req.requestedParts?.length ?? 0) !== 1 ? "s" : ""}
                         </span>
                       </td>
                       <td className="px-5 py-3">{statusBadge(req.status)}</td>

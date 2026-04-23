@@ -30,7 +30,9 @@ function proficiencyBadge(level: TechnicianSkill["proficiencyLevel"]) {
     EXPERT: "bg-green-100 text-green-700",
   };
   return (
-    <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${map[level] ?? "bg-slate-100 text-slate-600"}`}>
+    <span
+      className={`px-2 py-0.5 rounded-full text-xs font-semibold ${map[level] ?? "bg-slate-100 text-slate-600"}`}
+    >
       {level}
     </span>
   );
@@ -43,7 +45,9 @@ function trainingTypeBadge(type: TrainingRecord["trainingType"]) {
     OEM: "bg-purple-100 text-purple-700",
   };
   return (
-    <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${map[type] ?? "bg-slate-100 text-slate-600"}`}>
+    <span
+      className={`px-2 py-0.5 rounded-full text-xs font-semibold ${map[type] ?? "bg-slate-100 text-slate-600"}`}
+    >
       {type}
     </span>
   );
@@ -109,7 +113,9 @@ function AddSkillModal({ userId, onClose, onSuccess }: AddSkillModalProps) {
         </div>
         <div className="px-6 py-5 grid grid-cols-2 gap-4">
           <div className="col-span-2">
-            <label className="block text-sm font-medium text-slate-700 mb-1">Skill Name <span className="text-red-500">*</span></label>
+            <label className="block text-sm font-medium text-slate-700 mb-1">
+              Skill Name <span className="text-red-500">*</span>
+            </label>
             <input
               value={form.skillName}
               onChange={(e) => setField("skillName", e.target.value)}
@@ -118,7 +124,9 @@ function AddSkillModal({ userId, onClose, onSuccess }: AddSkillModalProps) {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Certification Body</label>
+            <label className="block text-sm font-medium text-slate-700 mb-1">
+              Certification Body
+            </label>
             <input
               value={form.certificationBody}
               onChange={(e) => setField("certificationBody", e.target.value)}
@@ -154,10 +162,14 @@ function AddSkillModal({ userId, onClose, onSuccess }: AddSkillModalProps) {
             />
           </div>
           <div className="col-span-2">
-            <label className="block text-sm font-medium text-slate-700 mb-1">Proficiency Level</label>
+            <label className="block text-sm font-medium text-slate-700 mb-1">
+              Proficiency Level
+            </label>
             <select
               value={form.proficiencyLevel}
-              onChange={(e) => setField("proficiencyLevel", e.target.value as TechnicianSkill["proficiencyLevel"])}
+              onChange={(e) =>
+                setField("proficiencyLevel", e.target.value as TechnicianSkill["proficiencyLevel"])
+              }
               className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="TRAINEE">Trainee</option>
@@ -167,7 +179,10 @@ function AddSkillModal({ userId, onClose, onSuccess }: AddSkillModalProps) {
           </div>
         </div>
         <div className="flex justify-end gap-3 px-6 py-4 border-t border-slate-100">
-          <button onClick={onClose} className="px-4 py-2 text-sm rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 text-sm rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50"
+          >
             Cancel
           </button>
           <button
@@ -235,7 +250,9 @@ function AddTrainingModal({ userId, onClose, onSuccess }: AddTrainingModalProps)
         </div>
         <div className="px-6 py-5 grid grid-cols-2 gap-4">
           <div className="col-span-2">
-            <label className="block text-sm font-medium text-slate-700 mb-1">Training Name <span className="text-red-500">*</span></label>
+            <label className="block text-sm font-medium text-slate-700 mb-1">
+              Training Name <span className="text-red-500">*</span>
+            </label>
             <input
               value={form.trainingName}
               onChange={(e) => setField("trainingName", e.target.value)}
@@ -247,7 +264,9 @@ function AddTrainingModal({ userId, onClose, onSuccess }: AddTrainingModalProps)
             <label className="block text-sm font-medium text-slate-700 mb-1">Training Type</label>
             <select
               value={form.trainingType}
-              onChange={(e) => setField("trainingType", e.target.value as TrainingRecord["trainingType"])}
+              onChange={(e) =>
+                setField("trainingType", e.target.value as TrainingRecord["trainingType"])
+              }
               className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="INTERNAL">Internal</option>
@@ -298,7 +317,10 @@ function AddTrainingModal({ userId, onClose, onSuccess }: AddTrainingModalProps)
           </div>
         </div>
         <div className="flex justify-end gap-3 px-6 py-4 border-t border-slate-100">
-          <button onClick={onClose} className="px-4 py-2 text-sm rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 text-sm rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50"
+          >
             Cancel
           </button>
           <button
@@ -373,7 +395,9 @@ export default function SkillMatrixPage() {
       <div className="bg-white border-b border-slate-200 px-6 py-4">
         <div className="max-w-6xl mx-auto">
           <h1 className="text-2xl font-bold text-slate-800">Skill Matrix</h1>
-          <p className="text-sm text-slate-500 mt-0.5">View and manage technician skills and training records</p>
+          <p className="text-sm text-slate-500 mt-0.5">
+            View and manage technician skills and training records
+          </p>
         </div>
       </div>
 
@@ -446,7 +470,10 @@ export default function SkillMatrixPage() {
             {activeTab === "skills" && (
               <div>
                 <div className="flex items-center justify-between px-5 py-3 border-b border-slate-50">
-                  <p className="text-sm text-slate-500">Showing skills for user: <span className="font-mono font-medium text-slate-700">{userId}</span></p>
+                  <p className="text-sm text-slate-500">
+                    Showing skills for user:{" "}
+                    <span className="font-mono font-medium text-slate-700">{userId}</span>
+                  </p>
                   <button
                     onClick={() => setShowAddSkill(true)}
                     className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-lg"
@@ -465,24 +492,44 @@ export default function SkillMatrixPage() {
                     <table className="w-full text-sm">
                       <thead className="bg-slate-50 text-left">
                         <tr>
-                          <th className="px-5 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Skill</th>
-                          <th className="px-5 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Cert Body</th>
-                          <th className="px-5 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Cert #</th>
-                          <th className="px-5 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Issue Date</th>
-                          <th className="px-5 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Expiry Date</th>
-                          <th className="px-5 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Level</th>
+                          <th className="px-5 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">
+                            Skill
+                          </th>
+                          <th className="px-5 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">
+                            Cert Body
+                          </th>
+                          <th className="px-5 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">
+                            Cert #
+                          </th>
+                          <th className="px-5 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">
+                            Issue Date
+                          </th>
+                          <th className="px-5 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">
+                            Expiry Date
+                          </th>
+                          <th className="px-5 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">
+                            Level
+                          </th>
                           <th className="px-5 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide"></th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-50">
                         {skills.map((skill) => (
                           <tr key={skill.id} className="hover:bg-slate-50/50">
-                            <td className="px-5 py-3 font-medium text-slate-800">{skill.skillName}</td>
-                            <td className="px-5 py-3 text-slate-600">{skill.certificationBody || "—"}</td>
-                            <td className="px-5 py-3 font-mono text-slate-600 text-xs">{skill.certNumber || "—"}</td>
+                            <td className="px-5 py-3 font-medium text-slate-800">
+                              {skill.skillName}
+                            </td>
+                            <td className="px-5 py-3 text-slate-600">
+                              {skill.certificationBody || "—"}
+                            </td>
+                            <td className="px-5 py-3 font-mono text-slate-600 text-xs">
+                              {skill.certNumber || "—"}
+                            </td>
                             <td className="px-5 py-3 text-slate-600">{fmt(skill.issueDate)}</td>
                             <td className="px-5 py-3 text-slate-600">{fmt(skill.expiryDate)}</td>
-                            <td className="px-5 py-3">{proficiencyBadge(skill.proficiencyLevel)}</td>
+                            <td className="px-5 py-3">
+                              {proficiencyBadge(skill.proficiencyLevel)}
+                            </td>
                             <td className="px-5 py-3">
                               <button
                                 onClick={() => handleDeleteSkill(skill.id)}
@@ -509,7 +556,10 @@ export default function SkillMatrixPage() {
             {activeTab === "training" && (
               <div>
                 <div className="flex items-center justify-between px-5 py-3 border-b border-slate-50">
-                  <p className="text-sm text-slate-500">Showing training for user: <span className="font-mono font-medium text-slate-700">{userId}</span></p>
+                  <p className="text-sm text-slate-500">
+                    Showing training for user:{" "}
+                    <span className="font-mono font-medium text-slate-700">{userId}</span>
+                  </p>
                   <button
                     onClick={() => setShowAddTraining(true)}
                     className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-lg"
@@ -528,18 +578,32 @@ export default function SkillMatrixPage() {
                     <table className="w-full text-sm">
                       <thead className="bg-slate-50 text-left">
                         <tr>
-                          <th className="px-5 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Training Name</th>
-                          <th className="px-5 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Type</th>
-                          <th className="px-5 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Completed</th>
-                          <th className="px-5 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Trainer</th>
-                          <th className="px-5 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Score</th>
-                          <th className="px-5 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Passed</th>
+                          <th className="px-5 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">
+                            Training Name
+                          </th>
+                          <th className="px-5 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">
+                            Type
+                          </th>
+                          <th className="px-5 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">
+                            Completed
+                          </th>
+                          <th className="px-5 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">
+                            Trainer
+                          </th>
+                          <th className="px-5 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">
+                            Score
+                          </th>
+                          <th className="px-5 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">
+                            Passed
+                          </th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-50">
                         {training.map((rec) => (
                           <tr key={rec.id} className="hover:bg-slate-50/50">
-                            <td className="px-5 py-3 font-medium text-slate-800">{rec.trainingName}</td>
+                            <td className="px-5 py-3 font-medium text-slate-800">
+                              {rec.trainingName}
+                            </td>
                             <td className="px-5 py-3">{trainingTypeBadge(rec.trainingType)}</td>
                             <td className="px-5 py-3 text-slate-600">{fmt(rec.completedDate)}</td>
                             <td className="px-5 py-3 text-slate-600">{rec.trainerName || "—"}</td>

@@ -1,6 +1,14 @@
-import { api } from './api-client';
+import { api } from "./api-client";
 
-export type FormFieldType = 'TEXT' | 'EMAIL' | 'PHONE' | 'NUMBER' | 'DROPDOWN' | 'CHECKBOX' | 'TEXTAREA' | 'DATE';
+export type FormFieldType =
+  | "TEXT"
+  | "EMAIL"
+  | "PHONE"
+  | "NUMBER"
+  | "DROPDOWN"
+  | "CHECKBOX"
+  | "TEXTAREA"
+  | "DATE";
 
 export interface FormField {
   fieldId?: string;
@@ -73,11 +81,11 @@ export interface CreateLandingPageRequest {
 export const formsService = {
   // Forms
   async getForms(): Promise<WebForm[]> {
-    return await api.get<WebForm[]>('/forms');
+    return await api.get<WebForm[]>("/forms");
   },
 
   async createForm(request: CreateWebFormRequest): Promise<WebForm> {
-    return await api.post<WebForm>('/forms', request);
+    return await api.post<WebForm>("/forms", request);
   },
 
   async getFormById(formId: string): Promise<WebForm> {
@@ -102,11 +110,11 @@ export const formsService = {
 
   // Landing Pages
   async getLandingPages(): Promise<LandingPage[]> {
-    return await api.get<LandingPage[]>('/landing-pages');
+    return await api.get<LandingPage[]>("/landing-pages");
   },
 
   async createLandingPage(request: CreateLandingPageRequest): Promise<LandingPage> {
-    return await api.post<LandingPage>('/landing-pages', request);
+    return await api.post<LandingPage>("/landing-pages", request);
   },
 
   async getLandingPageById(pageId: string): Promise<LandingPage> {

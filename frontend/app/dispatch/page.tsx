@@ -50,7 +50,9 @@ function availabilityBadge(av: EngineerSchedule["availability"]) {
   };
   const { label, cls } = map[av] ?? { label: av, cls: "bg-slate-100 text-slate-600" };
   return (
-    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold ${cls}`}>
+    <span
+      className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold ${cls}`}
+    >
       {label}
     </span>
   );
@@ -137,7 +139,9 @@ function DispatchModal({ workOrder, availableEngineers, onClose, onSuccess }: Di
               type="number"
               min={0}
               value={arrivalMinutes}
-              onChange={(e) => setArrivalMinutes(e.target.value === "" ? "" : Number(e.target.value))}
+              onChange={(e) =>
+                setArrivalMinutes(e.target.value === "" ? "" : Number(e.target.value))
+              }
               placeholder="e.g. 30"
               className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
@@ -221,7 +225,9 @@ export default function DispatchBoardPage() {
         <div className="flex items-center justify-between max-w-7xl mx-auto">
           <div>
             <h1 className="text-2xl font-bold text-slate-800">Dispatch Board</h1>
-            <p className="text-sm text-slate-500 mt-0.5">Manage work order assignments and engineer schedules</p>
+            <p className="text-sm text-slate-500 mt-0.5">
+              Manage work order assignments and engineer schedules
+            </p>
           </div>
           <div className="flex items-center gap-2">
             <Calendar size={16} className="text-slate-400" />
@@ -247,7 +253,9 @@ export default function DispatchBoardPage() {
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-base font-semibold text-slate-700">
                   Open Work Orders
-                  <span className="ml-2 text-sm font-normal text-slate-400">({openWorkOrders.length})</span>
+                  <span className="ml-2 text-sm font-normal text-slate-400">
+                    ({openWorkOrders.length})
+                  </span>
                 </h2>
               </div>
               {openWorkOrders.length === 0 ? (
@@ -270,7 +278,9 @@ export default function DispatchBoardPage() {
                             </span>
                             {priorityBadge(wo.priority)}
                           </div>
-                          <p className="text-sm text-slate-700 font-medium truncate">{wo.symptoms ?? ""}</p>
+                          <p className="text-sm text-slate-700 font-medium truncate">
+                            {wo.symptoms ?? ""}
+                          </p>
                           {wo.assetId && (
                             <p className="text-xs text-slate-400 mt-1 flex items-center gap-1">
                               <CheckCircle2 size={12} />
@@ -303,7 +313,9 @@ export default function DispatchBoardPage() {
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-base font-semibold text-slate-700">
                   Engineer Schedules
-                  <span className="ml-2 text-sm font-normal text-slate-400">({schedules.length})</span>
+                  <span className="ml-2 text-sm font-normal text-slate-400">
+                    ({schedules.length})
+                  </span>
                 </h2>
               </div>
               {schedules.length === 0 ? (
@@ -314,10 +326,7 @@ export default function DispatchBoardPage() {
               ) : (
                 <div className="space-y-3 max-h-[calc(100vh-240px)] overflow-y-auto pr-1">
                   {schedules.map((sched) => (
-                    <div
-                      key={sched.id}
-                      className="bg-white rounded-xl border border-slate-100 p-4"
-                    >
+                    <div key={sched.id} className="bg-white rounded-xl border border-slate-100 p-4">
                       <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center gap-2">
                           <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
@@ -346,7 +355,9 @@ export default function DispatchBoardPage() {
                               <span className="font-mono text-slate-600">
                                 {slot.startTime} – {slot.endTime}
                               </span>
-                              <span className="text-blue-600 font-medium truncate flex-1">{slot.workOrderId}</span>
+                              <span className="text-blue-600 font-medium truncate flex-1">
+                                {slot.workOrderId}
+                              </span>
                               <span className="text-slate-400">{slot.status}</span>
                             </div>
                           ))}

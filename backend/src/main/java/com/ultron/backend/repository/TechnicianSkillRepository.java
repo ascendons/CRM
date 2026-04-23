@@ -10,6 +10,8 @@ import java.util.List;
 @Repository
 public interface TechnicianSkillRepository extends MongoRepository<TechnicianSkill, String> {
 
+    List<TechnicianSkill> findByTenantIdAndIsDeletedFalse(String tenantId);
+
     List<TechnicianSkill> findByTenantIdAndUserIdAndIsDeletedFalse(String tenantId, String userId);
 
     List<TechnicianSkill> findByTenantIdAndSkillNameAndIsDeletedFalse(String tenantId, String skillName);

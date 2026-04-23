@@ -34,12 +34,27 @@ public class EngineerLocationController {
                 geoTrackingService.updateLocation(engineerId, request)));
     }
 
+    @GetMapping("/locations")
+    @PreAuthorize("hasPermission('DISPATCH', 'VIEW')")
+    public ResponseEntity<ApiResponse<List<EngineerLocationResponse>>> getAllLatestLocations() {
+        return ResponseEntity.ok(ApiResponse.success("Locations retrieved",
+                geoTrackingService.getAllLatestLocations()));
+    }
+
     @GetMapping("/location/{engineerId}")
     @PreAuthorize("hasPermission('DISPATCH', 'VIEW')")
     public ResponseEntity<ApiResponse<EngineerLocationResponse>> getLatestLocation(
             @PathVariable String engineerId) {
         return ResponseEntity.ok(ApiResponse.success("Location retrieved",
                 geoTrackingService.getLatestLocation(engineerId)));
+    }
+
+    @GetMapping("/locations/{engineerId}/history")
+    @PreAuthorize("hasPermission('DISPATCH', 'VIEW')")
+    public ResponseEntity<ApiResponse<List<EngineerLocationResponse>>> getLocationHistory(
+            @PathVariable String engineerId) {
+        return ResponseEntity.ok(ApiResponse.success("Location history retrieved",
+                geoTrackingService.getLocationHistory(engineerId)));
     }
 
     @PostMapping("/events/{workOrderId}")

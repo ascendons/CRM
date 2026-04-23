@@ -32,23 +32,13 @@ const STATUS_STYLES: Record<string, string> = {
 
 function CreditBar({ used, limit }: { used: number; limit: number }) {
   const pct = limit > 0 ? Math.min((used / limit) * 100, 100) : 0;
-  const color =
-    pct > 80
-      ? "bg-red-500"
-      : pct > 60
-      ? "bg-yellow-500"
-      : "bg-green-500";
+  const color = pct > 80 ? "bg-red-500" : pct > 60 ? "bg-yellow-500" : "bg-green-500";
   return (
     <div className="flex items-center gap-2">
       <div className="w-24 bg-gray-200 rounded-full h-2 flex-shrink-0">
-        <div
-          className={`h-2 rounded-full transition-all ${color}`}
-          style={{ width: `${pct}%` }}
-        />
+        <div className={`h-2 rounded-full transition-all ${color}`} style={{ width: `${pct}%` }} />
       </div>
-      <span className="text-xs text-gray-500 whitespace-nowrap">
-        {pct.toFixed(0)}%
-      </span>
+      <span className="text-xs text-gray-500 whitespace-nowrap">{pct.toFixed(0)}%</span>
     </div>
   );
 }
@@ -124,13 +114,8 @@ export default function DealersPage() {
   // Stats
   const totalDealers = dealers.length;
   const activeDealers = dealers.filter((d) => d.status === "ACTIVE").length;
-  const suspendedDealers = dealers.filter(
-    (d) => d.status === "SUSPENDED"
-  ).length;
-  const totalCreditUsed = dealers.reduce(
-    (sum, d) => sum + (d.currentCreditUsed || 0),
-    0
-  );
+  const suspendedDealers = dealers.filter((d) => d.status === "SUSPENDED").length;
+  const totalCreditUsed = dealers.reduce((sum, d) => sum + (d.currentCreditUsed || 0), 0);
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -169,9 +154,7 @@ export default function DealersPage() {
             </div>
             <div>
               <p className="text-xs text-slate-500">Active</p>
-              <p className="text-xl font-bold text-slate-900">
-                {activeDealers}
-              </p>
+              <p className="text-xl font-bold text-slate-900">{activeDealers}</p>
             </div>
           </div>
           <div className="bg-white rounded-xl border border-slate-200 p-4 flex items-center gap-3">
@@ -180,9 +163,7 @@ export default function DealersPage() {
             </div>
             <div>
               <p className="text-xs text-slate-500">Suspended</p>
-              <p className="text-xl font-bold text-slate-900">
-                {suspendedDealers}
-              </p>
+              <p className="text-xl font-bold text-slate-900">{suspendedDealers}</p>
             </div>
           </div>
           <div className="bg-white rounded-xl border border-slate-200 p-4 flex items-center gap-3">
@@ -191,9 +172,7 @@ export default function DealersPage() {
             </div>
             <div>
               <p className="text-xs text-slate-500">Total Credit Used</p>
-              <p className="text-xl font-bold text-slate-900">
-                {formatCurrency(totalCreditUsed)}
-              </p>
+              <p className="text-xl font-bold text-slate-900">{formatCurrency(totalCreditUsed)}</p>
             </div>
           </div>
         </div>
@@ -278,30 +257,18 @@ export default function DealersPage() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="bg-slate-50 border-b border-slate-200">
-                    <th className="text-left px-4 py-3 font-medium text-slate-600">
-                      Dealer Code
-                    </th>
-                    <th className="text-left px-4 py-3 font-medium text-slate-600">
-                      Company Name
-                    </th>
-                    <th className="text-left px-4 py-3 font-medium text-slate-600">
-                      Tier
-                    </th>
-                    <th className="text-left px-4 py-3 font-medium text-slate-600">
-                      Territory
-                    </th>
+                    <th className="text-left px-4 py-3 font-medium text-slate-600">Dealer Code</th>
+                    <th className="text-left px-4 py-3 font-medium text-slate-600">Company Name</th>
+                    <th className="text-left px-4 py-3 font-medium text-slate-600">Tier</th>
+                    <th className="text-left px-4 py-3 font-medium text-slate-600">Territory</th>
                     <th className="text-left px-4 py-3 font-medium text-slate-600">
                       Contact Person
                     </th>
-                    <th className="text-left px-4 py-3 font-medium text-slate-600">
-                      Credit Limit
-                    </th>
+                    <th className="text-left px-4 py-3 font-medium text-slate-600">Credit Limit</th>
                     <th className="text-left px-4 py-3 font-medium text-slate-600">
                       Credit Utilized
                     </th>
-                    <th className="text-left px-4 py-3 font-medium text-slate-600">
-                      Status
-                    </th>
+                    <th className="text-left px-4 py-3 font-medium text-slate-600">Status</th>
                     <th className="px-4 py-3" />
                   </tr>
                 </thead>
@@ -315,9 +282,7 @@ export default function DealersPage() {
                       <td className="px-4 py-3 font-mono text-xs text-slate-600">
                         {dealer.dealerCode || "—"}
                       </td>
-                      <td className="px-4 py-3 font-medium text-slate-900">
-                        {dealer.companyName}
-                      </td>
+                      <td className="px-4 py-3 font-medium text-slate-900">{dealer.companyName}</td>
                       <td className="px-4 py-3">
                         <span
                           className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${
@@ -327,12 +292,8 @@ export default function DealersPage() {
                           {dealer.tier}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-slate-600">
-                        {dealer.territory || "—"}
-                      </td>
-                      <td className="px-4 py-3 text-slate-600">
-                        {dealer.contactPerson || "—"}
-                      </td>
+                      <td className="px-4 py-3 text-slate-600">{dealer.territory || "—"}</td>
+                      <td className="px-4 py-3 text-slate-600">{dealer.contactPerson || "—"}</td>
                       <td className="px-4 py-3 text-slate-900">
                         {formatCurrency(dealer.creditLimit || 0)}
                       </td>

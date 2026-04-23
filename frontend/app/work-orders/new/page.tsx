@@ -2,13 +2,13 @@
 
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { 
-  WorkOrderType, 
-  WorkOrderPriority, 
+import {
+  WorkOrderType,
+  WorkOrderPriority,
   WorkOrderStatus,
   Asset,
   Contract,
-  ServiceRequest
+  ServiceRequest,
 } from "@/types/field-service";
 import { fieldService } from "@/lib/field-service";
 import { accountsService } from "@/lib/accounts";
@@ -19,11 +19,11 @@ import { Account } from "@/types/account";
 import { Contact } from "@/types/contact";
 import { UserResponse } from "@/types/user";
 import { showToast } from "@/lib/toast";
-import { 
-  ChevronLeft, 
-  Save, 
-  Settings2, 
-  Building2, 
+import {
+  ChevronLeft,
+  Save,
+  Settings2,
+  Building2,
   Calendar,
   Clock,
   AlertCircle,
@@ -32,7 +32,7 @@ import {
   MessageSquare,
   ShieldCheck,
   Loader2,
-  FileText
+  FileText,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -42,7 +42,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 export default function NewWorkOrderPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  
+
   const initialAssetId = searchParams.get("assetId") || "";
   const initialSrId = searchParams.get("srId") || "";
   const initialAccountId = searchParams.get("accountId") || "";
@@ -52,7 +52,7 @@ export default function NewWorkOrderPage() {
   const [assets, setAssets] = useState<Asset[]>([]);
   const [contracts, setContracts] = useState<Contract[]>([]);
   const [engineers, setEngineers] = useState<UserResponse[]>([]);
-  
+
   const [loading, setLoading] = useState(false);
   const [fetchingData, setFetchingData] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -67,7 +67,7 @@ export default function NewWorkOrderPage() {
     contractId: "",
     serviceRequestId: initialSrId,
     assignedEngineerIds: [] as string[],
-    scheduledDate: new Date().toISOString().split('T')[0],
+    scheduledDate: new Date().toISOString().split("T")[0],
     symptoms: "",
     checklistTemplateId: "",
   });
@@ -85,11 +85,15 @@ export default function NewWorkOrderPage() {
       setFetchingData(true);
       const [accountsData, engineersData] = await Promise.all([
         accountsService.getAllAccounts(),
-        usersService.getActiveUsers()
+        usersService.getActiveUsers(),
       ]);
       setAccounts(Array.isArray(accountsData) ? accountsData : []);
-      setEngineers(engineersData.filter(u => u.roleName?.includes("Engineer") || u.roleName?.includes("Technician")));
-      
+      setEngineers(
+        engineersData.filter(
+          (u) => u.roleName?.includes("Engineer") || u.roleName?.includes("Technician")
+        )
+      );
+
       if (initialAccountId) {
         await handleAccountChange(initialAccountId, false);
       }
@@ -112,19 +116,19 @@ export default function NewWorkOrderPage() {
       const [assetsData, contractsData, contactsData] = await Promise.all([
         fieldService.getAllAssets({ accountId }),
         fieldService.getAllContracts({ accountId }),
-        contactsService.getContactsByAccount(accountId)
+        contactsService.getContactsByAccount(accountId),
       ]);
       setAssets(assetsData);
-      setContracts(contractsData.filter(c => c.status === 'ACTIVE'));
+      setContracts(contractsData.filter((c) => c.status === "ACTIVE"));
       setContacts(contactsData);
-      
+
       if (clearRefs) {
-        setFormData(prev => ({ 
-          ...prev, 
-          accountId, 
-          assetId: "", 
-          contractId: "", 
-          contactId: "" 
+        setFormData((prev) => ({
+          ...prev,
+          accountId,
+          assetId: "",
+          contractId: "",
+          contactId: "",
         }));
       }
     } catch (err) {
@@ -163,8 +167,10 @@ export default function NewWorkOrderPage() {
     return (
       <div className="flex items-center justify-center bg-slate-50 min-h-[calc(100vh-4rem)]">
         <div className="text-center space-y-4">
-           <Loader2 className="w-10 h-10 text-primary animate-spin mx-auto" />
-           <p className="text-slate-500 font-medium tracking-tight">Initializing dispatch console...</p>
+          <Loader2 className="w-10 h-10 text-primary animate-spin mx-auto" />
+          <p className="text-slate-500 font-medium tracking-tight">
+            Initializing dispatch console...
+          </p>
         </div>
       </div>
     );
@@ -177,17 +183,21 @@ export default function NewWorkOrderPage() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between py-5">
             <div className="flex items-center gap-5">
-              <Button 
-                variant="ghost" 
-                size="icon" 
+              <Button
+                variant="ghost"
+                size="icon"
                 onClick={() => router.back()}
                 className="rounded-full hover:bg-slate-100 border border-slate-100"
               >
                 <ChevronLeft className="h-5 w-5 text-slate-600" />
               </Button>
               <div>
-                <h1 className="text-2xl font-black text-slate-900 tracking-tight">Dispatch New Order</h1>
-                <p className="text-xs text-slate-500 font-bold uppercase tracking-widest">Technician Allocation & Scheduling</p>
+                <h1 className="text-2xl font-black text-slate-900 tracking-tight">
+                  Dispatch New Order
+                </h1>
+                <p className="text-xs text-slate-500 font-bold uppercase tracking-widest">
+                  Technician Allocation & Scheduling
+                </p>
               </div>
             </div>
             <div className="flex items-center gap-3">
@@ -203,7 +213,11 @@ export default function NewWorkOrderPage() {
                 disabled={loading}
                 className="rounded-2xl px-8 font-black shadow-xl shadow-primary/25 bg-slate-900 text-white hover:bg-slate-800 transition-all active:scale-95"
               >
-                {loading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
+                {loading ? (
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <Save className="h-4 w-4 mr-2" />
+                )}
                 {loading ? "Dispatching..." : "Release Order"}
               </Button>
             </div>
@@ -214,34 +228,45 @@ export default function NewWorkOrderPage() {
       <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         {error && (
           <div className="mb-10 p-5 bg-rose-50 border-2 border-rose-100 rounded-3xl flex items-center gap-4 text-rose-700 animate-in shake-in">
-             <div className="bg-white p-2 rounded-xl shadow-sm">
-                <AlertCircle className="h-6 w-6 text-rose-500" />
-             </div>
-             <p className="font-bold text-sm tracking-tight">{error}</p>
+            <div className="bg-white p-2 rounded-xl shadow-sm">
+              <AlertCircle className="h-6 w-6 text-rose-500" />
+            </div>
+            <p className="font-bold text-sm tracking-tight">{error}</p>
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-500"
+        >
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-            
             {/* Left Column: Context & Identity */}
             <div className="lg:col-span-2 space-y-10">
               <Card className="rounded-[2.5rem] border-none shadow-xl bg-white p-2 overflow-hidden overflow-visible">
                 <CardHeader className="px-8 pt-8 pb-4">
                   <div className="flex items-center gap-3">
                     <div className="p-2.5 bg-primary/10 rounded-2xl">
-                       <Building2 className="h-5 w-5 text-primary" />
+                      <Building2 className="h-5 w-5 text-primary" />
                     </div>
                     <div>
-                       <CardTitle className="text-xl font-black tracking-tight text-slate-900">Customer Linkage</CardTitle>
-                       <CardDescription className="font-medium text-slate-400">Specify the location and contact for this order.</CardDescription>
+                      <CardTitle className="text-xl font-black tracking-tight text-slate-900">
+                        Customer Linkage
+                      </CardTitle>
+                      <CardDescription className="font-medium text-slate-400">
+                        Specify the location and contact for this order.
+                      </CardDescription>
                     </div>
                   </div>
                 </CardHeader>
                 <CardContent className="px-8 pb-8 pt-4 space-y-8">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div className="space-y-3">
-                      <Label htmlFor="accountId" className="text-slate-500 font-black text-[10px] uppercase tracking-[0.15em]">Account / Customer *</Label>
+                      <Label
+                        htmlFor="accountId"
+                        className="text-slate-500 font-black text-[10px] uppercase tracking-[0.15em]"
+                      >
+                        Account / Customer *
+                      </Label>
                       <select
                         id="accountId"
                         name="accountId"
@@ -252,12 +277,19 @@ export default function NewWorkOrderPage() {
                       >
                         <option value="">Select Customer...</option>
                         {accounts.map((acc) => (
-                          <option key={acc.id} value={acc.id}>{acc.accountName}</option>
+                          <option key={acc.id} value={acc.id}>
+                            {acc.accountName}
+                          </option>
                         ))}
                       </select>
                     </div>
                     <div className="space-y-3">
-                      <Label htmlFor="contactId" className="text-slate-500 font-black text-[10px] uppercase tracking-[0.15em]">On-Site Contact</Label>
+                      <Label
+                        htmlFor="contactId"
+                        className="text-slate-500 font-black text-[10px] uppercase tracking-[0.15em]"
+                      >
+                        On-Site Contact
+                      </Label>
                       <select
                         id="contactId"
                         name="contactId"
@@ -268,7 +300,9 @@ export default function NewWorkOrderPage() {
                       >
                         <option value="">Select Contact...</option>
                         {contacts.map((c) => (
-                          <option key={c.id} value={c.id}>{c.firstName} {c.lastName}</option>
+                          <option key={c.id} value={c.id}>
+                            {c.firstName} {c.lastName}
+                          </option>
                         ))}
                       </select>
                     </div>
@@ -276,7 +310,12 @@ export default function NewWorkOrderPage() {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-8 border-t border-slate-50">
                     <div className="space-y-3">
-                      <Label htmlFor="assetId" className="text-slate-500 font-black text-[10px] uppercase tracking-[0.15em]">Linked Asset / Equipment</Label>
+                      <Label
+                        htmlFor="assetId"
+                        className="text-slate-500 font-black text-[10px] uppercase tracking-[0.15em]"
+                      >
+                        Linked Asset / Equipment
+                      </Label>
                       <select
                         id="assetId"
                         name="assetId"
@@ -287,12 +326,19 @@ export default function NewWorkOrderPage() {
                       >
                         <option value="">Select Equipment...</option>
                         {assets.map((a) => (
-                          <option key={a.id} value={a.id}>{a.brand} {a.model} ({a.serialNo})</option>
+                          <option key={a.id} value={a.id}>
+                            {a.brand} {a.model} ({a.serialNo})
+                          </option>
                         ))}
                       </select>
                     </div>
                     <div className="space-y-3">
-                      <Label htmlFor="contractId" className="text-slate-500 font-black text-[10px] uppercase tracking-[0.15em]">Service Entitlement (AMC)</Label>
+                      <Label
+                        htmlFor="contractId"
+                        className="text-slate-500 font-black text-[10px] uppercase tracking-[0.15em]"
+                      >
+                        Service Entitlement (AMC)
+                      </Label>
                       <select
                         id="contractId"
                         name="contractId"
@@ -303,7 +349,9 @@ export default function NewWorkOrderPage() {
                       >
                         <option value="">Billable / On-Demand</option>
                         {contracts.map((c) => (
-                          <option key={c.id} value={c.id}>{c.contractNumber} ({c.type})</option>
+                          <option key={c.id} value={c.id}>
+                            {c.contractNumber} ({c.type})
+                          </option>
                         ))}
                       </select>
                     </div>
@@ -313,19 +361,28 @@ export default function NewWorkOrderPage() {
 
               <Card className="rounded-[2.5rem] border-none shadow-xl bg-white p-2">
                 <CardHeader className="px-8 pt-8 pb-4">
-                   <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3">
                     <div className="p-2.5 bg-rose-50 rounded-2xl text-rose-500">
-                       <MessageSquare className="h-5 w-5" />
+                      <MessageSquare className="h-5 w-5" />
                     </div>
                     <div>
-                       <CardTitle className="text-xl font-black tracking-tight text-slate-900">Technical Details</CardTitle>
-                       <CardDescription className="font-medium text-slate-400">Document the symptoms or requirements.</CardDescription>
+                      <CardTitle className="text-xl font-black tracking-tight text-slate-900">
+                        Technical Details
+                      </CardTitle>
+                      <CardDescription className="font-medium text-slate-400">
+                        Document the symptoms or requirements.
+                      </CardDescription>
                     </div>
                   </div>
                 </CardHeader>
                 <CardContent className="px-8 pb-8 pt-4">
                   <div className="space-y-3">
-                    <Label htmlFor="symptoms" className="text-slate-500 font-black text-[10px] uppercase tracking-[0.15em]">Symptoms / Fault Description *</Label>
+                    <Label
+                      htmlFor="symptoms"
+                      className="text-slate-500 font-black text-[10px] uppercase tracking-[0.15em]"
+                    >
+                      Symptoms / Fault Description *
+                    </Label>
                     <textarea
                       id="symptoms"
                       name="symptoms"
@@ -345,99 +402,125 @@ export default function NewWorkOrderPage() {
             <div className="space-y-10">
               <Card className="rounded-[2.5rem] border-none shadow-xl bg-slate-900 text-white p-2 overflow-hidden">
                 <CardHeader className="px-8 pt-8 pb-4 border-b border-white/5">
-                   <CardTitle className="text-lg font-black uppercase tracking-tight flex items-center justify-between">
-                      Workflow Control
-                      <Settings2 className="h-5 w-5 text-primary" />
-                   </CardTitle>
+                  <CardTitle className="text-lg font-black uppercase tracking-tight flex items-center justify-between">
+                    Workflow Control
+                    <Settings2 className="h-5 w-5 text-primary" />
+                  </CardTitle>
                 </CardHeader>
                 <CardContent className="px-8 py-8 space-y-8">
-                   <div className="space-y-4">
-                      <Label className="text-slate-400 font-black text-[10px] uppercase tracking-[0.2em]">Assignment Type</Label>
-                      <div className="grid grid-cols-1 gap-2">
-                         {Object.values(WorkOrderType).map(type => (
-                            <button
-                              key={type}
-                              type="button"
-                              onClick={() => setFormData(prev => ({ ...prev, type }))}
-                              className={`h-11 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all text-left px-5 ${
-                                formData.type === type 
-                                  ? "bg-primary text-white shadow-lg shadow-primary/20" 
-                                  : "bg-white/5 text-slate-400 hover:bg-white/10"
-                              }`}
-                            >
-                               {type.replace('_', ' ')}
-                            </button>
-                         ))}
-                      </div>
-                   </div>
+                  <div className="space-y-4">
+                    <Label className="text-slate-400 font-black text-[10px] uppercase tracking-[0.2em]">
+                      Assignment Type
+                    </Label>
+                    <div className="grid grid-cols-1 gap-2">
+                      {Object.values(WorkOrderType).map((type) => (
+                        <button
+                          key={type}
+                          type="button"
+                          onClick={() => setFormData((prev) => ({ ...prev, type }))}
+                          className={`h-11 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all text-left px-5 ${
+                            formData.type === type
+                              ? "bg-primary text-white shadow-lg shadow-primary/20"
+                              : "bg-white/5 text-slate-400 hover:bg-white/10"
+                          }`}
+                        >
+                          {type.replace("_", " ")}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
 
-                   <div className="space-y-4">
-                      <Label className="text-slate-400 font-black text-[10px] uppercase tracking-[0.2em]">Dispatch Priority</Label>
-                      <div className="grid grid-cols-2 gap-2">
-                         {Object.values(WorkOrderPriority).slice(0, 4).map(priority => (
-                            <button
-                              key={priority}
-                              type="button"
-                              onClick={() => setFormData(prev => ({ ...prev, priority }))}
-                              className={`h-11 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
-                                formData.priority === priority 
-                                  ? "bg-white text-slate-900 shadow-xl" 
-                                  : "bg-white/5 text-slate-500 hover:bg-white/10"
-                              }`}
-                            >
-                               {priority}
-                            </button>
-                         ))}
-                      </div>
-                   </div>
+                  <div className="space-y-4">
+                    <Label className="text-slate-400 font-black text-[10px] uppercase tracking-[0.2em]">
+                      Dispatch Priority
+                    </Label>
+                    <div className="grid grid-cols-2 gap-2">
+                      {Object.values(WorkOrderPriority)
+                        .slice(0, 4)
+                        .map((priority) => (
+                          <button
+                            key={priority}
+                            type="button"
+                            onClick={() => setFormData((prev) => ({ ...prev, priority }))}
+                            className={`h-11 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
+                              formData.priority === priority
+                                ? "bg-white text-slate-900 shadow-xl"
+                                : "bg-white/5 text-slate-500 hover:bg-white/10"
+                            }`}
+                          >
+                            {priority}
+                          </button>
+                        ))}
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
 
               <Card className="rounded-[2.5rem] border-none shadow-xl bg-white p-2 border-2 border-primary/5">
                 <CardHeader className="px-8 pt-8 pb-4">
-                   <CardTitle className="text-lg font-black uppercase tracking-tight text-slate-900 flex items-center justify-between">
-                      Field Execution
-                      <User className="h-5 w-5 text-emerald-500" />
-                   </CardTitle>
+                  <CardTitle className="text-lg font-black uppercase tracking-tight text-slate-900 flex items-center justify-between">
+                    Field Execution
+                    <User className="h-5 w-5 text-emerald-500" />
+                  </CardTitle>
                 </CardHeader>
                 <CardContent className="px-8 py-8 space-y-8">
-                   <div className="space-y-3">
-                      <Label htmlFor="engineerId" className="text-slate-500 font-black text-[10px] uppercase tracking-[0.15em]">Lead Field Engineer</Label>
-                      <select
-                        id="engineerId"
-                        name="assignedEngineerIds"
-                        value={formData.assignedEngineerIds[0] || ""}
-                        onChange={(e) => setFormData(prev => ({ ...prev, assignedEngineerIds: e.target.value ? [e.target.value] : [] }))}
-                        className="w-full h-14 rounded-2xl border-2 border-slate-50 bg-slate-50/50 px-5 text-sm font-bold text-slate-900 focus:outline-none focus:border-primary transition-all appearance-none"
-                      >
-                         <option value="">Keep in Open Pool</option>
-                         {engineers.map(e => (
-                            <option key={e.id} value={e.id}>{e.profile?.fullName || e.username} ({e.roleName})</option>
-                         ))}
-                      </select>
-                   </div>
-                   <div className="space-y-3">
-                      <Label htmlFor="scheduledDate" className="text-slate-500 font-black text-[10px] uppercase tracking-[0.15em]">Scheduled Visit Date</Label>
-                      <Input
-                        id="scheduledDate"
-                        type="date"
-                        name="scheduledDate"
-                        value={formData.scheduledDate}
-                        onChange={handleChange}
-                        className="h-14 rounded-2xl border-2 border-slate-50 bg-slate-50/50 font-bold focus:ring-0 px-5"
-                      />
-                   </div>
+                  <div className="space-y-3">
+                    <Label
+                      htmlFor="engineerId"
+                      className="text-slate-500 font-black text-[10px] uppercase tracking-[0.15em]"
+                    >
+                      Lead Field Engineer
+                    </Label>
+                    <select
+                      id="engineerId"
+                      name="assignedEngineerIds"
+                      value={formData.assignedEngineerIds[0] || ""}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          assignedEngineerIds: e.target.value ? [e.target.value] : [],
+                        }))
+                      }
+                      className="w-full h-14 rounded-2xl border-2 border-slate-50 bg-slate-50/50 px-5 text-sm font-bold text-slate-900 focus:outline-none focus:border-primary transition-all appearance-none"
+                    >
+                      <option value="">Keep in Open Pool</option>
+                      {engineers.map((e) => (
+                        <option key={e.id} value={e.id}>
+                          {e.profile?.fullName || e.username} ({e.roleName})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="space-y-3">
+                    <Label
+                      htmlFor="scheduledDate"
+                      className="text-slate-500 font-black text-[10px] uppercase tracking-[0.15em]"
+                    >
+                      Scheduled Visit Date
+                    </Label>
+                    <Input
+                      id="scheduledDate"
+                      type="date"
+                      name="scheduledDate"
+                      value={formData.scheduledDate}
+                      onChange={handleChange}
+                      className="h-14 rounded-2xl border-2 border-slate-50 bg-slate-50/50 font-bold focus:ring-0 px-5"
+                    />
+                  </div>
                 </CardContent>
               </Card>
 
               <div className="p-8 bg-amber-50 rounded-[2.5rem] border-2 border-amber-100 flex items-start gap-4">
-                 <ShieldCheck className="h-6 w-6 text-amber-500 mt-1 shrink-0" />
-                 <div className="space-y-2">
-                    <p className="text-sm font-black text-amber-900 uppercase tracking-tighter">SLA Compliance</p>
-                    <p className="text-xs text-amber-700 font-medium leading-relaxed">
-                       SLA timers start immediately upon release. Response target will be calculated based on the linked Contract or system defaults.
-                    </p>
-                 </div>
+                <ShieldCheck className="h-6 w-6 text-amber-500 mt-1 shrink-0" />
+                <div className="space-y-2">
+                  <p className="text-sm font-black text-amber-900 uppercase tracking-tighter">
+                    SLA Compliance
+                  </p>
+                  <p className="text-xs text-amber-700 font-medium leading-relaxed">
+                    SLA timers start immediately upon release. Response target will be calculated
+                    based on the linked Contract or system defaults.
+                  </p>
+                </div>
               </div>
             </div>
           </div>

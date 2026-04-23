@@ -3,9 +3,12 @@ import { apiRequest } from "./api-client";
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api/v1";
 
 export const driveApi = {
-  getFolders: (parentId?: string) => apiRequest<any>(`/drive/folders${parentId ? `?parentId=${parentId}` : ""}`),
-  createFolder: (data: any) => apiRequest<any>("/drive/folders", { method: "POST", body: JSON.stringify(data) }),
-  getFiles: (folderId?: string) => apiRequest<any>(`/drive/files${folderId ? `?folderId=${folderId}` : ""}`),
+  getFolders: (parentId?: string) =>
+    apiRequest<any>(`/drive/folders${parentId ? `?parentId=${parentId}` : ""}`),
+  createFolder: (data: any) =>
+    apiRequest<any>("/drive/folders", { method: "POST", body: JSON.stringify(data) }),
+  getFiles: (folderId?: string) =>
+    apiRequest<any>(`/drive/files${folderId ? `?folderId=${folderId}` : ""}`),
   uploadFile: async (file: File, folderId?: string): Promise<any> => {
     const token = typeof window !== "undefined" ? localStorage.getItem("auth_token") : null;
     const fd = new FormData();

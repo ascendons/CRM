@@ -72,13 +72,7 @@ interface EngineerRow {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-const AVAILABILITY_OPTIONS: Availability[] = [
-  "AVAILABLE",
-  "ON_JOB",
-  "LEAVE",
-  "TRAVEL",
-  "TRAINING",
-];
+const AVAILABILITY_OPTIONS: Availability[] = ["AVAILABLE", "ON_JOB", "LEAVE", "TRAVEL", "TRAINING"];
 
 const availabilityBadge: Record<Availability, string> = {
   AVAILABLE: "bg-green-100 text-green-800",
@@ -173,10 +167,7 @@ export default function EngineerManagementPage() {
 
   // ── Availability update ─────────────────────────────────────────────────────
 
-  const handleAvailabilityChange = async (
-    engineer: EngineerRow,
-    newAvailability: Availability
-  ) => {
+  const handleAvailabilityChange = async (engineer: EngineerRow, newAvailability: Availability) => {
     if (newAvailability === engineer.availability) return;
     setUpdatingId(engineer.engineerId);
     try {
@@ -186,9 +177,7 @@ export default function EngineerManagementPage() {
       });
       setEngineers((prev) =>
         prev.map((e) =>
-          e.engineerId === engineer.engineerId
-            ? { ...e, availability: newAvailability }
-            : e
+          e.engineerId === engineer.engineerId ? { ...e, availability: newAvailability } : e
         )
       );
       showToast.success(`${engineer.engineerName} marked as ${newAvailability}`);
@@ -211,7 +200,6 @@ export default function EngineerManagementPage() {
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
           <div className="flex items-center gap-3">
@@ -318,9 +306,7 @@ export default function EngineerManagementPage() {
                               .toUpperCase()}
                           </div>
                           <div>
-                            <p className="text-sm font-medium text-gray-900">
-                              {eng.engineerName}
-                            </p>
+                            <p className="text-sm font-medium text-gray-900">{eng.engineerName}</p>
                             <p className="text-xs text-gray-400">{eng.engineerId}</p>
                           </div>
                         </div>
@@ -381,7 +367,6 @@ export default function EngineerManagementPage() {
                       <tr key={`${eng.engineerId}-detail`}>
                         <td colSpan={6} className="bg-gray-50 px-6 py-5 border-t border-gray-200">
                           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
                             {/* Scheduled slots */}
                             <div>
                               <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
@@ -410,8 +395,8 @@ export default function EngineerManagementPage() {
                                           slot.status === "COMPLETED"
                                             ? "bg-green-100 text-green-700"
                                             : slot.status === "IN_PROGRESS"
-                                            ? "bg-blue-100 text-blue-700"
-                                            : "bg-gray-100 text-gray-600"
+                                              ? "bg-blue-100 text-blue-700"
+                                              : "bg-gray-100 text-gray-600"
                                         }`}
                                       >
                                         {slot.status}
@@ -429,9 +414,7 @@ export default function EngineerManagementPage() {
                                 Skills &amp; Proficiency
                               </h3>
                               {eng.skills.length === 0 ? (
-                                <p className="text-sm text-gray-400 italic">
-                                  No skills on record.
-                                </p>
+                                <p className="text-sm text-gray-400 italic">No skills on record.</p>
                               ) : (
                                 <div className="flex flex-wrap gap-2">
                                   {eng.skills.map((skill, idx) => (

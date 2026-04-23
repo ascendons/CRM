@@ -1,11 +1,11 @@
-import { api } from './api-client';
+import { api } from "./api-client";
 
 export interface EngineerSchedule {
   id: string;
   engineerId: string;
   engineerName?: string;
   date: string;
-  availability: 'AVAILABLE' | 'ON_JOB' | 'LEAVE' | 'TRAVEL' | 'TRAINING';
+  availability: "AVAILABLE" | "ON_JOB" | "LEAVE" | "TRAVEL" | "TRAINING";
   slots: { workOrderId: string; startTime: string; endTime: string; status: string }[];
 }
 
@@ -14,7 +14,7 @@ export interface AvailableEngineer {
   name: string;
   email?: string;
   phone?: string;
-  availability: 'AVAILABLE' | 'ON_JOB' | 'LEAVE' | 'TRAVEL' | 'TRAINING';
+  availability: "AVAILABLE" | "ON_JOB" | "LEAVE" | "TRAVEL" | "TRAINING";
 }
 
 export interface DispatchRequest {
@@ -34,9 +34,11 @@ export interface ReassignRequest {
 export interface GeoLocation {
   engineerId: string;
   engineerName?: string;
-  latitude: number;
-  longitude: number;
-  updatedAt: string;
+  lat: number;
+  lng: number;
+  accuracy?: number;
+  workOrderId?: string;
+  timestamp: string;
 }
 
 export interface TechnicianSkill {
@@ -47,7 +49,7 @@ export interface TechnicianSkill {
   certNumber: string;
   issueDate: string;
   expiryDate: string;
-  proficiencyLevel: 'TRAINEE' | 'COMPETENT' | 'EXPERT';
+  proficiencyLevel: "TRAINEE" | "COMPETENT" | "EXPERT";
   verifiedBy: string;
 }
 
@@ -58,14 +60,14 @@ export interface CreateSkillRequest {
   certNumber: string;
   issueDate: string;
   expiryDate: string;
-  proficiencyLevel: 'TRAINEE' | 'COMPETENT' | 'EXPERT';
+  proficiencyLevel: "TRAINEE" | "COMPETENT" | "EXPERT";
 }
 
 export interface TrainingRecord {
   id: string;
   userId: string;
   trainingName: string;
-  trainingType: 'INTERNAL' | 'EXTERNAL' | 'OEM';
+  trainingType: "INTERNAL" | "EXTERNAL" | "OEM";
   completedDate: string;
   trainerName: string;
   score: number;
@@ -75,7 +77,7 @@ export interface TrainingRecord {
 export interface CreateTrainingRequest {
   userId: string;
   trainingName: string;
-  trainingType: 'INTERNAL' | 'EXTERNAL' | 'OEM';
+  trainingType: "INTERNAL" | "EXTERNAL" | "OEM";
   completedDate: string;
   trainerName: string;
   score: number;
@@ -89,7 +91,7 @@ export interface PartsRequest {
   engineerId: string;
   requestedAt: string;
   requestedParts: { partId: string; qty: number; reason: string }[];
-  status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'DISPATCHED' | 'RECEIVED';
+  status: "PENDING" | "APPROVED" | "REJECTED" | "DISPATCHED" | "RECEIVED";
   approvedBy: string;
   warehouseId: string;
   dispatchedAt: string;
@@ -109,43 +111,35 @@ export const dispatchService = {
     api.get<EngineerSchedule[]>(`/dispatch/schedules?date=${date}`),
   getEngineerSchedule: (engineerId: string, date: string) =>
     api.get<EngineerSchedule>(`/dispatch/schedules/${engineerId}?date=${date}`),
-  dispatchWorkOrder: (data: DispatchRequest) =>
-    api.post<void>('/dispatch/dispatch', data),
-  reassignWorkOrder: (data: ReassignRequest) =>
-    api.post<void>('/dispatch/reassign', data),
+  dispatchWorkOrder: (data: DispatchRequest) => api.post<void>("/dispatch/dispatch", data),
+  reassignWorkOrder: (data: ReassignRequest) => api.post<void>("/dispatch/reassign", data),
   getAvailableEngineers: (date: string) =>
-    api.get<AvailableEngineer[]>(`/dispatch/available-engineers?date=${date}`),
+    api.get<AvailableEngineer[]>(`/dispatch/schedules/available?date=${date}`),
 
   // Geo
-  getAllLocations: () => api.get<GeoLocation[]>('/geo/locations'),
-  getEngineerLocation: (engineerId: string) =>
-    api.get<GeoLocation>(`/geo/locations/${engineerId}`),
+  getAllLocations: () => api.get<GeoLocation[]>("/geo/locations"),
+  getEngineerLocation: (engineerId: string) => api.get<GeoLocation>(`/geo/location/${engineerId}`),
 
   // Skill Matrix
-  getSkills: (userId: string) =>
-    api.get<TechnicianSkill[]>(`/skill-matrix/skills/${userId}`),
-  addSkill: (data: CreateSkillRequest) =>
-    api.post<TechnicianSkill>('/skill-matrix/skills', data),
+  getSkills: (userId: string) => api.get<TechnicianSkill[]>(`/skill-matrix/skills/${userId}`),
+  addSkill: (data: CreateSkillRequest) => api.post<TechnicianSkill>("/skill-matrix/skills", data),
   deleteSkill: (id: string) => api.delete<void>(`/skill-matrix/skills/${id}`),
-  getTraining: (userId: string) =>
-    api.get<TrainingRecord[]>(`/skill-matrix/training/${userId}`),
+  getTraining: (userId: string) => api.get<TrainingRecord[]>(`/skill-matrix/training/${userId}`),
   addTraining: (data: CreateTrainingRequest) =>
-    api.post<TrainingRecord>('/skill-matrix/training', data),
+    api.post<TrainingRecord>("/skill-matrix/training", data),
 
   // Parts Requests
-  getAllPartsRequests: () => api.get<PartsRequest[]>('/parts-requests'),
+  getAllPartsRequests: () => api.get<PartsRequest[]>("/parts-requests"),
   getPartsByEngineer: (engineerId: string) =>
     api.get<PartsRequest[]>(`/parts-requests/engineer/${engineerId}`),
   getPartsByWorkOrder: (workOrderId: string) =>
     api.get<PartsRequest[]>(`/parts-requests/work-order/${workOrderId}`),
   createPartsRequest: (data: CreatePartsRequestBody) =>
-    api.post<PartsRequest>('/parts-requests', data),
-  approvePartsRequest: (id: string) =>
-    api.post<PartsRequest>(`/parts-requests/${id}/approve`, {}),
+    api.post<PartsRequest>("/parts-requests", data),
+  approvePartsRequest: (id: string) => api.post<PartsRequest>(`/parts-requests/${id}/approve`, {}),
   rejectPartsRequest: (id: string, reason: string) =>
     api.post<PartsRequest>(`/parts-requests/${id}/reject`, { reason }),
   dispatchPartsRequest: (id: string) =>
     api.post<PartsRequest>(`/parts-requests/${id}/dispatch`, {}),
-  receivePartsRequest: (id: string) =>
-    api.post<PartsRequest>(`/parts-requests/${id}/receive`, {}),
+  receivePartsRequest: (id: string) => api.post<PartsRequest>(`/parts-requests/${id}/receive`, {}),
 };

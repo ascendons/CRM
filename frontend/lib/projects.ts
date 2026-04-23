@@ -1,8 +1,8 @@
-import { api } from './api-client';
+import { api } from "./api-client";
 
-export type ProjectStatus = 'PLANNING' | 'IN_PROGRESS' | 'ON_HOLD' | 'COMPLETED' | 'CANCELLED';
-export type TaskPriority = 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
-export type TaskStatus = 'TODO' | 'IN_PROGRESS' | 'IN_REVIEW' | 'DONE' | 'CANCELLED';
+export type ProjectStatus = "PLANNING" | "IN_PROGRESS" | "ON_HOLD" | "COMPLETED" | "CANCELLED";
+export type TaskPriority = "LOW" | "MEDIUM" | "HIGH" | "URGENT";
+export type TaskStatus = "TODO" | "IN_PROGRESS" | "IN_REVIEW" | "DONE" | "CANCELLED";
 
 export interface Project {
   id: string;
@@ -84,11 +84,11 @@ export interface CreateProjectTaskRequest {
 
 export const projectsService = {
   async createProject(request: CreateProjectRequest): Promise<Project> {
-    return await api.post<Project>('/projects', request);
+    return await api.post<Project>("/projects", request);
   },
 
   async getAllProjects(status?: ProjectStatus): Promise<Project[]> {
-    const url = status ? `/projects?status=${status}` : '/projects';
+    const url = status ? `/projects?status=${status}` : "/projects";
     return await api.get<Project[]>(url);
   },
 
@@ -118,18 +118,21 @@ export const projectsService = {
 
   // Tasks
   async createTask(request: CreateProjectTaskRequest): Promise<ProjectTask> {
-    return await api.post<ProjectTask>('/project-tasks', request);
+    return await api.post<ProjectTask>("/project-tasks", request);
   },
 
   async getAllTasks(): Promise<ProjectTask[]> {
-    return await api.get<ProjectTask[]>('/project-tasks');
+    return await api.get<ProjectTask[]>("/project-tasks");
   },
 
   async getTaskById(taskId: string): Promise<ProjectTask> {
     return await api.get<ProjectTask>(`/project-tasks/${taskId}`);
   },
 
-  async updateTask(taskId: string, request: Partial<CreateProjectTaskRequest>): Promise<ProjectTask> {
+  async updateTask(
+    taskId: string,
+    request: Partial<CreateProjectTaskRequest>
+  ): Promise<ProjectTask> {
     return await api.put<ProjectTask>(`/project-tasks/${taskId}`, request);
   },
 

@@ -38,7 +38,9 @@ interface KpiCardProps {
 
 function KpiCard({ label, value, icon, borderColor, iconBg, iconColor }: KpiCardProps) {
   return (
-    <div className={`bg-white rounded-xl shadow-sm p-6 border-l-4 ${borderColor} flex items-center gap-4`}>
+    <div
+      className={`bg-white rounded-xl shadow-sm p-6 border-l-4 ${borderColor} flex items-center gap-4`}
+    >
       <div className={`${iconBg} p-3 rounded-lg`}>
         <span className={`material-symbols-outlined ${iconColor} text-2xl`}>{icon}</span>
       </div>
@@ -50,23 +52,38 @@ function KpiCard({ label, value, icon, borderColor, iconBg, iconColor }: KpiCard
   );
 }
 
-function BarRow({ label, value, max, color }: { label: string; value: number; max: number; color: string }) {
+function BarRow({
+  label,
+  value,
+  max,
+  color,
+}: {
+  label: string;
+  value: number;
+  max: number;
+  color: string;
+}) {
   const pct = max > 0 ? Math.round((value / max) * 100) : 0;
   return (
     <div className="flex items-center gap-3">
       <span className="text-xs text-slate-500 w-16 shrink-0">{label}</span>
       <div className="flex-1 bg-slate-100 rounded-full h-3">
-        <div
-          className={`${color} h-3 rounded-full transition-all`}
-          style={{ width: `${pct}%` }}
-        />
+        <div className={`${color} h-3 rounded-full transition-all`} style={{ width: `${pct}%` }} />
       </div>
       <span className="text-xs font-semibold text-slate-700 w-8 text-right">{value}</span>
     </div>
   );
 }
 
-function StatGroup({ title, data, colorClass }: { title: string; data: Record<string, number>; colorClass: string }) {
+function StatGroup({
+  title,
+  data,
+  colorClass,
+}: {
+  title: string;
+  data: Record<string, number>;
+  colorClass: string;
+}) {
   const max = Math.max(...Object.values(data), 1);
   return (
     <div className="bg-white rounded-xl shadow-sm p-5">
@@ -126,21 +143,27 @@ export default function ServiceAnalyticsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-slate-800">Service Analytics</h1>
-          <p className="text-sm text-slate-500 mt-0.5">Real-time field service performance metrics</p>
+          <p className="text-sm text-slate-500 mt-0.5">
+            Real-time field service performance metrics
+          </p>
         </div>
         <button
           onClick={fetchAll}
           disabled={loading}
           className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
         >
-          <span className={`material-symbols-outlined text-base ${loading ? "animate-spin" : ""}`}>refresh</span>
+          <span className={`material-symbols-outlined text-base ${loading ? "animate-spin" : ""}`}>
+            refresh
+          </span>
           Refresh
         </button>
       </div>
 
       {loading && !kpis ? (
         <div className="flex items-center justify-center h-64">
-          <span className="material-symbols-outlined animate-spin text-4xl text-blue-500">progress_activity</span>
+          <span className="material-symbols-outlined animate-spin text-4xl text-blue-500">
+            progress_activity
+          </span>
         </div>
       ) : (
         <>
@@ -221,7 +244,11 @@ export default function ServiceAnalyticsPage() {
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <StatGroup title="By Type" data={volume.byType} colorClass="bg-blue-500" />
-                <StatGroup title="By Priority" data={volume.byPriority} colorClass="bg-purple-500" />
+                <StatGroup
+                  title="By Priority"
+                  data={volume.byPriority}
+                  colorClass="bg-purple-500"
+                />
                 <StatGroup title="By Status" data={volume.byStatus} colorClass="bg-slate-500" />
               </div>
             </div>
@@ -242,11 +269,15 @@ export default function ServiceAnalyticsPage() {
                     <p className="text-xs text-slate-500 mt-1">Total Requests</p>
                   </div>
                   <div>
-                    <p className="text-2xl font-bold text-green-600">{parts.sameDayFulfilledCount}</p>
+                    <p className="text-2xl font-bold text-green-600">
+                      {parts.sameDayFulfilledCount}
+                    </p>
                     <p className="text-xs text-slate-500 mt-1">Same-Day Fulfilled</p>
                   </div>
                   <div>
-                    <p className="text-3xl font-bold text-blue-600">{parts.partsAvailabilityRatePct.toFixed(1)}%</p>
+                    <p className="text-3xl font-bold text-blue-600">
+                      {parts.partsAvailabilityRatePct.toFixed(1)}%
+                    </p>
                     <p className="text-xs text-slate-500 mt-1">Availability Rate</p>
                   </div>
                 </div>
@@ -270,8 +301,12 @@ export default function ServiceAnalyticsPage() {
                   <table className="min-w-full text-sm">
                     <thead>
                       <tr className="border-b border-slate-100">
-                        <th className="text-left text-xs font-semibold text-slate-500 uppercase pb-2">Engineer ID</th>
-                        <th className="text-right text-xs font-semibold text-slate-500 uppercase pb-2">WOs Completed</th>
+                        <th className="text-left text-xs font-semibold text-slate-500 uppercase pb-2">
+                          Engineer ID
+                        </th>
+                        <th className="text-right text-xs font-semibold text-slate-500 uppercase pb-2">
+                          WOs Completed
+                        </th>
                       </tr>
                     </thead>
                     <tbody>
@@ -280,7 +315,9 @@ export default function ServiceAnalyticsPage() {
                         .map(([engId, count]) => (
                           <tr key={engId} className="border-b border-slate-50 last:border-0">
                             <td className="py-2 text-slate-700 font-mono text-xs">{engId}</td>
-                            <td className="py-2 text-right font-semibold text-slate-800">{count}</td>
+                            <td className="py-2 text-right font-semibold text-slate-800">
+                              {count}
+                            </td>
                           </tr>
                         ))}
                     </tbody>

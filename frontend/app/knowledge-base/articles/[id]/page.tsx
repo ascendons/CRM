@@ -22,24 +22,33 @@ export default function ArticleDetailPage() {
       const data = await kbService.getArticleById(id as string);
       setArticle(data);
     } catch {
-      showToast("Failed to load article", "error");
+      showToast.error("Failed to load article");
     } finally {
       setLoading(false);
     }
   };
 
-  if (loading) return <div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" /></div>;
+  if (loading)
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
+      </div>
+    );
   if (!article) return <div className="p-6">Article not found</div>;
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
       {/* Breadcrumb */}
       <div className="flex items-center gap-2 text-sm text-gray-500 mb-4">
-        <Link href="/knowledge-base" className="hover:text-gray-700">Knowledge Base</Link>
+        <Link href="/knowledge-base" className="hover:text-gray-700">
+          Knowledge Base
+        </Link>
         {article.categoryId && (
           <>
             <span>/</span>
-            <Link href={`/knowledge-base/${article.categoryId}`} className="hover:text-gray-700">Category</Link>
+            <Link href={`/knowledge-base/${article.categoryId}`} className="hover:text-gray-700">
+              Category
+            </Link>
           </>
         )}
         <span>/</span>
@@ -53,11 +62,15 @@ export default function ArticleDetailPage() {
         <div className="flex-1 mx-4">
           <div className="flex items-center gap-3 mb-1">
             <h1 className="text-3xl font-bold text-gray-900">{article.title}</h1>
-            <span className={`text-xs px-2 py-1 rounded-full font-medium ${
-              article.status === "PUBLISHED" ? "bg-green-100 text-green-700"
-              : article.status === "DRAFT" ? "bg-gray-100 text-gray-600"
-              : "bg-orange-100 text-orange-700"
-            }`}>
+            <span
+              className={`text-xs px-2 py-1 rounded-full font-medium ${
+                article.status === "PUBLISHED"
+                  ? "bg-green-100 text-green-700"
+                  : article.status === "DRAFT"
+                    ? "bg-gray-100 text-gray-600"
+                    : "bg-orange-100 text-orange-700"
+              }`}
+            >
               {article.status}
             </span>
           </div>
@@ -83,8 +96,10 @@ export default function ArticleDetailPage() {
 
       {article.tags && article.tags.length > 0 && (
         <div className="flex flex-wrap gap-2 mb-6">
-          {article.tags.map(t => (
-            <span key={t} className="bg-blue-50 text-blue-700 text-sm px-3 py-1 rounded-full">{t}</span>
+          {article.tags.map((t) => (
+            <span key={t} className="bg-blue-50 text-blue-700 text-sm px-3 py-1 rounded-full">
+              {t}
+            </span>
           ))}
         </div>
       )}

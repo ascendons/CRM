@@ -10,15 +10,15 @@ import { authService } from "@/lib/auth";
 import { Account } from "@/types/account";
 import { UserResponse } from "@/types/user";
 import { showToast } from "@/lib/toast";
-import { 
-  ChevronLeft, 
-  Save, 
-  Laptop, 
-  Settings2, 
-  Building2, 
+import {
+  ChevronLeft,
+  Save,
+  Laptop,
+  Settings2,
+  Building2,
   Calendar,
   AlertCircle,
-  Loader2
+  Loader2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,7 +28,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 export default function EditAssetPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const router = useRouter();
-  
+
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [categories, setCategories] = useState<AssetCategory[]>([]);
   const [engineers, setEngineers] = useState<UserResponse[]>([]);
@@ -66,13 +66,13 @@ export default function EditAssetPage({ params }: { params: Promise<{ id: string
         fieldService.getAssetById(id),
         accountsService.getAllAccounts(),
         fieldService.getAllAssetCategories(),
-        usersService.getActiveUsers()
+        usersService.getActiveUsers(),
       ]);
-      
+
       setAccounts(Array.isArray(accountsData) ? accountsData : []);
       setCategories(categoriesData);
       setEngineers(usersData);
-      
+
       setFormData({
         serialNo: assetData.serialNo,
         model: assetData.model,
@@ -82,8 +82,8 @@ export default function EditAssetPage({ params }: { params: Promise<{ id: string
         contactId: assetData.contactId || "",
         assignedEngineerId: assetData.assignedEngineerId || "",
         siteAddress: assetData.siteAddress || "",
-        installDate: assetData.installDate ? assetData.installDate.split('T')[0] : "",
-        warrantyExpiry: assetData.warrantyExpiry ? assetData.warrantyExpiry.split('T')[0] : "",
+        installDate: assetData.installDate ? assetData.installDate.split("T")[0] : "",
+        warrantyExpiry: assetData.warrantyExpiry ? assetData.warrantyExpiry.split("T")[0] : "",
         status: assetData.status,
         notes: assetData.notes || "",
       });
@@ -141,17 +141,21 @@ export default function EditAssetPage({ params }: { params: Promise<{ id: string
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between py-4">
             <div className="flex items-center gap-4">
-              <Button 
-                variant="ghost" 
-                size="icon" 
+              <Button
+                variant="ghost"
+                size="icon"
                 onClick={() => router.back()}
                 className="rounded-full hover:bg-slate-100"
               >
                 <ChevronLeft className="h-5 w-5 text-slate-600" />
               </Button>
               <div>
-                <h1 className="text-xl font-bold text-slate-900 tracking-tight">Edit Asset Record</h1>
-                <p className="text-xs text-slate-500 font-medium">Update equipment specifications and location</p>
+                <h1 className="text-xl font-bold text-slate-900 tracking-tight">
+                  Edit Asset Record
+                </h1>
+                <p className="text-xs text-slate-500 font-medium">
+                  Update equipment specifications and location
+                </p>
               </div>
             </div>
             <div className="flex items-center gap-3">
@@ -167,7 +171,11 @@ export default function EditAssetPage({ params }: { params: Promise<{ id: string
                 disabled={loading}
                 className="rounded-xl px-6 font-bold shadow-lg shadow-primary/25 transition-all active:scale-95"
               >
-                {loading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
+                {loading ? (
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <Save className="h-4 w-4 mr-2" />
+                )}
                 {loading ? "Saving Changes..." : "Update Asset"}
               </Button>
             </div>
@@ -183,23 +191,34 @@ export default function EditAssetPage({ params }: { params: Promise<{ id: string
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500"
+        >
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            
             {/* Left Column: Core Identity */}
             <div className="lg:col-span-2 space-y-8">
               <Card className="border-slate-200 shadow-sm rounded-2xl overflow-hidden overflow-visible transition-shadow hover:shadow-md bg-white">
                 <CardHeader className="border-b border-slate-100 bg-slate-50/50 pb-4">
                   <div className="flex items-center gap-2">
                     <Laptop className="h-4 w-4 text-primary" />
-                    <CardTitle className="text-lg font-bold text-slate-900">Equipment Specifications</CardTitle>
+                    <CardTitle className="text-lg font-bold text-slate-900">
+                      Equipment Specifications
+                    </CardTitle>
                   </div>
-                  <CardDescription className="text-slate-500">Technical identification and branding of the asset.</CardDescription>
+                  <CardDescription className="text-slate-500">
+                    Technical identification and branding of the asset.
+                  </CardDescription>
                 </CardHeader>
                 <CardContent className="pt-6 space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
-                      <Label htmlFor="brand" className="text-slate-700 font-bold text-xs uppercase tracking-wider">Brand / Make *</Label>
+                      <Label
+                        htmlFor="brand"
+                        className="text-slate-700 font-bold text-xs uppercase tracking-wider"
+                      >
+                        Brand / Make *
+                      </Label>
                       <Input
                         id="brand"
                         name="brand"
@@ -210,7 +229,12 @@ export default function EditAssetPage({ params }: { params: Promise<{ id: string
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="model" className="text-slate-700 font-bold text-xs uppercase tracking-wider">Model Number *</Label>
+                      <Label
+                        htmlFor="model"
+                        className="text-slate-700 font-bold text-xs uppercase tracking-wider"
+                      >
+                        Model Number *
+                      </Label>
                       <Input
                         id="model"
                         name="model"
@@ -221,7 +245,12 @@ export default function EditAssetPage({ params }: { params: Promise<{ id: string
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="serialNo" className="text-slate-700 font-bold text-xs uppercase tracking-wider">Serial Number *</Label>
+                      <Label
+                        htmlFor="serialNo"
+                        className="text-slate-700 font-bold text-xs uppercase tracking-wider"
+                      >
+                        Serial Number *
+                      </Label>
                       <Input
                         id="serialNo"
                         name="serialNo"
@@ -232,7 +261,12 @@ export default function EditAssetPage({ params }: { params: Promise<{ id: string
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="categoryId" className="text-slate-700 font-bold text-xs uppercase tracking-wider">Equipment Category *</Label>
+                      <Label
+                        htmlFor="categoryId"
+                        className="text-slate-700 font-bold text-xs uppercase tracking-wider"
+                      >
+                        Equipment Category *
+                      </Label>
                       <div className="relative">
                         <select
                           id="categoryId"
@@ -262,12 +296,19 @@ export default function EditAssetPage({ params }: { params: Promise<{ id: string
                     <Building2 className="h-4 w-4 text-primary" />
                     <CardTitle className="text-lg font-bold">Ownership & Site Location</CardTitle>
                   </div>
-                  <CardDescription className="text-slate-500 text-sm">Where this asset is currently installed and managed.</CardDescription>
+                  <CardDescription className="text-slate-500 text-sm">
+                    Where this asset is currently installed and managed.
+                  </CardDescription>
                 </CardHeader>
                 <CardContent className="pt-6 space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2 md:col-span-2">
-                      <Label htmlFor="accountId" className="text-slate-700 font-bold text-xs uppercase tracking-wider">Customer / Account *</Label>
+                      <Label
+                        htmlFor="accountId"
+                        className="text-slate-700 font-bold text-xs uppercase tracking-wider"
+                      >
+                        Customer / Account *
+                      </Label>
                       <select
                         id="accountId"
                         name="accountId"
@@ -285,7 +326,12 @@ export default function EditAssetPage({ params }: { params: Promise<{ id: string
                       </select>
                     </div>
                     <div className="space-y-2 md:col-span-2">
-                      <Label htmlFor="siteAddress" className="text-slate-700 font-bold text-xs uppercase tracking-wider">Installation Address</Label>
+                      <Label
+                        htmlFor="siteAddress"
+                        className="text-slate-700 font-bold text-xs uppercase tracking-wider"
+                      >
+                        Installation Address
+                      </Label>
                       <textarea
                         id="siteAddress"
                         name="siteAddress"
@@ -297,7 +343,12 @@ export default function EditAssetPage({ params }: { params: Promise<{ id: string
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="assignedEngineerId" className="text-slate-700 font-bold text-xs uppercase tracking-wider">Primary Field Engineer</Label>
+                      <Label
+                        htmlFor="assignedEngineerId"
+                        className="text-slate-700 font-bold text-xs uppercase tracking-wider"
+                      >
+                        Primary Field Engineer
+                      </Label>
                       <select
                         id="assignedEngineerId"
                         name="assignedEngineerId"
@@ -329,7 +380,12 @@ export default function EditAssetPage({ params }: { params: Promise<{ id: string
                 </CardHeader>
                 <CardContent className="pt-6 space-y-6">
                   <div className="space-y-2">
-                    <Label htmlFor="status" className="text-slate-700 font-bold text-xs uppercase tracking-wider">Operating Status</Label>
+                    <Label
+                      htmlFor="status"
+                      className="text-slate-700 font-bold text-xs uppercase tracking-wider"
+                    >
+                      Operating Status
+                    </Label>
                     <select
                       id="status"
                       name="status"
@@ -337,13 +393,20 @@ export default function EditAssetPage({ params }: { params: Promise<{ id: string
                       onChange={handleChange}
                       className="w-full h-10 rounded-xl border border-slate-200 bg-slate-50/30 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 font-bold text-primary"
                     >
-                      {Object.values(AssetStatus).map(status => (
-                        <option key={status} value={status}>{status.replace('_', ' ')}</option>
+                      {Object.values(AssetStatus).map((status) => (
+                        <option key={status} value={status}>
+                          {status.replace("_", " ")}
+                        </option>
                       ))}
                     </select>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="installDate" className="text-slate-700 font-bold text-xs uppercase tracking-wider font-bold">Installation Date</Label>
+                    <Label
+                      htmlFor="installDate"
+                      className="text-slate-700 font-bold text-xs uppercase tracking-wider font-bold"
+                    >
+                      Installation Date
+                    </Label>
                     <Input
                       id="installDate"
                       type="date"
@@ -354,14 +417,19 @@ export default function EditAssetPage({ params }: { params: Promise<{ id: string
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="warrantyExpiry" className="text-slate-700 font-bold text-xs uppercase tracking-wider">Warranty Expiry Date</Label>
+                    <Label
+                      htmlFor="warrantyExpiry"
+                      className="text-slate-700 font-bold text-xs uppercase tracking-wider"
+                    >
+                      Warranty Expiry Date
+                    </Label>
                     <Input
                       id="warrantyExpiry"
                       type="date"
                       name="warrantyExpiry"
                       value={formData.warrantyExpiry}
                       onChange={handleChange}
-                      className={`rounded-xl border-slate-200 bg-slate-50/30 focus:ring-rose-500/20 ${formData.warrantyExpiry && new Date(formData.warrantyExpiry) < new Date() ? 'text-rose-600 font-bold border-rose-200' : ''}`}
+                      className={`rounded-xl border-slate-200 bg-slate-50/30 focus:ring-rose-500/20 ${formData.warrantyExpiry && new Date(formData.warrantyExpiry) < new Date() ? "text-rose-600 font-bold border-rose-200" : ""}`}
                     />
                   </div>
                 </CardContent>
@@ -386,10 +454,13 @@ export default function EditAssetPage({ params }: { params: Promise<{ id: string
               <div className="p-4 bg-primary/5 rounded-2xl border border-primary/10">
                 <div className="flex items-center gap-2 mb-1">
                   <AlertCircle className="h-3.5 w-3.5 text-primary" />
-                  <p className="text-[11px] text-primary font-bold uppercase tracking-widest">Technical Update</p>
+                  <p className="text-[11px] text-primary font-bold uppercase tracking-widest">
+                    Technical Update
+                  </p>
                 </div>
                 <p className="text-xs text-slate-600 font-medium leading-relaxed">
-                  Modifying technical specifications like Serial No or Model may affect active service contracts and maintenance schedules.
+                  Modifying technical specifications like Serial No or Model may affect active
+                  service contracts and maintenance schedules.
                 </p>
               </div>
             </div>

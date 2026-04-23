@@ -519,7 +519,9 @@ public class ProfileMigrationService {
                 "DISPATCH", "SKILL_MATRIX", "PARTS_REQUEST",
                 "VENDORS", "PROCUREMENT", "DEALERS",
                 "SERVICE_ANALYTICS", "ESCALATION", "PURCHASE_ORDER",
-                "PROJECTS", "KNOWLEDGE_BASE", "WEB_FORMS"
+                "PROJECTS", "KNOWLEDGE_BASE", "WEB_FORMS",
+                "PERFORMANCE_REVIEWS", "OKR", "ONBOARDING", "FEED",
+                "CURRENCY", "ESIGNATURE", "REPORTS", "SURVEYS", "PORTAL"
         );
 
         for (Profile profile : allProfiles) {

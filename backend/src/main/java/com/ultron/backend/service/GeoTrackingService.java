@@ -58,6 +58,17 @@ public class GeoTrackingService extends BaseTenantService {
                 .orElse(null);
     }
 
+    public List<EngineerLocationResponse> getAllLatestLocations() {
+        return locationRepository.findLatestPerEngineerByTenantId(getCurrentTenantId())
+                .stream().map(this::toResponse).collect(Collectors.toList());
+    }
+
+    public List<EngineerLocationResponse> getLocationHistory(String engineerId) {
+        return locationRepository
+                .findTop20ByTenantIdAndEngineerIdOrderByTimestampDesc(getCurrentTenantId(), engineerId)
+                .stream().map(this::toResponse).collect(Collectors.toList());
+    }
+
     public void recordGeoEvent(String workOrderId, String engineerId, String eventType,
                                 Double lat, Double lng, String userId) {
         String tenantId = getCurrentTenantId();

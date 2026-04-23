@@ -62,10 +62,28 @@ public class PermissionService extends BaseTenantService {
         }
 
         // PRIORITY 2: Fall back to profile permissions
-        Profile profile = profileRepository.findByProfileIdAndTenantId(user.getProfileId(), user.getTenantId())
-                .orElse(null);
+        Profile profile = null;
+        if (user.getProfileId() != null && !user.getProfileId().isBlank()) {
+            profile = profileRepository.findByProfileIdAndTenantId(user.getProfileId(), user.getTenantId())
+                    .orElse(null);
+        }
+
+        // PRIORITY 3: If no profileId set, try to resolve via roleId → role name → system profile
+        if ((profile == null || !profile.getIsActive() || profile.getIsDeleted()) && user.getRoleId() != null) {
+            Role role = roleRepository.findById(user.getRoleId()).orElse(null);
+            if (role != null) {
+                String roleName = role.getRoleName();
+                String systemProfileName = roleName.contains("Admin") ? "System Administrator"
+                        : roleName.contains("Manager") ? "Standard Manager"
+                        : roleName.contains("Read") ? "Read Only" : null;
+                if (systemProfileName != null) {
+                    profile = profileRepository.findByProfileNameAndIsSystemProfileTrue(systemProfileName).orElse(null);
+                }
+            }
+        }
+
         if (profile == null || !profile.getIsActive() || profile.getIsDeleted()) {
-            log.debug("Profile not found, inactive, or deleted");
+            log.debug("Profile not found, inactive, or deleted for userId={}", userId);
             return false;
         }
 
@@ -266,6 +284,7 @@ public class PermissionService extends BaseTenantService {
             case "CREATE":
                 return op.getCanCreate();
             case "READ":
+            case "VIEW":
                 return op.getCanRead();
             case "EDIT":
             case "UPDATE":

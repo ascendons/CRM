@@ -1,10 +1,37 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter, usePathname } from "next/navigation";
 import { UserMenu } from "@/components/UserMenu";
 import ChatPanel from "./ChatPanel";
 import NotificationPanel from "./NotificationPanel";
 import { useWebSocket } from "@/providers/WebSocketProvider";
+
+// Top-level routes where a back button doesn't make sense
+const TOP_LEVEL_ROUTES = new Set([
+  "/",
+  "/dashboard",
+  "/leads",
+  "/contacts",
+  "/accounts",
+  "/opportunities",
+  "/activities",
+  "/projects",
+  "/proposals",
+  "/invoices",
+  "/products",
+  "/catalog",
+  "/inventory",
+  "/dispatch",
+  "/hr",
+  "/marketing",
+  "/reports",
+  "/settings",
+  "/feed",
+  "/drive",
+  "/attendance",
+  "/knowledge-base",
+]);
 
 interface TopBarProps {
   onMobileMenuClick: () => void;
@@ -12,9 +39,13 @@ interface TopBarProps {
 }
 
 export default function TopBar({ onMobileMenuClick, pageTitle }: TopBarProps) {
+  const router = useRouter();
+  const pathname = usePathname();
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const { unreadNotificationCount, unreadMessageCount, clearUnreadMessages } = useWebSocket();
+
+  const showBack = !TOP_LEVEL_ROUTES.has(pathname);
 
   return (
     <>
@@ -29,6 +60,18 @@ export default function TopBar({ onMobileMenuClick, pageTitle }: TopBarProps) {
           >
             <span className="material-symbols-outlined">menu</span>
           </button>
+
+          {/* Back Button */}
+          {showBack && (
+            <button
+              type="button"
+              onClick={() => router.back()}
+              className="p-2 text-slate-500 hover:bg-slate-100 rounded-lg transition-colors"
+              title="Go back"
+            >
+              <span className="material-symbols-outlined">arrow_back</span>
+            </button>
+          )}
 
           {/* Page Title */}
           {pageTitle && (

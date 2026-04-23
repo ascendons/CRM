@@ -1,23 +1,23 @@
 export enum AssetStatus {
-  ACTIVE = 'ACTIVE',
-  UNDER_REPAIR = 'UNDER_REPAIR',
-  DECOMMISSIONED = 'DECOMMISSIONED',
-  IN_TRANSIT = 'IN_TRANSIT',
-  SCRAPPED = 'SCRAPPED'
+  ACTIVE = "ACTIVE",
+  UNDER_REPAIR = "UNDER_REPAIR",
+  DECOMMISSIONED = "DECOMMISSIONED",
+  IN_TRANSIT = "IN_TRANSIT",
+  SCRAPPED = "SCRAPPED",
 }
 
 export enum AssetCategoryType {
-  EQUIPMENT = 'EQUIPMENT',
-  SPARE_PART = 'SPARE_PART',
-  CONSUMABLE = 'CONSUMABLE'
+  EQUIPMENT = "EQUIPMENT",
+  SPARE_PART = "SPARE_PART",
+  CONSUMABLE = "CONSUMABLE",
 }
 
 export enum ContractVisitStatus {
-  SCHEDULED = 'SCHEDULED',
-  COMPLETED = 'COMPLETED',
-  MISSED = 'MISSED',
-  RESCHEDULED = 'RESCHEDULED',
-  CANCELLED = 'CANCELLED'
+  SCHEDULED = "SCHEDULED",
+  COMPLETED = "COMPLETED",
+  MISSED = "MISSED",
+  RESCHEDULED = "RESCHEDULED",
+  CANCELLED = "CANCELLED",
 }
 
 export interface AssetCategory {
@@ -85,26 +85,26 @@ export interface CreateAssetRequest {
 export interface UpdateAssetRequest extends Partial<CreateAssetRequest> {}
 
 export enum ContractType {
-  AMC = 'AMC',
-  WARRANTY = 'WARRANTY',
-  PROJECT = 'PROJECT',
-  REPAIR = 'REPAIR'
+  AMC = "AMC",
+  WARRANTY = "WARRANTY",
+  PROJECT = "PROJECT",
+  REPAIR = "REPAIR",
 }
 
 export enum ContractStatus {
-  DRAFT = 'DRAFT',
-  ACTIVE = 'ACTIVE',
-  EXPIRED = 'EXPIRED',
-  RENEWED = 'RENEWED',
-  CANCELLED = 'CANCELLED'
+  DRAFT = "DRAFT",
+  ACTIVE = "ACTIVE",
+  EXPIRED = "EXPIRED",
+  RENEWED = "RENEWED",
+  CANCELLED = "CANCELLED",
 }
 
 export enum BillingCycle {
-  MONTHLY = 'MONTHLY',
-  QUARTERLY = 'QUARTERLY',
-  HALF_YEARLY = 'HALF_YEARLY',
-  ANNUAL = 'ANNUAL',
-  ONE_TIME = 'ONE_TIME'
+  MONTHLY = "MONTHLY",
+  QUARTERLY = "QUARTERLY",
+  HALF_YEARLY = "HALF_YEARLY",
+  ANNUAL = "ANNUAL",
+  ONE_TIME = "ONE_TIME",
 }
 
 export interface SlaConfig {
@@ -171,34 +171,34 @@ export interface ContractVisit {
 }
 
 export enum WorkOrderType {
-  INSTALLATION = 'INSTALLATION',
-  PREVENTIVE_MAINTENANCE = 'PREVENTIVE_MAINTENANCE',
-  BREAKDOWN = 'BREAKDOWN',
-  AMC_VISIT = 'AMC_VISIT',
-  WARRANTY = 'WARRANTY',
-  PROJECT_WORK = 'PROJECT_WORK',
-  INSPECTION = 'INSPECTION'
+  INSTALLATION = "INSTALLATION",
+  PREVENTIVE_MAINTENANCE = "PREVENTIVE_MAINTENANCE",
+  BREAKDOWN = "BREAKDOWN",
+  AMC_VISIT = "AMC_VISIT",
+  WARRANTY = "WARRANTY",
+  PROJECT_WORK = "PROJECT_WORK",
+  INSPECTION = "INSPECTION",
 }
 
 export enum WorkOrderPriority {
-  LOW = 'LOW',
-  MEDIUM = 'MEDIUM',
-  HIGH = 'HIGH',
-  CRITICAL = 'CRITICAL',
-  EMERGENCY = 'EMERGENCY'
+  LOW = "LOW",
+  MEDIUM = "MEDIUM",
+  HIGH = "HIGH",
+  CRITICAL = "CRITICAL",
+  EMERGENCY = "EMERGENCY",
 }
 
 export enum WorkOrderStatus {
-  OPEN = 'OPEN',
-  ASSIGNED = 'ASSIGNED',
-  EN_ROUTE = 'EN_ROUTE',
-  ON_SITE = 'ON_SITE',
-  IN_PROGRESS = 'IN_PROGRESS',
-  PENDING_SPARES = 'PENDING_SPARES',
-  ON_HOLD = 'ON_HOLD',
-  COMPLETED = 'COMPLETED',
-  CANCELLED = 'CANCELLED',
-  REOPENED = 'REOPENED'
+  OPEN = "OPEN",
+  ASSIGNED = "ASSIGNED",
+  EN_ROUTE = "EN_ROUTE",
+  ON_SITE = "ON_SITE",
+  IN_PROGRESS = "IN_PROGRESS",
+  PENDING_SPARES = "PENDING_SPARES",
+  ON_HOLD = "ON_HOLD",
+  COMPLETED = "COMPLETED",
+  CANCELLED = "CANCELLED",
+  REOPENED = "REOPENED",
 }
 
 export interface WorkOrder {
@@ -250,19 +250,19 @@ export interface WorkOrderPhoto {
 }
 
 export enum ServiceRequestStatus {
-  OPEN = 'OPEN',
-  ACKNOWLEDGED = 'ACKNOWLEDGED',
-  WO_CREATED = 'WO_CREATED',
-  RESOLVED = 'RESOLVED',
-  CLOSED = 'CLOSED',
-  CANCELLED = 'CANCELLED'
+  OPEN = "OPEN",
+  ACKNOWLEDGED = "ACKNOWLEDGED",
+  WO_CREATED = "WO_CREATED",
+  RESOLVED = "RESOLVED",
+  CLOSED = "CLOSED",
+  CANCELLED = "CANCELLED",
 }
 
 export enum ServiceRequestSource {
-  PORTAL = 'PORTAL',
-  PHONE = 'PHONE',
-  EMAIL = 'EMAIL',
-  WHATSAPP = 'WHATSAPP'
+  PORTAL = "PORTAL",
+  PHONE = "PHONE",
+  EMAIL = "EMAIL",
+  WHATSAPP = "WHATSAPP",
 }
 
 export interface ServiceRequest {
@@ -286,9 +286,9 @@ export interface ServiceRequest {
 export interface ChecklistItem {
   itemCode: string;
   description: string;
-  inputType: 'PASS_FAIL' | 'NUMERIC' | 'TEXT';
+  inputType: "PASS_FAIL" | "NUMERIC" | "TEXT";
   isMandatory: boolean;
-  failureAction?: 'BLOCK' | 'WARN';
+  failureAction?: "BLOCK" | "WARN";
 }
 
 export interface Checklist {
@@ -300,10 +300,10 @@ export interface Checklist {
 }
 
 export enum ChecklistItemStatus {
-  PASS = 'PASS',
-  FAIL = 'FAIL',
-  OBSERVED = 'OBSERVED',
-  N_A = 'N_A'
+  PASS = "PASS",
+  FAIL = "FAIL",
+  OBSERVED = "OBSERVED",
+  N_A = "N_A",
 }
 
 export interface ChecklistItemResponse {

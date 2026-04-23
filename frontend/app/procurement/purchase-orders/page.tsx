@@ -3,14 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { api } from "@/lib/api-client";
 import { showToast } from "@/lib/toast";
-import {
-  CheckCircle2,
-  XCircle,
-  Clock,
-  ChevronRight,
-  X,
-  ClipboardList,
-} from "lucide-react";
+import { CheckCircle2, XCircle, Clock, ChevronRight, X, ClipboardList } from "lucide-react";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -73,17 +66,17 @@ const STATUS_BADGE: Record<string, string> = {
 function StatusBadge({ status }: { status: string }) {
   const cls = STATUS_BADGE[status] ?? "bg-slate-100 text-slate-600";
   return (
-    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${cls}`}>
+    <span
+      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${cls}`}
+    >
       {status}
     </span>
   );
 }
 
 function StepIcon({ status }: { status: ApprovalStatus }) {
-  if (status === "Approved")
-    return <CheckCircle2 className="w-5 h-5 text-green-500" />;
-  if (status === "Rejected")
-    return <XCircle className="w-5 h-5 text-red-500" />;
+  if (status === "Approved") return <CheckCircle2 className="w-5 h-5 text-green-500" />;
+  if (status === "Rejected") return <XCircle className="w-5 h-5 text-red-500" />;
   return <Clock className="w-5 h-5 text-slate-300" />;
 }
 
@@ -102,8 +95,8 @@ function ApprovalStepper({ workflow }: { workflow: ApprovalStep[] }) {
                   step.status === "Approved"
                     ? "text-green-600"
                     : step.status === "Rejected"
-                    ? "text-red-600"
-                    : "text-slate-400"
+                      ? "text-red-600"
+                      : "text-slate-400"
                 }`}
               >
                 {step.status}
@@ -146,9 +139,7 @@ function ActionModal({ po, actionType, onClose, onDone }: ActionModalProps) {
       );
       onDone();
     } catch (err) {
-      showToast.error(
-        err instanceof Error ? err.message : `Failed to ${actionType} PO`
-      );
+      showToast.error(err instanceof Error ? err.message : `Failed to ${actionType} PO`);
     } finally {
       setSubmitting(false);
     }
@@ -186,9 +177,7 @@ function ActionModal({ po, actionType, onClose, onDone }: ActionModalProps) {
             </div>
             <div className="flex justify-between">
               <span className="text-slate-500">Amount</span>
-              <span className="font-semibold text-slate-800">
-                {formatINR(po.totalAmount)}
-              </span>
+              <span className="font-semibold text-slate-800">{formatINR(po.totalAmount)}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-slate-500">Required</span>
@@ -226,11 +215,7 @@ function ActionModal({ po, actionType, onClose, onDone }: ActionModalProps) {
               value={comments}
               onChange={(e) => setComments(e.target.value)}
               rows={3}
-              placeholder={
-                isApprove
-                  ? "Add any remarks (optional)..."
-                  : "Reason for rejection..."
-              }
+              placeholder={isApprove ? "Add any remarks (optional)..." : "Reason for rejection..."}
               className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
             />
           </div>
@@ -248,9 +233,7 @@ function ActionModal({ po, actionType, onClose, onDone }: ActionModalProps) {
               type="submit"
               disabled={submitting}
               className={`px-4 py-2 rounded-lg text-sm font-medium text-white transition-colors disabled:opacity-50 ${
-                isApprove
-                  ? "bg-green-600 hover:bg-green-700"
-                  : "bg-red-600 hover:bg-red-700"
+                isApprove ? "bg-green-600 hover:bg-green-700" : "bg-red-600 hover:bg-red-700"
               }`}
             >
               {submitting
@@ -258,8 +241,8 @@ function ActionModal({ po, actionType, onClose, onDone }: ActionModalProps) {
                   ? "Approving..."
                   : "Rejecting..."
                 : isApprove
-                ? "Approve"
-                : "Reject"}
+                  ? "Approve"
+                  : "Reject"}
             </button>
           </div>
         </form>
@@ -293,12 +276,8 @@ function POCard({ po, onAction }: POCardProps) {
 
       {/* Amount + threshold */}
       <div className="mt-3 flex items-baseline gap-3">
-        <span className="text-xl font-bold text-slate-900">
-          {formatINR(po.totalAmount)}
-        </span>
-        <span className="text-xs text-slate-400">
-          {getApprovalThresholdLabel(po.totalAmount)}
-        </span>
+        <span className="text-xl font-bold text-slate-900">{formatINR(po.totalAmount)}</span>
+        <span className="text-xs text-slate-400">{getApprovalThresholdLabel(po.totalAmount)}</span>
       </div>
 
       {/* Approval stepper */}
@@ -308,7 +287,12 @@ function POCard({ po, onAction }: POCardProps) {
 
       {/* Date */}
       <p className="text-xs text-slate-400 mt-3">
-        Created {new Date(po.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+        Created{" "}
+        {new Date(po.createdAt).toLocaleDateString("en-IN", {
+          day: "numeric",
+          month: "short",
+          year: "numeric",
+        })}
       </p>
 
       {/* Action buttons — only show if there is a pending step */}
@@ -349,14 +333,10 @@ export default function POApprovalPage() {
     try {
       setLoading(true);
       setError(null);
-      const data = await api.get<PurchaseOrder[]>(
-        "/procurement/purchase-orders/pending-approval"
-      );
+      const data = await api.get<PurchaseOrder[]>("/procurement/purchase-orders/pending-approval");
       setOrders(data);
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Failed to load pending approvals"
-      );
+      setError(err instanceof Error ? err.message : "Failed to load pending approvals");
     } finally {
       setLoading(false);
     }
@@ -398,10 +378,7 @@ export default function POApprovalPage() {
       ) : error ? (
         <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-sm text-red-700">
           {error}
-          <button
-            onClick={loadPendingOrders}
-            className="ml-3 underline hover:no-underline"
-          >
+          <button onClick={loadPendingOrders} className="ml-3 underline hover:no-underline">
             Retry
           </button>
         </div>
@@ -410,9 +387,7 @@ export default function POApprovalPage() {
         <div className="flex flex-col items-center justify-center h-64 text-center bg-white rounded-xl border border-slate-200">
           <ClipboardList className="w-12 h-12 text-slate-300 mb-3" />
           <p className="text-slate-600 font-medium">No pending approvals</p>
-          <p className="text-slate-400 text-sm mt-1">
-            All purchase orders are up to date.
-          </p>
+          <p className="text-slate-400 text-sm mt-1">All purchase orders are up to date.</p>
         </div>
       ) : (
         <>

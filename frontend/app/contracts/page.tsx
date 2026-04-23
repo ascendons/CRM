@@ -20,7 +20,7 @@ import {
   Calendar,
   Building2,
   ShieldCheck,
-  AlertTriangle
+  AlertTriangle,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -71,15 +71,16 @@ export default function ContractsPage() {
     // Search filter
     if (searchQuery.trim()) {
       const term = searchQuery.toLowerCase();
-      result = result.filter(c =>
-        c.contractNumber.toLowerCase().includes(term) ||
-        (c.accountName && c.accountName.toLowerCase().includes(term))
+      result = result.filter(
+        (c) =>
+          c.contractNumber.toLowerCase().includes(term) ||
+          (c.accountName && c.accountName.toLowerCase().includes(term))
       );
     }
 
     // Status filter
     if (statusFilter !== "ALL") {
-      result = result.filter(c => c.status === statusFilter);
+      result = result.filter((c) => c.status === statusFilter);
     }
 
     setFilteredContracts(result);
@@ -119,15 +120,35 @@ export default function ContractsPage() {
   const getStatusBadge = (status: ContractStatus) => {
     switch (status) {
       case ContractStatus.ACTIVE:
-        return <Badge className="bg-emerald-50 text-emerald-700 border-emerald-100 uppercase text-[10px] font-bold">Active</Badge>;
+        return (
+          <Badge className="bg-emerald-50 text-emerald-700 border-emerald-100 uppercase text-[10px] font-bold">
+            Active
+          </Badge>
+        );
       case ContractStatus.DRAFT:
-        return <Badge className="bg-slate-100 text-slate-700 border-slate-200 uppercase text-[10px] font-bold">Draft</Badge>;
+        return (
+          <Badge className="bg-slate-100 text-slate-700 border-slate-200 uppercase text-[10px] font-bold">
+            Draft
+          </Badge>
+        );
       case ContractStatus.EXPIRED:
-        return <Badge className="bg-rose-50 text-rose-700 border-rose-100 uppercase text-[10px] font-bold">Expired</Badge>;
+        return (
+          <Badge className="bg-rose-50 text-rose-700 border-rose-100 uppercase text-[10px] font-bold">
+            Expired
+          </Badge>
+        );
       case ContractStatus.CANCELLED:
-        return <Badge className="bg-rose-50 text-rose-700 border-rose-100 uppercase text-[10px] font-bold">Cancelled</Badge>;
+        return (
+          <Badge className="bg-rose-50 text-rose-700 border-rose-100 uppercase text-[10px] font-bold">
+            Cancelled
+          </Badge>
+        );
       case ContractStatus.RENEWED:
-        return <Badge className="bg-blue-50 text-blue-700 border-blue-100 uppercase text-[10px] font-bold">Renewed</Badge>;
+        return (
+          <Badge className="bg-blue-50 text-blue-700 border-blue-100 uppercase text-[10px] font-bold">
+            Renewed
+          </Badge>
+        );
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
@@ -155,9 +176,13 @@ export default function ContractsPage() {
                 <div className="p-1.5 bg-primary/10 rounded-lg">
                   <ShieldCheck className="h-5 w-5 text-primary" />
                 </div>
-                <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Contract Management</h1>
+                <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
+                  Contract Management
+                </h1>
               </div>
-              <p className="text-sm text-slate-500 font-medium">Manage AMC, Warranties, and Service Level Agreements.</p>
+              <p className="text-sm text-slate-500 font-medium">
+                Manage AMC, Warranties, and Service Level Agreements.
+              </p>
             </div>
             <div className="flex items-center gap-3">
               <Button variant="outline" className="hidden sm:flex gap-2 rounded-xl">
@@ -179,35 +204,43 @@ export default function ContractsPage() {
       <main className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
         {/* Summary Mini Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-           <Card className="bg-white border-slate-200 rounded-3xl p-6 shadow-sm flex items-center gap-5">
-              <div className="h-14 w-14 rounded-2xl bg-emerald-50 flex items-center justify-center text-emerald-600">
-                 <ShieldCheck className="h-7 w-7" />
-              </div>
-              <div>
-                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Active Contracts</p>
-                 <h2 className="text-2xl font-black text-slate-900">{contracts.filter(c => c.status === ContractStatus.ACTIVE).length}</h2>
-              </div>
-           </Card>
-           <Card className="bg-white border-slate-200 rounded-3xl p-6 shadow-sm flex items-center gap-5">
-              <div className="h-14 w-14 rounded-2xl bg-amber-50 flex items-center justify-center text-amber-600">
-                 <AlertTriangle className="h-7 w-7" />
-              </div>
-              <div>
-                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Expiring Soon</p>
-                 <h2 className="text-2xl font-black text-slate-900">0</h2>
-              </div>
-           </Card>
-           <Card className="bg-white border-slate-200 rounded-3xl p-6 shadow-sm flex items-center gap-5">
-              <div className="h-14 w-14 rounded-2xl bg-primary/5 flex items-center justify-center text-primary">
-                 <FileText className="h-7 w-7" />
-              </div>
-              <div>
-                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Total Value</p>
-                 <h2 className="text-2xl font-black text-slate-900">
-                    ₹{contracts.reduce((acc, c) => acc + (c.contractValue || 0), 0).toLocaleString()}
-                 </h2>
-              </div>
-           </Card>
+          <Card className="bg-white border-slate-200 rounded-3xl p-6 shadow-sm flex items-center gap-5">
+            <div className="h-14 w-14 rounded-2xl bg-emerald-50 flex items-center justify-center text-emerald-600">
+              <ShieldCheck className="h-7 w-7" />
+            </div>
+            <div>
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                Active Contracts
+              </p>
+              <h2 className="text-2xl font-black text-slate-900">
+                {contracts.filter((c) => c.status === ContractStatus.ACTIVE).length}
+              </h2>
+            </div>
+          </Card>
+          <Card className="bg-white border-slate-200 rounded-3xl p-6 shadow-sm flex items-center gap-5">
+            <div className="h-14 w-14 rounded-2xl bg-amber-50 flex items-center justify-center text-amber-600">
+              <AlertTriangle className="h-7 w-7" />
+            </div>
+            <div>
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                Expiring Soon
+              </p>
+              <h2 className="text-2xl font-black text-slate-900">0</h2>
+            </div>
+          </Card>
+          <Card className="bg-white border-slate-200 rounded-3xl p-6 shadow-sm flex items-center gap-5">
+            <div className="h-14 w-14 rounded-2xl bg-primary/5 flex items-center justify-center text-primary">
+              <FileText className="h-7 w-7" />
+            </div>
+            <div>
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                Total Value
+              </p>
+              <h2 className="text-2xl font-black text-slate-900">
+                ₹{contracts.reduce((acc, c) => acc + (c.contractValue || 0), 0).toLocaleString()}
+              </h2>
+            </div>
+          </Card>
         </div>
 
         {/* Toolbar */}
@@ -231,8 +264,10 @@ export default function ContractsPage() {
                 className="px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-medium min-w-[160px]"
               >
                 <option value="ALL">All Statuses</option>
-                {Object.values(ContractStatus).map(status => (
-                  <option key={status} value={status}>{status}</option>
+                {Object.values(ContractStatus).map((status) => (
+                  <option key={status} value={status}>
+                    {status}
+                  </option>
                 ))}
               </select>
             </div>
@@ -252,14 +287,16 @@ export default function ContractsPage() {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-slate-50/50 border-b border-slate-200">
-                  <th className="px-6 py-4 w-12 text-center text-[10px] font-bold text-slate-400 uppercase tracking-widest">#</th>
+                  <th className="px-6 py-4 w-12 text-center text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                    #
+                  </th>
                   {[
-                    { key: 'contractNumber', label: 'Contract #' },
-                    { key: 'accountName', label: 'Customer' },
-                    { key: 'type', label: 'Type' },
-                    { key: 'startDate', label: 'Validity' },
-                    { key: 'contractValue', label: 'Value' },
-                    { key: 'status', label: 'Status' },
+                    { key: "contractNumber", label: "Contract #" },
+                    { key: "accountName", label: "Customer" },
+                    { key: "type", label: "Type" },
+                    { key: "startDate", label: "Validity" },
+                    { key: "contractValue", label: "Value" },
+                    { key: "status", label: "Status" },
                   ].map((col) => (
                     <th
                       key={col.key}
@@ -268,11 +305,15 @@ export default function ContractsPage() {
                     >
                       <div className="flex items-center gap-2">
                         {col.label}
-                        <ArrowUpDown className={`h-3 w-3 transition-opacity ${sortColumn === col.key ? 'text-primary' : 'text-slate-300 opacity-0 group-hover:opacity-100'}`} />
+                        <ArrowUpDown
+                          className={`h-3 w-3 transition-opacity ${sortColumn === col.key ? "text-primary" : "text-slate-300 opacity-0 group-hover:opacity-100"}`}
+                        />
                       </div>
                     </th>
                   ))}
-                  <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest text-right">Actions</th>
+                  <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest text-right">
+                    Actions
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -282,8 +323,16 @@ export default function ContractsPage() {
                       <EmptyState
                         icon="contracts"
                         title={searchQuery ? "No matching contracts" : "No Active Contracts"}
-                        description={searchQuery ? "Try adjusting your search or filters." : "Start managing your service commitments by creating your first contract."}
-                        action={!searchQuery ? { label: "Create First Contract", href: "/contracts/new" } : undefined}
+                        description={
+                          searchQuery
+                            ? "Try adjusting your search or filters."
+                            : "Start managing your service commitments by creating your first contract."
+                        }
+                        action={
+                          !searchQuery
+                            ? { label: "Create First Contract", href: "/contracts/new" }
+                            : undefined
+                        }
                       />
                     </td>
                   </tr>
@@ -307,19 +356,24 @@ export default function ContractsPage() {
                           <div className="h-9 w-9 rounded-lg bg-slate-100 flex items-center justify-center text-slate-500 border border-slate-200">
                             <Building2 className="h-4 w-4" />
                           </div>
-                          <span className="text-sm font-bold text-slate-900 tracking-tight">{contract.accountName || "N/A"}</span>
+                          <span className="text-sm font-bold text-slate-900 tracking-tight">
+                            {contract.accountName || "N/A"}
+                          </span>
                         </div>
                       </td>
                       <td className="px-6 py-5">
-                        <Badge variant="secondary" className="bg-slate-100 text-slate-600 rounded-lg text-[10px] font-bold uppercase tracking-wider">
+                        <Badge
+                          variant="secondary"
+                          className="bg-slate-100 text-slate-600 rounded-lg text-[10px] font-bold uppercase tracking-wider"
+                        >
                           {contract.type}
                         </Badge>
                       </td>
                       <td className="px-6 py-5">
                         <div className="flex flex-col gap-0.5">
                           <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700">
-                             <Calendar className="h-3 w-3 text-slate-400" />
-                             {new Date(contract.startDate).toLocaleDateString()}
+                            <Calendar className="h-3 w-3 text-slate-400" />
+                            {new Date(contract.startDate).toLocaleDateString()}
                           </div>
                           <div className="text-[10px] text-slate-400 font-medium pl-4.5">
                             to {new Date(contract.endDate).toLocaleDateString()}
@@ -329,9 +383,7 @@ export default function ContractsPage() {
                       <td className="px-6 py-5 text-sm font-bold text-slate-700">
                         ₹{contract.contractValue?.toLocaleString()}
                       </td>
-                      <td className="px-6 py-5">
-                        {getStatusBadge(contract.status)}
-                      </td>
+                      <td className="px-6 py-5">{getStatusBadge(contract.status)}</td>
                       <td className="px-6 py-5 text-right" onClick={(e) => e.stopPropagation()}>
                         <Button
                           variant="ghost"
@@ -354,7 +406,16 @@ export default function ContractsPage() {
         {sortedContracts.length > 0 && (
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white px-6 py-5 rounded-2xl border border-slate-200 shadow-sm">
             <p className="text-sm text-slate-500 font-medium">
-              Showing <span className="text-slate-900 font-bold">{(currentPage - 1) * itemsPerPage + 1}</span> to <span className="text-slate-900 font-bold">{Math.min(currentPage * itemsPerPage, sortedContracts.length)}</span> of <span className="text-slate-900 font-bold">{sortedContracts.length}</span> Contracts
+              Showing{" "}
+              <span className="text-slate-900 font-bold">
+                {(currentPage - 1) * itemsPerPage + 1}
+              </span>{" "}
+              to{" "}
+              <span className="text-slate-900 font-bold">
+                {Math.min(currentPage * itemsPerPage, sortedContracts.length)}
+              </span>{" "}
+              of <span className="text-slate-900 font-bold">{sortedContracts.length}</span>{" "}
+              Contracts
             </p>
             <div className="flex items-center gap-1.5">
               <Button

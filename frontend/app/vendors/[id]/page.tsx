@@ -13,13 +13,7 @@ const STATUS_COLORS: Record<VendorStatus, string> = {
   BLACKLISTED: "bg-red-100 text-red-800",
 };
 
-function StarRatingInput({
-  value,
-  onChange,
-}: {
-  value: number;
-  onChange: (v: number) => void;
-}) {
+function StarRatingInput({ value, onChange }: { value: number; onChange: (v: number) => void }) {
   const [hover, setHover] = useState(0);
   return (
     <div className="flex gap-1">
@@ -34,9 +28,7 @@ function StarRatingInput({
         >
           <Star
             className={`w-6 h-6 transition-colors ${
-              s <= (hover || value)
-                ? "text-yellow-400 fill-yellow-400"
-                : "text-gray-300"
+              s <= (hover || value) ? "text-yellow-400 fill-yellow-400" : "text-gray-300"
             }`}
           />
         </button>
@@ -311,8 +303,8 @@ export default function VendorDetailPage() {
                           rc.status === "ACTIVE"
                             ? "bg-green-100 text-green-800"
                             : rc.status === "TERMINATED"
-                            ? "bg-red-100 text-red-800"
-                            : "bg-gray-100 text-gray-700"
+                              ? "bg-red-100 text-red-800"
+                              : "bg-gray-100 text-gray-700"
                         }`}
                       >
                         {rc.status}

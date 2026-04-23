@@ -475,6 +475,32 @@ public class RoleMigrationService {
                 modified = true;
             }
 
+            boolean currencyExists = modules.stream()
+                    .anyMatch(m -> m.getModuleName().equalsIgnoreCase("CURRENCY"));
+            if (!currencyExists) {
+                modules.add(Role.ModulePermission.builder()
+                        .moduleName("CURRENCY")
+                        .displayName("Multi-Currency")
+                        .canAccess(true)
+                        .includedPaths(Arrays.asList("/admin/settings/currency/**"))
+                        .description("Configure supported currencies and exchange rates")
+                        .build());
+                modified = true;
+            }
+
+            boolean portalExists = modules.stream()
+                    .anyMatch(m -> m.getModuleName().equalsIgnoreCase("PORTAL"));
+            if (!portalExists) {
+                modules.add(Role.ModulePermission.builder()
+                        .moduleName("PORTAL")
+                        .displayName("Customer Portal")
+                        .canAccess(true)
+                        .includedPaths(Arrays.asList("/portal/**"))
+                        .description("Customer self-service portal")
+                        .build());
+                modified = true;
+            }
+
             boolean aiExists = modules.stream()
                     .anyMatch(m -> m.getModuleName().equalsIgnoreCase("AI_COPILOT"));
             if (!aiExists) {

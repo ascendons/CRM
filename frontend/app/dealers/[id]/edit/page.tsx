@@ -75,9 +75,7 @@ export default function EditDealerPage() {
     }
   }
 
-  function handleChange(
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) {
+  function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
@@ -90,18 +88,15 @@ export default function EditDealerPage() {
 
   function validate(): boolean {
     const newErrors: FormErrors = {};
-    if (!formData.companyName.trim())
-      newErrors.companyName = "Company name is required.";
-    if (!formData.contactPerson.trim())
-      newErrors.contactPerson = "Contact person is required.";
+    if (!formData.companyName.trim()) newErrors.companyName = "Company name is required.";
+    if (!formData.contactPerson.trim()) newErrors.contactPerson = "Contact person is required.";
     if (!formData.email.trim()) {
       newErrors.email = "Email is required.";
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       newErrors.email = "Enter a valid email address.";
     }
     if (!formData.phone.trim()) newErrors.phone = "Phone is required.";
-    if (formData.creditLimit < 0)
-      newErrors.creditLimit = "Credit limit cannot be negative.";
+    if (formData.creditLimit < 0) newErrors.creditLimit = "Credit limit cannot be negative.";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   }
@@ -142,9 +137,7 @@ export default function EditDealerPage() {
           </Link>
           <div>
             <h1 className="text-2xl font-bold text-slate-900">Edit Dealer</h1>
-            <p className="text-sm text-slate-500">
-              Update dealer information
-            </p>
+            <p className="text-sm text-slate-500">Update dealer information</p>
           </div>
         </div>
 
@@ -172,16 +165,12 @@ export default function EditDealerPage() {
                   }`}
                 />
                 {errors.companyName && (
-                  <p className="text-xs text-red-500 mt-1">
-                    {errors.companyName}
-                  </p>
+                  <p className="text-xs text-red-500 mt-1">{errors.companyName}</p>
                 )}
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">
-                  Tier
-                </label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Tier</label>
                 <select
                   name="tier"
                   value={formData.tier}
@@ -197,9 +186,7 @@ export default function EditDealerPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">
-                  Status
-                </label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Status</label>
                 <select
                   name="status"
                   value={formData.status}
@@ -215,9 +202,7 @@ export default function EditDealerPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">
-                  Region
-                </label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Region</label>
                 <input
                   type="text"
                   name="region"
@@ -228,9 +213,7 @@ export default function EditDealerPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">
-                  Territory
-                </label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Territory</label>
                 <input
                   type="text"
                   name="territory"
@@ -256,16 +239,12 @@ export default function EditDealerPage() {
                   }`}
                 />
                 {errors.creditLimit && (
-                  <p className="text-xs text-red-500 mt-1">
-                    {errors.creditLimit}
-                  </p>
+                  <p className="text-xs text-red-500 mt-1">{errors.creditLimit}</p>
                 )}
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">
-                  GSTIN
-                </label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">GSTIN</label>
                 <input
                   type="text"
                   name="GSTIN"
@@ -319,15 +298,11 @@ export default function EditDealerPage() {
                   value={formData.contactPerson}
                   onChange={handleChange}
                   className={`w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                    errors.contactPerson
-                      ? "border-red-400"
-                      : "border-slate-200"
+                    errors.contactPerson ? "border-red-400" : "border-slate-200"
                   }`}
                 />
                 {errors.contactPerson && (
-                  <p className="text-xs text-red-500 mt-1">
-                    {errors.contactPerson}
-                  </p>
+                  <p className="text-xs text-red-500 mt-1">{errors.contactPerson}</p>
                 )}
               </div>
 
@@ -344,9 +319,7 @@ export default function EditDealerPage() {
                     errors.email ? "border-red-400" : "border-slate-200"
                   }`}
                 />
-                {errors.email && (
-                  <p className="text-xs text-red-500 mt-1">{errors.email}</p>
-                )}
+                {errors.email && <p className="text-xs text-red-500 mt-1">{errors.email}</p>}
               </div>
 
               <div>
@@ -362,9 +335,7 @@ export default function EditDealerPage() {
                     errors.phone ? "border-red-400" : "border-slate-200"
                   }`}
                 />
-                {errors.phone && (
-                  <p className="text-xs text-red-500 mt-1">{errors.phone}</p>
-                )}
+                {errors.phone && <p className="text-xs text-red-500 mt-1">{errors.phone}</p>}
               </div>
             </div>
           </div>

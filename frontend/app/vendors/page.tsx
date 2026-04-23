@@ -153,7 +153,9 @@ export default function VendorsPage() {
               <thead>
                 <tr className="bg-slate-50 border-b border-slate-200">
                   <th className="text-left px-4 py-3 font-semibold text-slate-600">Company Name</th>
-                  <th className="text-left px-4 py-3 font-semibold text-slate-600">Contact Person</th>
+                  <th className="text-left px-4 py-3 font-semibold text-slate-600">
+                    Contact Person
+                  </th>
                   <th className="text-left px-4 py-3 font-semibold text-slate-600">Email</th>
                   <th className="text-left px-4 py-3 font-semibold text-slate-600">Phone</th>
                   <th className="text-left px-4 py-3 font-semibold text-slate-600">Rating</th>
@@ -202,10 +204,7 @@ export default function VendorsPage() {
                           ))}
                         </div>
                       </td>
-                      <td
-                        className="px-4 py-3"
-                        onClick={(e) => e.stopPropagation()}
-                      >
+                      <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
                         <button
                           onClick={() => setDeleteId(vendor.id)}
                           className="text-red-500 hover:text-red-700 p-1 rounded transition-colors"

@@ -4,7 +4,15 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { projectsService, Project, ProjectStatus } from "@/lib/projects";
 import { showToast } from "@/lib/toast";
-import { PlusCircle, FolderOpen, Clock, CheckCircle, XCircle, PauseCircle, Search } from "lucide-react";
+import {
+  PlusCircle,
+  FolderOpen,
+  Clock,
+  CheckCircle,
+  XCircle,
+  PauseCircle,
+  Search,
+} from "lucide-react";
 
 const STATUS_COLORS: Record<ProjectStatus, string> = {
   PLANNING: "bg-blue-100 text-blue-800",
@@ -36,10 +44,10 @@ export default function ProjectsPage() {
   useEffect(() => {
     let data = projects;
     if (search) {
-      data = data.filter(p => p.name.toLowerCase().includes(search.toLowerCase()));
+      data = data.filter((p) => p.name.toLowerCase().includes(search.toLowerCase()));
     }
     if (statusFilter) {
-      data = data.filter(p => p.status === statusFilter);
+      data = data.filter((p) => p.status === statusFilter);
     }
     setFiltered(data);
   }, [projects, search, statusFilter]);
@@ -50,7 +58,7 @@ export default function ProjectsPage() {
       const data = await projectsService.getAllProjects();
       setProjects(data);
     } catch (err) {
-      showToast("Failed to load projects", "error");
+      showToast.error("Failed to load projects");
     } finally {
       setLoading(false);
     }
@@ -88,13 +96,13 @@ export default function ProjectsPage() {
             type="text"
             placeholder="Search projects..."
             value={search}
-            onChange={e => setSearch(e.target.value)}
+            onChange={(e) => setSearch(e.target.value)}
             className="pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-sm w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
         <select
           value={statusFilter}
-          onChange={e => setStatusFilter(e.target.value as ProjectStatus | "")}
+          onChange={(e) => setStatusFilter(e.target.value as ProjectStatus | "")}
           className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
           <option value="">All Statuses</option>
@@ -117,12 +125,14 @@ export default function ProjectsPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filtered.map(project => (
+          {filtered.map((project) => (
             <Link key={project.projectId} href={`/projects/${project.projectId}`}>
               <div className="bg-white rounded-xl border border-gray-200 p-5 hover:shadow-md transition-shadow cursor-pointer">
                 <div className="flex items-start justify-between mb-3">
                   <h3 className="font-semibold text-gray-900 line-clamp-1">{project.name}</h3>
-                  <span className={`flex items-center gap-1 text-xs px-2 py-1 rounded-full font-medium ${STATUS_COLORS[project.status]}`}>
+                  <span
+                    className={`flex items-center gap-1 text-xs px-2 py-1 rounded-full font-medium ${STATUS_COLORS[project.status]}`}
+                  >
                     {STATUS_ICONS[project.status]}
                     {project.status.replace("_", " ")}
                   </span>
@@ -138,8 +148,11 @@ export default function ProjectsPage() {
                 </div>
                 {project.tags && project.tags.length > 0 && (
                   <div className="flex flex-wrap gap-1 mt-3">
-                    {project.tags.slice(0, 3).map(tag => (
-                      <span key={tag} className="bg-gray-100 text-gray-600 text-xs px-2 py-0.5 rounded">
+                    {project.tags.slice(0, 3).map((tag) => (
+                      <span
+                        key={tag}
+                        className="bg-gray-100 text-gray-600 text-xs px-2 py-0.5 rounded"
+                      >
                         {tag}
                       </span>
                     ))}

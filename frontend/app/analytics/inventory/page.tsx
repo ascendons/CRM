@@ -37,7 +37,11 @@ type Tab = "deadstock" | "reorder" | "top-consumed";
 
 function formatDate(dt: string) {
   if (!dt) return "—";
-  return new Date(dt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
+  return new Date(dt).toLocaleDateString("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
 }
 
 function DeadStockSection({
@@ -66,17 +70,27 @@ function DeadStockSection({
           <table className="min-w-full text-sm">
             <thead>
               <tr className="bg-slate-50">
-                <th className="text-left text-xs font-semibold text-slate-500 uppercase px-4 py-2">Product ID</th>
-                <th className="text-right text-xs font-semibold text-slate-500 uppercase px-4 py-2">Days Inactive</th>
-                <th className="text-right text-xs font-semibold text-slate-500 uppercase px-4 py-2">Last Moved</th>
+                <th className="text-left text-xs font-semibold text-slate-500 uppercase px-4 py-2">
+                  Product ID
+                </th>
+                <th className="text-right text-xs font-semibold text-slate-500 uppercase px-4 py-2">
+                  Days Inactive
+                </th>
+                <th className="text-right text-xs font-semibold text-slate-500 uppercase px-4 py-2">
+                  Last Moved
+                </th>
               </tr>
             </thead>
             <tbody>
               {items.map((item) => (
                 <tr key={item.productId} className="border-t border-slate-50 hover:bg-slate-50">
                   <td className="px-4 py-2 font-mono text-xs text-slate-700">{item.productId}</td>
-                  <td className="px-4 py-2 text-right font-semibold text-slate-800">{item.daysSinceLastMovement}</td>
-                  <td className="px-4 py-2 text-right text-slate-500">{formatDate(item.lastMovedAt)}</td>
+                  <td className="px-4 py-2 text-right font-semibold text-slate-800">
+                    {item.daysSinceLastMovement}
+                  </td>
+                  <td className="px-4 py-2 text-right text-slate-500">
+                    {formatDate(item.lastMovedAt)}
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -128,7 +142,9 @@ export default function InventoryAnalyticsPage() {
     if (topConsumed.length > 0) return;
     setLoading((l) => ({ ...l, "top-consumed": true }));
     try {
-      const res = await api.get<TopConsumedItem[]>("/analytics/service/inventory/top-consumed?limit=20");
+      const res = await api.get<TopConsumedItem[]>(
+        "/analytics/service/inventory/top-consumed?limit=20"
+      );
       setTopConsumed(res);
     } catch {
       showToast.error("Failed to load top consumed data");
@@ -150,14 +166,17 @@ export default function InventoryAnalyticsPage() {
   ];
 
   const isLoading = loading[activeTab];
-  const maxConsumed = topConsumed.length > 0 ? Math.max(...topConsumed.map((i) => i.totalConsumed), 1) : 1;
+  const maxConsumed =
+    topConsumed.length > 0 ? Math.max(...topConsumed.map((i) => i.totalConsumed), 1) : 1;
 
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
       <div>
         <h1 className="text-2xl font-bold text-slate-800">Inventory Analytics</h1>
-        <p className="text-sm text-slate-500 mt-0.5">Dead stock, reorder recommendations, and consumption trends</p>
+        <p className="text-sm text-slate-500 mt-0.5">
+          Dead stock, reorder recommendations, and consumption trends
+        </p>
       </div>
 
       {/* Summary badges (from dead stock) */}
@@ -204,7 +223,9 @@ export default function InventoryAnalyticsPage() {
         <div className="p-5">
           {isLoading ? (
             <div className="flex items-center justify-center h-48">
-              <span className="material-symbols-outlined animate-spin text-4xl text-blue-500">progress_activity</span>
+              <span className="material-symbols-outlined animate-spin text-4xl text-blue-500">
+                progress_activity
+              </span>
             </div>
           ) : (
             <>
@@ -242,32 +263,61 @@ export default function InventoryAnalyticsPage() {
                       <table className="min-w-full text-sm">
                         <thead>
                           <tr className="bg-slate-50 border-b border-slate-200">
-                            <th className="text-left text-xs font-semibold text-slate-500 uppercase px-3 py-2.5">Product Name</th>
-                            <th className="text-left text-xs font-semibold text-slate-500 uppercase px-3 py-2.5">SKU</th>
-                            <th className="text-right text-xs font-semibold text-slate-500 uppercase px-3 py-2.5">Current Stock</th>
-                            <th className="text-right text-xs font-semibold text-slate-500 uppercase px-3 py-2.5">Reorder Point</th>
-                            <th className="text-right text-xs font-semibold text-slate-500 uppercase px-3 py-2.5">Suggested Qty</th>
-                            <th className="text-left text-xs font-semibold text-slate-500 uppercase px-3 py-2.5">Category</th>
+                            <th className="text-left text-xs font-semibold text-slate-500 uppercase px-3 py-2.5">
+                              Product Name
+                            </th>
+                            <th className="text-left text-xs font-semibold text-slate-500 uppercase px-3 py-2.5">
+                              SKU
+                            </th>
+                            <th className="text-right text-xs font-semibold text-slate-500 uppercase px-3 py-2.5">
+                              Current Stock
+                            </th>
+                            <th className="text-right text-xs font-semibold text-slate-500 uppercase px-3 py-2.5">
+                              Reorder Point
+                            </th>
+                            <th className="text-right text-xs font-semibold text-slate-500 uppercase px-3 py-2.5">
+                              Suggested Qty
+                            </th>
+                            <th className="text-left text-xs font-semibold text-slate-500 uppercase px-3 py-2.5">
+                              Category
+                            </th>
                           </tr>
                         </thead>
                         <tbody>
                           {reorder.map((item) => {
                             const critical = item.currentStock <= item.reorderPoint * 0.5;
                             return (
-                              <tr key={item.productId} className="border-b border-slate-50 hover:bg-slate-50">
-                                <td className={`px-3 py-2.5 font-medium ${critical ? "text-red-600" : "text-slate-800"}`}>
+                              <tr
+                                key={item.productId}
+                                className="border-b border-slate-50 hover:bg-slate-50"
+                              >
+                                <td
+                                  className={`px-3 py-2.5 font-medium ${critical ? "text-red-600" : "text-slate-800"}`}
+                                >
                                   {item.productName}
                                 </td>
-                                <td className="px-3 py-2.5 font-mono text-xs text-slate-500">{item.sku}</td>
-                                <td className={`px-3 py-2.5 text-right font-semibold ${critical ? "text-red-600" : "text-slate-800"}`}>
+                                <td className="px-3 py-2.5 font-mono text-xs text-slate-500">
+                                  {item.sku}
+                                </td>
+                                <td
+                                  className={`px-3 py-2.5 text-right font-semibold ${critical ? "text-red-600" : "text-slate-800"}`}
+                                >
                                   {item.currentStock}
                                   {critical && (
-                                    <span className="material-symbols-outlined text-xs text-red-500 ml-1 align-middle">warning</span>
+                                    <span className="material-symbols-outlined text-xs text-red-500 ml-1 align-middle">
+                                      warning
+                                    </span>
                                   )}
                                 </td>
-                                <td className="px-3 py-2.5 text-right text-slate-600">{item.reorderPoint}</td>
-                                <td className="px-3 py-2.5 text-right font-semibold text-blue-600">{item.suggestedReorderQty}</td>
-                                <td className="px-3 py-2.5 text-slate-500 text-xs">{item.partCategory || "—"}</td>
+                                <td className="px-3 py-2.5 text-right text-slate-600">
+                                  {item.reorderPoint}
+                                </td>
+                                <td className="px-3 py-2.5 text-right font-semibold text-blue-600">
+                                  {item.suggestedReorderQty}
+                                </td>
+                                <td className="px-3 py-2.5 text-slate-500 text-xs">
+                                  {item.partCategory || "—"}
+                                </td>
                               </tr>
                             );
                           })}
@@ -289,11 +339,17 @@ export default function InventoryAnalyticsPage() {
                         const pct = Math.round((item.totalConsumed / maxConsumed) * 100);
                         return (
                           <div key={item.productId} className="flex items-center gap-4">
-                            <span className="w-7 text-right text-xs font-bold text-slate-400">#{idx + 1}</span>
+                            <span className="w-7 text-right text-xs font-bold text-slate-400">
+                              #{idx + 1}
+                            </span>
                             <div className="flex-1">
                               <div className="flex items-center justify-between mb-1">
-                                <span className="text-sm font-medium text-slate-700 font-mono">{item.productId}</span>
-                                <span className="text-sm font-bold text-slate-800">{item.totalConsumed}</span>
+                                <span className="text-sm font-medium text-slate-700 font-mono">
+                                  {item.productId}
+                                </span>
+                                <span className="text-sm font-bold text-slate-800">
+                                  {item.totalConsumed}
+                                </span>
                               </div>
                               <div className="bg-slate-100 rounded-full h-2.5">
                                 <div

@@ -175,7 +175,10 @@ export default function RateContractsPage() {
                   </tr>
                 ) : (
                   contracts.map((rc) => (
-                    <tr key={rc.id} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
+                    <tr
+                      key={rc.id}
+                      className="border-b border-slate-100 hover:bg-slate-50 transition-colors"
+                    >
                       <td className="px-4 py-3 font-medium text-slate-800">
                         {rc.rcNumber ?? rc.id.slice(0, 8)}
                       </td>
@@ -321,16 +324,12 @@ export default function RateContractsPage() {
                         placeholder="Min Qty"
                         min={1}
                         value={item.minOrderQty}
-                        onChange={(e) =>
-                          updateLineItem(i, "minOrderQty", Number(e.target.value))
-                        }
+                        onChange={(e) => updateLineItem(i, "minOrderQty", Number(e.target.value))}
                         className="w-24 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                       />
                       <button
                         type="button"
-                        onClick={() =>
-                          setLineItems((prev) => prev.filter((_, idx) => idx !== i))
-                        }
+                        onClick={() => setLineItems((prev) => prev.filter((_, idx) => idx !== i))}
                         disabled={lineItems.length === 1}
                         className="text-red-400 hover:text-red-600 p-2 disabled:opacity-30"
                       >

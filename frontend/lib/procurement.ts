@@ -1,12 +1,12 @@
-import { api } from './api-client';
+import { api } from "./api-client";
 
 // ---- Types ----
 
-export type VendorStatus = 'ACTIVE' | 'INACTIVE' | 'BLACKLISTED';
-export type VendorCategory = 'HVAC' | 'ELECTRICAL' | 'PLUMBING' | 'GENERAL';
-export type QualityStatus = 'ACCEPTED' | 'PARTIALLY_ACCEPTED' | 'REJECTED';
-export type RfqStatus = 'OPEN' | 'CLOSED' | 'CANCELLED';
-export type RateContractStatus = 'ACTIVE' | 'TERMINATED' | 'EXPIRED';
+export type VendorStatus = "ACTIVE" | "INACTIVE" | "BLACKLISTED";
+export type VendorCategory = "HVAC" | "ELECTRICAL" | "PLUMBING" | "GENERAL";
+export type QualityStatus = "ACCEPTED" | "PARTIALLY_ACCEPTED" | "REJECTED";
+export type RfqStatus = "OPEN" | "CLOSED" | "CANCELLED";
+export type RateContractStatus = "ACTIVE" | "TERMINATED" | "EXPIRED";
 
 export interface BankDetails {
   accountNo: string;
@@ -146,31 +146,33 @@ export interface CreateRateContractRequest {
 
 export const procurementService = {
   // Vendors
-  getAllVendors: () => api.get<Vendor[]>('/vendors'),
+  getAllVendors: () => api.get<Vendor[]>("/vendors"),
   getVendorById: (id: string) => api.get<Vendor>(`/vendors/${id}`),
-  createVendor: (data: CreateVendorRequest) => api.post<Vendor>('/vendors', data),
-  updateVendor: (id: string, data: Partial<CreateVendorRequest>) => api.put<Vendor>(`/vendors/${id}`, data),
+  createVendor: (data: CreateVendorRequest) => api.post<Vendor>("/vendors", data),
+  updateVendor: (id: string, data: Partial<CreateVendorRequest>) =>
+    api.put<Vendor>(`/vendors/${id}`, data),
   deleteVendor: (id: string) => api.delete<void>(`/vendors/${id}`),
-  updateVendorRating: (id: string, rating: number) => api.post<Vendor>(`/vendors/${id}/rating`, { rating }),
+  updateVendorRating: (id: string, rating: number) =>
+    api.post<Vendor>(`/vendors/${id}/rating`, { rating }),
 
   // RFQ
-  getAllRfqs: () => api.get<RFQ[]>('/procurement/rfq'),
+  getAllRfqs: () => api.get<RFQ[]>("/procurement/rfq"),
   getRfqById: (id: string) => api.get<RFQ>(`/procurement/rfq/${id}`),
-  createRfq: (data: CreateRfqRequest) => api.post<RFQ>('/procurement/rfq', data),
+  createRfq: (data: CreateRfqRequest) => api.post<RFQ>("/procurement/rfq", data),
   submitVendorResponse: (rfqId: string, data: VendorResponseItem) =>
     api.post<RFQ>(`/procurement/rfq/${rfqId}/vendor-response`, data),
   selectRfqVendor: (rfqId: string, vendorId: string) =>
     api.post<RFQ>(`/procurement/rfq/${rfqId}/select-vendor`, { vendorId }),
 
   // GRN
-  getAllGrns: () => api.get<GRN[]>('/procurement/grn'),
-  createGrn: (data: CreateGrnRequest) => api.post<GRN>('/procurement/grn', data),
+  getAllGrns: () => api.get<GRN[]>("/procurement/grn"),
+  createGrn: (data: CreateGrnRequest) => api.post<GRN>("/procurement/grn", data),
 
   // Rate Contracts
-  getAllRateContracts: () => api.get<RateContract[]>('/procurement/rate-contracts'),
-  getActiveRateContracts: () => api.get<RateContract[]>('/procurement/rate-contracts/active'),
+  getAllRateContracts: () => api.get<RateContract[]>("/procurement/rate-contracts"),
+  getActiveRateContracts: () => api.get<RateContract[]>("/procurement/rate-contracts/active"),
   createRateContract: (data: CreateRateContractRequest) =>
-    api.post<RateContract>('/procurement/rate-contracts', data),
+    api.post<RateContract>("/procurement/rate-contracts", data),
   terminateRateContract: (id: string) =>
     api.post<RateContract>(`/procurement/rate-contracts/${id}/terminate`, {}),
 };
