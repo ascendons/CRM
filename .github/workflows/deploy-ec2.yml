@@ -22,8 +22,11 @@ jobs:
       - name: 📦 Build frontend
         run: |
           cd frontend
-          npm install
+          npm ci
+          npm rebuild
           npm run build
+        env:
+          NEXT_TELEMETRY_DISABLED: 1
 
       - name: 📤 Copy files to EC2
         run: |
