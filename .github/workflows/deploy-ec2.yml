@@ -12,7 +12,6 @@ jobs:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
 
-      # Deploy to EC2
       - name: 🔐 Setup SSH
         run: |
           mkdir -p ~/.ssh
@@ -20,49 +19,102 @@ jobs:
           chmod 600 ~/.ssh/ec2-key.pem
           ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
 
+      - name: 📦 Build frontend
+        run: |
+          cd frontend
+          npm install
+          npm run build
+
       - name: 📤 Copy files to EC2
         run: |
           rsync -avz -e "ssh -i ~/.ssh/ec2-key.pem -o StrictHostKeyChecking=no" \
             --exclude 'node_modules' \
             --exclude '.git' \
             --exclude 'backend/target' \
-            --exclude 'frontend/.next' \
             --exclude 'frontend/node_modules' \
             --exclude '*.log' \
             --exclude '.DS_Store' \
             ./ ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:~/crm/
 
       - name: 🚀 Deploy on EC2
+        timeout-minutes: 20
         run: |
           ssh -i ~/.ssh/ec2-key.pem \
             -o ServerAliveInterval=60 \
             -o ServerAliveCountMax=30 \
-            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} \
-            'set -e
-            cd ~/crm
+            -o ConnectTimeout=30 \
+            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'ENDSSH'
+          set -e
+          cd ~/crm
 
-            echo "📊 Stopping containers..."
-            sudo docker-compose -f docker-compose.ec2.yml down --remove-orphans
+          # Free up memory before building (t3.micro has 1GB total)
+          echo "🧹 Freeing memory..."
+          sudo sync && sudo sh -c 'echo 3 > /proc/sys/vm/drop_caches' || true
+          free -h
 
-            echo "🏗️  Building and starting containers (background)..."
-            nohup sudo docker-compose -f docker-compose.ec2.yml up -d --build > /tmp/deploy.log 2>&1
+          echo "📊 Stopping containers..."
+          sudo docker-compose -f docker-compose.ec2.yml down --remove-orphans || true
 
-            echo "⏳ Waiting for build to finish..."
-            timeout 600 bash -c "
-              while sudo docker-compose -f ~/crm/docker-compose.ec2.yml ps | grep -q \"Build\|build\|building\"; do
-                sleep 10
-              done
-            " || true
+          # Prune old images to free disk/memory
+          sudo docker image prune -f || true
 
-            sleep 20
+          echo "🏗️  Building backend first (sequential to avoid OOM on t3.micro)..."
+          sudo docker-compose -f docker-compose.ec2.yml build --no-cache backend 2>&1 | tee /tmp/build-backend.log
+          if [ ${PIPESTATUS[0]} -ne 0 ]; then
+            echo "❌ Backend build failed:"
+            tail -50 /tmp/build-backend.log
+            exit 1
+          fi
 
-            echo "📊 Container status:"
-            sudo docker-compose -f docker-compose.ec2.yml ps
+          echo "🏗️  Building frontend..."
+          sudo docker-compose -f docker-compose.ec2.yml build --no-cache frontend 2>&1 | tee /tmp/build-frontend.log
+          if [ ${PIPESTATUS[0]} -ne 0 ]; then
+            echo "❌ Frontend build failed:"
+            tail -50 /tmp/build-frontend.log
+            exit 1
+          fi
 
-            echo "=== Deploy log tail ==="
-            tail -30 /tmp/deploy.log || true
+          echo "🚀 Starting all containers..."
+          sudo docker-compose -f docker-compose.ec2.yml up -d 2>&1 | tee /tmp/deploy-up.log
+          if [ ${PIPESTATUS[0]} -ne 0 ]; then
+            echo "❌ Container startup failed:"
+            cat /tmp/deploy-up.log
+            exit 1
+          fi
 
-            echo "✅ Deployment triggered!"'
+          echo "⏳ Waiting for backend to be healthy (up to 5 min)..."
+          timeout 300 bash -c '
+            until sudo docker inspect --format="{{.State.Health.Status}}" crm-backend 2>/dev/null | grep -q "healthy"; do
+              STATUS=$(sudo docker inspect --format="{{.State.Health.Status}}" crm-backend 2>/dev/null || echo "unknown")
+              echo "  backend status: $STATUS"
+              sleep 10
+            done
+          ' || {
+            echo "❌ Backend did not become healthy in time. Logs:"
+            sudo docker logs crm-backend --tail 50
+            exit 1
+          }
+
+          echo "⏳ Waiting for frontend to be healthy (up to 2 min)..."
+          timeout 120 bash -c '
+            until sudo docker inspect --format="{{.State.Health.Status}}" crm-frontend 2>/dev/null | grep -q "healthy"; do
+              STATUS=$(sudo docker inspect --format="{{.State.Health.Status}}" crm-frontend 2>/dev/null || echo "unknown")
+              echo "  frontend status: $STATUS"
+              sleep 10
+            done
+          ' || {
+            echo "❌ Frontend did not become healthy in time. Logs:"
+            sudo docker logs crm-frontend --tail 50
+            exit 1
+          }
+
+          echo ""
+          echo "📊 Final container status:"
+          sudo docker-compose -f docker-compose.ec2.yml ps
+
+          echo ""
+          echo "✅ Deployment successful!"
+          ENDSSH
 
       - name: 🧹 Cleanup
         if: always()
