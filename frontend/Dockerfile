@@ -6,7 +6,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install only production deps
-RUN npm ci --omit=dev
+RUN npm ci
 
 # Copy only runtime files (NOT full source build process)
 COPY . .
