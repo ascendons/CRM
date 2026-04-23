@@ -8,8 +8,10 @@ yarn-error.log*
 .env.local
 .env*.local
 
-# Next.js
-.next
+# Next.js - exclude everything except the pre-built output needed by Dockerfile.ci
+.next/*
+!.next/standalone
+!.next/static
 out
 
 # Testing
