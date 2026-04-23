@@ -24,7 +24,7 @@ ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 ENV NEXT_PUBLIC_APP_URL=$NEXT_PUBLIC_APP_URL
 
 # Build the application (env vars are embedded here)
-RUN npm run build:prod
+RUN NODE_OPTIONS="--max-old-space-size=768" npm run build:prod
 
 # Expose port
 EXPOSE 3000
