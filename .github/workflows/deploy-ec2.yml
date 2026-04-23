@@ -61,11 +61,12 @@ jobs:
             --exclude 'backend/src' \
             --exclude 'backend/.mvn' \
             --exclude 'backend/mvnw' \
-            --exclude 'backend/target/classes' \
-            --exclude 'backend/target/generated-sources' \
-            --exclude 'backend/target/generated-test-sources' \
-            --exclude 'backend/target/test-classes' \
-            --exclude 'backend/target/maven-*' \
+            --exclude 'backend/target/classes/' \
+            --exclude 'backend/target/generated-sources/' \
+            --exclude 'backend/target/generated-test-sources/' \
+            --exclude 'backend/target/test-classes/' \
+            --exclude 'backend/target/maven-archiver/' \
+            --exclude 'backend/target/maven-status/' \
             --exclude 'frontend/node_modules' \
             --exclude 'frontend/.next/cache' \
             --exclude '*.log' \
