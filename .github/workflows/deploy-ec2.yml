@@ -22,8 +22,17 @@ jobs:
       - name: 📦 Build frontend
         run: |
           cd frontend
-          npm ci
-          npm rebuild
+
+          # Clean install (important)
+          rm -rf node_modules package-lock.json
+
+          # Install with correct platform binaries
+          npm install --platform=linux --arch=x64
+
+          # Force rebuild native modules
+          npm rebuild lightningcss
+
+          # Build
           npm run build
         env:
           NEXT_TELEMETRY_DISABLED: 1
