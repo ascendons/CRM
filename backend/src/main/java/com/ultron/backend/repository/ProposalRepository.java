@@ -71,6 +71,14 @@ public interface ProposalRepository extends MongoRepository<Proposal, String> {
     List<Proposal> findByOwnerIdAndTenantIdAndIsDeletedFalse(String ownerId, String tenantId);
     Page<Proposal> findByOwnerIdAndTenantIdAndIsDeletedFalse(String ownerId, String tenantId, Pageable pageable);
 
+    @Query("{ 'tenantId': ?0, 'isDeleted': false, '$or': [ { 'ownerId': ?1 }, { 'createdBy': ?1 } ] }")
+    List<Proposal> findByTenantIdAndOwnerOrCreatedByAndIsDeletedFalse(String tenantId, String userId);
+
+    @Query("{ 'tenantId': ?0, 'isProforma': ?2, 'isDeleted': false, '$or': [ { 'ownerId': ?1 }, { 'createdBy': ?1 } ] }")
+    List<Proposal> findByTenantIdAndOwnerOrCreatedByAndIsProformaAndIsDeletedFalse(String tenantId, String userId, boolean isProforma);
+
+    List<Proposal> findByLeadIdInAndTenantIdAndIsDeletedFalse(List<String> leadIds, String tenantId);
+
     /**
      * Find expired proposals within tenant
      * MULTI-TENANT SAFE

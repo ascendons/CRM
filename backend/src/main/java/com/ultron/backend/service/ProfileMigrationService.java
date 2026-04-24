@@ -558,6 +558,65 @@ public class ProfileMigrationService {
             }
         }
         log.info("Completed Patch: Updated {} profiles", patchCount);
+
+        // Ensure LEAVE permissions are correct for all profiles
+        patchLeavePermissions();
+    }
+
+    /**
+     * Ensure all active profiles have correct LEAVE permissions.
+     * Fixes profiles where LEAVE is missing or canCreate/canRead is false for non-read-only profiles.
+     */
+    public void patchLeavePermissions() {
+        log.info("Starting Patch: LEAVE permissions");
+        List<Profile> allProfiles = profileRepository.findByIsDeletedFalse();
+        int patchCount = 0;
+
+        for (Profile profile : allProfiles) {
+            boolean isReadOnly = profile.getProfileName() != null && profile.getProfileName().contains("Read Only");
+            boolean isAdmin = profile.getProfileName() != null &&
+                    (profile.getProfileName().contains("Administrator") || profile.getProfileName().contains("Manager"));
+
+            List<Profile.ObjectPermission> permissions = profile.getObjectPermissions();
+            if (permissions == null) {
+                permissions = new ArrayList<>();
+                profile.setObjectPermissions(permissions);
+            }
+
+            Profile.ObjectPermission leavePerm = permissions.stream()
+                    .filter(p -> "LEAVE".equalsIgnoreCase(p.getObjectName()))
+                    .findFirst().orElse(null);
+
+            boolean needsSave = false;
+
+            if (leavePerm == null) {
+                Profile.ObjectPermission newPerm = isAdmin ? createFullAccessPermission("LEAVE")
+                        : isReadOnly ? createReadOnlyPermission("LEAVE")
+                        : createStandardPermission("LEAVE");
+                permissions.add(newPerm);
+                needsSave = true;
+            } else if (!isReadOnly) {
+                // For all non-read-only profiles, canCreate and canRead must be true
+                if (!Boolean.TRUE.equals(leavePerm.getCanCreate()) || !Boolean.TRUE.equals(leavePerm.getCanRead())) {
+                    leavePerm.setCanCreate(true);
+                    leavePerm.setCanRead(true);
+                    if (isAdmin) {
+                        leavePerm.setCanEdit(true);
+                        leavePerm.setCanDelete(true);
+                        leavePerm.setCanViewAll(true);
+                        leavePerm.setCanModifyAll(true);
+                    }
+                    needsSave = true;
+                }
+            }
+
+            if (needsSave) {
+                profileRepository.save(profile);
+                patchCount++;
+                log.info("Patched LEAVE permission for profile: {}", profile.getProfileName());
+            }
+        }
+        log.info("Completed LEAVE Patch: Updated {} profiles", patchCount);
     }
 
     // ===== HELPER METHODS =====

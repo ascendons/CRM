@@ -74,11 +74,10 @@ public class PermissionService extends BaseTenantService {
             if (role != null) {
                 String roleName = role.getRoleName();
                 String systemProfileName = roleName.contains("Admin") ? "System Administrator"
-                        : roleName.contains("Manager") ? "Standard Manager"
-                        : roleName.contains("Read") ? "Read Only" : null;
-                if (systemProfileName != null) {
-                    profile = profileRepository.findByProfileNameAndIsSystemProfileTrue(systemProfileName).orElse(null);
-                }
+                        : roleName.contains("Manager") ? "Sales Manager"
+                        : roleName.contains("Read") ? "Read Only User"
+                        : "Sales Representative";
+                profile = profileRepository.findByProfileNameAndIsSystemProfileTrue(systemProfileName).orElse(null);
             }
         }
 

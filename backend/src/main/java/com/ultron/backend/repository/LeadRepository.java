@@ -115,6 +115,8 @@ public interface LeadRepository extends MongoRepository<Lead, String> {
      */
     List<Lead> findByAssignedUserIdInAndIsDeletedFalse(List<String> userIds);
 
+    List<Lead> findByAssignedUserIdAndTenantIdAndIsDeletedFalse(String assignedUserId, String tenantId);
+
     // ===== DANGEROUS METHODS - DO NOT USE IN BUSINESS LOGIC =====
     // These methods are ONLY for admin/migration purposes
 

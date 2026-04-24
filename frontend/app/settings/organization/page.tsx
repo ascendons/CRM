@@ -16,6 +16,7 @@ import {
   AlertCircle,
   FileText,
 } from "lucide-react";
+import TermsTemplatesManager from "@/components/organization/TermsTemplatesManager";
 
 export default function OrganizationSettingsPage() {
   const [activeTab, setActiveTab] = useState("profile");
@@ -343,48 +344,14 @@ function OrganizationSettingsForm({
           </div>
         </div>
 
-        {/* Default Terms & Conditions for Proposals */}
+        {/* Terms & Conditions Templates */}
         <div className="col-span-full border-t pt-6">
-          <h4 className="text-sm font-medium text-gray-900 mb-1">Default Terms & Conditions</h4>
+          <h4 className="text-sm font-medium text-gray-900 mb-1">Terms & Conditions Templates</h4>
           <p className="text-xs text-gray-500 mb-4">
-            These will be auto-filled when creating new proposals. Users can override per proposal.
+            Create multiple templates for each type. Mark one as default to auto-fill new proposals.
+            Users can select or override per proposal.
           </p>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                Payment Terms
-              </label>
-              <textarea
-                value={formData.defaultPaymentTerms}
-                onChange={(e) => handleChange("defaultPaymentTerms", e.target.value)}
-                placeholder="e.g., 50% advance, 50% on delivery"
-                rows={4}
-                className="block w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 text-sm"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                Delivery Terms
-              </label>
-              <textarea
-                value={formData.defaultDeliveryTerms}
-                onChange={(e) => handleChange("defaultDeliveryTerms", e.target.value)}
-                placeholder="e.g., Delivery within 30 days"
-                rows={4}
-                className="block w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 text-sm"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">Notes</label>
-              <textarea
-                value={formData.defaultNotes}
-                onChange={(e) => handleChange("defaultNotes", e.target.value)}
-                placeholder="e.g., Prices are subject to change..."
-                rows={4}
-                className="block w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 text-sm"
-              />
-            </div>
-          </div>
+          <TermsTemplatesManager />
         </div>
       </div>
     </div>

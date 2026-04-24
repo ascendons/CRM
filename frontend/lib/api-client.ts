@@ -153,6 +153,28 @@ export const api = {
     return response.blob();
   },
 
+  // ── Terms Templates ────────────────────────────────────────────────────────
+
+  getTermsTemplates: (type?: string): Promise<TermsTemplate[]> =>
+    apiRequest<TermsTemplate[]>(`/terms-templates${type ? `?type=${type}` : ""}`, {
+      method: "GET",
+    }),
+
+  createTermsTemplate: (data: CreateTermsTemplateRequest): Promise<TermsTemplate> =>
+    apiRequest<TermsTemplate>("/terms-templates", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+
+  updateTermsTemplate: (id: string, data: CreateTermsTemplateRequest): Promise<TermsTemplate> =>
+    apiRequest<TermsTemplate>(`/terms-templates/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(data),
+    }),
+
+  deleteTermsTemplate: (id: string): Promise<void> =>
+    apiRequest<void>(`/terms-templates/${id}`, { method: "DELETE" }),
+
   fetchHtml: async (endpoint: string): Promise<string> => {
     const token = localStorage.getItem("auth_token");
     const headers: Record<string, string> = {
@@ -188,3 +210,28 @@ export const api = {
     return response.text();
   },
 };
+
+// ── Terms Templates types ─────────────────────────────────────────────────────
+
+export type TermsType = "PAYMENT_TERMS" | "DELIVERY_TERMS" | "NOTES";
+
+export interface TermsTemplate {
+  id: string;
+  tenantId: string;
+  type: TermsType;
+  name: string;
+  content: string;
+  isDefault: boolean;
+  isDeleted: boolean;
+  createdAt: string;
+  createdBy: string;
+  updatedAt: string;
+  updatedBy: string;
+}
+
+export interface CreateTermsTemplateRequest {
+  type: TermsType;
+  name: string;
+  content: string;
+  isDefault: boolean;
+}

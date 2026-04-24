@@ -25,6 +25,7 @@ import { ProductResponse } from "@/types/product";
 import { Lead } from "@/types/lead";
 import { Opportunity } from "@/types/opportunity";
 import { CountryStateSelector } from "../common/CountryStateSelector";
+import TermsTemplateSelector from "./TermsTemplateSelector";
 import CatalogProductSearch from "./CatalogProductSearch";
 import { usersService } from "@/lib/users";
 import { UserResponse } from "@/types/user";
@@ -1763,39 +1764,30 @@ export default function ProposalForm({
         }
       >
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          <div>
-            <label className={labelCls}>Payment Terms</label>
-            <textarea
-              value={paymentTerms}
-              onChange={(e) => setPaymentTerms(e.target.value)}
-              placeholder="e.g., 50% advance, 50% on delivery"
-              rows={4}
-              className={inputCls}
-              disabled={isReadOnly}
-            />
-          </div>
-          <div>
-            <label className={labelCls}>Delivery Terms</label>
-            <textarea
-              value={deliveryTerms}
-              onChange={(e) => setDeliveryTerms(e.target.value)}
-              placeholder="e.g., Delivery within 30 days"
-              rows={4}
-              className={inputCls}
-              disabled={isReadOnly}
-            />
-          </div>
-          <div>
-            <label className={labelCls}>Additional Notes</label>
-            <textarea
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              placeholder="Any additional notes or terms..."
-              rows={4}
-              className={inputCls}
-              disabled={isReadOnly}
-            />
-          </div>
+          <TermsTemplateSelector
+            type="PAYMENT_TERMS"
+            label="Payment Terms"
+            value={paymentTerms}
+            onChange={setPaymentTerms}
+            disabled={isReadOnly}
+            placeholder="e.g., 50% advance, 50% on delivery"
+          />
+          <TermsTemplateSelector
+            type="DELIVERY_TERMS"
+            label="Delivery Terms"
+            value={deliveryTerms}
+            onChange={setDeliveryTerms}
+            disabled={isReadOnly}
+            placeholder="e.g., Delivery within 30 days"
+          />
+          <TermsTemplateSelector
+            type="NOTES"
+            label="Additional Notes"
+            value={notes}
+            onChange={setNotes}
+            disabled={isReadOnly}
+            placeholder="Any additional notes or terms..."
+          />
         </div>
       </SectionCard>
 

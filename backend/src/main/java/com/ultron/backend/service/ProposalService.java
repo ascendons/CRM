@@ -1131,14 +1131,37 @@ public class ProposalService extends BaseTenantService {
     public List<ProposalResponse> getAllProposalsList(Boolean isProforma) {
         String tenantId = getCurrentTenantId();
         log.debug("[Tenant: {}] Fetching all proposals, isProforma={}", tenantId, isProforma);
-        
+
         List<Proposal> proposals;
-        if (isProforma != null) {
-            proposals = proposalRepository.findByIsProformaAndTenantIdAndIsDeletedFalse(isProforma, tenantId);
+        if (isCurrentUserTenantAdmin()) {
+            if (isProforma != null) {
+                proposals = proposalRepository.findByIsProformaAndTenantIdAndIsDeletedFalse(isProforma, tenantId);
+            } else {
+                proposals = proposalRepository.findByTenantIdAndIsDeletedFalse(tenantId);
+            }
         } else {
-            proposals = proposalRepository.findByTenantIdAndIsDeletedFalse(tenantId);
+            String mongoId = getCurrentUserId();
+            // assignedUserId on Lead stores the business userId (USR-...), not the MongoDB _id
+            String businessUserId = userRepository.findById(mongoId)
+                    .map(User::getUserId).orElse(mongoId);
+
+            List<String> assignedLeadIds = leadRepository.findByAssignedUserIdAndTenantIdAndIsDeletedFalse(businessUserId, tenantId)
+                    .stream().map(Lead::getId).collect(Collectors.toList());
+
+            List<Proposal> owned = isProforma != null
+                    ? proposalRepository.findByTenantIdAndOwnerOrCreatedByAndIsProformaAndIsDeletedFalse(tenantId, mongoId, isProforma)
+                    : proposalRepository.findByTenantIdAndOwnerOrCreatedByAndIsDeletedFalse(tenantId, mongoId);
+
+            List<Proposal> fromLeads = assignedLeadIds.isEmpty()
+                    ? List.of()
+                    : proposalRepository.findByLeadIdInAndTenantIdAndIsDeletedFalse(assignedLeadIds, tenantId);
+
+            proposals = java.util.stream.Stream.concat(owned.stream(), fromLeads.stream())
+                    .collect(Collectors.collectingAndThen(
+                            Collectors.toMap(p -> p.getId(), p -> p, (a, b) -> a, java.util.LinkedHashMap::new),
+                            m -> new java.util.ArrayList<>(m.values())));
         }
-        
+
         return proposals.stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
@@ -1151,13 +1174,40 @@ public class ProposalService extends BaseTenantService {
     public Page<ProposalResponse> getAllProposalsPage(Boolean isProforma, Pageable pageable) {
         String tenantId = getCurrentTenantId();
         log.debug("[Tenant: {}] Fetching all proposals (paginated), isProforma={}", tenantId, isProforma);
-        
-        if (isProforma != null) {
-            return proposalRepository.findByIsProformaAndTenantIdAndIsDeletedFalse(isProforma, tenantId, pageable)
-                    .map(this::mapToResponse);
+
+        if (isCurrentUserTenantAdmin()) {
+            if (isProforma != null) {
+                return proposalRepository.findByIsProformaAndTenantIdAndIsDeletedFalse(isProforma, tenantId, pageable)
+                        .map(this::mapToResponse);
+            } else {
+                return proposalRepository.findByTenantIdAndIsDeletedFalse(tenantId, pageable)
+                        .map(this::mapToResponse);
+            }
         } else {
-            return proposalRepository.findByTenantIdAndIsDeletedFalse(tenantId, pageable)
-                    .map(this::mapToResponse);
+            String mongoId = getCurrentUserId();
+            String businessUserId = userRepository.findById(mongoId)
+                    .map(User::getUserId).orElse(mongoId);
+
+            List<String> assignedLeadIds = leadRepository.findByAssignedUserIdAndTenantIdAndIsDeletedFalse(businessUserId, tenantId)
+                    .stream().map(Lead::getId).collect(Collectors.toList());
+
+            List<Proposal> owned = isProforma != null
+                    ? proposalRepository.findByTenantIdAndOwnerOrCreatedByAndIsProformaAndIsDeletedFalse(tenantId, mongoId, isProforma)
+                    : proposalRepository.findByTenantIdAndOwnerOrCreatedByAndIsDeletedFalse(tenantId, mongoId);
+
+            List<Proposal> fromLeads = assignedLeadIds.isEmpty()
+                    ? List.of()
+                    : proposalRepository.findByLeadIdInAndTenantIdAndIsDeletedFalse(assignedLeadIds, tenantId);
+
+            List<ProposalResponse> merged = java.util.stream.Stream.concat(owned.stream(), fromLeads.stream())
+                    .collect(Collectors.collectingAndThen(
+                            Collectors.toMap(p -> p.getId(), p -> p, (a, b) -> a, java.util.LinkedHashMap::new),
+                            m -> m.values().stream().map(this::mapToResponse).collect(Collectors.toList())));
+
+            int start = (int) pageable.getOffset();
+            int end = Math.min(start + pageable.getPageSize(), merged.size());
+            List<ProposalResponse> page = start >= merged.size() ? List.of() : merged.subList(start, end);
+            return new org.springframework.data.domain.PageImpl<>(page, pageable, merged.size());
         }
     }
 
