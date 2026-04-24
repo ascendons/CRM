@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { proposalsService } from "@/lib/proposals";
 import { authService } from "@/lib/auth";
@@ -511,10 +511,9 @@ export default function ProposalsPage() {
                       firstChild.title?.replace(/\s*-\s*[^-]+$/, "") || firstChild.title;
 
                     return (
-                      <>
+                      <React.Fragment key={`group-${parentId}`}>
                         {/* Group Header Row */}
                         <tr
-                          key={`group-${parentId}`}
                           className="bg-slate-50/80 hover:bg-slate-100 transition-colors cursor-pointer border-b border-slate-200"
                           onClick={() => toggleGroup(parentId)}
                         >
@@ -617,7 +616,7 @@ export default function ProposalsPage() {
                                 </td>
                                 <td className="px-6 py-3 text-sm font-medium text-slate-900">
                                   <span className="font-mono text-primary">
-                                    {proposal.proposalNumber}
+                                    {proposal.referenceNumber || proposal.proposalNumber}
                                   </span>
                                 </td>
                                 <td className="px-6 py-3">
@@ -721,7 +720,7 @@ export default function ProposalsPage() {
                               </tr>
                             );
                           })}
-                      </>
+                      </React.Fragment>
                     );
                   })}
 
@@ -734,7 +733,9 @@ export default function ProposalsPage() {
                     >
                       <td className="px-4 py-4"></td>
                       <td className="px-6 py-4 text-sm font-medium text-slate-900">
-                        <span className="font-mono text-primary">{proposal.proposalNumber}</span>
+                        <span className="font-mono text-primary">
+                          {proposal.referenceNumber || proposal.proposalNumber}
+                        </span>
                       </td>
                       <td className="px-6 py-4">
                         <div>
@@ -872,7 +873,9 @@ export default function ProposalsPage() {
                       onClick={() => router.push(`/proposals/${proposal.id}`)}
                     >
                       <td className="px-6 py-4 text-sm font-medium text-slate-900">
-                        <span className="font-mono text-primary">{proposal.proposalNumber}</span>
+                        <span className="font-mono text-primary">
+                          {proposal.referenceNumber || proposal.proposalNumber}
+                        </span>
                       </td>
                       <td className="px-6 py-4">
                         <div>
