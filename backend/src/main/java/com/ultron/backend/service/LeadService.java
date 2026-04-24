@@ -137,6 +137,43 @@ public class LeadService extends BaseTenantService {
         // Save to database
         Lead savedLead = leadRepository.save(lead);
 
+        // Immediately create mapping Contact
+        try {
+            CreateContactRequest contactRequest = CreateContactRequest.builder()
+                    .firstName(savedLead.getFirstName())
+                    .lastName(savedLead.getLastName())
+                    .email(savedLead.getEmail())
+                    .phone(savedLead.getPhone())
+                    .mobilePhone(savedLead.getMobilePhone())
+                    .workPhone(savedLead.getWorkPhone())
+                    .jobTitle(savedLead.getJobTitle())
+                    .department(savedLead.getDepartment())
+                    .linkedInProfile(savedLead.getLinkedInProfile())
+                    .website(savedLead.getWebsite())
+                    .mailingStreet(savedLead.getStreetAddress())
+                    .mailingCity(savedLead.getCity())
+                    .mailingState(savedLead.getState())
+                    .mailingPostalCode(savedLead.getPostalCode())
+                    .mailingCountry(savedLead.getCountry())
+                    .description(savedLead.getDescription())
+                    .tags(savedLead.getTags())
+                    .build();
+
+            ContactResponse contactResponse = contactService.createContact(contactRequest, createdByUserId);
+            savedLead.setConvertedToContactId(contactResponse.getId());
+            
+            Contact contactEntity = contactRepository.findById(contactResponse.getId()).orElse(null);
+            if (contactEntity != null) {
+                contactEntity.setConvertedFromLeadId(savedLead.getId());
+                contactRepository.save(contactEntity);
+            }
+            
+            savedLead = leadRepository.save(savedLead);
+            log.info("Contact {} created immediately alongside Lead {}", contactResponse.getContactId(), savedLead.getLeadId());
+        } catch (Exception e) {
+            log.error("Failed to automatically create contact for Lead {}", savedLead.getLeadId(), e);
+        }
+
         // Publish event for auto-assignment
         eventPublisher.publishEvent(new LeadCreatedEvent(this, savedLead));
 
@@ -507,6 +544,40 @@ public class LeadService extends BaseTenantService {
             scoringService.calculateLeadScore(lead);
         }
 
+        // --- BIDIRECTIONAL SYNC: LEAD TO CONTACT ---
+        if (lead.getConvertedToContactId() != null) {
+            try {
+                contactRepository.findById(lead.getConvertedToContactId()).ifPresent(contact -> {
+                    boolean contactUpdated = false;
+                    if (request.getFirstName() != null) { contact.setFirstName(request.getFirstName()); contactUpdated = true; }
+                    if (request.getLastName() != null) { contact.setLastName(request.getLastName()); contactUpdated = true; }
+                    if (request.getEmail() != null) { contact.setEmail(request.getEmail()); contactUpdated = true; }
+                    if (request.getPhone() != null) { contact.setPhone(request.getPhone()); contactUpdated = true; }
+                    if (request.getMobilePhone() != null) { contact.setMobilePhone(request.getMobilePhone()); contactUpdated = true; }
+                    if (request.getWorkPhone() != null) { contact.setWorkPhone(request.getWorkPhone()); contactUpdated = true; }
+                    if (request.getJobTitle() != null) { contact.setJobTitle(request.getJobTitle()); contactUpdated = true; }
+                    if (request.getDepartment() != null) { contact.setDepartment(request.getDepartment()); contactUpdated = true; }
+                    if (request.getLinkedInProfile() != null) { contact.setLinkedInProfile(request.getLinkedInProfile()); contactUpdated = true; }
+                    if (request.getWebsite() != null) { contact.setWebsite(request.getWebsite()); contactUpdated = true; }
+                    if (request.getCountry() != null) { contact.setOtherCountry(request.getCountry()); contactUpdated = true; }
+                    if (request.getState() != null) { contact.setOtherState(request.getState()); contactUpdated = true; }
+                    if (request.getCity() != null) { contact.setOtherCity(request.getCity()); contactUpdated = true; }
+                    if (request.getStreetAddress() != null) { contact.setOtherStreet(request.getStreetAddress()); contactUpdated = true; }
+                    if (request.getPostalCode() != null) { contact.setOtherPostalCode(request.getPostalCode()); contactUpdated = true; }
+
+                    if (contactUpdated) {
+                        contact.setLastModifiedAt(LocalDateTime.now());
+                        contact.setLastModifiedBy(updatedByUserId);
+                        contactRepository.save(contact);
+                        log.info("Bidirectional Sync: Copied updates from Lead {} to Contact {}", lead.getLeadId(), contact.getContactId());
+                    }
+                });
+            } catch (Exception e) {
+                log.error("Bidirectional Sync: Failed to copy updates to Contact for Lead {}", lead.getLeadId(), e);
+            }
+        }
+        // --- END SYNC ---
+
         // Update system fields
         lead.setLastModifiedAt(LocalDateTime.now());
         lead.setLastModifiedBy(updatedByUserId);
@@ -594,38 +665,49 @@ public class LeadService extends BaseTenantService {
         AccountResponse account = accountService.createAccount(accountRequest, convertedByUserId);
         log.info("Account {} created from lead conversion", account.getAccountId());
 
-        // Create Contact from lead personal information and link to Account
-        log.info("Creating Contact from Lead {}", lead.getLeadId());
-        CreateContactRequest contactRequest = CreateContactRequest.builder()
-                .firstName(lead.getFirstName())
-                .lastName(lead.getLastName())
-                .email(lead.getEmail())
-                .phone(lead.getPhone())
-                .mobilePhone(lead.getMobilePhone())
-                .workPhone(lead.getWorkPhone())
-                .jobTitle(lead.getJobTitle())
-                .department(lead.getDepartment())
-                .linkedInProfile(lead.getLinkedInProfile())
-                .website(lead.getWebsite())
-                .accountId(account.getId())
-                .isPrimaryContact(true)
-                .mailingStreet(lead.getStreetAddress())
-                .mailingCity(lead.getCity())
-                .mailingState(lead.getState())
-                .mailingPostalCode(lead.getPostalCode())
-                .mailingCountry(lead.getCountry())
-                .description(lead.getDescription())
-                .tags(lead.getTags())
-                .build();
+        // Locate existing Contact created at Lead generation time (or fallback to creating it if missing)
+        Contact contactEntity = null;
+        if (lead.getConvertedToContactId() != null) {
+            log.info("Retrieving existing Contact {} for Lead {}", lead.getConvertedToContactId(), lead.getLeadId());
+            contactEntity = contactRepository.findById(lead.getConvertedToContactId()).orElse(null);
+        }
 
-        ContactResponse contact = contactService.createContact(contactRequest, convertedByUserId);
-        log.info("Contact {} created from lead conversion", contact.getContactId());
+        if (contactEntity == null) {
+            log.info("No mapped Contact found. Creating new Contact from Lead {}", lead.getLeadId());
+            CreateContactRequest contactRequest = CreateContactRequest.builder()
+                    .firstName(lead.getFirstName())
+                    .lastName(lead.getLastName())
+                    .email(lead.getEmail())
+                    .phone(lead.getPhone())
+                    .mobilePhone(lead.getMobilePhone())
+                    .workPhone(lead.getWorkPhone())
+                    .jobTitle(lead.getJobTitle())
+                    .department(lead.getDepartment())
+                    .linkedInProfile(lead.getLinkedInProfile())
+                    .website(lead.getWebsite())
+                    .isPrimaryContact(true)
+                    .mailingStreet(lead.getStreetAddress())
+                    .mailingCity(lead.getCity())
+                    .mailingState(lead.getState())
+                    .mailingPostalCode(lead.getPostalCode())
+                    .mailingCountry(lead.getCountry())
+                    .description(lead.getDescription())
+                    .tags(lead.getTags())
+                    .build();
 
-        // Update Contact and Account to reference the original lead
-        Contact contactEntity = contactRepository.findById(contact.getId())
-                .orElseThrow(() -> new RuntimeException("Contact not found after creation"));
+            ContactResponse contactResponse = contactService.createContact(contactRequest, convertedByUserId);
+            contactEntity = contactRepository.findById(contactResponse.getId())
+                .orElseThrow(() -> new RuntimeException("Contact not found after fallback creation"));
+        }
+
+        // Link existing/new Contact to newly created converted Account
+        contactEntity.setAccountId(account.getId());
+        contactEntity.setAccountName(account.getAccountName());
+        contactEntity.setIsPrimaryContact(true);
         contactEntity.setConvertedFromLeadId(lead.getId());
         contactEntity.setConvertedDate(LocalDateTime.now());
+        contactEntity.setLastModifiedAt(LocalDateTime.now());
+        contactEntity.setLastModifiedBy(convertedByUserId);
         contactRepository.save(contactEntity);
 
         Account accountEntity = accountRepository.findById(account.getId())
@@ -642,7 +724,7 @@ public class LeadService extends BaseTenantService {
                 .opportunityName(lead.getCompanyName() + " - " + lead.getFirstName() + " " + lead.getLastName())
                 .stage(OpportunityStage.CLOSED_WON) // Converted leads are already won deals
                 .accountId(account.getId())
-                .primaryContactId(contact.getId())
+                .primaryContactId(contactEntity.getId())
                 .amount(lead.getExpectedRevenue() != null ? lead.getExpectedRevenue() : BigDecimal.ZERO)
                 .probability(100) // Won deals have 100% probability
                 .expectedCloseDate(lead.getExpectedCloseDate() != null ? lead.getExpectedCloseDate() : LocalDate.now())
@@ -665,7 +747,7 @@ public class LeadService extends BaseTenantService {
         // Update lead status and conversion references
         lead.setLeadStatus(LeadStatus.CONVERTED);
         lead.setConvertedDate(LocalDateTime.now());
-        lead.setConvertedToContactId(contact.getId());
+        lead.setConvertedToContactId(contactEntity.getId());
         lead.setConvertedToAccountId(account.getId());
         lead.setConvertedToOpportunityId(opportunity.getId());
         lead.setLastModifiedAt(LocalDateTime.now());
@@ -673,7 +755,7 @@ public class LeadService extends BaseTenantService {
 
         Lead converted = leadRepository.save(lead);
         log.info("Lead {} converted successfully - Contact: {}, Account: {}, Opportunity: {}",
-                lead.getLeadId(), contact.getContactId(), account.getAccountId(), opportunity.getOpportunityId());
+                lead.getLeadId(), contactEntity.getContactId(), account.getAccountId(), opportunity.getOpportunityId());
 
         // Migrate historical data (Proposals, Activities)
         migrateLeadDataToOpportunity(lead, accountEntity, contactEntity, opportunityEntity, convertedByUserId);

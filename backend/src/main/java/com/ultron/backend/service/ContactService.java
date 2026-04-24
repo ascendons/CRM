@@ -8,6 +8,8 @@ import com.ultron.backend.dto.response.ContactResponse;
 import com.ultron.backend.exception.UserAlreadyExistsException;
 import com.ultron.backend.repository.AccountRepository;
 import com.ultron.backend.repository.ContactRepository;
+import com.ultron.backend.repository.LeadRepository;
+import com.ultron.backend.domain.entity.Lead;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
@@ -29,6 +31,7 @@ public class ContactService extends BaseTenantService {
 
     private final ContactRepository contactRepository;
     private final AccountRepository accountRepository;
+    private final LeadRepository leadRepository;
     private final ContactIdGeneratorService contactIdGenerator;
     private final UserService userService;
 
@@ -257,6 +260,40 @@ public class ContactService extends BaseTenantService {
         contact.setLastModifiedAt(LocalDateTime.now());
         contact.setLastModifiedBy(updatedByUserId);
         contact.setLastModifiedByName(updatedByName);
+
+        // --- BIDIRECTIONAL SYNC: CONTACT TO LEAD ---
+        if (contact.getConvertedFromLeadId() != null) {
+            try {
+                leadRepository.findById(contact.getConvertedFromLeadId()).ifPresent(lead -> {
+                    boolean leadUpdated = false;
+                    if (request.getFirstName() != null) { lead.setFirstName(request.getFirstName()); leadUpdated = true; }
+                    if (request.getLastName() != null) { lead.setLastName(request.getLastName()); leadUpdated = true; }
+                    if (request.getEmail() != null) { lead.setEmail(request.getEmail()); leadUpdated = true; }
+                    if (request.getPhone() != null) { lead.setPhone(request.getPhone()); leadUpdated = true; }
+                    if (request.getMobilePhone() != null) { lead.setMobilePhone(request.getMobilePhone()); leadUpdated = true; }
+                    if (request.getWorkPhone() != null) { lead.setWorkPhone(request.getWorkPhone()); leadUpdated = true; }
+                    if (request.getJobTitle() != null) { lead.setJobTitle(request.getJobTitle()); leadUpdated = true; }
+                    if (request.getDepartment() != null) { lead.setDepartment(request.getDepartment()); leadUpdated = true; }
+                    if (request.getLinkedInProfile() != null) { lead.setLinkedInProfile(request.getLinkedInProfile()); leadUpdated = true; }
+                    if (request.getWebsite() != null) { lead.setWebsite(request.getWebsite()); leadUpdated = true; }
+                    if (request.getOtherCountry() != null) { lead.setCountry(request.getOtherCountry()); leadUpdated = true; }
+                    if (request.getOtherState() != null) { lead.setState(request.getOtherState()); leadUpdated = true; }
+                    if (request.getOtherCity() != null) { lead.setCity(request.getOtherCity()); leadUpdated = true; }
+                    if (request.getOtherStreet() != null) { lead.setStreetAddress(request.getOtherStreet()); leadUpdated = true; }
+                    if (request.getOtherPostalCode() != null) { lead.setPostalCode(request.getOtherPostalCode()); leadUpdated = true; }
+
+                    if (leadUpdated) {
+                        lead.setLastModifiedAt(LocalDateTime.now());
+                        lead.setLastModifiedBy(updatedByUserId);
+                        leadRepository.save(lead);
+                        log.info("Bidirectional Sync: Copied updates from Contact {} to Lead {}", contact.getContactId(), lead.getLeadId());
+                    }
+                });
+            } catch (Exception e) {
+                log.error("Bidirectional Sync: Failed to copy updates to Lead for Contact {}", contact.getContactId(), e);
+            }
+        }
+        // --- END SYNC ---
 
         Contact updated = contactRepository.save(contact);
         log.info("Contact {} updated successfully", id);
