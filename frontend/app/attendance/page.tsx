@@ -118,18 +118,18 @@ export default function AttendancePage() {
   const loadTeamSummary = async (type: TeamViewType, date: Date) => {
     try {
       setTeamLoading(true);
-      
+
       let startDateStr, endDateStr;
-      
+
       if (type === "weekly") {
         const d = new Date(date);
         const day = d.getDay();
         const diff = d.getDate() - day + (day === 0 ? -6 : 1);
         const start = new Date(d.setDate(diff));
-        
+
         const end = new Date(start);
         end.setDate(end.getDate() + 6);
-        
+
         startDateStr = start.toISOString().split("T")[0];
         endDateStr = end.toISOString().split("T")[0];
       } else if (type === "monthly") {
@@ -137,13 +137,13 @@ export default function AttendancePage() {
         const month = date.getMonth();
         const start = new Date(year, month, 1);
         const end = new Date(year, month + 1, 0);
-        
+
         startDateStr = start.toISOString().split("T")[0];
         endDateStr = end.toISOString().split("T")[0];
       } else {
         return;
       }
-      
+
       const response = await attendanceApi.getAdminTeamSummary(startDateStr, endDateStr);
       setTeamSummary(response);
     } catch (error) {
@@ -488,7 +488,9 @@ export default function AttendancePage() {
               <button
                 onClick={() => setTeamView("daily")}
                 className={`px-3 py-1.5 text-sm font-medium rounded-md transition-all ${
-                  teamView === "daily" ? "bg-white text-blue-700 shadow" : "text-white hover:bg-white/10" // eslint-disable-next-line react/jsx-no-bind
+                  teamView === "daily"
+                    ? "bg-white text-blue-700 shadow"
+                    : "text-white hover:bg-white/10" // eslint-disable-next-line react/jsx-no-bind
                 }`}
               >
                 Daily
@@ -496,7 +498,9 @@ export default function AttendancePage() {
               <button
                 onClick={() => setTeamView("weekly")}
                 className={`px-3 py-1.5 text-sm font-medium rounded-md transition-all ${
-                  teamView === "weekly" ? "bg-white text-blue-700 shadow" : "text-white hover:bg-white/10" // eslint-disable-next-line react/jsx-no-bind
+                  teamView === "weekly"
+                    ? "bg-white text-blue-700 shadow"
+                    : "text-white hover:bg-white/10" // eslint-disable-next-line react/jsx-no-bind
                 }`}
               >
                 Weekly
@@ -504,7 +508,9 @@ export default function AttendancePage() {
               <button
                 onClick={() => setTeamView("monthly")}
                 className={`px-3 py-1.5 text-sm font-medium rounded-md transition-all ${
-                  teamView === "monthly" ? "bg-white text-blue-700 shadow" : "text-white hover:bg-white/10" // eslint-disable-next-line react/jsx-no-bind
+                  teamView === "monthly"
+                    ? "bg-white text-blue-700 shadow"
+                    : "text-white hover:bg-white/10" // eslint-disable-next-line react/jsx-no-bind
                 }`}
               >
                 Monthly
@@ -526,7 +532,7 @@ export default function AttendancePage() {
                 <ChevronLeft className="w-5 h-5" />
               </button>
               <span className="font-semibold text-gray-800 tracking-wide text-sm">
-                {teamView === "weekly" 
+                {teamView === "weekly"
                   ? getWeekRangeString(summaryDate)
                   : summaryDate.toLocaleString("default", { month: "long", year: "numeric" })}
               </span>
@@ -725,45 +731,48 @@ export default function AttendancePage() {
                 </div>
               )}
             </>
+          ) : /* Weekly/Monthly Summary View */
+          !teamSummary || !teamSummary.teamMembers || teamSummary.teamMembers.length === 0 ? (
+            <div className="p-12 text-center text-gray-500">
+              <Users className="h-16 w-16 mx-auto mb-4 text-gray-300" />
+              <p>No attendance records found for this period</p>
+            </div>
           ) : (
-            /* Weekly/Monthly Summary View */
-            !teamSummary || !teamSummary.teamMembers || teamSummary.teamMembers.length === 0 ? (
-              <div className="p-12 text-center text-gray-500">
-                <Users className="h-16 w-16 mx-auto mb-4 text-gray-300" />
-                <p>No attendance records found for this period</p>
-              </div>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead className="bg-gray-50 border-b border-gray-200">
-                    <tr>
-                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                        Employee
-                      </th>
-                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                        Presence
-                      </th>
-                      <th className="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                        Late
-                      </th>
-                      <th className="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                        Absent/Leave
-                      </th>
-                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                        Avg Hours
-                      </th>
-                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                        Performance
-                      </th>
-                      <th className="px-6 py-4"></th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200">
-                    {teamSummary.teamMembers.map((member: any, index: number) => (
-                      <React.Fragment key={index}>
-                      <tr 
-                        className={`hover:bg-gray-50 transition-colors cursor-pointer ${expandedSummaryUserId === member.userId ? 'bg-blue-50/50' : ''}`}
-                        onClick={() => setExpandedSummaryUserId(expandedSummaryUserId === member.userId ? null : member.userId)}
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gray-50 border-b border-gray-200">
+                  <tr>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      Employee
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      Presence
+                    </th>
+                    <th className="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      Late
+                    </th>
+                    <th className="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      Absent/Leave
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      Avg Hours
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      Performance
+                    </th>
+                    <th className="px-6 py-4"></th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200">
+                  {teamSummary.teamMembers.map((member: any, index: number) => (
+                    <React.Fragment key={index}>
+                      <tr
+                        className={`hover:bg-gray-50 transition-colors cursor-pointer ${expandedSummaryUserId === member.userId ? "bg-blue-50/50" : ""}`}
+                        onClick={() =>
+                          setExpandedSummaryUserId(
+                            expandedSummaryUserId === member.userId ? null : member.userId
+                          )
+                        }
                       >
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div>
@@ -790,7 +799,8 @@ export default function AttendancePage() {
                                 {member.lateDays} Days
                               </span>
                               <span className="text-xs text-gray-500 mt-1">
-                                {Math.floor((member.totalLateMinutes || 0) / 60)}h {(member.totalLateMinutes || 0) % 60}m Total
+                                {Math.floor((member.totalLateMinutes || 0) / 60)}h{" "}
+                                {(member.totalLateMinutes || 0) % 60}m Total
                               </span>
                             </span>
                           ) : (
@@ -798,31 +808,36 @@ export default function AttendancePage() {
                           )}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-center text-sm">
-                           <div className="flex flex-col items-center gap-1">
-                             {member.absentDays > 0 && (
-                               <span className="px-2 py-0.5 text-xs font-semibold rounded bg-red-100 text-red-800">
-                                 {member.absentDays} Absent
-                               </span>
-                             )}
-                             {member.leaveDays > 0 && (
-                               <span className="px-2 py-0.5 text-xs font-semibold rounded bg-blue-100 text-blue-800">
-                                 {member.leaveDays} Leave
-                               </span>
-                             )}
-                             {member.absentDays === 0 && member.leaveDays === 0 && (
-                               <span className="text-gray-400">-</span>
-                             )}
-                           </div>
+                          <div className="flex flex-col items-center gap-1">
+                            {member.absentDays > 0 && (
+                              <span className="px-2 py-0.5 text-xs font-semibold rounded bg-red-100 text-red-800">
+                                {member.absentDays} Absent
+                              </span>
+                            )}
+                            {member.leaveDays > 0 && (
+                              <span className="px-2 py-0.5 text-xs font-semibold rounded bg-blue-100 text-blue-800">
+                                {member.leaveDays} Leave
+                              </span>
+                            )}
+                            {member.absentDays === 0 && member.leaveDays === 0 && (
+                              <span className="text-gray-400">-</span>
+                            )}
+                          </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm font-medium text-gray-900 flex items-center gap-2">
                             <Clock className="w-4 h-4 text-gray-400" />
-                            {member.averageWorkHours ? member.averageWorkHours.toFixed(1) + " hrs" : "-"}
+                            {member.averageWorkHours
+                              ? member.averageWorkHours.toFixed(1) + " hrs"
+                              : "-"}
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="w-24 bg-gray-200 rounded-full h-2.5 overflow-hidden shadow-inner">
-                            <div className={`h-2.5 rounded-full ${member.attendancePercentage >= 95 ? 'bg-green-500' : member.attendancePercentage >= 85 ? 'bg-blue-500' : member.attendancePercentage >= 75 ? 'bg-yellow-500' : 'bg-red-500'}`} style={{ width: `${Math.min(member.attendancePercentage, 100)}%` }}></div>
+                            <div
+                              className={`h-2.5 rounded-full ${member.attendancePercentage >= 95 ? "bg-green-500" : member.attendancePercentage >= 85 ? "bg-blue-500" : member.attendancePercentage >= 75 ? "bg-yellow-500" : "bg-red-500"}`}
+                              style={{ width: `${Math.min(member.attendancePercentage, 100)}%` }}
+                            ></div>
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-right">
@@ -835,20 +850,33 @@ export default function AttendancePage() {
                       </tr>
                       {expandedSummaryUserId === member.userId && (
                         <tr className="bg-gray-50/80 border-b border-gray-200">
-                          <td colSpan={7} className="px-6 py-6 border-x-4 border-l-blue-500 border-r-transparent">
+                          <td
+                            colSpan={7}
+                            className="px-6 py-6 border-x-4 border-l-blue-500 border-r-transparent"
+                          >
                             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
-                              <h3 className="font-semibold text-gray-900 mb-4">{member.userName}'s Details</h3>
+                              <h3 className="font-semibold text-gray-900 mb-4">
+                                {member.userName}'s Details
+                              </h3>
                               <AttendanceCalendar
                                 year={summaryDate.getFullYear()}
                                 month={summaryDate.getMonth()}
                                 attendanceRecords={member.dailyRecords || []}
                                 onDateClick={(date) => {
-                                  const record = (member.dailyRecords || []).find((r: any) => r.date === date);
+                                  const record = (member.dailyRecords || []).find(
+                                    (r: any) => r.date === date
+                                  );
                                   if (record) {
-                                    const timeStr = record.checkInTime ? ` (${record.checkInTime} - ${record.checkOutTime || 'Active'})` : '';
-                                    toast.success(`${new Date(date).toLocaleDateString()}: ${record.status}${timeStr}`);
+                                    const timeStr = record.checkInTime
+                                      ? ` (${record.checkInTime} - ${record.checkOutTime || "Active"})`
+                                      : "";
+                                    toast.success(
+                                      `${new Date(date).toLocaleDateString()}: ${record.status}${timeStr}`
+                                    );
                                   } else {
-                                    toast.error(`No record found for ${new Date(date).toLocaleDateString()}`);
+                                    toast.error(
+                                      `No record found for ${new Date(date).toLocaleDateString()}`
+                                    );
                                   }
                                 }}
                               />
@@ -856,12 +884,11 @@ export default function AttendancePage() {
                           </td>
                         </tr>
                       )}
-                      </React.Fragment>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )
+                    </React.Fragment>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </div>
       )}

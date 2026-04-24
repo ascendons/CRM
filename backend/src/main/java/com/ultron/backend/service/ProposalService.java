@@ -78,8 +78,10 @@ public class ProposalService extends BaseTenantService {
                     .build();
         }
 
-        // Generate proposal ID
+        // Generate proposal ID (internal) and display reference number
         String proposalId = proposalIdGeneratorService.generateProposalId();
+        boolean isProforma = request.getIsProforma() != null && request.getIsProforma();
+        String referenceNumber = proposalIdGeneratorService.generateReferenceNumber(tenantId);
 
         // Build proposal
         Proposal proposal = Proposal.builder()
@@ -88,7 +90,8 @@ public class ProposalService extends BaseTenantService {
                 .source(request.getSource())
                 .sourceId(request.getSourceId())
                 .sourceName(sourceName)
-                .proposalNumber(proposalId)  // Same as proposalId for now
+                .proposalNumber(proposalId)
+                .referenceNumber(referenceNumber)
                 .title(request.getTitle())
                 .description(request.getDescription())
                 .validUntil(request.getValidUntil())
@@ -104,7 +107,7 @@ public class ProposalService extends BaseTenantService {
                 .gstNumber(request.getGstNumber())
                 .paymentMilestones(mapMilestones(request.getPaymentMilestones()))
                 .currentMilestoneIndex(0)
-                .isProforma(request.getIsProforma() != null ? request.getIsProforma() : false)
+                .isProforma(isProforma)
                 .isTechnicalQuotation(request.getIsTechnicalQuotation() != null ? request.getIsTechnicalQuotation() : false)
                 .showDiscount(request.getShowDiscount() != null ? request.getShowDiscount() : true)
                 .approverIds(request.getApproverIds() != null ? request.getApproverIds() : List.of())
@@ -1482,6 +1485,7 @@ public class ProposalService extends BaseTenantService {
                 .billingAddress(proposal.getBillingAddress())
                 .shippingAddress(proposal.getShippingAddress())
                 .proposalNumber(proposal.getProposalNumber())
+                .referenceNumber(proposal.getReferenceNumber())
                 .title(proposal.getTitle())
                 .description(proposal.getDescription())
                 .validUntil(proposal.getValidUntil())

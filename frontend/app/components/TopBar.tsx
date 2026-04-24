@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
+import Link from "next/link";
 import { UserMenu } from "@/components/UserMenu";
 import ChatPanel from "./ChatPanel";
 import NotificationPanel from "./NotificationPanel";
@@ -11,6 +12,7 @@ import { useWebSocket } from "@/providers/WebSocketProvider";
 const TOP_LEVEL_ROUTES = new Set([
   "/",
   "/dashboard",
+  "/calendar",
   "/leads",
   "/contacts",
   "/accounts",
@@ -90,6 +92,15 @@ export default function TopBar({ onMobileMenuClick, pageTitle }: TopBarProps) {
           >
             <span className="material-symbols-outlined">search</span>
           </button>
+
+          {/* Calendar Button */}
+          <Link
+            href="/calendar"
+            className={`p-2 rounded-lg transition-colors ${pathname === "/calendar" ? "text-blue-600 bg-blue-50" : "text-slate-500 hover:bg-slate-100"}`}
+            title="Calendar"
+          >
+            <span className="material-symbols-outlined">calendar_month</span>
+          </Link>
 
           {/* Chat Button */}
           <button

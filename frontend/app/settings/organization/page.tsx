@@ -146,6 +146,7 @@ function OrganizationSettingsForm({
     defaultPaymentTerms: organization.settings?.defaultPaymentTerms || "",
     defaultDeliveryTerms: organization.settings?.defaultDeliveryTerms || "",
     defaultNotes: organization.settings?.defaultNotes || "",
+    proposalPrefix: organization.settings?.proposalPrefix || "",
   });
 
   // Also update local state when organization prop changes
@@ -161,6 +162,7 @@ function OrganizationSettingsForm({
       defaultPaymentTerms: organization.settings?.defaultPaymentTerms || "",
       defaultDeliveryTerms: organization.settings?.defaultDeliveryTerms || "",
       defaultNotes: organization.settings?.defaultNotes || "",
+      proposalPrefix: organization.settings?.proposalPrefix || "",
     });
   }, [organization]);
 
@@ -277,6 +279,32 @@ function OrganizationSettingsForm({
           </div>
           <p className="text-xs text-gray-500 mt-1">
             Monthly revenue target shown on the dashboard performance widget
+          </p>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1.5">
+            Proposal Reference Prefix
+          </label>
+          <input
+            type="text"
+            value={formData.proposalPrefix}
+            onChange={(e) =>
+              handleChange(
+                "proposalPrefix",
+                e.target.value
+                  .toUpperCase()
+                  .replace(/[^A-Z0-9]/g, "")
+                  .slice(0, 4)
+              )
+            }
+            placeholder="e.g. RKE"
+            maxLength={4}
+            className="block w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 text-sm font-mono uppercase"
+          />
+          <p className="text-xs text-gray-500 mt-1">
+            Short abbreviation used in proposal numbers (e.g.{" "}
+            <span className="font-mono">RKE/26/P001</span>). 2–4 characters.
           </p>
         </div>
 

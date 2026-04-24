@@ -546,7 +546,7 @@ export default function LeadDetailPage() {
                           <tr key={proposal.id} className="hover:bg-gray-50">
                             <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-blue-600">
                               <Link href={`/proposals/${proposal.id}`}>
-                                {proposal.proposalNumber}
+                                {proposal.referenceNumber || proposal.proposalNumber}
                               </Link>
                             </td>
                             <td className="px-4 py-4 text-sm text-gray-900">{proposal.title}</td>
@@ -628,7 +628,8 @@ export default function LeadDetailPage() {
                     <div className="space-y-6">
                       <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 mb-4">
                         <h3 className="text-sm font-semibold text-purple-900">
-                          Active Negotiation: {activeProposal.proposalNumber}
+                          Active Negotiation: $
+                          {activeProposal.referenceNumber || activeProposal.proposalNumber}
                         </h3>
                         <p className="text-sm text-purple-700 mt-1">
                           You are currently negotiating proposal{" "}
@@ -883,7 +884,7 @@ export default function LeadDetailPage() {
                   type: ActivityType.NOTE,
                   status: ActivityStatus.COMPLETED,
                   subject: activeProposal
-                    ? `Negotiation Started - ${activeProposal.proposalNumber}`
+                    ? `Negotiation Started - ${activeProposal.referenceNumber || activeProposal.proposalNumber}`
                     : "Negotiation Started",
                   description: reason,
                 });

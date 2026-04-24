@@ -42,6 +42,9 @@ public class Proposal {
     @Indexed(unique = true)
     private String proposalId;  // Business ID: PROP-YYYY-MM-XXXXX
 
+    @Indexed(unique = true, sparse = true)
+    private String referenceNumber; // Display: e.g. RKE/26/P001 — unique per tenant enforced at DB level
+
     // Multi-tenancy
     @Indexed
     private String tenantId;
@@ -80,7 +83,7 @@ public class Proposal {
     private CustomerAddress shippingAddress;
 
     // Proposal Details
-    private String proposalNumber;  // User-friendly: same as proposalId
+    private String proposalNumber;  // Internal: same as proposalId (timestamp-based)
     private String title;
     private String description;
     private LocalDate validUntil;  // Expiry date

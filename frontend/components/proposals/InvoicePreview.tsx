@@ -142,7 +142,7 @@ const InvoicePreview = forwardRef<HTMLDivElement, InvoicePreviewProps>(
               Reference Number
             </span>
             <span className="text-lg font-black text-blue-900 tracking-tight">
-              {proposal.proposalNumber}
+              {proposal.referenceNumber || proposal.proposalNumber}
             </span>
           </div>
           <div className="text-right">

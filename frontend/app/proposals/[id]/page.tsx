@@ -1341,7 +1341,7 @@ export default function ProposalDetailPage() {
       {showInvoicePreview && proposal && (
         <InvoicePreviewModal
           proposalId={proposal.id}
-          proposalNumber={proposal.proposalNumber}
+          proposalNumber={proposal.referenceNumber || proposal.proposalNumber}
           onClose={() => setShowInvoicePreview(false)}
           proposal={proposal}
           parentTaxAmount={proposal.parentTaxAmount}

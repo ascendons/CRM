@@ -99,6 +99,7 @@ export interface ProposalResponse {
 
   // Proposal Details
   proposalNumber: string;
+  referenceNumber?: string; // Display: e.g. RKE/26/P001
   title: string;
   description?: string;
   validUntil: string;

@@ -146,6 +146,9 @@ public class Organization {
         private String defaultDeliveryTerms;
         private String defaultNotes;
 
+        // Proposal reference prefix (e.g. "RKE" → RKE/26/P001)
+        private String proposalPrefix;
+
         private Map<String, Object> customSettings;
     }
 

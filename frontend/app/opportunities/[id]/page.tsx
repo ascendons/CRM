@@ -585,7 +585,7 @@ export default function OpportunityDetailPage({ params }: { params: Promise<{ id
                         <tr key={proposal.id} className="hover:bg-gray-50">
                           <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-blue-600">
                             <Link href={`/proposals/${proposal.id}`}>
-                              {proposal.proposalNumber}
+                              {proposal.referenceNumber || proposal.proposalNumber}
                             </Link>
                           </td>
                           <td className="px-4 py-4 text-sm text-gray-900">{proposal.title}</td>

@@ -90,6 +90,7 @@ export interface OrganizationSettings {
   defaultPaymentTerms?: string;
   defaultDeliveryTerms?: string;
   defaultNotes?: string;
+  proposalPrefix?: string;
 }
 
 export interface SecuritySettings {

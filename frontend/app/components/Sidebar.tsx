@@ -130,7 +130,6 @@ export default function Sidebar({
         { href: "/proposals", label: "Proposals", icon: "description", module: "PRODUCTS" },
         { href: "/catalog", label: "Catalog", icon: "inventory_2", module: "ADMINISTRATION" },
         { href: "/activities", label: "Activities", icon: "event_note", alwaysVisible: true },
-        { href: "/calendar", label: "Calendar", icon: "calendar_month", alwaysVisible: true },
       ],
     },
     {

@@ -49,6 +49,7 @@ public class ProposalResponse {
 
     // Proposal Details
     private String proposalNumber;
+    private String referenceNumber; // Display reference: e.g. RKE/26/P001
     private String title;
     private String description;
     private LocalDate validUntil;

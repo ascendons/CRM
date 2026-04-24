@@ -47,4 +47,9 @@ public class OrganizationRegistrationRequest {
     private String subscriptionTier = "FREE";  // FREE, STARTER, PROFESSIONAL, ENTERPRISE
 
     private String logoUrl;
+
+    // Short abbreviation used in proposal reference numbers (e.g. "RKE" → RKE/26/P001)
+    @Size(min = 2, max = 4, message = "Proposal prefix must be 2–4 characters")
+    @Pattern(regexp = "^[A-Za-z0-9]*$", message = "Proposal prefix must be alphanumeric")
+    private String proposalPrefix;
 }
