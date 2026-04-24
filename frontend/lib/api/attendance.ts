@@ -71,4 +71,7 @@ export const attendanceApi = {
 
   getDetailedDailyAttendance: (date?: string) =>
     api.get(`/attendance/admin/daily-list${date ? "?date=" + date : ""}`),
+
+  getAdminTeamSummary: (startDate: string, endDate: string) =>
+    api.get(`/attendance/admin/team-summary?startDate=${startDate}&endDate=${endDate}`),
 };

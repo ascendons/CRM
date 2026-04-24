@@ -415,6 +415,140 @@ public class AttendanceReportService extends BaseTenantService {
                 .build();
     }
 
+    /**
+     * Get all active team attendance summary (admin view)
+     */
+    public TeamAttendanceResponse getAllTeamAttendanceSummary(LocalDate startDate, LocalDate endDate) {
+        String tenantId = getCurrentTenantId();
+        log.info("Generating all team attendance summary from {} to {} for tenant: {}", startDate, endDate, tenantId);
+
+        // Get all active team members in tenant
+        List<User> teamMembers = userRepository.findByTenantIdAndIsDeletedFalse(tenantId);
+
+        if (teamMembers.isEmpty()) {
+            throw new BusinessException("No team members found");
+        }
+
+        List<TeamAttendanceResponse.TeamMemberAttendanceDto> teamMemberStats = new ArrayList<>();
+        int teamPresentCount = 0;
+        int teamAbsentCount = 0;
+        int teamOnLeaveCount = 0;
+
+        for (User member : teamMembers) {
+            String memberName = member.getFullName() != null ? member.getFullName() :
+                    (member.getProfile() != null && member.getProfile().getFullName() != null) ?
+                            member.getProfile().getFullName() : member.getUsername();
+
+            List<Attendance> attendances = attendanceRepository
+                    .findByUserIdAndTenantIdAndAttendanceDateBetweenAndIsDeletedFalse(
+                            member.getId(), tenantId, startDate, endDate);
+
+            int totalDays = calculateWorkingDays(startDate, endDate);
+            long presentDays = attendances.stream()
+                    .filter(a -> a.getStatus() == AttendanceStatus.PRESENT || a.getStatus() == AttendanceStatus.LATE)
+                    .count();
+            long lateDays = attendances.stream()
+                    .filter(a -> a.getStatus() == AttendanceStatus.LATE)
+                    .count();
+            long absentDays = attendances.stream()
+                    .filter(a -> a.getStatus() == AttendanceStatus.ABSENT)
+                    .count();
+            long leaveDays = attendances.stream()
+                    .filter(a -> a.getStatus() == AttendanceStatus.ON_LEAVE)
+                    .count();
+
+            double attendancePercentage = totalDays > 0 ? (presentDays * 100.0 / totalDays) : 0.0;
+
+            double averageWorkHours = attendances.stream()
+                    .filter(a -> a.getTotalWorkMinutes() != null && a.getTotalWorkMinutes() > 0)
+                    .mapToDouble(a -> a.getTotalWorkMinutes() / 60.0)
+                    .average()
+                    .orElse(0.0);
+
+            int totalLateMinutes = attendances.stream()
+                    .filter(a -> a.getLateMinutes() != null)
+                    .mapToInt(Attendance::getLateMinutes)
+                    .sum();
+
+            int totalOvertimeMinutes = attendances.stream()
+                    .filter(a -> a.getOvertimeMinutes() != null)
+                    .mapToInt(Attendance::getOvertimeMinutes)
+                    .sum();
+
+            // Today's status if date range includes today
+            String todayStatus = null;
+            String todayCheckInTime = null;
+            String todayCheckOutTime = null;
+            boolean isTodayCheckedIn = false;
+
+            if (!startDate.isAfter(LocalDate.now()) && !endDate.isBefore(LocalDate.now())) {
+                Optional<Attendance> todayAtt = attendances.stream()
+                        .filter(a -> a.getAttendanceDate().equals(LocalDate.now()))
+                        .findFirst();
+                if (todayAtt.isPresent()) {
+                    todayStatus = todayAtt.get().getStatus().toString();
+                    todayCheckInTime = todayAtt.get().getCheckInTime() != null
+                            ? formatTime(todayAtt.get().getCheckInTime()) : null;
+                    todayCheckOutTime = todayAtt.get().getCheckOutTime() != null
+                            ? formatTime(todayAtt.get().getCheckOutTime()) : null;
+                    isTodayCheckedIn = todayAtt.get().getCheckInTime() != null
+                            && todayAtt.get().getCheckOutTime() == null;
+                }
+            }
+
+            List<TeamAttendanceResponse.TeamMemberAttendanceDto.DailyRecordDto> dailyRecords = attendances.stream()
+                    .map(a -> TeamAttendanceResponse.TeamMemberAttendanceDto.DailyRecordDto.builder()
+                            .date(a.getAttendanceDate().toString())
+                            .status(a.getStatus().toString())
+                            .checkInTime(a.getCheckInTime() != null ? formatTime(a.getCheckInTime()) : null)
+                            .checkOutTime(a.getCheckOutTime() != null ? formatTime(a.getCheckOutTime()) : null)
+                            .workMinutes(a.getTotalWorkMinutes())
+                            .build())
+                    .collect(Collectors.toList());
+
+            teamMemberStats.add(TeamAttendanceResponse.TeamMemberAttendanceDto.builder()
+                    .userId(member.getId())
+                    .userName(memberName)
+                    .userEmail(member.getEmail())
+                    .totalDays(totalDays)
+                    .presentDays((int) presentDays)
+                    .lateDays((int) lateDays)
+                    .absentDays((int) absentDays)
+                    .leaveDays((int) leaveDays)
+                    .attendancePercentage(Math.round(attendancePercentage * 100.0) / 100.0)
+                    .averageWorkHours(Math.round(averageWorkHours * 100.0) / 100.0)
+                    .totalLateMinutes(totalLateMinutes)
+                    .totalOvertimeMinutes(totalOvertimeMinutes)
+                    .todayStatus(todayStatus)
+                    .todayCheckInTime(todayCheckInTime)
+                    .todayCheckOutTime(todayCheckOutTime)
+                    .isTodayCheckedIn(isTodayCheckedIn)
+                    .dailyRecords(dailyRecords)
+                    .build());
+
+            // Update team counts (for today)
+            if (todayStatus != null) {
+                if (todayStatus.equals("PRESENT") || todayStatus.equals("LATE")) teamPresentCount++;
+                else if (todayStatus.equals("ABSENT")) teamAbsentCount++;
+                else if (todayStatus.equals("ON_LEAVE")) teamOnLeaveCount++;
+            }
+        }
+
+        double teamAttendancePercentage = teamMembers.size() > 0
+                ? (teamPresentCount * 100.0 / teamMembers.size()) : 0.0;
+
+        return TeamAttendanceResponse.builder()
+                .startDate(startDate)
+                .endDate(endDate)
+                .totalTeamMembers(teamMembers.size())
+                .teamMembers(teamMemberStats)
+                .teamAttendancePercentage(Math.round(teamAttendancePercentage * 100.0) / 100.0)
+                .teamPresentCount(teamPresentCount)
+                .teamAbsentCount(teamAbsentCount)
+                .teamOnLeaveCount(teamOnLeaveCount)
+                .build();
+    }
+
     // Helper methods
 
     private int calculateWorkingDays(LocalDate startDate, LocalDate endDate) {

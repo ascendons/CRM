@@ -56,5 +56,20 @@ public class TeamAttendanceResponse {
         private String todayCheckInTime;
         private String todayCheckOutTime;
         private Boolean isTodayCheckedIn;
+
+        // Daily records for calendar view
+        private List<DailyRecordDto> dailyRecords;
+
+        @Data
+        @Builder
+        @NoArgsConstructor
+        @AllArgsConstructor
+        public static class DailyRecordDto {
+            private String date; // YYYY-MM-DD
+            private String status;
+            private String checkInTime;
+            private String checkOutTime;
+            private Integer workMinutes;
+        }
     }
 }

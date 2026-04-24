@@ -311,4 +311,26 @@ public class AttendanceController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return authentication.getName();
     }
+
+    /**
+     * Admin: Get summarized team attendance for all active users
+     * GET /api/v1/attendance/admin/team-summary?startDate=2026-03-01&endDate=2026-03-31
+     */
+    @GetMapping("/admin/team-summary")
+    @PreAuthorize("hasPermission('ATTENDANCE', 'READ_ALL')")
+    public ResponseEntity<ApiResponse<TeamAttendanceResponse>> getTeamSummaryAdmin(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+
+        log.info("Fetching all team attendance summary from {} to {}", startDate, endDate);
+
+        TeamAttendanceResponse response = attendanceReportService.getAllTeamAttendanceSummary(startDate, endDate);
+
+        return ResponseEntity.ok(
+                ApiResponse.<TeamAttendanceResponse>builder()
+                        .success(true)
+                        .message("All team attendance summary retrieved successfully")
+                        .data(response)
+                        .build());
+    }
 }
