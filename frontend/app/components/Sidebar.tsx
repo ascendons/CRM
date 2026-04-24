@@ -230,7 +230,7 @@ export default function Sidebar({
       ],
     },
     {
-      title: "Project Management",
+      title: "Projects Hub",
       items: [
         { href: "/projects", label: "Projects", icon: "folder", module: "PROJECTS" },
         { href: "/timesheets", label: "Timesheets", icon: "timer", module: "PROJECTS" },
