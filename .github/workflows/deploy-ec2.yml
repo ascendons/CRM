@@ -164,6 +164,8 @@ jobs:
           cd ~/crm
 
           CERT_PATH="/etc/letsencrypt/live/crm.ascendons.com/fullchain.pem"
+          SSL_DIR=~/crm/nginx/ssl
+          mkdir -p "$SSL_DIR"
 
           # Check if cert is valid for >30 days; if so, skip
           if openssl x509 -checkend 2592000 -noout -in "$CERT_PATH" 2>/dev/null; then
@@ -180,7 +182,6 @@ jobs:
             sudo certbot certonly --webroot \
               -w ~/crm/nginx/certbot \
               -d crm.ascendons.com \
-              -d ascendons.com \
               --email dev@ascendons.in \
               --agree-tos \
               --non-interactive \
