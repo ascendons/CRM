@@ -590,13 +590,13 @@ public class ProfileMigrationService {
             boolean needsSave = false;
 
             if (leavePerm == null) {
+                // All profiles get canCreate+canRead — every employee must be able to apply for leave
                 Profile.ObjectPermission newPerm = isAdmin ? createFullAccessPermission("LEAVE")
-                        : isReadOnly ? createReadOnlyPermission("LEAVE")
                         : createStandardPermission("LEAVE");
                 permissions.add(newPerm);
                 needsSave = true;
-            } else if (!isReadOnly) {
-                // For all non-read-only profiles, canCreate and canRead must be true
+            } else {
+                // All profiles (including read-only) must allow LEAVE create and read
                 if (!Boolean.TRUE.equals(leavePerm.getCanCreate()) || !Boolean.TRUE.equals(leavePerm.getCanRead())) {
                     leavePerm.setCanCreate(true);
                     leavePerm.setCanRead(true);
