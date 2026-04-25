@@ -6,6 +6,7 @@ import { useState, Fragment, useEffect } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { usePermissionContext } from "@/providers/PermissionProvider";
 import { useOrganization } from "@/providers/OrganizationProvider";
+import { leavesApi } from "@/lib/api/leaves";
 
 interface SidebarProps {
   isMobileOpen: boolean;
@@ -39,6 +40,7 @@ export default function Sidebar({
   const { organization } = useOrganization();
   const [user, setUser] = useState<{ name: string; initials: string } | null>(null);
   const [expandedSections, setExpandedSections] = useState<string[]>([]);
+  const [pendingLeaveCount, setPendingLeaveCount] = useState(0);
 
   // Auto-expand section based on current path
   useEffect(() => {
@@ -53,6 +55,19 @@ export default function Sidebar({
       }
     }
   }, [pathname, expandedSections]);
+
+  // Load pending leave approvals count
+  useEffect(() => {
+    const fetchPendingLeaves = async () => {
+      try {
+        const pending = await leavesApi.getPendingApprovals();
+        setPendingLeaveCount(Array.isArray(pending) ? pending.length : 0);
+      } catch {
+        // Silently fail - badge is optional
+      }
+    };
+    fetchPendingLeaves();
+  }, []);
 
   // Toggle section expansion
   const toggleSection = (sectionTitle: string) => {
@@ -166,7 +181,7 @@ export default function Sidebar({
       title: "HR Management",
       items: [
         { href: "/attendance", label: "Attendance", icon: "schedule", alwaysVisible: true },
-        { href: "/leaves", label: "Leaves", icon: "beach_access", alwaysVisible: true },
+        { href: "/leaves", label: "Leaves", icon: "beach_access", alwaysVisible: true, badge: pendingLeaveCount > 0 ? pendingLeaveCount : undefined },
         {
           href: "/admin/attendance/shifts",
           label: "Shift Management",

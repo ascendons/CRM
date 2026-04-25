@@ -29,6 +29,7 @@ export default function LeavesPage() {
   const [approvalAction, setApprovalAction] = useState<ApprovalAction>(null);
   const [selectedLeave, setSelectedLeave] = useState<LeaveResponse | null>(null);
   const [rejectionReason, setRejectionReason] = useState("");
+  const [approvalNotes, setApprovalNotes] = useState("");
 
   // Check if user is a manager (has permission to approve leaves)
   const isManager = hasPermission("LEAVE", "APPROVE");
@@ -110,6 +111,7 @@ export default function LeavesPage() {
       const request: ApproveLeaveRequest = {
         leaveId: selectedLeave.leaveId,
         approved: approvalAction === "approve",
+        notes: approvalNotes.trim() || undefined,
         ...(approvalAction === "reject" && { rejectionReason: rejectionReason.trim() }),
       };
 
@@ -155,7 +157,40 @@ export default function LeavesPage() {
     setShowApprovalModal(false);
     setSelectedLeave(null);
     setRejectionReason("");
+    setApprovalNotes("");
     setApprovalAction(null);
+  };
+
+  const handleExportCSV = () => {
+    const dataToExport = activeTab === "my-leaves" ? leaves : teamLeaves;
+    if (dataToExport.length === 0) {
+      toast.error("No data to export");
+      return;
+    }
+
+    const headers = ["Leave ID", "Employee", "Type", "Start Date", "End Date", "Days", "Business Days", "Status", "Reason", "Applied On"];
+    const rows = dataToExport.map((leave) => [
+      leave.leaveId,
+      activeTab === "team-leaves" ? leave.userName : "Me",
+      getLeaveTypeName(leave.leaveType),
+      formatDate(leave.startDate),
+      formatDate(leave.endDate),
+      leave.totalDays.toString(),
+      leave.businessDays.toString(),
+      leave.status,
+      leave.reason?.replace(/,/g, ";") || "",
+      formatDate(leave.createdAt),
+    ]);
+
+    const csvContent = [headers, ...rows].map((row) => row.join(",")).join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv" });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `leaves-${activeTab}-${selectedYear}.csv`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+    toast.success("Leave history exported");
   };
 
   const formatDate = (dateStr: string) => {
@@ -198,12 +233,20 @@ export default function LeavesPage() {
           <h1 className="text-3xl font-bold text-gray-900">My Leaves</h1>
           <p className="text-gray-600 mt-1">Manage your leave requests and view your balance</p>
         </div>
-        <Link
-          href="/leaves/new"
-          className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors"
-        >
-          Apply for Leave
-        </Link>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={handleExportCSV}
+            className="px-4 py-2 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors"
+          >
+            Export CSV
+          </button>
+          <Link
+            href="/leaves/new"
+            className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors"
+          >
+            Apply for Leave
+          </Link>
+        </div>
       </div>
 
       {/* Year Selector */}
@@ -255,9 +298,9 @@ export default function LeavesPage() {
               } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors`}
             >
               Team Leaves
-              {teamLeaves.length > 0 && (
-                <span className="ml-2 bg-gray-100 text-gray-900 py-0.5 px-2 rounded-full text-xs">
-                  {teamLeaves.length}
+              {teamLeaves.filter((l) => l.status === "PENDING").length > 0 && (
+                <span className="ml-2 bg-amber-100 text-amber-900 py-0.5 px-2 rounded-full text-xs">
+                  {teamLeaves.filter((l) => l.status === "PENDING").length} pending
                 </span>
               )}
             </button>
@@ -443,24 +486,35 @@ export default function LeavesPage() {
                 )}
               </div>
 
-              {/* Rejection Reason Input */}
-              {approvalAction === "reject" && (
-                <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Rejection Reason <span className="text-red-500">*</span>
-                  </label>
-                  <textarea
-                    value={rejectionReason}
-                    onChange={(e) => setRejectionReason(e.target.value)}
-                    placeholder="Please provide a reason for rejection (minimum 10 characters)"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    rows={4}
-                  />
+              {/* Notes Input - for both approve and reject */}
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  {approvalAction === "approve" ? "Notes (Optional)" : "Rejection Reason "}
+                  {approvalAction === "reject" && <span className="text-red-500">*</span>}
+                </label>
+                <textarea
+                  value={approvalAction === "approve" ? approvalNotes : rejectionReason}
+                  onChange={(e) => {
+                    if (approvalAction === "approve") {
+                      setApprovalNotes(e.target.value);
+                    } else {
+                      setRejectionReason(e.target.value);
+                    }
+                  }}
+                  placeholder={
+                    approvalAction === "approve"
+                      ? "Add any notes for the employee (optional)"
+                      : "Please provide a reason for rejection (minimum 10 characters)"
+                  }
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  rows={4}
+                />
+                {approvalAction === "reject" && (
                   <p className="text-xs text-gray-500 mt-1">
                     {rejectionReason.length}/10 characters minimum
                   </p>
-                </div>
-              )}
+                )}
+              </div>
 
               {/* Action Buttons */}
               <div className="flex gap-3 justify-end">
