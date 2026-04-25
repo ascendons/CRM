@@ -80,10 +80,9 @@ public class LeadService extends BaseTenantService {
 
         log.info("[Tenant: {}] Creating lead for email: {}", tenantId, request.getEmail());
 
-        // Check if email already exists within this tenant
-        if (leadRepository.existsByEmailAndTenantIdAndIsDeletedFalse(request.getEmail(), tenantId)) {
-            throw new UserAlreadyExistsException("Lead with email " + request.getEmail() + " already exists in your organization");
-        }
+        // NOTE: Allowing multiple leads per email/contact to support sales workflows
+        // where the same contact may have multiple deal opportunities
+        // Email uniqueness check removed - same contact can have multiple leads
 
         // Build lead entity
         Lead lead = Lead.builder()
@@ -137,6 +136,37 @@ public class LeadService extends BaseTenantService {
 
         // Save to database
         Lead savedLead = leadRepository.save(lead);
+
+        // For new company, create Account immediately
+        if (savedLead.getAccountId() == null) {
+            try {
+                log.info("Creating Account for new company: {}", savedLead.getCompanyName());
+                CreateAccountRequest accountRequest = CreateAccountRequest.builder()
+                        .accountName(savedLead.getCompanyName())
+                        .industry(savedLead.getIndustry())
+                        .companySize(savedLead.getCompanySize())
+                        .annualRevenue(savedLead.getAnnualRevenue())
+                        .numberOfEmployees(savedLead.getNumberOfEmployees())
+                        .website(savedLead.getWebsite())
+                        .phone(savedLead.getPhone())
+                        .email(savedLead.getEmail())
+                        .billingStreet(savedLead.getStreetAddress())
+                        .billingCity(savedLead.getCity())
+                        .billingState(savedLead.getState())
+                        .billingPostalCode(savedLead.getPostalCode())
+                        .billingCountry(savedLead.getCountry())
+                        .description(savedLead.getDescription())
+                        .tags(savedLead.getTags())
+                        .build();
+
+                AccountResponse newAccount = accountService.createAccount(accountRequest, createdByUserId);
+                savedLead.setAccountId(newAccount.getId());
+                savedLead = leadRepository.save(savedLead);
+                log.info("Account {} created alongside Lead {}", newAccount.getAccountId(), savedLead.getLeadId());
+            } catch (Exception e) {
+                log.error("Failed to create Account for Lead {}", savedLead.getLeadId(), e);
+            }
+        }
 
         // Immediately create mapping Contact
         try {
@@ -382,12 +412,8 @@ public class LeadService extends BaseTenantService {
         // Validate tenant ownership
         validateResourceTenantOwnership(lead.getTenantId());
 
-        // Check if email is being updated and if it's unique within tenant
-        if (request.getEmail() != null && !request.getEmail().equals(lead.getEmail())) {
-            if (leadRepository.existsByEmailAndTenantIdAndIsDeletedFalse(request.getEmail(), tenantId)) {
-                throw new UserAlreadyExistsException("Lead with email " + request.getEmail() + " already exists in your organization");
-            }
-        }
+        // NOTE: Email uniqueness check removed for updates too
+        // Same contact can have multiple leads across different deal opportunities
 
         // Track if fields affecting score are updated
         boolean scoreRelevantFieldsUpdated = false;
@@ -649,26 +675,32 @@ public class LeadService extends BaseTenantService {
 //            throw new RuntimeException("Lead qualification score must be at least 60 to convert");
 //        }
 
-        // Create Account from lead company information
-        log.info("Creating Account from Lead {}", lead.getLeadId());
-        CreateAccountRequest accountRequest = CreateAccountRequest.builder()
-                .accountName(lead.getCompanyName())
-                .industry(lead.getIndustry())
-                .companySize(lead.getCompanySize())
-                .annualRevenue(lead.getAnnualRevenue())
-                .numberOfEmployees(lead.getNumberOfEmployees())
-                .website(lead.getWebsite())
-                .billingStreet(lead.getStreetAddress())
-                .billingCity(lead.getCity())
-                .billingState(lead.getState())
-                .billingPostalCode(lead.getPostalCode())
-                .billingCountry(lead.getCountry())
-                .description(lead.getDescription())
-                .tags(lead.getTags())
-                .build();
-
-        AccountResponse account = accountService.createAccount(accountRequest, convertedByUserId);
-        log.info("Account {} created from lead conversion", account.getAccountId());
+        // Determine Account to use for conversion
+        // If lead already has an Account (created at lead creation), use it; otherwise create new
+        AccountResponse account;
+        if (lead.getAccountId() != null) {
+            log.info("Lead {} already has Account {}, using existing for conversion", lead.getLeadId(), lead.getAccountId());
+            account = accountService.getAccountById(lead.getAccountId());
+        } else {
+            log.info("Creating Account from Lead {}", lead.getLeadId());
+            CreateAccountRequest accountRequest = CreateAccountRequest.builder()
+                    .accountName(lead.getCompanyName())
+                    .industry(lead.getIndustry())
+                    .companySize(lead.getCompanySize())
+                    .annualRevenue(lead.getAnnualRevenue())
+                    .numberOfEmployees(lead.getNumberOfEmployees())
+                    .website(lead.getWebsite())
+                    .billingStreet(lead.getStreetAddress())
+                    .billingCity(lead.getCity())
+                    .billingState(lead.getState())
+                    .billingPostalCode(lead.getPostalCode())
+                    .billingCountry(lead.getCountry())
+                    .description(lead.getDescription())
+                    .tags(lead.getTags())
+                    .build();
+            account = accountService.createAccount(accountRequest, convertedByUserId);
+            log.info("Account {} created from lead conversion", account.getAccountId());
+        }
 
         // Locate existing Contact created at Lead generation time (or fallback to creating it if missing)
         Contact contactEntity = null;
@@ -858,25 +890,31 @@ public class LeadService extends BaseTenantService {
         // Validate tenant ownership
         validateResourceTenantOwnership(lead.getTenantId());
 
-        // Create Account from lead company information
-        log.info("Creating Account from lost Lead {}", lead.getLeadId());
-        CreateAccountRequest accountRequest = CreateAccountRequest.builder()
-                .accountName(lead.getCompanyName())
-                .industry(lead.getIndustry())
-                .companySize(lead.getCompanySize())
-                .annualRevenue(lead.getAnnualRevenue())
-                .numberOfEmployees(lead.getNumberOfEmployees())
-                .website(lead.getWebsite())
-                .billingStreet(lead.getStreetAddress())
-                .billingCity(lead.getCity())
-                .billingState(lead.getState())
-                .billingPostalCode(lead.getPostalCode())
-                .billingCountry(lead.getCountry())
-                .description(lead.getDescription())
-                .tags(lead.getTags())
-                .build();
-
-        AccountResponse account = accountService.createAccount(accountRequest, userId);
+        // Determine Account to use for lost lead
+        // If lead already has an Account (created at lead creation), use it; otherwise create new
+        AccountResponse account;
+        if (lead.getAccountId() != null) {
+            log.info("Lead {} already has Account {}, using existing for lost tracking", lead.getLeadId(), lead.getAccountId());
+            account = accountService.getAccountById(lead.getAccountId());
+        } else {
+            log.info("Creating Account from lost Lead {}", lead.getLeadId());
+            CreateAccountRequest accountRequest = CreateAccountRequest.builder()
+                    .accountName(lead.getCompanyName())
+                    .industry(lead.getIndustry())
+                    .companySize(lead.getCompanySize())
+                    .annualRevenue(lead.getAnnualRevenue())
+                    .numberOfEmployees(lead.getNumberOfEmployees())
+                    .website(lead.getWebsite())
+                    .billingStreet(lead.getStreetAddress())
+                    .billingCity(lead.getCity())
+                    .billingState(lead.getState())
+                    .billingPostalCode(lead.getPostalCode())
+                    .billingCountry(lead.getCountry())
+                    .description(lead.getDescription())
+                    .tags(lead.getTags())
+                    .build();
+            account = accountService.createAccount(accountRequest, userId);
+        }
         Account accountEntity = accountRepository.findById(account.getId()).orElseThrow();
 
         // Create Contact from lead personal information
