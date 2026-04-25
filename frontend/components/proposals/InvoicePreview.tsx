@@ -160,7 +160,7 @@ const InvoicePreview = forwardRef<HTMLDivElement, InvoicePreviewProps>(
           <div className="space-y-4">
             <h2 className="text-[10px] font-black text-blue-900 uppercase tracking-[0.25em] flex items-center gap-2">
               <span className="w-6 h-[2px] bg-blue-900"></span>
-              Billed To
+              Bill To
             </h2>
             <div className="bg-white border-l-4 border-blue-900 pl-5 py-2">
               <div className="font-black text-gray-900 text-base tracking-tight mb-1">
@@ -228,7 +228,7 @@ const InvoicePreview = forwardRef<HTMLDivElement, InvoicePreviewProps>(
           <div className="space-y-4">
             <h2 className="text-[10px] font-black text-blue-900 uppercase tracking-[0.25em] flex items-center gap-2">
               <span className="w-6 h-[2px] bg-blue-900"></span>
-              Shipped To
+              Ship To
             </h2>
             <div className="bg-white border-l-4 border-blue-900 pl-5 py-2">
               <div className="font-black text-gray-900 text-base tracking-tight mb-1">

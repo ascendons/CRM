@@ -356,7 +356,7 @@ export default function NewLeadPage() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
       {/* Header */}
       <div className="bg-white/80 backdrop-blur-sm border-b border-slate-200 sticky top-0 z-20">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3">
+        <div className="max-w-8xl mx-auto px-4 sm:px-6 py-3">
           <div className="flex justify-between items-center">
             <div>
               <h1 className="text-xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
@@ -376,7 +376,7 @@ export default function NewLeadPage() {
       </div>
 
       {/* Progress Steps */}
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4">
+      <div className="max-w-8xl mx-auto px-4 sm:px-6 py-4">
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 mb-4">
           {/* Progress Bar */}
           <div className="flex items-center justify-between mb-2">
@@ -453,81 +453,79 @@ export default function NewLeadPage() {
           >
             {/* Step 1: Company */}
             {currentStep === 0 && (
-              <div className="space-y-3">
-                {/* Company Selection */}
-                <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 hover:shadow-md transition-shadow">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="h-8 w-8 rounded-lg bg-indigo-100 flex items-center justify-center">
-                      <Building2 className="h-4 w-4 text-indigo-600" />
-                    </div>
-                    <div>
-                      <h2 className="text-base font-semibold text-slate-900">Company Selection</h2>
-                      <p className="text-sm text-slate-500">Choose new or existing company</p>
-                    </div>
+              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 hover:shadow-md transition-shadow">
+                {/* Unified Header */}
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="h-8 w-8 rounded-lg bg-indigo-100 flex items-center justify-center">
+                    <Building2 className="h-4 w-4 text-indigo-600" />
                   </div>
+                  <div>
+                    <h2 className="text-base font-semibold text-slate-900">Company</h2>
+                    <p className="text-sm text-slate-500">
+                      {companyMode === "new"
+                        ? "Enter new company details"
+                        : "Search for an existing company or create new"}
+                    </p>
+                  </div>
+                </div>
 
-                  <div className="flex gap-4 mb-4">
-                    <button
-                      type="button"
-                      onClick={() => handleCompanyModeChange("new")}
-                      className={`flex-1 p-4 rounded-xl border-2 transition-all ${
-                        companyMode === "new"
-                          ? "border-blue-500 bg-blue-50"
-                          : "border-slate-200 hover:border-slate-300"
+                {/* Mode Toggle - Compact horizontal layout */}
+                <div className="flex gap-3 mb-4">
+                  <button
+                    type="button"
+                    onClick={() => handleCompanyModeChange("new")}
+                    className={`flex-1 p-3 rounded-xl border-2 transition-all flex items-center gap-3 ${
+                      companyMode === "new"
+                        ? "border-blue-500 bg-blue-50"
+                        : "border-slate-200 hover:border-slate-300"
+                    }`}
+                  >
+                    <div
+                      className={`h-8 w-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
+                        companyMode === "new" ? "bg-blue-500 text-white" : "bg-slate-100 text-slate-400"
                       }`}
                     >
-                      <div className="flex flex-col items-center gap-2">
-                        <div
-                          className={`h-10 w-10 rounded-lg flex items-center justify-center ${
-                            companyMode === "new" ? "bg-blue-500 text-white" : "bg-slate-100 text-slate-400"
-                          }`}
-                        >
-                          <Sparkles className="h-6 w-6" />
-                        </div>
-                        <span
-                          className={`font-medium ${
-                            companyMode === "new" ? "text-blue-700" : "text-slate-600"
-                          }`}
-                        >
-                          New Company
-                        </span>
-                      </div>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleCompanyModeChange("existing")}
-                      className={`flex-1 p-4 rounded-xl border-2 transition-all ${
-                        companyMode === "existing"
-                          ? "border-blue-500 bg-blue-50"
-                          : "border-slate-200 hover:border-slate-300"
+                      <Sparkles className="h-4 w-4" />
+                    </div>
+                    <div className="text-left">
+                      <span className={`font-medium block ${companyMode === "new" ? "text-blue-700" : "text-slate-600"}`}>
+                        New Company
+                      </span>
+                      <span className="text-xs text-slate-500">Create a new company record</span>
+                    </div>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleCompanyModeChange("existing")}
+                    className={`flex-1 p-3 rounded-xl border-2 transition-all flex items-center gap-3 ${
+                      companyMode === "existing"
+                        ? "border-blue-500 bg-blue-50"
+                        : "border-slate-200 hover:border-slate-300"
+                    }`}
+                  >
+                    <div
+                      className={`h-8 w-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
+                        companyMode === "existing" ? "bg-blue-500 text-white" : "bg-slate-100 text-slate-400"
                       }`}
                     >
-                      <div className="flex flex-col items-center gap-2">
-                        <div
-                          className={`h-10 w-10 rounded-lg flex items-center justify-center ${
-                            companyMode === "existing"
-                              ? "bg-blue-500 text-white"
-                              : "bg-slate-100 text-slate-400"
-                          }`}
-                        >
-                          <Building2 className="h-6 w-6" />
-                        </div>
-                        <span
-                          className={`font-medium ${
-                            companyMode === "existing" ? "text-blue-700" : "text-slate-600"
-                          }`}
-                        >
-                          Existing Company
-                        </span>
-                      </div>
-                    </button>
-                  </div>
+                      <Building2 className="h-4 w-4" />
+                    </div>
+                    <div className="text-left">
+                      <span className={`font-medium block ${companyMode === "existing" ? "text-blue-700" : "text-slate-600"}`}>
+                        Existing Company
+                      </span>
+                      <span className="text-xs text-slate-500">Link to an existing account</span>
+                    </div>
+                  </button>
+                </div>
 
+                <div className="border-t border-slate-100 pt-4 space-y-4">
+                  {/* Existing Company Search */}
                   {companyMode === "existing" && (
                     <div className="space-y-3">
                       <div className="relative" onClick={(e) => e.stopPropagation()}>
                         <label className="block text-sm font-medium text-slate-700 mb-2">
-                          Select Company <span className="text-red-500">*</span>
+                          Search Company <span className="text-red-500">*</span>
                         </label>
                         <div className="relative">
                           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
@@ -674,21 +672,9 @@ export default function NewLeadPage() {
                       )}
                     </div>
                   )}
-                </div>
 
-                {/* Company Info for New Mode */}
-                {companyMode === "new" && (
-                  <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 hover:shadow-md transition-shadow">
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="h-8 w-8 rounded-lg bg-emerald-100 flex items-center justify-center">
-                        <Building2 className="h-4 w-4 text-emerald-600" />
-                      </div>
-                      <div>
-                        <h2 className="text-base font-semibold text-slate-900">Company Details</h2>
-                        <p className="text-sm text-slate-500">Enter company information</p>
-                      </div>
-                    </div>
-
+                  {/* New Company Fields */}
+                  {companyMode === "new" && (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       <div className="space-y-1 md:col-span-2">
                         <label className="block text-sm font-medium text-slate-700">
@@ -798,7 +784,7 @@ export default function NewLeadPage() {
 
                       <div className="space-y-1">
                         <label className="block text-sm font-medium text-slate-700">
-                          Annual Revenue <span className="text-red-500">*</span>
+                          Annual Revenue
                         </label>
                         <div className="relative">
                           <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">₹</span>
@@ -807,7 +793,6 @@ export default function NewLeadPage() {
                             name="annualRevenue"
                             value={formData.annualRevenue || ""}
                             onChange={handleChange}
-                            required
                             placeholder="1000000"
                             className={`w-full pl-7 pr-3 py-2 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all ${
                               errors.annualRevenue ? "border-red-300 bg-red-50" : "border-slate-200"
@@ -819,8 +804,8 @@ export default function NewLeadPage() {
                         )}
                       </div>
                     </div>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
             )}
 
