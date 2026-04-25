@@ -469,7 +469,7 @@ export default function OpportunityDetailPage({ params }: { params: Promise<{ id
                     )}
 
                     {/* Competition */}
-                    {opportunity.competitors?.length > 0 && (
+                    {opportunity.competitors && opportunity.competitors.length > 0 && (
                       <div className="bg-slate-50 rounded-xl p-4">
                         <h4 className="text-sm font-semibold text-slate-900 mb-3 flex items-center gap-2">
                           <TrendingUp className="h-4 w-4 text-slate-400" />
