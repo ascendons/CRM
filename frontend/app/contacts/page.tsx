@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Contact } from "@/types/contact";
 import { contactsService } from "@/lib/contacts";
@@ -17,8 +17,14 @@ import {
   ChevronRight,
   ArrowUpDown,
   Mail,
+  Phone,
   Building2,
   XCircle,
+  MoreVertical,
+  ExternalLink,
+  Edit3,
+  Calendar,
+  Filter,
 } from "lucide-react";
 
 export default function ContactsPage() {
@@ -43,6 +49,13 @@ export default function ContactsPage() {
   const [contactToDelete, setContactToDelete] = useState<string | null>(null);
   const [actionLoading, setActionLoading] = useState(false);
 
+  // Quick actions menu
+  const [openActionsMenu, setOpenActionsMenu] = useState<string | null>(null);
+
+  // Filters
+  const [showFilters, setShowFilters] = useState(false);
+  const [accountFilter, setAccountFilter] = useState<string[]>([]);
+
   useEffect(() => {
     if (!authService.isAuthenticated()) {
       router.push("/login");
@@ -50,6 +63,38 @@ export default function ContactsPage() {
     }
     loadContacts();
   }, [router]);
+
+  const filterContacts = useCallback(() => {
+    let filtered = [...contacts];
+
+    // Enhanced search across all fields
+    if (searchQuery) {
+      const term = searchQuery.toLowerCase();
+      filtered = filtered.filter(
+        (c) =>
+          c.firstName?.toLowerCase().includes(term) ||
+          c.lastName?.toLowerCase().includes(term) ||
+          c.email?.toLowerCase().includes(term) ||
+          c.phone?.toLowerCase().includes(term) ||
+          c.mobilePhone?.toLowerCase().includes(term) ||
+          c.jobTitle?.toLowerCase().includes(term) ||
+          c.department?.toLowerCase().includes(term) ||
+          c.accountName?.toLowerCase().includes(term) ||
+          c.contactId?.toLowerCase().includes(term)
+      );
+    }
+
+    // Account filter
+    if (accountFilter.length > 0) {
+      filtered = filtered.filter((c) => c.accountName && accountFilter.includes(c.accountName));
+    }
+
+    setFilteredContacts(filtered);
+  }, [contacts, searchQuery, accountFilter]);
+
+  useEffect(() => {
+    filterContacts();
+  }, [filterContacts]);
 
   const loadContacts = async () => {
     try {
@@ -65,28 +110,43 @@ export default function ContactsPage() {
     }
   };
 
-  const handleSearch = async (query: string) => {
-    setSearchQuery(query);
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
     setCurrentPage(1);
+  };
 
-    if (!query.trim()) {
-      setFilteredContacts(contacts);
-      return;
-    }
+  const handleAccountFilterChange = (accounts: string[]) => {
+    setAccountFilter(accounts);
+    setCurrentPage(1);
+  };
 
-    try {
-      // Optimistic filtering first
-      const term = query.toLowerCase();
-      const localFiltered = contacts.filter(
-        (c) =>
-          c.firstName.toLowerCase().includes(term) ||
-          c.lastName.toLowerCase().includes(term) ||
-          c.email.toLowerCase().includes(term)
-      );
-      setFilteredContacts(localFiltered);
-    } catch (err) {
-      console.error("Search failed", err);
-    }
+  const handleExport = () => {
+    const exportData = selectedContacts.length > 0
+      ? sortedContacts.filter(c => selectedContacts.includes(c.id))
+      : sortedContacts;
+
+    const headers = ["Contact ID", "Name", "Email", "Phone", "Mobile", "Job Title", "Department", "Account", "Created"];
+    const rows = exportData.map(contact => [
+      contact.contactId,
+      `${contact.firstName} ${contact.lastName}`,
+      contact.email,
+      contact.phone || "",
+      contact.mobilePhone || "",
+      contact.jobTitle || "",
+      contact.department || "",
+      contact.accountName || "",
+      contact.createdAt ? new Date(contact.createdAt).toLocaleDateString() : "",
+    ]);
+
+    const csvContent = [headers.join(","), ...rows.map(row => row.map(cell => `"${cell}"`).join(","))].join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `contacts_export_${new Date().toISOString().split("T")[0]}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+    showToast.success(`Exported ${exportData.length} contact(s)`);
   };
 
   const handleSort = (column: string) => {
@@ -120,6 +180,14 @@ export default function ContactsPage() {
         case "email":
           aValue = a.email.toLowerCase();
           bValue = b.email.toLowerCase();
+          break;
+        case "phone":
+          aValue = a.phone || "";
+          bValue = b.phone || "";
+          break;
+        case "department":
+          aValue = a.department || "";
+          bValue = b.department || "";
           break;
         case "createdAt":
           aValue = new Date(a.createdAt || 0).getTime();
@@ -219,9 +287,19 @@ export default function ContactsPage() {
               </p>
             </div>
             <div className="flex items-center gap-3">
-              <button className="flex items-center gap-2 px-4 py-2 bg-white  border border-slate-200  text-slate-700  rounded-xl text-sm font-semibold hover:bg-slate-50  transition-colors shadow-sm">
-                <Download className="h-4 w-4" />
-                Export
+              <button
+                  onClick={() => setShowFilters(!showFilters)}
+                  className={`flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 text-slate-700 rounded-xl text-sm font-semibold hover:bg-slate-50 transition-colors shadow-sm ${showFilters ? 'ring-2 ring-primary' : ''}`}
+                >
+                  <Filter className="h-4 w-4" />
+                  Filters
+              </button>
+              <button
+                  onClick={handleExport}
+                  className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 text-slate-700 rounded-xl text-sm font-semibold hover:bg-slate-50 transition-colors shadow-sm"
+                >
+                  <Download className="h-4 w-4" />
+                  Export{selectedContacts.length > 0 && ` (${selectedContacts.length})`}
               </button>
               <button
                 onClick={() => router.push("/contacts/new")}
@@ -245,7 +323,7 @@ export default function ContactsPage() {
                 type="text"
                 placeholder="Search contacts by name, email, or company..."
                 value={searchQuery}
-                onChange={(e) => handleSearch(e.target.value)}
+                onChange={handleSearch}
                 className="w-full pl-10 pr-4 py-2.5 bg-slate-50  border border-slate-200  rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
               />
             </div>
@@ -259,6 +337,43 @@ export default function ContactsPage() {
               </div>
             )}
           </div>
+
+          {/* Filter Panel */}
+          {showFilters && (
+            <div className="p-4 border-t border-slate-200 bg-slate-50 rounded-b-xl animate-fade-in">
+              <div className="flex flex-wrap items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-slate-500">Account:</span>
+                  <select
+                    multiple
+                    value={accountFilter}
+                    onChange={(e) => {
+                      const selected = Array.from(e.target.selectedOptions, opt => opt.value);
+                      handleAccountFilterChange(selected);
+                    }}
+                    className="px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary min-w-[200px]"
+                  >
+                    {Array.from(new Set(contacts.map(c => c.accountName).filter(Boolean))).map(account => (
+                      <option key={account} value={account}>{account}</option>
+                    ))}
+                  </select>
+                </div>
+                {(accountFilter.length > 0 || searchQuery) && (
+                  <button
+                    onClick={() => {
+                      setAccountFilter([]);
+                      setSearchQuery("");
+                      setCurrentPage(1);
+                    }}
+                    className="flex items-center gap-1 px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                  >
+                    <XCircle className="h-4 w-4" />
+                    Clear All
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
         </div>
 
         {error && (
@@ -291,7 +406,10 @@ export default function ContactsPage() {
                     { key: "name", label: "Contact" },
                     { key: "account", label: "Account" },
                     { key: "title", label: "Job Title" },
+                    { key: "phone", label: "Phone" },
                     { key: "email", label: "Email" },
+                    { key: "department", label: "Department" },
+                    { key: "createdAt", label: "Created" },
                   ].map((col) => (
                     <th
                       key={col.key}
@@ -370,28 +488,86 @@ export default function ContactsPage() {
                       <td className="px-6 py-4 text-sm text-slate-700 ">
                         {contact.jobTitle || "-"}
                       </td>
+                      <td className="px-6 py-4 text-sm text-slate-500">
+                        {contact.phone || "-"}
+                      </td>
                       <td className="px-6 py-4 text-sm text-slate-700 ">
                         <div className="flex items-center gap-2">
                           <Mail className="h-4 w-4 text-slate-400" />
                           {contact.email}
                         </div>
                       </td>
+                      <td className="px-6 py-4 text-sm text-slate-500">
+                        {contact.department || "-"}
+                      </td>
+                      <td className="px-6 py-4 text-xs text-slate-400">
+                        {contact.createdAt ? new Date(contact.createdAt).toLocaleDateString() : "-"}
+                      </td>
                       <td className="px-6 py-4">
-                        <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity relative">
                           <button
-                            onClick={() => router.push(`/contacts/${contact.id}`)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setOpenActionsMenu(openActionsMenu === contact.id ? null : contact.id);
+                            }}
                             className="p-1.5 text-slate-500 hover:text-primary hover:bg-primary/10 rounded-lg transition-colors"
-                            title="View"
+                            title="Actions"
                           >
-                            <ChevronRight className="h-4 w-4" />
+                            <MoreVertical className="h-4 w-4" />
                           </button>
-                          <button
-                            onClick={() => confirmDelete(contact.id)}
-                            className="p-1.5 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                            title="Delete"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </button>
+                          {openActionsMenu === contact.id && (
+                            <div className="absolute right-0 top-8 z-20 bg-white rounded-lg shadow-lg border border-slate-200 py-1 min-w-[140px]">
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  router.push(`/contacts/${contact.id}`);
+                                  setOpenActionsMenu(null);
+                                }}
+                                className="w-full flex items-center gap-2 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50"
+                              >
+                                <ExternalLink className="h-4 w-4" />
+                                View Details
+                              </button>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  router.push(`/contacts/${contact.id}/edit`);
+                                  setOpenActionsMenu(null);
+                                }}
+                                className="w-full flex items-center gap-2 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50"
+                              >
+                                <Edit3 className="h-4 w-4" />
+                                Edit Contact
+                              </button>
+                              <a
+                                href={`mailto:${contact.email}`}
+                                className="flex items-center gap-2 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50"
+                              >
+                                <Mail className="h-4 w-4" />
+                                Send Email
+                              </a>
+                              {contact.phone && (
+                                <a
+                                  href={`tel:${contact.phone}`}
+                                  className="flex items-center gap-2 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50"
+                                >
+                                  <Phone className="h-4 w-4" />
+                                  Call
+                                </a>
+                              )}
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  confirmDelete(contact.id);
+                                  setOpenActionsMenu(null);
+                                }}
+                                className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                                Delete
+                              </button>
+                            </div>
+                          )}
                         </div>
                       </td>
                     </tr>

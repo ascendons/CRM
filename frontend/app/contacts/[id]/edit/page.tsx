@@ -2,12 +2,14 @@
 
 import { use, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { Contact, UpdateContactRequest } from "@/types/contact";
 import { contactsService } from "@/lib/contacts";
 import { accountsService } from "@/lib/accounts";
 import { Account } from "@/types/account";
 import { authService } from "@/lib/auth";
 import { CountryStateSelector } from "@/components/common/CountryStateSelector";
+import { ChevronRight } from "lucide-react";
 
 export default function EditContactPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -117,21 +119,34 @@ export default function EditContactPage({ params }: { params: Promise<{ id: stri
 
   if (!contact) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading...</p>
+          <p className="mt-4 text-slate-600">Loading...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Edit Contact</h1>
-          <p className="mt-2 text-gray-600">Update contact information</p>
+    <div className="min-h-screen bg-slate-100">
+      <main className="max-w-6xl mx-auto px-6 py-6">
+        {/* Breadcrumbs */}
+        <div className="flex items-center gap-2 text-sm text-slate-500 mb-6">
+          <Link href="/contacts" className="hover:text-primary">Contacts</Link>
+          <ChevronRight className="h-4 w-4" />
+          {contact && (
+            <>
+              <Link href={`/contacts/${contact.id}`} className="hover:text-primary">{contact.firstName} {contact.lastName}</Link>
+              <ChevronRight className="h-4 w-4" />
+            </>
+          )}
+          <span className="text-slate-900 font-medium">Edit</span>
+        </div>
+
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-slate-900">Edit Contact</h1>
+          <p className="text-slate-500 mt-1">Update contact information</p>
         </div>
 
         {error && (
@@ -140,18 +155,18 @@ export default function EditContactPage({ params }: { params: Promise<{ id: stri
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow p-6 space-y-8">
-          {/* Basic Information - Same structure as create page */}
+        <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 space-y-6">
+          {/* Basic Information */}
           <div>
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Basic Information</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <h2 className="text-base font-semibold text-slate-900 mb-3">Basic Information</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Salutation</label>
+                <label className="block text-xs font-medium text-slate-600 mb-1">Salutation</label>
                 <select
                   name="salutation"
                   value={formData.salutation || ""}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary text-sm"
                 >
                   <option value="">Select...</option>
                   <option value="Mr.">Mr.</option>
@@ -161,9 +176,8 @@ export default function EditContactPage({ params }: { params: Promise<{ id: stri
                   <option value="Prof.">Prof.</option>
                 </select>
               </div>
-              <div></div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-xs font-medium text-slate-600 mb-1">
                   First Name <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -172,11 +186,11 @@ export default function EditContactPage({ params }: { params: Promise<{ id: stri
                   required
                   value={formData.firstName || ""}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary text-sm"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-xs font-medium text-slate-600 mb-1">
                   Last Name <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -185,11 +199,11 @@ export default function EditContactPage({ params }: { params: Promise<{ id: stri
                   required
                   value={formData.lastName || ""}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary text-sm"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-xs font-medium text-slate-600 mb-1">
                   Email <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -198,37 +212,37 @@ export default function EditContactPage({ params }: { params: Promise<{ id: stri
                   required
                   value={formData.email || ""}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary text-sm"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Phone</label>
+                <label className="block text-xs font-medium text-slate-600 mb-1">Phone</label>
                 <input
                   type="tel"
                   name="phone"
                   value={formData.phone || ""}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary text-sm"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Mobile Phone</label>
+                <label className="block text-xs font-medium text-slate-600 mb-1">Mobile Phone</label>
                 <input
                   type="tel"
                   name="mobilePhone"
                   value={formData.mobilePhone || ""}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary text-sm"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Work Phone</label>
+                <label className="block text-xs font-medium text-slate-600 mb-1">Birthdate</label>
                 <input
-                  type="tel"
-                  name="workPhone"
-                  value={formData.workPhone || ""}
+                  type="date"
+                  name="birthdate"
+                  value={formData.birthdate || ""}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary text-sm"
                 />
               </div>
             </div>
@@ -236,46 +250,36 @@ export default function EditContactPage({ params }: { params: Promise<{ id: stri
 
           {/* Professional Information */}
           <div>
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Professional Information</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <h2 className="text-base font-semibold text-slate-900 mb-3">Professional Information</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Job Title</label>
+                <label className="block text-xs font-medium text-slate-600 mb-1">Job Title</label>
                 <input
                   type="text"
                   name="jobTitle"
                   value={formData.jobTitle || ""}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary text-sm"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Department</label>
+                <label className="block text-xs font-medium text-slate-600 mb-1">Department</label>
                 <input
                   type="text"
                   name="department"
                   value={formData.department || ""}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary text-sm"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Reports To</label>
+                <label className="block text-xs font-medium text-slate-600 mb-1">Reports To</label>
                 <input
                   type="text"
                   name="reportsTo"
                   value={formData.reportsTo || ""}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Birthdate</label>
-                <input
-                  type="date"
-                  name="birthdate"
-                  value={formData.birthdate || ""}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary text-sm"
                 />
               </div>
             </div>
@@ -283,15 +287,15 @@ export default function EditContactPage({ params }: { params: Promise<{ id: stri
 
           {/* Account Relationship */}
           <div>
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Account Relationship</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <h2 className="text-base font-semibold text-slate-900 mb-3">Account Relationship</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Account</label>
+                <label className="block text-xs font-medium text-slate-600 mb-1">Account</label>
                 <select
                   name="accountId"
                   value={formData.accountId || ""}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary text-sm"
                 >
                   <option value="">Select Account...</option>
                   {accounts.map((account) => (
@@ -301,27 +305,37 @@ export default function EditContactPage({ params }: { params: Promise<{ id: stri
                   ))}
                 </select>
               </div>
-              <div className="flex items-center pt-7">
+              <div className="flex items-center">
                 <input
                   type="checkbox"
                   name="isPrimaryContact"
                   checked={formData.isPrimaryContact || false}
                   onChange={handleChange}
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  className="h-4 w-4 text-primary focus:ring-primary border-slate-300 rounded"
                 />
-                <label className="ml-2 block text-sm text-gray-700">
+                <label className="ml-2 block text-sm text-slate-700">
                   Primary Contact for Account
                 </label>
+              </div>
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  name="emailOptOut"
+                  checked={formData.emailOptOut || false}
+                  onChange={handleChange}
+                  className="h-4 w-4 text-primary focus:ring-primary border-slate-300 rounded"
+                />
+                <label className="ml-2 block text-sm text-slate-700">Email Opt Out</label>
               </div>
             </div>
           </div>
 
           {/* Social Media */}
           <div>
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Social Media & Web</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <h2 className="text-base font-semibold text-slate-900 mb-3">Social Media & Web</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-xs font-medium text-slate-600 mb-1">
                   LinkedIn Profile
                 </label>
                 <input
@@ -329,39 +343,17 @@ export default function EditContactPage({ params }: { params: Promise<{ id: stri
                   name="linkedInProfile"
                   value={formData.linkedInProfile || ""}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary text-sm"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Twitter Handle
-                </label>
-                <input
-                  type="text"
-                  name="twitterHandle"
-                  value={formData.twitterHandle || ""}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Website</label>
+                <label className="block text-xs font-medium text-slate-600 mb-1">Website</label>
                 <input
                   type="url"
                   name="website"
                   value={formData.website || ""}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Skype ID</label>
-                <input
-                  type="text"
-                  name="skypeId"
-                  value={formData.skypeId || ""}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary text-sm"
                 />
               </div>
             </div>
@@ -369,39 +361,39 @@ export default function EditContactPage({ params }: { params: Promise<{ id: stri
 
           {/* Mailing Address */}
           <div>
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Mailing Address</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Street</label>
+            <h2 className="text-base font-semibold text-slate-900 mb-3">Mailing Address</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="md:col-span-3">
+                <label className="block text-xs font-medium text-slate-600 mb-1">Street</label>
                 <input
                   type="text"
                   name="mailingStreet"
                   value={formData.mailingStreet || ""}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary text-sm"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">City</label>
+                <label className="block text-xs font-medium text-slate-600 mb-1">City</label>
                 <input
                   type="text"
                   name="mailingCity"
                   value={formData.mailingCity || ""}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary text-sm"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Postal Code</label>
+                <label className="block text-xs font-medium text-slate-600 mb-1">Postal Code</label>
                 <input
                   type="text"
                   name="mailingPostalCode"
                   value={formData.mailingPostalCode || ""}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary text-sm"
                 />
               </div>
-              <div className="md:col-span-2">
+              <div className="md:col-span-3">
                 <CountryStateSelector
                   countryValue={formData.mailingCountry || ""}
                   stateValue={formData.mailingState || ""}
@@ -416,10 +408,10 @@ export default function EditContactPage({ params }: { params: Promise<{ id: stri
 
           {/* Additional Information */}
           <div>
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Additional Information</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <h2 className="text-base font-semibold text-slate-900 mb-3">Additional Information</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-xs font-medium text-slate-600 mb-1">
                   Assistant Name
                 </label>
                 <input
@@ -427,11 +419,11 @@ export default function EditContactPage({ params }: { params: Promise<{ id: stri
                   name="assistantName"
                   value={formData.assistantName || ""}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary text-sm"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-xs font-medium text-slate-600 mb-1">
                   Assistant Phone
                 </label>
                 <input
@@ -439,62 +431,50 @@ export default function EditContactPage({ params }: { params: Promise<{ id: stri
                   name="assistantPhone"
                   value={formData.assistantPhone || ""}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary text-sm"
                 />
               </div>
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
-                <textarea
-                  name="description"
-                  value={formData.description || ""}
-                  onChange={handleChange}
-                  rows={4}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Tags (comma-separated)
-                </label>
+              <div>
+                <label className="block text-xs font-medium text-slate-600 mb-1">Tags (comma-separated)</label>
                 <input
                   type="text"
                   defaultValue={contact.tags?.join(", ")}
                   onChange={handleTagsChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary text-sm"
                 />
               </div>
-              <div className="flex items-center">
-                <input
-                  type="checkbox"
-                  name="emailOptOut"
-                  checked={formData.emailOptOut || false}
+              <div className="md:col-span-3">
+                <label className="block text-xs font-medium text-slate-600 mb-1">Description</label>
+                <textarea
+                  name="description"
+                  value={formData.description || ""}
                   onChange={handleChange}
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  rows={2}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary text-sm"
                 />
-                <label className="ml-2 block text-sm text-gray-700">Email Opt Out</label>
               </div>
             </div>
           </div>
 
           {/* Form Actions */}
-          <div className="flex gap-4 pt-6 border-t">
+          <div className="flex gap-4 pt-4 border-t border-slate-200">
             <button
               type="submit"
               disabled={loading}
-              className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+              className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover disabled:bg-slate-300 disabled:cursor-not-allowed transition-colors text-sm font-medium"
             >
               {loading ? "Saving..." : "Save Changes"}
             </button>
             <button
               type="button"
               onClick={() => router.push(`/contacts/${contact.id}`)}
-              className="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+              className="px-6 py-2 bg-white border border-slate-200 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors text-sm font-medium"
             >
               Cancel
             </button>
           </div>
         </form>
-      </div>
+      </main>
     </div>
   );
 }
