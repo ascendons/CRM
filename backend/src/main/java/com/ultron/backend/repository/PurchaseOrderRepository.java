@@ -80,4 +80,11 @@ public interface PurchaseOrderRepository extends MongoRepository<PurchaseOrder, 
     long countByTenantId(String tenantId);
 
     long countByTenantIdAndStatus(String tenantId, PurchaseOrder.POStatus status);
+
+    // Trading flow: POs linked to a source proposal
+    List<PurchaseOrder> findByTenantIdAndSourceProposalId(String tenantId, String sourceProposalId);
+
+    // Trading flow: POs linked to a specific RFQ
+    List<PurchaseOrder> findByTenantIdAndSourceRfqId(String tenantId, String sourceRfqId);
+
 }

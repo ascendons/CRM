@@ -32,13 +32,14 @@ import { usersService } from "@/lib/users";
 import { UserResponse } from "@/types/user";
 import ProposalComments from "@/components/proposals/ProposalComments";
 import CommercialNegotiation from "@/components/proposals/CommercialNegotiation";
-import { MessageSquare, Gavel, History } from "lucide-react";
+import { MessageSquare, Gavel, History, ShoppingCart } from "lucide-react";
 import ProposalVersionHistory from "@/components/proposals/ProposalVersionHistory";
 import InvoicePreviewModal from "@/components/proposals/InvoicePreviewModal";
 import ProposalVersionDiff from "@/components/proposals/ProposalVersionDiff";
 import ProposalSnapshotModal from "@/components/proposals/ProposalSnapshotModal";
 import DocumentTimeline from "@/components/proposals/DocumentTimeline";
 import { ProposalVersionResponse } from "@/types/proposal-version";
+import ProcurementTab from "@/components/proposals/ProcurementTab";
 
 export default function ProposalDetailPage() {
   const router = useRouter();
@@ -104,6 +105,7 @@ export default function ProposalDetailPage() {
   const [activeTab, setActiveTab] = useState<"details" | "technical" | "commercial" | "history">(
     "details"
   );
+  const [showProcurement, setShowProcurement] = useState(false);
 
   // Versioning state
   const [selectedVersion, setSelectedVersion] = useState<ProposalVersionResponse | null>(null);
@@ -754,7 +756,25 @@ export default function ProposalDetailPage() {
                 <History className="h-4 w-4" />
                 Version History
               </button>
+              <button
+                onClick={() => setShowProcurement(!showProcurement)}
+                className={`${
+                  showProcurement
+                    ? "border-blue-500 text-blue-600"
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2`}
+              >
+                <ShoppingCart className="h-4 w-4" />
+                Procurement
+              </button>
             </nav>
+          </div>
+        )}
+
+        {/* Procurement Tab Panel — always available, independent of negotiation tabs */}
+        {showProcurement && (
+          <div className="mb-6">
+            <ProcurementTab proposal={proposal} isAdmin={authService.getUser()?.role === "ADMIN"} />
           </div>
         )}
 

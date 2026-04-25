@@ -39,16 +39,28 @@ public class ProposalIdGeneratorService {
 
     /**
      * Generate the display reference number for a new proposal.
-     * Atomically increments the counter row for this org + financial year.
-     * The prefix used is locked to whatever was set when the FY counter was first created.
+     * The prefix is locked to whatever was set when the FY counter was first created.
      */
     public String generateReferenceNumber(String tenantId) {
+        return generateRef(tenantId, "P");
+    }
+
+    /** Generate display reference for a new RFQ: RKE/26/RFQ001 */
+    public String generateRfqReferenceNumber(String tenantId) {
+        return generateRef(tenantId, "RFQ");
+    }
+
+    /** Generate display reference for a new Purchase Order: RKE/26/PO001 */
+    public String generatePoReferenceNumber(String tenantId) {
+        return generateRef(tenantId, "PO");
+    }
+
+    private String generateRef(String tenantId, String typePrefix) {
         String fy = financialYearSuffix();
-        // Prefix from org settings — only used on first proposal of the FY (setOnInsert)
-        String currentPrefix = resolvePrefix(tenantId);
-        ProposalCounter counter = incrementCounter(tenantId, currentPrefix, fy);
-        // Always use the prefix stored in the counter row (locked at FY start)
-        return String.format("%s/%s/P%03d", counter.getProposalPrefix(), fy, counter.getCounter());
+        String orgPrefix = resolvePrefix(tenantId);
+        // Each type (P, RFQ, PO) has its own counter row keyed by type
+        ProposalCounter counter = incrementCounter(tenantId, orgPrefix, fy, typePrefix);
+        return String.format("%s/%s/%s%03d", counter.getProposalPrefix(), fy, typePrefix, counter.getCounter());
     }
 
     // ── helpers ──────────────────────────────────────────────────────────────
@@ -70,20 +82,23 @@ public class ProposalIdGeneratorService {
     }
 
     /**
-     * Atomically increment the counter for this org + FY.
-     * On first use (upsert), the prefix is locked in via setOnInsert.
-     * Throws if MongoDB returns an unexpected null (should never happen with upsert).
+     * Atomically increment the counter for this org + FY + document type.
+     * Counter key = tenantId + financialYear + typePrefix (P, RFQ, PO).
+     * The org prefix is locked in via setOnInsert on the first document of the FY for each type.
      */
-    private ProposalCounter incrementCounter(String tenantId, String prefix, String fy) {
+    private ProposalCounter incrementCounter(String tenantId, String orgPrefix, String fy, String typePrefix) {
+        // Unique counter per org per FY per document type
         Query query = Query.query(
                 Criteria.where("tenantId").is(tenantId)
                         .and("financialYear").is(fy)
+                        .and("documentType").is(typePrefix)
         );
         Update update = new Update()
                 .inc("counter", 1)
                 .setOnInsert("tenantId", tenantId)
-                .setOnInsert("proposalPrefix", prefix)  // locked at FY start, never overwritten
-                .setOnInsert("financialYear", fy);
+                .setOnInsert("proposalPrefix", orgPrefix)
+                .setOnInsert("financialYear", fy)
+                .setOnInsert("documentType", typePrefix);
         FindAndModifyOptions options = FindAndModifyOptions.options().returnNew(true).upsert(true);
 
         ProposalCounter result = mongoTemplate.findAndModify(
@@ -91,7 +106,7 @@ public class ProposalIdGeneratorService {
         );
         if (result == null) {
             throw new IllegalStateException(
-                "Failed to increment proposal counter for tenant=" + tenantId + " FY=" + fy);
+                "Failed to increment counter for tenant=" + tenantId + " FY=" + fy + " type=" + typePrefix);
         }
         return result;
     }

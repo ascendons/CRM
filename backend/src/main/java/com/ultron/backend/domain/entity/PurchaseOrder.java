@@ -49,7 +49,16 @@ public class PurchaseOrder {
     private String tenantId;
 
     @Indexed
-    private String poNumber;            // PO-2026-0001
+    private String poNumber;            // PO-2026-0001 (inventory legacy)
+    private String tradingPoId;         // Display ref: RKE/26/PO001 (trading flow)
+
+    // Trading source links (null for pure inventory POs)
+    @Indexed
+    private String sourceProposalId;        // Sales quotation _id
+    private String sourceReferenceNumber;   // e.g. RKE/26/P003
+    @Indexed
+    private String sourceRfqId;             // RFQ _id that originated this PO
+    private String rfqReferenceNumber;      // e.g. RKE/26/RFQ002
 
     // Supplier Information
     private String supplierId;          // Can reference Account from CRM
@@ -146,6 +155,10 @@ public class PurchaseOrder {
 
         private String uom;                 // Unit of measure
         private String notes;               // Line item specific notes
+
+        // Trading flow — traceability back to source quotation
+        private Integer sourceLineItemIndex; // index in source proposal lineItems
+        private BigDecimal sellUnitPrice;    // sell price from quotation (margin = sell - unitPrice, admin only)
     }
 
     @Data

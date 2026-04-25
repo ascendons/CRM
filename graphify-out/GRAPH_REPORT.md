@@ -1,12 +1,12 @@
-# Graph Report - /Users/aishwaryakumari/Documents/CRM  (2026-04-24)
+# Graph Report - /Users/aishwaryakumari/Documents/CRM  (2026-04-25)
 
 ## Corpus Check
-- 1084 files · ~780,534 words
+- 1105 files · ~797,091 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 5104 nodes · 9807 edges · 626 communities detected
-- Extraction: 54% EXTRACTED · 46% INFERRED · 0% AMBIGUOUS · INFERRED: 4494 edges (avg confidence: 0.8)
+- 5219 nodes · 10066 edges · 632 communities detected
+- Extraction: 54% EXTRACTED · 46% INFERRED · 0% AMBIGUOUS · INFERRED: 4627 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Community Hubs (Navigation)
@@ -636,80 +636,86 @@
 - [[_COMMUNITY_Community 623|Community 623]]
 - [[_COMMUNITY_Community 624|Community 624]]
 - [[_COMMUNITY_Community 625|Community 625]]
+- [[_COMMUNITY_Community 626|Community 626]]
+- [[_COMMUNITY_Community 627|Community 627]]
+- [[_COMMUNITY_Community 628|Community 628]]
+- [[_COMMUNITY_Community 629|Community 629]]
+- [[_COMMUNITY_Community 630|Community 630]]
+- [[_COMMUNITY_Community 631|Community 631]]
 
 ## God Nodes (most connected - your core abstractions)
-1. `GET()` - 110 edges
-2. `handleSubmit()` - 81 edges
-3. `getDescription()` - 68 edges
-4. `handleDelete()` - 63 edges
+1. `GET()` - 109 edges
+2. `handleSubmit()` - 82 edges
+3. `getDescription()` - 69 edges
+4. `handleDelete()` - 65 edges
 5. `loadData()` - 61 edges
-6. `add()` - 50 edges
+6. `add()` - 53 edges
 7. `email()` - 50 edges
 8. `ProposalService` - 42 edges
-9. `ActivityRepository` - 40 edges
-10. `getTitle()` - 38 edges
+9. `load()` - 41 edges
+10. `ActivityRepository` - 40 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `loadData()` --calls--> `GET()`  [INFERRED]
   /Users/aishwaryakumari/Documents/CRM/frontend/app/assets/[id]/edit/page.tsx → frontend/app/api/ping/route.ts
 - `fetchWarehouses()` --calls--> `GET()`  [INFERRED]
   /Users/aishwaryakumari/Documents/CRM/frontend/components/catalog/EnableInventoryModal.tsx → frontend/app/api/ping/route.ts
-- `fetchAvailableFilters()` --calls--> `GET()`  [INFERRED]
-  /Users/aishwaryakumari/Documents/CRM/frontend/components/catalog/DynamicFilterPanel.tsx → frontend/app/api/ping/route.ts
 - `GET()` --calls--> `ActivitiesContent()`  [INFERRED]
   frontend/app/api/ping/route.ts → /Users/aishwaryakumari/Documents/CRM/frontend/app/activities/page.tsx
 - `GET()` --calls--> `CreateProposalContent()`  [INFERRED]
   frontend/app/api/ping/route.ts → /Users/aishwaryakumari/Documents/CRM/frontend/app/proposals/new/page.tsx
+- `fetchInventoryStatus()` --calls--> `GET()`  [INFERRED]
+  /Users/aishwaryakumari/Documents/CRM/frontend/components/catalog/InventoryStatusBadge.tsx → frontend/app/api/ping/route.ts
 
 ## Communities
 
 ### Community 0 - "Community 0"
 Cohesion: 0.01
-Nodes (72): AccountController, ActivityController, AnalyticsController, AssetCategoryController, AssetController, AttendanceController, AttendanceRegularizationController, AuthController (+64 more)
+Nodes (53): AssetCategoryService, AttendanceRegularizationService, CalendarEventService, ChatAuthorizationService, ChatAuthorizationServiceTest, ChatService, ChecklistService, ContactService (+45 more)
 
 ### Community 1 - "Community 1"
 Cohesion: 0.01
-Nodes (57): ActivityService, AssetCategoryService, AssetWarrantyExpiryScheduler, AttendanceRegularizationService, CalendarEventService, getProductName(), ChatAuthorizationServiceTest, ChatService (+49 more)
+Nodes (67): ActivityController, AnalyticsController, AssetCategoryController, AssetController, AttendanceController, AttendanceRegularizationController, AuthController, BulkOperationsController (+59 more)
 
 ### Community 2 - "Community 2"
 Cohesion: 0.01
-Nodes (198): ApiResponse, handleCreateGroup(), handleInputChange(), loadInitialData(), handleCheckIn(), loadOfficeLocations(), handleCheckOut(), handleSaveChanges() (+190 more)
+Nodes (195): AccountController, ApiResponse, handleEndBreak(), handleStartBreak(), updateTimer(), handleCreateGroup(), handleInputChange(), loadInitialData() (+187 more)
 
 ### Community 3 - "Community 3"
 Cohesion: 0.01
-Nodes (23): BatchController, BatchRepository, BatchService, InventoryAnalyticsService, InventoryMapper, setAddress(), PurchaseOrderApprovalService, PurchaseOrderController (+15 more)
+Nodes (49): AuthControllerTest, AuthService, BaseTenantService, ChatGroupRepository, ChatGroupService, ChatMessageRepository, Contact, ContactRepository (+41 more)
 
 ### Community 4 - "Community 4"
 Cohesion: 0.01
-Nodes (45): AuthControllerTest, AuthService, BaseTenantService, ChatGroupRepository, ChatGroupService, Contact, ContactRepository, CrmIntegrationTest (+37 more)
+Nodes (24): BatchController, BatchRepository, BatchService, getPrice(), getProductName(), handleCustomSelect(), handleKeyDown(), handleSearch() (+16 more)
 
 ### Community 5 - "Community 5"
 Cohesion: 0.02
-Nodes (12): ActivityTrackingAspect, EntityInfo, AuditLogController, AuditLogRepository, AuditLogService, loadLogs(), handleOpenApprovalModal(), UserActivityController (+4 more)
+Nodes (25): Activity, AttendanceReportService, AttendanceRepository, CalendarEventRepository, handleRevoke(), loadInvitations(), LeaveRepository, add() (+17 more)
 
 ### Community 6 - "Community 6"
 Cohesion: 0.02
-Nodes (44): getAttendanceForDate(), getPrice(), handleCustomSelect(), handleKeyDown(), handleSearch(), handleSelect(), CreateReservationDialog(), extractPriceFromAttributes() (+36 more)
+Nodes (11): ActivityTrackingAspect, EntityInfo, AuditLogController, AuditLogRepository, AuditLogService, loadLogs(), UserActivityController, UserActivityIdGeneratorService (+3 more)
 
 ### Community 7 - "Community 7"
 Cohesion: 0.02
-Nodes (18): Activity, AttendanceReportService, AttendanceRepository, ESignatureService, GRNService, handleRevoke(), loadInvitations(), LeaveRepository (+10 more)
+Nodes (41): AssetWarrantyExpiryScheduler, getAttendanceForDate(), CreateReservationDialog(), extractPriceFromAttributes(), fetchWarehouses(), handleSubmit(), resetForm(), handleDragEnd() (+33 more)
 
 ### Community 8 - "Community 8"
 Cohesion: 0.03
 Nodes (19): EffectivePermissionsResponse, ModulePermissions, ObjectPermissions, PermissionDetail, handleSave(), FieldPermission, ObjectPermission, SystemPermissions (+11 more)
 
 ### Community 9 - "Community 9"
-Cohesion: 0.03
-Nodes (19): AttributeTypeDetector, TypeDetectionResult, CalendarEventRepository, DynamicProductIdGeneratorService, DynamicProductIngestionService, HeaderInfo, IngestionResult, DynamicProductRepository (+11 more)
+Cohesion: 0.02
+Nodes (16): AttributeTypeDetector, TypeDetectionResult, DynamicProductCatalogController, DynamicProductIdGeneratorService, DynamicProductIngestionService, HeaderInfo, IngestionResult, DynamicProductRepository (+8 more)
 
 ### Community 10 - "Community 10"
 Cohesion: 0.03
-Nodes (19): AssetIdGeneratorService, AssetRepository, AssetService, Contract, PenaltyConfig, SlaConfig, ContractIdGeneratorService, ContractRepository (+11 more)
+Nodes (25): AttendanceIdGeneratorService, AttendanceService, BulkShiftAssignmentService, handleCheckIn(), loadOfficeLocations(), handleCheckOut(), calculateDistance(), getCurrentPosition() (+17 more)
 
 ### Community 11 - "Community 11"
-Cohesion: 0.03
-Nodes (24): AttendanceIdGeneratorService, AttendanceService, handleEndBreak(), handleStartBreak(), updateTimer(), BulkShiftAssignmentService, GpsSpoofingDetector, LocationHistory (+16 more)
+Cohesion: 0.02
+Nodes (9): loadTrends(), LeadRepository, LeastLoadedAssignmentStrategy, OpportunityRepository, ProposalExpiryScheduler, ProposalRepository, DashboardStats, GrowthTrends (+1 more)
 
 ### Community 12 - "Community 12"
 Cohesion: 0.03
@@ -717,55 +723,55 @@ Nodes (45): formatDate(), daysDifferenceIST(), formatDateIST(), formatDateLongIS
 
 ### Community 13 - "Community 13"
 Cohesion: 0.03
-Nodes (13): CurrencyScheduler, CurrencyService, LeadAssignmentConfigService, LeadAssignmentEventListener, LeadAssignmentService, LeadRepository, LeastLoadedAssignmentStrategy, addField() (+5 more)
+Nodes (18): DealerIdGeneratorService, DealerOrderRepository, DealerPerformanceRepository, DealerPerformanceService, DealerRepository, DealerService, KeepAliveScheduler, DateToLocalDateTimeConverter (+10 more)
 
 ### Community 14 - "Community 14"
 Cohesion: 0.03
-Nodes (2): ActivityRepository, UserRepository
+Nodes (3): ActivityRepository, ActivityService, UserRepository
 
 ### Community 15 - "Community 15"
-Cohesion: 0.05
-Nodes (10): DealerIdGeneratorService, DealerOrderRepository, DealerPerformanceRepository, DealerPerformanceService, DealerRepository, DealerService, KeepAliveScheduler, DateToLocalDateTimeConverter (+2 more)
+Cohesion: 0.04
+Nodes (14): ContractVisitRepository, ContractVisitScheduler, handleEnableInventory(), handleInventorySuccess(), handleSelectAll(), handleSelectOne(), EscalationLogRepository, EscalationRuleRepository (+6 more)
 
 ### Community 16 - "Community 16"
+Cohesion: 0.03
+Nodes (18): CurrencyController, CurrencyScheduler, CurrencyService, LeadAssignmentConfigService, LeadAssignmentService, addDays(), addField(), getMonthGrid() (+10 more)
+
+### Community 17 - "Community 17"
+Cohesion: 0.04
+Nodes (11): AssetIdGeneratorService, AssetRepository, AssetService, Contract, PenaltyConfig, SlaConfig, ContractIdGeneratorService, ContractRepository (+3 more)
+
+### Community 18 - "Community 18"
 Cohesion: 0.06
 Nodes (7): DispatchAssignmentRepository, DispatchService, EngineerLocationRepository, EngineerScheduleRepository, GeoTrackingService, ScheduleService, WorkOrderGeoEventRepository
 
-### Community 17 - "Community 17"
-Cohesion: 0.07
-Nodes (2): ProposalExpiryScheduler, ProposalRepository
-
-### Community 18 - "Community 18"
-Cohesion: 0.09
-Nodes (5): BackendApplication, InvoiceTemplateService, MultiTenancyMigration, OrganizationRepository, runReport()
-
 ### Community 19 - "Community 19"
-Cohesion: 0.08
-Nodes (1): ProductRepository
+Cohesion: 0.07
+Nodes (5): DriveFileRepository, DriveFolderRepository, PerformanceController, PerformanceReviewRepository, PerformanceService
 
 ### Community 20 - "Community 20"
-Cohesion: 0.12
-Nodes (4): loadWorkload(), TimeEntryController, TimeEntryRepository, TimeEntryService
+Cohesion: 0.07
+Nodes (6): BackendApplication, loadTemplates(), InvoiceTemplateService, MultiTenancyMigration, OrganizationRepository, runReport()
 
 ### Community 21 - "Community 21"
+Cohesion: 0.08
+Nodes (3): AttendanceRegularizationRepository, loadRegularizations(), ProjectTaskRepository
+
+### Community 22 - "Community 22"
 Cohesion: 0.09
 Nodes (1): AccountRepository
 
-### Community 22 - "Community 22"
+### Community 23 - "Community 23"
 Cohesion: 0.17
 Nodes (2): PartsRequestRepository, PartsRequestService
 
-### Community 23 - "Community 23"
-Cohesion: 0.12
-Nodes (4): ContractVisitController, ContractVisitRepository, ContractVisitScheduler, WorkOrderIdGeneratorService
-
 ### Community 24 - "Community 24"
 Cohesion: 0.12
-Nodes (1): OpportunityRepository
+Nodes (9): AppLayout(), CatalogPage(), PermissionGuard(), PermissionProvider(), usePermissionContext(), ProtectedRoute(), useDynamicCatalog(), useCachedPermissions() (+1 more)
 
 ### Community 25 - "Community 25"
 Cohesion: 0.12
-Nodes (9): AppLayout(), CatalogPage(), PermissionGuard(), PermissionProvider(), usePermissionContext(), ProtectedRoute(), useDynamicCatalog(), useCachedPermissions() (+1 more)
+Nodes (1): StockReservationRepository
 
 ### Community 26 - "Community 26"
 Cohesion: 0.12
@@ -773,35 +779,35 @@ Nodes (1): PurchaseOrderRepository
 
 ### Community 27 - "Community 27"
 Cohesion: 0.13
-Nodes (2): DriveFileRepository, DriveFolderRepository
+Nodes (1): StockRepository
 
 ### Community 28 - "Community 28"
-Cohesion: 0.17
-Nodes (2): ChatAuthorizationService, ChatMessageRepository
+Cohesion: 0.16
+Nodes (2): ESignatureService, SignatureRequestRepository
 
 ### Community 29 - "Community 29"
-Cohesion: 0.16
-Nodes (2): RateContractRepository, RateContractService
-
-### Community 30 - "Community 30"
 Cohesion: 0.25
 Nodes (1): LeadScoringService
+
+### Community 30 - "Community 30"
+Cohesion: 0.26
+Nodes (1): WebhookEventService
 
 ### Community 31 - "Community 31"
 Cohesion: 0.21
 Nodes (2): LandingPageRepository, LandingPageService
 
 ### Community 32 - "Community 32"
-Cohesion: 0.17
-Nodes (1): ProductMappingRepository
+Cohesion: 0.13
+Nodes (1): LeaveBalanceRepository
 
 ### Community 33 - "Community 33"
-Cohesion: 0.17
-Nodes (2): AttendanceRegularizationRepository, loadRegularizations()
+Cohesion: 0.2
+Nodes (2): GRNRepository, GRNService
 
 ### Community 34 - "Community 34"
-Cohesion: 0.18
-Nodes (1): OfficeLocationRepository
+Cohesion: 0.21
+Nodes (2): SurveyResponseRepository, SurveyService
 
 ### Community 35 - "Community 35"
 Cohesion: 0.25
@@ -813,63 +819,63 @@ Nodes (11): AWS Amplify CLI, Amplify Command Hooks, Amplify Command Hooks README
 
 ### Community 37 - "Community 37"
 Cohesion: 0.2
-Nodes (1): ProjectTaskRepository
+Nodes (1): KbArticleRepository
 
 ### Community 38 - "Community 38"
+Cohesion: 0.2
+Nodes (1): RFQRepository
+
+### Community 39 - "Community 39"
 Cohesion: 0.22
 Nodes (1): OrganizationInvitationRepository
 
-### Community 39 - "Community 39"
+### Community 40 - "Community 40"
 Cohesion: 0.39
 Nodes (1): PredefinedRoles
 
-### Community 40 - "Community 40"
-Cohesion: 0.29
-Nodes (5): checkSubdomain(), extractSubdomain(), getCurrentSubdomain(), validateSubdomain(), checkSubdomain()
-
 ### Community 41 - "Community 41"
-Cohesion: 0.25
-Nodes (0): 
+Cohesion: 0.39
+Nodes (1): ProposalIdGeneratorService
 
 ### Community 42 - "Community 42"
 Cohesion: 0.25
-Nodes (4): ChatController, ChatMessagePayload, TypingEvent, handleSendMessage()
+Nodes (0): 
 
 ### Community 43 - "Community 43"
-Cohesion: 0.29
-Nodes (1): EmailNotificationService
+Cohesion: 0.25
+Nodes (1): TechnicianSkillRepository
 
 ### Community 44 - "Community 44"
 Cohesion: 0.25
-Nodes (7): InvoiceConfig, Organization, OrganizationSettings, SecuritySettings, SubscriptionInfo, UsageLimits, UsageMetrics
+Nodes (4): ChatController, ChatMessagePayload, TypingEvent, handleSendMessage()
 
 ### Community 45 - "Community 45"
 Cohesion: 0.29
-Nodes (2): PurchaseOrderDetails(), getStatusColor()
+Nodes (1): EmailNotificationService
 
 ### Community 46 - "Community 46"
-Cohesion: 0.29
-Nodes (1): TechnicianSkillRepository
+Cohesion: 0.25
+Nodes (7): InvoiceConfig, Organization, OrganizationSettings, SecuritySettings, SubscriptionInfo, UsageLimits, UsageMetrics
 
 ### Community 47 - "Community 47"
-Cohesion: 0.29
-Nodes (1): LeaveBalanceRepository
+Cohesion: 0.33
+Nodes (4): extractSubdomain(), getCurrentSubdomain(), validateSubdomain(), checkSubdomain()
 
 ### Community 48 - "Community 48"
 Cohesion: 0.29
-Nodes (1): ProjectRepository
+Nodes (2): PurchaseOrderDetails(), getStatusColor()
 
 ### Community 49 - "Community 49"
-Cohesion: 0.29
-Nodes (1): OnboardingInstanceRepository
+Cohesion: 0.33
+Nodes (2): DataExportController, ExportRequestResponse
 
 ### Community 50 - "Community 50"
 Cohesion: 0.33
 Nodes (2): isPasswordExpired(), isPasswordExpiringSoon()
 
 ### Community 51 - "Community 51"
-Cohesion: 0.53
-Nodes (4): clearAllFilters(), fetchAvailableFilters(), handleFilterChange(), if()
+Cohesion: 0.33
+Nodes (0): 
 
 ### Community 52 - "Community 52"
 Cohesion: 0.33
@@ -933,31 +939,31 @@ Nodes (4): CreateProposalRequest, DiscountConfigDTO, LineItemDTO, PaymentMilesto
 
 ### Community 67 - "Community 67"
 Cohesion: 0.4
-Nodes (1): RFQRepository
+Nodes (1): KbCategoryRepository
 
 ### Community 68 - "Community 68"
 Cohesion: 0.4
-Nodes (1): NotificationRepository
+Nodes (1): WebFormRepository
 
 ### Community 69 - "Community 69"
 Cohesion: 0.4
-Nodes (1): KbCategoryRepository
+Nodes (1): VendorPartRepository
 
 ### Community 70 - "Community 70"
 Cohesion: 0.4
-Nodes (1): WebFormRepository
+Nodes (1): WebSocketConfig
 
 ### Community 71 - "Community 71"
 Cohesion: 0.4
-Nodes (1): VendorPartRepository
+Nodes (4): CustomerSignOff, PartUsed, WorkOrder, WorkOrderPhoto
 
 ### Community 72 - "Community 72"
 Cohesion: 0.4
-Nodes (1): WebSocketConfig
+Nodes (4): LineQuote, RFQ, RFQItem, VendorResponse
 
 ### Community 73 - "Community 73"
-Cohesion: 0.4
-Nodes (4): CustomerSignOff, PartUsed, WorkOrder, WorkOrderPhoto
+Cohesion: 0.83
+Nodes (3): getPoStatus(), getTimelineIndex(), PoDetailPage()
 
 ### Community 74 - "Community 74"
 Cohesion: 0.67
@@ -977,103 +983,103 @@ Nodes (0):
 
 ### Community 78 - "Community 78"
 Cohesion: 0.5
-Nodes (1): ApiError
+Nodes (0): 
 
 ### Community 79 - "Community 79"
 Cohesion: 0.5
-Nodes (2): useFormValidation(), WarehouseFormEnhanced()
+Nodes (1): ApiError
 
 ### Community 80 - "Community 80"
 Cohesion: 0.5
-Nodes (3): AddressDto, BankDetailsDto, VendorResponse
+Nodes (2): useFormValidation(), WarehouseFormEnhanced()
 
 ### Community 81 - "Community 81"
 Cohesion: 0.5
-Nodes (3): AddressDto, StorageLocationDto, WarehouseResponse
+Nodes (3): DailyRecordDto, TeamAttendanceResponse, TeamMemberAttendanceDto
 
 ### Community 82 - "Community 82"
 Cohesion: 0.5
-Nodes (3): AddressDto, BankDetailsDto, CreateVendorRequest
+Nodes (3): AddressDto, BankDetailsDto, VendorResponse
 
 ### Community 83 - "Community 83"
 Cohesion: 0.5
-Nodes (3): DiscountConfigDTO, LineItemDTO, UpdateProposalRequest
+Nodes (3): AddressDto, StorageLocationDto, WarehouseResponse
 
 ### Community 84 - "Community 84"
 Cohesion: 0.5
-Nodes (1): ReviewCycleRepository
+Nodes (3): AddressDto, BankDetailsDto, CreateVendorRequest
 
 ### Community 85 - "Community 85"
 Cohesion: 0.5
-Nodes (1): SurveyRepository
+Nodes (3): DiscountConfigDTO, LineItemDTO, UpdateProposalRequest
 
 ### Community 86 - "Community 86"
 Cohesion: 0.5
-Nodes (1): PerformanceReviewRepository
+Nodes (1): ReviewCycleRepository
 
 ### Community 87 - "Community 87"
 Cohesion: 0.5
-Nodes (1): OnboardingTemplateRepository
+Nodes (1): SurveyRepository
 
 ### Community 88 - "Community 88"
 Cohesion: 0.5
-Nodes (1): ContractBillingCycleRepository
+Nodes (1): OnboardingTemplateRepository
 
 ### Community 89 - "Community 89"
 Cohesion: 0.5
-Nodes (1): WorkOrderChecklistRepository
+Nodes (1): ContractBillingCycleRepository
 
 ### Community 90 - "Community 90"
 Cohesion: 0.5
-Nodes (1): LeadAssignmentConfigRepository
+Nodes (1): PortalSessionRepository
 
 ### Community 91 - "Community 91"
 Cohesion: 0.5
-Nodes (1): AssetCategoryRepository
+Nodes (1): DriveFileVersionRepository
 
 ### Community 92 - "Community 92"
 Cohesion: 0.5
-Nodes (1): DriveFileVersionRepository
+Nodes (1): WorkOrderChecklistRepository
 
 ### Community 93 - "Community 93"
 Cohesion: 0.5
-Nodes (1): KbArticleIdGeneratorService
+Nodes (1): LeadAssignmentConfigRepository
 
 ### Community 94 - "Community 94"
 Cohesion: 0.5
-Nodes (3): ApprovalStep, LineItem, PurchaseOrder
+Nodes (1): AssetCategoryRepository
 
 ### Community 95 - "Community 95"
 Cohesion: 0.5
-Nodes (3): ChecklistItem, ProjectTask, RecurrenceRule
+Nodes (1): PingController
 
 ### Community 96 - "Community 96"
 Cohesion: 0.5
-Nodes (3): FormField, SubmitAction, WebForm
+Nodes (1): KbArticleIdGeneratorService
 
 ### Community 97 - "Community 97"
 Cohesion: 0.5
-Nodes (3): Attendance, AttendanceLocation, BreakRecord
+Nodes (3): ApprovalStep, LineItem, PurchaseOrder
 
 ### Community 98 - "Community 98"
 Cohesion: 0.5
-Nodes (3): RFQ, RFQItem, VendorResponse
+Nodes (3): ChecklistItem, ProjectTask, RecurrenceRule
 
 ### Community 99 - "Community 99"
 Cohesion: 0.5
-Nodes (3): DynamicProduct, ProductAttribute, SourceMetadata
+Nodes (3): FormField, SubmitAction, WebForm
 
 ### Community 100 - "Community 100"
 Cohesion: 0.5
-Nodes (2): LeaveBalance, LeaveTypeBalance
+Nodes (3): Attendance, AttendanceLocation, BreakRecord
 
 ### Community 101 - "Community 101"
 Cohesion: 0.5
-Nodes (0): 
+Nodes (3): DynamicProduct, ProductAttribute, SourceMetadata
 
 ### Community 102 - "Community 102"
 Cohesion: 0.5
-Nodes (0): 
+Nodes (2): LeaveBalance, LeaveTypeBalance
 
 ### Community 103 - "Community 103"
 Cohesion: 0.5
@@ -1085,27 +1091,27 @@ Nodes (0):
 
 ### Community 105 - "Community 105"
 Cohesion: 0.5
-Nodes (1): ValidUntilValidator
+Nodes (0): 
 
 ### Community 106 - "Community 106"
 Cohesion: 0.5
-Nodes (1): LeadAssignmentStrategy
+Nodes (0): 
 
 ### Community 107 - "Community 107"
 Cohesion: 0.5
-Nodes (0): 
+Nodes (1): ValidUntilValidator
 
 ### Community 108 - "Community 108"
-Cohesion: 0.67
-Nodes (0): 
+Cohesion: 0.5
+Nodes (1): LeadAssignmentStrategy
 
 ### Community 109 - "Community 109"
-Cohesion: 0.67
+Cohesion: 0.5
 Nodes (0): 
 
 ### Community 110 - "Community 110"
 Cohesion: 0.67
-Nodes (1): EditProductPage()
+Nodes (0): 
 
 ### Community 111 - "Community 111"
 Cohesion: 0.67
@@ -1113,7 +1119,7 @@ Nodes (0):
 
 ### Community 112 - "Community 112"
 Cohesion: 0.67
-Nodes (0): 
+Nodes (1): EditProductPage()
 
 ### Community 113 - "Community 113"
 Cohesion: 0.67
@@ -1125,7 +1131,7 @@ Nodes (0):
 
 ### Community 115 - "Community 115"
 Cohesion: 0.67
-Nodes (1): handleSave()
+Nodes (0): 
 
 ### Community 116 - "Community 116"
 Cohesion: 0.67
@@ -1133,7 +1139,7 @@ Nodes (0):
 
 ### Community 117 - "Community 117"
 Cohesion: 0.67
-Nodes (0): 
+Nodes (1): handleSave()
 
 ### Community 118 - "Community 118"
 Cohesion: 0.67
@@ -1141,267 +1147,267 @@ Nodes (0):
 
 ### Community 119 - "Community 119"
 Cohesion: 0.67
-Nodes (1): BackendApplicationTests
+Nodes (1): handleSubmit()
 
 ### Community 120 - "Community 120"
 Cohesion: 0.67
-Nodes (2): TeamAttendanceResponse, TeamMemberAttendanceDto
+Nodes (0): 
 
 ### Community 121 - "Community 121"
 Cohesion: 0.67
-Nodes (2): BreakDto, DetailedDailyAttendanceDto
+Nodes (1): BackendApplicationTests
 
 ### Community 122 - "Community 122"
 Cohesion: 0.67
-Nodes (2): EligibleRoleInfo, LeadAssignmentConfigResponse
+Nodes (2): BreakDto, DetailedDailyAttendanceDto
 
 ### Community 123 - "Community 123"
 Cohesion: 0.67
-Nodes (2): AttributeResponse, DynamicProductResponse
+Nodes (2): EligibleRoleInfo, LeadAssignmentConfigResponse
 
 ### Community 124 - "Community 124"
 Cohesion: 0.67
-Nodes (2): RolePermissionsDTO, RoleResponse
+Nodes (2): AttributeResponse, DynamicProductResponse
 
 ### Community 125 - "Community 125"
 Cohesion: 0.67
-Nodes (2): SystemPermissionsDTO, UserPermissionsResponse
+Nodes (2): RolePermissionsDTO, RoleResponse
 
 ### Community 126 - "Community 126"
 Cohesion: 0.67
-Nodes (2): PartItem, PartsRequestResponse
+Nodes (2): SystemPermissionsDTO, UserPermissionsResponse
 
 ### Community 127 - "Community 127"
 Cohesion: 0.67
-Nodes (2): EngineerScheduleResponse, SlotResponse
+Nodes (2): PartItem, PartsRequestResponse
 
 ### Community 128 - "Community 128"
 Cohesion: 0.67
-Nodes (2): LineItemResponse, PurchaseOrderResponse
+Nodes (2): EngineerScheduleResponse, SlotResponse
 
 ### Community 129 - "Community 129"
 Cohesion: 0.67
-Nodes (2): BulkAssignmentResult, FailedAssignment
+Nodes (2): LineItemResponse, PurchaseOrderResponse
 
 ### Community 130 - "Community 130"
 Cohesion: 0.67
-Nodes (2): CreateRoleRequest, RolePermissionsDTO
+Nodes (2): BulkAssignmentResult, FailedAssignment
 
 ### Community 131 - "Community 131"
 Cohesion: 0.67
-Nodes (2): ModulePermission, UpdateModulePermissionsRequest
+Nodes (2): CreateRoleRequest, RolePermissionsDTO
 
 ### Community 132 - "Community 132"
 Cohesion: 0.67
-Nodes (2): SlotRequest, UpdateScheduleRequest
+Nodes (2): ModulePermission, UpdateModulePermissionsRequest
 
 ### Community 133 - "Community 133"
 Cohesion: 0.67
-Nodes (2): CreateDealerOrderRequest, OrderItemDto
+Nodes (2): SlotRequest, UpdateScheduleRequest
 
 ### Community 134 - "Community 134"
 Cohesion: 0.67
-Nodes (2): RolePermissionsDTO, UpdateRoleRequest
+Nodes (2): CreateDealerOrderRequest, OrderItemDto
 
 ### Community 135 - "Community 135"
 Cohesion: 0.67
-Nodes (2): FilterRequest, ProductSearchRequest
+Nodes (2): RolePermissionsDTO, UpdateRoleRequest
 
 ### Community 136 - "Community 136"
 Cohesion: 0.67
-Nodes (2): CreatePartsRequestRequest, PartItem
+Nodes (2): FilterRequest, ProductSearchRequest
 
 ### Community 137 - "Community 137"
 Cohesion: 0.67
-Nodes (2): CreateGRNRequest, LineItemDto
+Nodes (2): CreatePartsRequestRequest, PartItem
 
 ### Community 138 - "Community 138"
 Cohesion: 0.67
-Nodes (2): CreateRateContractRequest, LineItemDto
+Nodes (2): CreateGRNRequest, LineItemDto
 
 ### Community 139 - "Community 139"
 Cohesion: 0.67
-Nodes (2): CreateRFQRequest, RFQItemDto
+Nodes (2): CreateRateContractRequest, LineItemDto
 
 ### Community 140 - "Community 140"
 Cohesion: 0.67
-Nodes (2): ReceiveGoodsRequest, ReceiveItemRequest
+Nodes (2): CreateRFQRequest, RFQItemDto
 
 ### Community 141 - "Community 141"
 Cohesion: 0.67
-Nodes (2): AddressDto, CreateWarehouseRequest
+Nodes (2): LineQuoteDto, RecordVendorResponseRequest
 
 ### Community 142 - "Community 142"
 Cohesion: 0.67
-Nodes (2): CreatePurchaseOrderRequest, LineItemRequest
+Nodes (2): ReceiveGoodsRequest, ReceiveItemRequest
 
 ### Community 143 - "Community 143"
 Cohesion: 0.67
-Nodes (2): LeaveBalanceResponse, LeaveTypeBalanceDto
+Nodes (2): AddressDto, CreateWarehouseRequest
 
 ### Community 144 - "Community 144"
 Cohesion: 0.67
-Nodes (1): FeedReactionRepository
+Nodes (2): CreatePurchaseOrderRequest, LineItemRequest
 
 ### Community 145 - "Community 145"
 Cohesion: 0.67
-Nodes (1): FeedPollVoteRepository
+Nodes (2): LeaveBalanceResponse, LeaveTypeBalanceDto
 
 ### Community 146 - "Community 146"
 Cohesion: 0.67
-Nodes (1): WorkOrderChecklistResponseRepository
+Nodes (1): FeedReactionRepository
 
 ### Community 147 - "Community 147"
 Cohesion: 0.67
-Nodes (1): WebFormSubmissionRepository
+Nodes (1): ProposalCounterRepository
 
 ### Community 148 - "Community 148"
 Cohesion: 0.67
-Nodes (1): LeavePolicyRepository
+Nodes (1): FeedPollVoteRepository
 
 ### Community 149 - "Community 149"
 Cohesion: 0.67
-Nodes (1): CurrencyConfigRepository
+Nodes (1): WorkOrderChecklistResponseRepository
 
 ### Community 150 - "Community 150"
 Cohesion: 0.67
-Nodes (1): JacksonConfig
+Nodes (1): WebFormSubmissionRepository
 
 ### Community 151 - "Community 151"
 Cohesion: 0.67
-Nodes (1): CacheConfig
+Nodes (1): LeavePolicyRepository
 
 ### Community 152 - "Community 152"
 Cohesion: 0.67
-Nodes (1): TimeZoneConfig
+Nodes (1): CurrencyConfigRepository
 
 ### Community 153 - "Community 153"
 Cohesion: 0.67
-Nodes (1): RestTemplateConfig
+Nodes (1): JacksonConfig
 
 ### Community 154 - "Community 154"
 Cohesion: 0.67
-Nodes (1): TenantContextMissingException
+Nodes (1): CacheConfig
 
 ### Community 155 - "Community 155"
 Cohesion: 0.67
-Nodes (1): RegularizationIdGeneratorService
+Nodes (1): TimeZoneConfig
 
 ### Community 156 - "Community 156"
 Cohesion: 0.67
-Nodes (1): ActivityIdGeneratorService
+Nodes (1): RestTemplateConfig
 
 ### Community 157 - "Community 157"
 Cohesion: 0.67
-Nodes (1): TrainingRecordRepository
+Nodes (1): TenantContextMissingException
 
 ### Community 158 - "Community 158"
 Cohesion: 0.67
-Nodes (1): OpportunityIdGeneratorService
+Nodes (1): RegularizationIdGeneratorService
 
 ### Community 159 - "Community 159"
 Cohesion: 0.67
-Nodes (1): ProductIdGeneratorService
+Nodes (1): ActivityIdGeneratorService
 
 ### Community 160 - "Community 160"
 Cohesion: 0.67
-Nodes (1): TaskIdGeneratorService
+Nodes (1): TrainingRecordRepository
 
 ### Community 161 - "Community 161"
 Cohesion: 0.67
-Nodes (1): LeaveIdGeneratorService
+Nodes (1): OpportunityIdGeneratorService
 
 ### Community 162 - "Community 162"
 Cohesion: 0.67
-Nodes (1): ContactIdGeneratorService
+Nodes (1): ProductIdGeneratorService
 
 ### Community 163 - "Community 163"
 Cohesion: 0.67
-Nodes (1): OfficeLocationIdGeneratorService
+Nodes (1): TaskIdGeneratorService
 
 ### Community 164 - "Community 164"
 Cohesion: 0.67
-Nodes (1): ProjectIdGeneratorService
+Nodes (1): LeaveIdGeneratorService
 
 ### Community 165 - "Community 165"
 Cohesion: 0.67
-Nodes (1): ServiceRequestIdGeneratorService
+Nodes (1): ContactIdGeneratorService
 
 ### Community 166 - "Community 166"
 Cohesion: 0.67
-Nodes (1): LeadIdGeneratorService
+Nodes (1): ServiceRequestIdGeneratorService
 
 ### Community 167 - "Community 167"
 Cohesion: 0.67
-Nodes (2): DashboardStats, GrowthTrends
+Nodes (1): ProjectIdGeneratorService
 
 ### Community 168 - "Community 168"
 Cohesion: 0.67
-Nodes (2): EngineerSchedule, ScheduleSlot
+Nodes (1): LeadIdGeneratorService
 
 ### Community 169 - "Community 169"
 Cohesion: 0.67
-Nodes (2): ChecklistItem, WorkOrderChecklist
+Nodes (1): ShiftIdGeneratorService
 
 ### Community 170 - "Community 170"
 Cohesion: 0.67
-Nodes (2): ItemResponse, WorkOrderChecklistResponse
+Nodes (2): EngineerSchedule, ScheduleSlot
 
 ### Community 171 - "Community 171"
 Cohesion: 0.67
-Nodes (2): Survey, SurveyQuestion
+Nodes (2): ChecklistItem, WorkOrderChecklist
 
 ### Community 172 - "Community 172"
 Cohesion: 0.67
-Nodes (2): FeedPost, PollOption
+Nodes (2): ItemResponse, WorkOrderChecklistResponse
 
 ### Community 173 - "Community 173"
 Cohesion: 0.67
-Nodes (2): DispatchAssignment, GpsPoint
+Nodes (2): Survey, SurveyQuestion
 
 ### Community 174 - "Community 174"
 Cohesion: 0.67
-Nodes (2): RateContract, RateContractItem
+Nodes (2): FeedPost, PollOption
 
 ### Community 175 - "Community 175"
 Cohesion: 0.67
-Nodes (2): DealerOrder, OrderItem
+Nodes (2): DispatchAssignment, GpsPoint
 
 ### Community 176 - "Community 176"
 Cohesion: 0.67
-Nodes (2): InstanceTask, OnboardingInstance
+Nodes (2): RateContract, RateContractItem
 
 ### Community 177 - "Community 177"
 Cohesion: 0.67
-Nodes (2): Answer, SurveyResponse
+Nodes (2): DealerOrder, OrderItem
 
 ### Community 178 - "Community 178"
 Cohesion: 0.67
-Nodes (2): KeyResult, Objective
+Nodes (2): InstanceTask, OnboardingInstance
 
 ### Community 179 - "Community 179"
 Cohesion: 0.67
-Nodes (2): OnboardingTemplate, TemplateTask
+Nodes (2): Answer, SurveyResponse
 
 ### Community 180 - "Community 180"
 Cohesion: 0.67
-Nodes (2): PartsRequest, RequestedPart
+Nodes (2): KeyResult, Objective
 
 ### Community 181 - "Community 181"
 Cohesion: 0.67
-Nodes (2): ReportFilter, SavedReport
+Nodes (2): OnboardingTemplate, TemplateTask
 
 ### Community 182 - "Community 182"
 Cohesion: 0.67
-Nodes (2): GRN, GRNLineItem
+Nodes (2): PartsRequest, RequestedPart
 
 ### Community 183 - "Community 183"
 Cohesion: 0.67
-Nodes (0): 
+Nodes (2): ReportFilter, SavedReport
 
 ### Community 184 - "Community 184"
 Cohesion: 0.67
-Nodes (0): 
+Nodes (2): GRN, GRNLineItem
 
 ### Community 185 - "Community 185"
 Cohesion: 0.67
@@ -1873,639 +1879,639 @@ Nodes (1): ChatMessageDTO
 
 ### Community 302 - "Community 302"
 Cohesion: 1.0
-Nodes (1): ProposalResponse
+Nodes (1): TermsTemplateResponse
 
 ### Community 303 - "Community 303"
 Cohesion: 1.0
-Nodes (1): CalendarEventResponse
+Nodes (1): ProposalResponse
 
 ### Community 304 - "Community 304"
 Cohesion: 1.0
-Nodes (1): InvitationResponse
+Nodes (1): CalendarEventResponse
 
 ### Community 305 - "Community 305"
 Cohesion: 1.0
-Nodes (1): BreakRecordDTO
+Nodes (1): InvitationResponse
 
 ### Community 306 - "Community 306"
 Cohesion: 1.0
-Nodes (1): ShiftResponse
+Nodes (1): BreakRecordDTO
 
 ### Community 307 - "Community 307"
 Cohesion: 1.0
-Nodes (1): AssetResponse
+Nodes (1): ShiftResponse
 
 ### Community 308 - "Community 308"
 Cohesion: 1.0
-Nodes (1): AttendanceResponse
+Nodes (1): AssetResponse
 
 ### Community 309 - "Community 309"
 Cohesion: 1.0
-Nodes (1): WorkOrderResponse
+Nodes (1): AttendanceResponse
 
 ### Community 310 - "Community 310"
 Cohesion: 1.0
-Nodes (1): TimeEntryResponse
+Nodes (1): WorkOrderResponse
 
 ### Community 311 - "Community 311"
 Cohesion: 1.0
-Nodes (1): ChatGroupDTO
+Nodes (1): TimeEntryResponse
 
 ### Community 312 - "Community 312"
 Cohesion: 1.0
-Nodes (1): OpportunityStatistics
+Nodes (1): ChatGroupDTO
 
 ### Community 313 - "Community 313"
 Cohesion: 1.0
-Nodes (1): BatchResponse
+Nodes (1): OpportunityStatistics
 
 ### Community 314 - "Community 314"
 Cohesion: 1.0
-Nodes (1): StockTransactionResponse
+Nodes (1): BatchResponse
 
 ### Community 315 - "Community 315"
 Cohesion: 1.0
-Nodes (1): StockResponse
+Nodes (1): StockTransactionResponse
 
 ### Community 316 - "Community 316"
 Cohesion: 1.0
-Nodes (1): StockReservationResponse
+Nodes (1): StockResponse
 
 ### Community 317 - "Community 317"
 Cohesion: 1.0
-Nodes (1): CreateRegularizationRequest
+Nodes (1): StockReservationResponse
 
 ### Community 318 - "Community 318"
 Cohesion: 1.0
-Nodes (1): ApproveRegularizationRequest
+Nodes (1): CreateRegularizationRequest
 
 ### Community 319 - "Community 319"
 Cohesion: 1.0
-Nodes (1): RegularizationResponse
+Nodes (1): ApproveRegularizationRequest
 
 ### Community 320 - "Community 320"
 Cohesion: 1.0
-Nodes (1): ShiftAssignmentResponse
+Nodes (1): RegularizationResponse
 
 ### Community 321 - "Community 321"
 Cohesion: 1.0
-Nodes (1): BulkShiftAssignmentRequest
+Nodes (1): ShiftAssignmentResponse
 
 ### Community 322 - "Community 322"
 Cohesion: 1.0
-Nodes (1): CreateKbArticleRequest
+Nodes (1): BulkShiftAssignmentRequest
 
 ### Community 323 - "Community 323"
 Cohesion: 1.0
-Nodes (1): UpdateProjectRequest
+Nodes (1): CreateTermsTemplateRequest
 
 ### Community 324 - "Community 324"
 Cohesion: 1.0
-Nodes (1): CreateDealerRequest
+Nodes (1): CreateKbArticleRequest
 
 ### Community 325 - "Community 325"
 Cohesion: 1.0
-Nodes (1): UpdateProjectTaskRequest
+Nodes (1): UpdateProjectRequest
 
 ### Community 326 - "Community 326"
 Cohesion: 1.0
-Nodes (1): CreateWebFormRequest
+Nodes (1): CreateDealerRequest
 
 ### Community 327 - "Community 327"
 Cohesion: 1.0
-Nodes (1): UpdateUserRequest
+Nodes (1): UpdateProjectTaskRequest
 
 ### Community 328 - "Community 328"
 Cohesion: 1.0
-Nodes (1): CreateContactRequest
+Nodes (1): CreateWebFormRequest
 
 ### Community 329 - "Community 329"
 Cohesion: 1.0
-Nodes (1): CreateTimeEntryRequest
+Nodes (1): UpdateUserRequest
 
 ### Community 330 - "Community 330"
 Cohesion: 1.0
-Nodes (1): CreateChatGroupRequest
+Nodes (1): CreateContactRequest
 
 ### Community 331 - "Community 331"
 Cohesion: 1.0
-Nodes (1): CreateOpportunityRequest
+Nodes (1): CreateTimeEntryRequest
 
 ### Community 332 - "Community 332"
 Cohesion: 1.0
-Nodes (1): DispatchRequest
+Nodes (1): CreateChatGroupRequest
 
 ### Community 333 - "Community 333"
 Cohesion: 1.0
-Nodes (1): CreateAccountRequest
+Nodes (1): CreateOpportunityRequest
 
 ### Community 334 - "Community 334"
 Cohesion: 1.0
-Nodes (1): UpdateLeadAssignmentConfigRequest
+Nodes (1): DispatchRequest
 
 ### Community 335 - "Community 335"
 Cohesion: 1.0
-Nodes (1): CreateContractRequest
+Nodes (1): CreateAccountRequest
 
 ### Community 336 - "Community 336"
 Cohesion: 1.0
-Nodes (1): CreateAssetCategoryRequest
+Nodes (1): UpdateLeadAssignmentConfigRequest
 
 ### Community 337 - "Community 337"
 Cohesion: 1.0
-Nodes (1): CreateAssetRequest
+Nodes (1): CreateContractRequest
 
 ### Community 338 - "Community 338"
 Cohesion: 1.0
-Nodes (1): CreateLeadRequest
+Nodes (1): CreateAssetCategoryRequest
 
 ### Community 339 - "Community 339"
 Cohesion: 1.0
-Nodes (1): CreateTrainingRecordRequest
+Nodes (1): CreateAssetRequest
 
 ### Community 340 - "Community 340"
 Cohesion: 1.0
-Nodes (1): LogPageViewRequest
+Nodes (1): CreateLeadRequest
 
 ### Community 341 - "Community 341"
 Cohesion: 1.0
-Nodes (1): UpdateMyProfileRequest
+Nodes (1): CreateTrainingRecordRequest
 
 ### Community 342 - "Community 342"
 Cohesion: 1.0
-Nodes (1): UpdateLeadRequest
+Nodes (1): LogPageViewRequest
 
 ### Community 343 - "Community 343"
 Cohesion: 1.0
-Nodes (1): RegisterRequest
+Nodes (1): UpdateMyProfileRequest
 
 ### Community 344 - "Community 344"
 Cohesion: 1.0
-Nodes (1): CreateEscalationRuleRequest
+Nodes (1): UpdateLeadRequest
 
 ### Community 345 - "Community 345"
 Cohesion: 1.0
-Nodes (1): UpdateSettingsRequest
+Nodes (1): RegisterRequest
 
 ### Community 346 - "Community 346"
 Cohesion: 1.0
-Nodes (1): CreateProductRequest
+Nodes (1): CreateEscalationRuleRequest
 
 ### Community 347 - "Community 347"
 Cohesion: 1.0
-Nodes (1): CreateTechnicianSkillRequest
+Nodes (1): UpdateSettingsRequest
 
 ### Community 348 - "Community 348"
 Cohesion: 1.0
-Nodes (1): CreateUserRequest
+Nodes (1): CreateProductRequest
 
 ### Community 349 - "Community 349"
 Cohesion: 1.0
-Nodes (1): UpdateOpportunityRequest
+Nodes (1): CreateTechnicianSkillRequest
 
 ### Community 350 - "Community 350"
 Cohesion: 1.0
-Nodes (1): BreakStartRequest
+Nodes (1): CreateUserRequest
 
 ### Community 351 - "Community 351"
 Cohesion: 1.0
-Nodes (1): CreateProjectTaskRequest
+Nodes (1): UpdateOpportunityRequest
 
 ### Community 352 - "Community 352"
 Cohesion: 1.0
-Nodes (1): BreakEndRequest
+Nodes (1): BreakStartRequest
 
 ### Community 353 - "Community 353"
 Cohesion: 1.0
-Nodes (1): UpdateAssetRequest
+Nodes (1): CreateProjectTaskRequest
 
 ### Community 354 - "Community 354"
 Cohesion: 1.0
-Nodes (1): LocationUpdateRequest
+Nodes (1): BreakEndRequest
 
 ### Community 355 - "Community 355"
 Cohesion: 1.0
-Nodes (1): InvoiceConfigRequest
+Nodes (1): UpdateAssetRequest
 
 ### Community 356 - "Community 356"
 Cohesion: 1.0
-Nodes (1): CreateProjectRequest
+Nodes (1): LocationUpdateRequest
 
 ### Community 357 - "Community 357"
 Cohesion: 1.0
-Nodes (1): EnableInventoryRequest
+Nodes (1): InvoiceConfigRequest
 
 ### Community 358 - "Community 358"
 Cohesion: 1.0
-Nodes (1): UserActivityFilterRequest
+Nodes (1): CreateProjectRequest
 
 ### Community 359 - "Community 359"
 Cohesion: 1.0
-Nodes (1): CreateCalendarEventRequest
+Nodes (1): EnableInventoryRequest
 
 ### Community 360 - "Community 360"
 Cohesion: 1.0
-Nodes (1): CheckOutRequest
+Nodes (1): ConvertRfqToPoRequest
 
 ### Community 361 - "Community 361"
 Cohesion: 1.0
-Nodes (1): CheckInRequest
+Nodes (1): UserActivityFilterRequest
 
 ### Community 362 - "Community 362"
 Cohesion: 1.0
-Nodes (1): CreateShiftRequest
+Nodes (1): CreateCalendarEventRequest
 
 ### Community 363 - "Community 363"
 Cohesion: 1.0
-Nodes (1): LoginRequest
+Nodes (1): CheckOutRequest
 
 ### Community 364 - "Community 364"
 Cohesion: 1.0
-Nodes (1): CreateActivityRequest
+Nodes (1): CheckInRequest
 
 ### Community 365 - "Community 365"
 Cohesion: 1.0
-Nodes (1): CreateServiceRequestRequest
+Nodes (1): CreateShiftRequest
 
 ### Community 366 - "Community 366"
 Cohesion: 1.0
-Nodes (1): UpdateOfficeLocationRequest
+Nodes (1): LoginRequest
 
 ### Community 367 - "Community 367"
 Cohesion: 1.0
-Nodes (1): UpdateContactRequest
+Nodes (1): CreateActivityRequest
 
 ### Community 368 - "Community 368"
 Cohesion: 1.0
-Nodes (1): UpdateWorkOrderRequest
+Nodes (1): CreateServiceRequestRequest
 
 ### Community 369 - "Community 369"
 Cohesion: 1.0
-Nodes (1): CreateWorkOrderRequest
+Nodes (1): UpdateOfficeLocationRequest
 
 ### Community 370 - "Community 370"
 Cohesion: 1.0
-Nodes (1): UpdateAccountRequest
+Nodes (1): UpdateContactRequest
 
 ### Community 371 - "Community 371"
 Cohesion: 1.0
-Nodes (1): AssignLeadRequest
+Nodes (1): UpdateWorkOrderRequest
 
 ### Community 372 - "Community 372"
 Cohesion: 1.0
-Nodes (1): UpdateProductRequest
+Nodes (1): CreateWorkOrderRequest
 
 ### Community 373 - "Community 373"
 Cohesion: 1.0
-Nodes (1): LinkInventoryRequest
+Nodes (1): UpdateAccountRequest
 
 ### Community 374 - "Community 374"
 Cohesion: 1.0
-Nodes (1): UpdateShiftRequest
+Nodes (1): AssignLeadRequest
 
 ### Community 375 - "Community 375"
 Cohesion: 1.0
-Nodes (1): UpdateActivityRequest
+Nodes (1): UpdateProductRequest
 
 ### Community 376 - "Community 376"
 Cohesion: 1.0
-Nodes (1): OrganizationRegistrationRequest
+Nodes (1): LinkInventoryRequest
 
 ### Community 377 - "Community 377"
 Cohesion: 1.0
-Nodes (1): UpdateVendorRequest
+Nodes (1): UpdateShiftRequest
 
 ### Community 378 - "Community 378"
 Cohesion: 1.0
-Nodes (1): SendInvitationRequest
+Nodes (1): UpdateActivityRequest
 
 ### Community 379 - "Community 379"
 Cohesion: 1.0
-Nodes (1): CreateOfficeLocationRequest
+Nodes (1): OrganizationRegistrationRequest
 
 ### Community 380 - "Community 380"
 Cohesion: 1.0
-Nodes (1): CreateLandingPageRequest
+Nodes (1): UpdateVendorRequest
 
 ### Community 381 - "Community 381"
 Cohesion: 1.0
-Nodes (1): UpdateWarehouseRequest
+Nodes (1): SendInvitationRequest
 
 ### Community 382 - "Community 382"
 Cohesion: 1.0
-Nodes (1): CreateBatchRequest
+Nodes (1): CreateOfficeLocationRequest
 
 ### Community 383 - "Community 383"
 Cohesion: 1.0
-Nodes (1): AddStorageLocationRequest
+Nodes (1): CreateLandingPageRequest
 
 ### Community 384 - "Community 384"
 Cohesion: 1.0
-Nodes (1): CreateReservationRequest
+Nodes (1): UpdateWarehouseRequest
 
 ### Community 385 - "Community 385"
 Cohesion: 1.0
-Nodes (1): StockTransferRequest
+Nodes (1): CreateBatchRequest
 
 ### Community 386 - "Community 386"
 Cohesion: 1.0
-Nodes (1): StockAdjustmentRequest
+Nodes (1): AddStorageLocationRequest
 
 ### Community 387 - "Community 387"
 Cohesion: 1.0
-Nodes (1): CreatePerformanceReviewRequest
+Nodes (1): CreateReservationRequest
 
 ### Community 388 - "Community 388"
 Cohesion: 1.0
-Nodes (1): UpdateKeyResultRequest
+Nodes (1): StockTransferRequest
 
 ### Community 389 - "Community 389"
 Cohesion: 1.0
-Nodes (1): CreateReviewCycleRequest
+Nodes (1): StockAdjustmentRequest
 
 ### Community 390 - "Community 390"
 Cohesion: 1.0
-Nodes (1): CreateObjectiveRequest
+Nodes (1): CreatePerformanceReviewRequest
 
 ### Community 391 - "Community 391"
 Cohesion: 1.0
-Nodes (1): PermissionOverrideDto
+Nodes (1): UpdateKeyResultRequest
 
 ### Community 392 - "Community 392"
 Cohesion: 1.0
-Nodes (1): GrantPermissionRequest
+Nodes (1): CreateReviewCycleRequest
 
 ### Community 393 - "Community 393"
 Cohesion: 1.0
-Nodes (1): BulkUpdatePermissionsRequest
+Nodes (1): CreateObjectiveRequest
 
 ### Community 394 - "Community 394"
 Cohesion: 1.0
-Nodes (1): RevokePermissionRequest
+Nodes (1): PermissionOverrideDto
 
 ### Community 395 - "Community 395"
 Cohesion: 1.0
-Nodes (1): LeaveSummaryResponse
+Nodes (1): GrantPermissionRequest
 
 ### Community 396 - "Community 396"
 Cohesion: 1.0
-Nodes (1): LeaveResponse
+Nodes (1): BulkUpdatePermissionsRequest
 
 ### Community 397 - "Community 397"
 Cohesion: 1.0
-Nodes (1): ApproveLeaveRequest
+Nodes (1): RevokePermissionRequest
 
 ### Community 398 - "Community 398"
 Cohesion: 1.0
-Nodes (1): CreateLeaveRequest
+Nodes (1): LeaveSummaryResponse
 
 ### Community 399 - "Community 399"
 Cohesion: 1.0
-Nodes (1): CancelLeaveRequest
+Nodes (1): LeaveResponse
 
 ### Community 400 - "Community 400"
 Cohesion: 1.0
-Nodes (1): AopConfig
+Nodes (1): ApproveLeaveRequest
 
 ### Community 401 - "Community 401"
 Cohesion: 1.0
-Nodes (1): DealerPerformance
+Nodes (1): CreateLeaveRequest
 
 ### Community 402 - "Community 402"
 Cohesion: 1.0
-Nodes (1): EscalationLog
+Nodes (1): CancelLeaveRequest
 
 ### Community 403 - "Community 403"
 Cohesion: 1.0
-Nodes (1): TimeEntry
+Nodes (1): AopConfig
 
 ### Community 404 - "Community 404"
 Cohesion: 1.0
-Nodes (1): UserActivity
+Nodes (1): DealerPerformance
 
 ### Community 405 - "Community 405"
 Cohesion: 1.0
-Nodes (1): Asset
+Nodes (1): EscalationLog
 
 ### Community 406 - "Community 406"
 Cohesion: 1.0
-Nodes (1): FeedPollVote
+Nodes (1): TimeEntry
 
 ### Community 407 - "Community 407"
 Cohesion: 1.0
-Nodes (1): Sequence
+Nodes (1): UserActivity
 
 ### Community 408 - "Community 408"
 Cohesion: 1.0
-Nodes (1): DriveFolder
+Nodes (1): Asset
 
 ### Community 409 - "Community 409"
 Cohesion: 1.0
-Nodes (1): FeedReaction
+Nodes (1): FeedPollVote
 
 ### Community 410 - "Community 410"
 Cohesion: 1.0
-Nodes (1): Product
+Nodes (1): Sequence
 
 ### Community 411 - "Community 411"
 Cohesion: 1.0
-Nodes (1): Leave
+Nodes (1): DriveFolder
 
 ### Community 412 - "Community 412"
 Cohesion: 1.0
-Nodes (1): AuditLog
+Nodes (1): FeedReaction
 
 ### Community 413 - "Community 413"
 Cohesion: 1.0
-Nodes (1): ReviewCycle
+Nodes (1): Product
 
 ### Community 414 - "Community 414"
 Cohesion: 1.0
-Nodes (1): ContractBillingCycle
+Nodes (1): Leave
 
 ### Community 415 - "Community 415"
 Cohesion: 1.0
-Nodes (1): StockTransaction
+Nodes (1): AuditLog
 
 ### Community 416 - "Community 416"
 Cohesion: 1.0
-Nodes (1): Notification
+Nodes (1): ReviewCycle
 
 ### Community 417 - "Community 417"
 Cohesion: 1.0
-Nodes (1): VendorPart
+Nodes (1): ContractBillingCycle
 
 ### Community 418 - "Community 418"
 Cohesion: 1.0
-Nodes (1): TechnicianSkill
+Nodes (1): StockTransaction
 
 ### Community 419 - "Community 419"
 Cohesion: 1.0
-Nodes (1): CurrencyConfig
+Nodes (1): Notification
 
 ### Community 420 - "Community 420"
 Cohesion: 1.0
-Nodes (1): EscalationRule
+Nodes (1): VendorPart
 
 ### Community 421 - "Community 421"
 Cohesion: 1.0
-Nodes (1): OfficeLocation
+Nodes (1): TechnicianSkill
 
 ### Community 422 - "Community 422"
 Cohesion: 1.0
-Nodes (1): Batch
+Nodes (1): CurrencyConfig
 
 ### Community 423 - "Community 423"
 Cohesion: 1.0
-Nodes (1): SignatureRequest
+Nodes (1): EscalationRule
 
 ### Community 424 - "Community 424"
 Cohesion: 1.0
-Nodes (1): WebFormSubmission
+Nodes (1): TermsTemplate
 
 ### Community 425 - "Community 425"
 Cohesion: 1.0
-Nodes (1): KbCategory
+Nodes (1): OfficeLocation
 
 ### Community 426 - "Community 426"
 Cohesion: 1.0
-Nodes (1): CalendarEvent
+Nodes (1): Batch
 
 ### Community 427 - "Community 427"
 Cohesion: 1.0
-Nodes (1): Lead
+Nodes (1): SignatureRequest
 
 ### Community 428 - "Community 428"
 Cohesion: 1.0
-Nodes (1): Account
+Nodes (1): WebFormSubmission
 
 ### Community 429 - "Community 429"
 Cohesion: 1.0
-Nodes (1): ProductMapping
+Nodes (1): KbCategory
 
 ### Community 430 - "Community 430"
 Cohesion: 1.0
-Nodes (1): AssetCategory
+Nodes (1): CalendarEvent
 
 ### Community 431 - "Community 431"
 Cohesion: 1.0
-Nodes (1): WorkOrderGeoEvent
+Nodes (1): Lead
 
 ### Community 432 - "Community 432"
 Cohesion: 1.0
-Nodes (1): TrainingRecord
+Nodes (1): Account
 
 ### Community 433 - "Community 433"
 Cohesion: 1.0
-Nodes (1): Opportunity
+Nodes (1): ProductMapping
 
 ### Community 434 - "Community 434"
 Cohesion: 1.0
-Nodes (1): Shift
+Nodes (1): AssetCategory
 
 ### Community 435 - "Community 435"
 Cohesion: 1.0
-Nodes (1): Holiday
+Nodes (1): WorkOrderGeoEvent
 
 ### Community 436 - "Community 436"
 Cohesion: 1.0
-Nodes (1): ContractVisit
+Nodes (1): TrainingRecord
 
 ### Community 437 - "Community 437"
 Cohesion: 1.0
-Nodes (1): ProposalVersion
+Nodes (1): Opportunity
 
 ### Community 438 - "Community 438"
 Cohesion: 1.0
-Nodes (1): LandingPage
+Nodes (1): Shift
 
 ### Community 439 - "Community 439"
 Cohesion: 1.0
-Nodes (1): PortalSession
+Nodes (1): Holiday
 
 ### Community 440 - "Community 440"
 Cohesion: 1.0
-Nodes (1): WebhookEvent
+Nodes (1): ContractVisit
 
 ### Community 441 - "Community 441"
 Cohesion: 1.0
-Nodes (1): DriveFile
+Nodes (1): ProposalVersion
 
 ### Community 442 - "Community 442"
 Cohesion: 1.0
-Nodes (1): UserShiftAssignment
+Nodes (1): LandingPage
 
 ### Community 443 - "Community 443"
 Cohesion: 1.0
-Nodes (1): Project
+Nodes (1): PortalSession
 
 ### Community 444 - "Community 444"
 Cohesion: 1.0
-Nodes (1): Stock
+Nodes (1): WebhookEvent
 
 ### Community 445 - "Community 445"
 Cohesion: 1.0
-Nodes (1): TaskComment
+Nodes (1): DriveFile
 
 ### Community 446 - "Community 446"
 Cohesion: 1.0
-Nodes (1): EngineerLocation
+Nodes (1): UserShiftAssignment
 
 ### Community 447 - "Community 447"
 Cohesion: 1.0
-Nodes (1): DriveFileVersion
+Nodes (1): Project
 
 ### Community 448 - "Community 448"
 Cohesion: 1.0
-Nodes (1): Dealer
+Nodes (1): Stock
 
 ### Community 449 - "Community 449"
 Cohesion: 1.0
-Nodes (1): ChatMessage
+Nodes (1): ProposalCounter
 
 ### Community 450 - "Community 450"
 Cohesion: 1.0
-Nodes (1): ChatGroup
+Nodes (1): TaskComment
 
 ### Community 451 - "Community 451"
 Cohesion: 1.0
-Nodes (1): KbArticle
+Nodes (1): EngineerLocation
 
 ### Community 452 - "Community 452"
 Cohesion: 1.0
-Nodes (1): LeadAssignmentConfig
+Nodes (1): DriveFileVersion
 
 ### Community 453 - "Community 453"
 Cohesion: 1.0
-Nodes (1): AttendanceRegularization
+Nodes (1): Dealer
 
 ### Community 454 - "Community 454"
 Cohesion: 1.0
-Nodes (1): ServiceRequest
+Nodes (1): ChatMessage
 
 ### Community 455 - "Community 455"
 Cohesion: 1.0
-Nodes (1): StockReservation
+Nodes (1): ChatGroup
 
 ### Community 456 - "Community 456"
 Cohesion: 1.0
-Nodes (0): 
+Nodes (1): KbArticle
 
 ### Community 457 - "Community 457"
 Cohesion: 1.0
-Nodes (0): 
+Nodes (1): LeadAssignmentConfig
 
 ### Community 458 - "Community 458"
 Cohesion: 1.0
-Nodes (0): 
+Nodes (1): AttendanceRegularization
 
 ### Community 459 - "Community 459"
 Cohesion: 1.0
-Nodes (2): Ascendons Brand Identity, Ascendons Brand Logo
+Nodes (1): ServiceRequest
 
 ### Community 460 - "Community 460"
 Cohesion: 1.0
-Nodes (0): 
+Nodes (1): StockReservation
 
 ### Community 461 - "Community 461"
 Cohesion: 1.0
@@ -2521,7 +2527,7 @@ Nodes (0):
 
 ### Community 464 - "Community 464"
 Cohesion: 1.0
-Nodes (0): 
+Nodes (2): Ascendons Brand Identity, Ascendons Brand Logo
 
 ### Community 465 - "Community 465"
 Cohesion: 1.0
@@ -3153,22 +3159,46 @@ Nodes (0):
 
 ### Community 622 - "Community 622"
 Cohesion: 1.0
-Nodes (1): Backend README
+Nodes (0): 
 
 ### Community 623 - "Community 623"
 Cohesion: 1.0
-Nodes (1): File Icon SVG
+Nodes (0): 
 
 ### Community 624 - "Community 624"
 Cohesion: 1.0
-Nodes (1): Globe Icon SVG
+Nodes (0): 
 
 ### Community 625 - "Community 625"
+Cohesion: 1.0
+Nodes (0): 
+
+### Community 626 - "Community 626"
+Cohesion: 1.0
+Nodes (0): 
+
+### Community 627 - "Community 627"
+Cohesion: 1.0
+Nodes (0): 
+
+### Community 628 - "Community 628"
+Cohesion: 1.0
+Nodes (1): Backend README
+
+### Community 629 - "Community 629"
+Cohesion: 1.0
+Nodes (1): File Icon SVG
+
+### Community 630 - "Community 630"
+Cohesion: 1.0
+Nodes (1): Globe Icon SVG
+
+### Community 631 - "Community 631"
 Cohesion: 1.0
 Nodes (1): Window Icon SVG
 
 ## Knowledge Gaps
-- **393 isolated node(s):** `testStaples`, `AddressDTO`, `AttendanceAnalyticsResponse`, `TrendDataPoint`, `EmployeePerformanceDto` (+388 more)
+- **402 isolated node(s):** `testStaples`, `AddressDTO`, `AttendanceAnalyticsResponse`, `TrendDataPoint`, `EmployeePerformanceDto` (+397 more)
   These have ≤1 connection - possible missing edges or undocumented components.
 - **Thin community `Community 193`** (2 nodes): `RootLayout()`, `layout.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
@@ -3388,669 +3418,681 @@ Nodes (1): Window Icon SVG
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
 - **Thin community `Community 301`** (2 nodes): `ChatMessageDTO.java`, `ChatMessageDTO`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 302`** (2 nodes): `ProposalResponse`, `ProposalResponse.java`
+- **Thin community `Community 302`** (2 nodes): `TermsTemplateResponse`, `TermsTemplateResponse.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 303`** (2 nodes): `CalendarEventResponse`, `CalendarEventResponse.java`
+- **Thin community `Community 303`** (2 nodes): `ProposalResponse`, `ProposalResponse.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 304`** (2 nodes): `InvitationResponse.java`, `InvitationResponse`
+- **Thin community `Community 304`** (2 nodes): `CalendarEventResponse`, `CalendarEventResponse.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 305`** (2 nodes): `BreakRecordDTO.java`, `BreakRecordDTO`
+- **Thin community `Community 305`** (2 nodes): `InvitationResponse.java`, `InvitationResponse`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 306`** (2 nodes): `ShiftResponse.java`, `ShiftResponse`
+- **Thin community `Community 306`** (2 nodes): `BreakRecordDTO.java`, `BreakRecordDTO`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 307`** (2 nodes): `AssetResponse`, `AssetResponse.java`
+- **Thin community `Community 307`** (2 nodes): `ShiftResponse.java`, `ShiftResponse`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 308`** (2 nodes): `AttendanceResponse`, `AttendanceResponse.java`
+- **Thin community `Community 308`** (2 nodes): `AssetResponse`, `AssetResponse.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 309`** (2 nodes): `WorkOrderResponse.java`, `WorkOrderResponse`
+- **Thin community `Community 309`** (2 nodes): `AttendanceResponse`, `AttendanceResponse.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 310`** (2 nodes): `TimeEntryResponse`, `TimeEntryResponse.java`
+- **Thin community `Community 310`** (2 nodes): `WorkOrderResponse.java`, `WorkOrderResponse`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 311`** (2 nodes): `ChatGroupDTO.java`, `ChatGroupDTO`
+- **Thin community `Community 311`** (2 nodes): `TimeEntryResponse`, `TimeEntryResponse.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 312`** (2 nodes): `OpportunityStatistics.java`, `OpportunityStatistics`
+- **Thin community `Community 312`** (2 nodes): `ChatGroupDTO.java`, `ChatGroupDTO`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 313`** (2 nodes): `BatchResponse.java`, `BatchResponse`
+- **Thin community `Community 313`** (2 nodes): `OpportunityStatistics.java`, `OpportunityStatistics`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 314`** (2 nodes): `StockTransactionResponse.java`, `StockTransactionResponse`
+- **Thin community `Community 314`** (2 nodes): `BatchResponse.java`, `BatchResponse`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 315`** (2 nodes): `StockResponse.java`, `StockResponse`
+- **Thin community `Community 315`** (2 nodes): `StockTransactionResponse.java`, `StockTransactionResponse`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 316`** (2 nodes): `StockReservationResponse.java`, `StockReservationResponse`
+- **Thin community `Community 316`** (2 nodes): `StockResponse.java`, `StockResponse`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 317`** (2 nodes): `CreateRegularizationRequest.java`, `CreateRegularizationRequest`
+- **Thin community `Community 317`** (2 nodes): `StockReservationResponse.java`, `StockReservationResponse`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 318`** (2 nodes): `ApproveRegularizationRequest`, `ApproveRegularizationRequest.java`
+- **Thin community `Community 318`** (2 nodes): `CreateRegularizationRequest.java`, `CreateRegularizationRequest`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 319`** (2 nodes): `RegularizationResponse.java`, `RegularizationResponse`
+- **Thin community `Community 319`** (2 nodes): `ApproveRegularizationRequest`, `ApproveRegularizationRequest.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 320`** (2 nodes): `ShiftAssignmentResponse.java`, `ShiftAssignmentResponse`
+- **Thin community `Community 320`** (2 nodes): `RegularizationResponse.java`, `RegularizationResponse`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 321`** (2 nodes): `BulkShiftAssignmentRequest.java`, `BulkShiftAssignmentRequest`
+- **Thin community `Community 321`** (2 nodes): `ShiftAssignmentResponse.java`, `ShiftAssignmentResponse`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 322`** (2 nodes): `CreateKbArticleRequest`, `CreateKbArticleRequest.java`
+- **Thin community `Community 322`** (2 nodes): `BulkShiftAssignmentRequest.java`, `BulkShiftAssignmentRequest`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 323`** (2 nodes): `UpdateProjectRequest`, `UpdateProjectRequest.java`
+- **Thin community `Community 323`** (2 nodes): `CreateTermsTemplateRequest`, `CreateTermsTemplateRequest.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 324`** (2 nodes): `CreateDealerRequest`, `CreateDealerRequest.java`
+- **Thin community `Community 324`** (2 nodes): `CreateKbArticleRequest`, `CreateKbArticleRequest.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 325`** (2 nodes): `UpdateProjectTaskRequest`, `UpdateProjectTaskRequest.java`
+- **Thin community `Community 325`** (2 nodes): `UpdateProjectRequest`, `UpdateProjectRequest.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 326`** (2 nodes): `CreateWebFormRequest`, `CreateWebFormRequest.java`
+- **Thin community `Community 326`** (2 nodes): `CreateDealerRequest`, `CreateDealerRequest.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 327`** (2 nodes): `UpdateUserRequest.java`, `UpdateUserRequest`
+- **Thin community `Community 327`** (2 nodes): `UpdateProjectTaskRequest`, `UpdateProjectTaskRequest.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 328`** (2 nodes): `CreateContactRequest.java`, `CreateContactRequest`
+- **Thin community `Community 328`** (2 nodes): `CreateWebFormRequest`, `CreateWebFormRequest.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 329`** (2 nodes): `CreateTimeEntryRequest`, `CreateTimeEntryRequest.java`
+- **Thin community `Community 329`** (2 nodes): `UpdateUserRequest.java`, `UpdateUserRequest`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 330`** (2 nodes): `CreateChatGroupRequest.java`, `CreateChatGroupRequest`
+- **Thin community `Community 330`** (2 nodes): `CreateContactRequest.java`, `CreateContactRequest`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 331`** (2 nodes): `CreateOpportunityRequest.java`, `CreateOpportunityRequest`
+- **Thin community `Community 331`** (2 nodes): `CreateTimeEntryRequest`, `CreateTimeEntryRequest.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 332`** (2 nodes): `DispatchRequest.java`, `DispatchRequest`
+- **Thin community `Community 332`** (2 nodes): `CreateChatGroupRequest.java`, `CreateChatGroupRequest`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 333`** (2 nodes): `CreateAccountRequest.java`, `CreateAccountRequest`
+- **Thin community `Community 333`** (2 nodes): `CreateOpportunityRequest.java`, `CreateOpportunityRequest`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 334`** (2 nodes): `UpdateLeadAssignmentConfigRequest.java`, `UpdateLeadAssignmentConfigRequest`
+- **Thin community `Community 334`** (2 nodes): `DispatchRequest.java`, `DispatchRequest`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 335`** (2 nodes): `CreateContractRequest.java`, `CreateContractRequest`
+- **Thin community `Community 335`** (2 nodes): `CreateAccountRequest.java`, `CreateAccountRequest`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 336`** (2 nodes): `CreateAssetCategoryRequest.java`, `CreateAssetCategoryRequest`
+- **Thin community `Community 336`** (2 nodes): `UpdateLeadAssignmentConfigRequest.java`, `UpdateLeadAssignmentConfigRequest`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 337`** (2 nodes): `CreateAssetRequest.java`, `CreateAssetRequest`
+- **Thin community `Community 337`** (2 nodes): `CreateContractRequest.java`, `CreateContractRequest`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 338`** (2 nodes): `CreateLeadRequest.java`, `CreateLeadRequest`
+- **Thin community `Community 338`** (2 nodes): `CreateAssetCategoryRequest.java`, `CreateAssetCategoryRequest`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 339`** (2 nodes): `CreateTrainingRecordRequest.java`, `CreateTrainingRecordRequest`
+- **Thin community `Community 339`** (2 nodes): `CreateAssetRequest.java`, `CreateAssetRequest`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 340`** (2 nodes): `LogPageViewRequest.java`, `LogPageViewRequest`
+- **Thin community `Community 340`** (2 nodes): `CreateLeadRequest.java`, `CreateLeadRequest`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 341`** (2 nodes): `UpdateMyProfileRequest.java`, `UpdateMyProfileRequest`
+- **Thin community `Community 341`** (2 nodes): `CreateTrainingRecordRequest.java`, `CreateTrainingRecordRequest`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 342`** (2 nodes): `UpdateLeadRequest.java`, `UpdateLeadRequest`
+- **Thin community `Community 342`** (2 nodes): `LogPageViewRequest.java`, `LogPageViewRequest`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 343`** (2 nodes): `RegisterRequest.java`, `RegisterRequest`
+- **Thin community `Community 343`** (2 nodes): `UpdateMyProfileRequest.java`, `UpdateMyProfileRequest`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 344`** (2 nodes): `CreateEscalationRuleRequest`, `CreateEscalationRuleRequest.java`
+- **Thin community `Community 344`** (2 nodes): `UpdateLeadRequest.java`, `UpdateLeadRequest`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 345`** (2 nodes): `UpdateSettingsRequest.java`, `UpdateSettingsRequest`
+- **Thin community `Community 345`** (2 nodes): `RegisterRequest.java`, `RegisterRequest`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 346`** (2 nodes): `CreateProductRequest.java`, `CreateProductRequest`
+- **Thin community `Community 346`** (2 nodes): `CreateEscalationRuleRequest`, `CreateEscalationRuleRequest.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 347`** (2 nodes): `CreateTechnicianSkillRequest.java`, `CreateTechnicianSkillRequest`
+- **Thin community `Community 347`** (2 nodes): `UpdateSettingsRequest.java`, `UpdateSettingsRequest`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 348`** (2 nodes): `CreateUserRequest.java`, `CreateUserRequest`
+- **Thin community `Community 348`** (2 nodes): `CreateProductRequest.java`, `CreateProductRequest`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 349`** (2 nodes): `UpdateOpportunityRequest.java`, `UpdateOpportunityRequest`
+- **Thin community `Community 349`** (2 nodes): `CreateTechnicianSkillRequest.java`, `CreateTechnicianSkillRequest`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 350`** (2 nodes): `BreakStartRequest.java`, `BreakStartRequest`
+- **Thin community `Community 350`** (2 nodes): `CreateUserRequest.java`, `CreateUserRequest`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 351`** (2 nodes): `CreateProjectTaskRequest`, `CreateProjectTaskRequest.java`
+- **Thin community `Community 351`** (2 nodes): `UpdateOpportunityRequest.java`, `UpdateOpportunityRequest`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 352`** (2 nodes): `BreakEndRequest.java`, `BreakEndRequest`
+- **Thin community `Community 352`** (2 nodes): `BreakStartRequest.java`, `BreakStartRequest`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 353`** (2 nodes): `UpdateAssetRequest.java`, `UpdateAssetRequest`
+- **Thin community `Community 353`** (2 nodes): `CreateProjectTaskRequest`, `CreateProjectTaskRequest.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 354`** (2 nodes): `LocationUpdateRequest.java`, `LocationUpdateRequest`
+- **Thin community `Community 354`** (2 nodes): `BreakEndRequest.java`, `BreakEndRequest`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 355`** (2 nodes): `InvoiceConfigRequest.java`, `InvoiceConfigRequest`
+- **Thin community `Community 355`** (2 nodes): `UpdateAssetRequest.java`, `UpdateAssetRequest`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 356`** (2 nodes): `CreateProjectRequest`, `CreateProjectRequest.java`
+- **Thin community `Community 356`** (2 nodes): `LocationUpdateRequest.java`, `LocationUpdateRequest`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 357`** (2 nodes): `EnableInventoryRequest.java`, `EnableInventoryRequest`
+- **Thin community `Community 357`** (2 nodes): `InvoiceConfigRequest.java`, `InvoiceConfigRequest`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 358`** (2 nodes): `UserActivityFilterRequest.java`, `UserActivityFilterRequest`
+- **Thin community `Community 358`** (2 nodes): `CreateProjectRequest`, `CreateProjectRequest.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 359`** (2 nodes): `CreateCalendarEventRequest`, `CreateCalendarEventRequest.java`
+- **Thin community `Community 359`** (2 nodes): `EnableInventoryRequest.java`, `EnableInventoryRequest`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 360`** (2 nodes): `CheckOutRequest.java`, `CheckOutRequest`
+- **Thin community `Community 360`** (2 nodes): `ConvertRfqToPoRequest`, `ConvertRfqToPoRequest.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 361`** (2 nodes): `CheckInRequest.java`, `CheckInRequest`
+- **Thin community `Community 361`** (2 nodes): `UserActivityFilterRequest.java`, `UserActivityFilterRequest`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 362`** (2 nodes): `CreateShiftRequest.java`, `CreateShiftRequest`
+- **Thin community `Community 362`** (2 nodes): `CreateCalendarEventRequest`, `CreateCalendarEventRequest.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 363`** (2 nodes): `LoginRequest.java`, `LoginRequest`
+- **Thin community `Community 363`** (2 nodes): `CheckOutRequest.java`, `CheckOutRequest`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 364`** (2 nodes): `CreateActivityRequest.java`, `CreateActivityRequest`
+- **Thin community `Community 364`** (2 nodes): `CheckInRequest.java`, `CheckInRequest`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 365`** (2 nodes): `CreateServiceRequestRequest.java`, `CreateServiceRequestRequest`
+- **Thin community `Community 365`** (2 nodes): `CreateShiftRequest.java`, `CreateShiftRequest`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 366`** (2 nodes): `UpdateOfficeLocationRequest.java`, `UpdateOfficeLocationRequest`
+- **Thin community `Community 366`** (2 nodes): `LoginRequest.java`, `LoginRequest`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 367`** (2 nodes): `UpdateContactRequest.java`, `UpdateContactRequest`
+- **Thin community `Community 367`** (2 nodes): `CreateActivityRequest.java`, `CreateActivityRequest`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 368`** (2 nodes): `UpdateWorkOrderRequest.java`, `UpdateWorkOrderRequest`
+- **Thin community `Community 368`** (2 nodes): `CreateServiceRequestRequest.java`, `CreateServiceRequestRequest`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 369`** (2 nodes): `CreateWorkOrderRequest.java`, `CreateWorkOrderRequest`
+- **Thin community `Community 369`** (2 nodes): `UpdateOfficeLocationRequest.java`, `UpdateOfficeLocationRequest`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 370`** (2 nodes): `UpdateAccountRequest.java`, `UpdateAccountRequest`
+- **Thin community `Community 370`** (2 nodes): `UpdateContactRequest.java`, `UpdateContactRequest`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 371`** (2 nodes): `AssignLeadRequest`, `AssignLeadRequest.java`
+- **Thin community `Community 371`** (2 nodes): `UpdateWorkOrderRequest.java`, `UpdateWorkOrderRequest`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 372`** (2 nodes): `UpdateProductRequest.java`, `UpdateProductRequest`
+- **Thin community `Community 372`** (2 nodes): `CreateWorkOrderRequest.java`, `CreateWorkOrderRequest`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 373`** (2 nodes): `LinkInventoryRequest.java`, `LinkInventoryRequest`
+- **Thin community `Community 373`** (2 nodes): `UpdateAccountRequest.java`, `UpdateAccountRequest`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 374`** (2 nodes): `UpdateShiftRequest.java`, `UpdateShiftRequest`
+- **Thin community `Community 374`** (2 nodes): `AssignLeadRequest`, `AssignLeadRequest.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 375`** (2 nodes): `UpdateActivityRequest.java`, `UpdateActivityRequest`
+- **Thin community `Community 375`** (2 nodes): `UpdateProductRequest.java`, `UpdateProductRequest`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 376`** (2 nodes): `OrganizationRegistrationRequest.java`, `OrganizationRegistrationRequest`
+- **Thin community `Community 376`** (2 nodes): `LinkInventoryRequest.java`, `LinkInventoryRequest`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 377`** (2 nodes): `UpdateVendorRequest`, `UpdateVendorRequest.java`
+- **Thin community `Community 377`** (2 nodes): `UpdateShiftRequest.java`, `UpdateShiftRequest`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 378`** (2 nodes): `SendInvitationRequest.java`, `SendInvitationRequest`
+- **Thin community `Community 378`** (2 nodes): `UpdateActivityRequest.java`, `UpdateActivityRequest`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 379`** (2 nodes): `CreateOfficeLocationRequest.java`, `CreateOfficeLocationRequest`
+- **Thin community `Community 379`** (2 nodes): `OrganizationRegistrationRequest`, `OrganizationRegistrationRequest.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 380`** (2 nodes): `CreateLandingPageRequest`, `CreateLandingPageRequest.java`
+- **Thin community `Community 380`** (2 nodes): `UpdateVendorRequest`, `UpdateVendorRequest.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 381`** (2 nodes): `UpdateWarehouseRequest.java`, `UpdateWarehouseRequest`
+- **Thin community `Community 381`** (2 nodes): `SendInvitationRequest.java`, `SendInvitationRequest`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 382`** (2 nodes): `CreateBatchRequest.java`, `CreateBatchRequest`
+- **Thin community `Community 382`** (2 nodes): `CreateOfficeLocationRequest.java`, `CreateOfficeLocationRequest`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 383`** (2 nodes): `AddStorageLocationRequest`, `AddStorageLocationRequest.java`
+- **Thin community `Community 383`** (2 nodes): `CreateLandingPageRequest`, `CreateLandingPageRequest.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 384`** (2 nodes): `CreateReservationRequest.java`, `CreateReservationRequest`
+- **Thin community `Community 384`** (2 nodes): `UpdateWarehouseRequest.java`, `UpdateWarehouseRequest`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 385`** (2 nodes): `StockTransferRequest.java`, `StockTransferRequest`
+- **Thin community `Community 385`** (2 nodes): `CreateBatchRequest.java`, `CreateBatchRequest`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 386`** (2 nodes): `StockAdjustmentRequest.java`, `StockAdjustmentRequest`
+- **Thin community `Community 386`** (2 nodes): `AddStorageLocationRequest`, `AddStorageLocationRequest.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 387`** (2 nodes): `CreatePerformanceReviewRequest`, `CreatePerformanceReviewRequest.java`
+- **Thin community `Community 387`** (2 nodes): `CreateReservationRequest.java`, `CreateReservationRequest`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 388`** (2 nodes): `UpdateKeyResultRequest`, `UpdateKeyResultRequest.java`
+- **Thin community `Community 388`** (2 nodes): `StockTransferRequest.java`, `StockTransferRequest`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 389`** (2 nodes): `CreateReviewCycleRequest`, `CreateReviewCycleRequest.java`
+- **Thin community `Community 389`** (2 nodes): `StockAdjustmentRequest.java`, `StockAdjustmentRequest`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 390`** (2 nodes): `CreateObjectiveRequest`, `CreateObjectiveRequest.java`
+- **Thin community `Community 390`** (2 nodes): `CreatePerformanceReviewRequest`, `CreatePerformanceReviewRequest.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 391`** (2 nodes): `PermissionOverrideDto.java`, `PermissionOverrideDto`
+- **Thin community `Community 391`** (2 nodes): `UpdateKeyResultRequest`, `UpdateKeyResultRequest.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 392`** (2 nodes): `GrantPermissionRequest.java`, `GrantPermissionRequest`
+- **Thin community `Community 392`** (2 nodes): `CreateReviewCycleRequest`, `CreateReviewCycleRequest.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 393`** (2 nodes): `BulkUpdatePermissionsRequest.java`, `BulkUpdatePermissionsRequest`
+- **Thin community `Community 393`** (2 nodes): `CreateObjectiveRequest`, `CreateObjectiveRequest.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 394`** (2 nodes): `RevokePermissionRequest.java`, `RevokePermissionRequest`
+- **Thin community `Community 394`** (2 nodes): `PermissionOverrideDto.java`, `PermissionOverrideDto`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 395`** (2 nodes): `LeaveSummaryResponse.java`, `LeaveSummaryResponse`
+- **Thin community `Community 395`** (2 nodes): `GrantPermissionRequest.java`, `GrantPermissionRequest`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 396`** (2 nodes): `LeaveResponse.java`, `LeaveResponse`
+- **Thin community `Community 396`** (2 nodes): `BulkUpdatePermissionsRequest.java`, `BulkUpdatePermissionsRequest`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 397`** (2 nodes): `ApproveLeaveRequest`, `ApproveLeaveRequest.java`
+- **Thin community `Community 397`** (2 nodes): `RevokePermissionRequest.java`, `RevokePermissionRequest`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 398`** (2 nodes): `CreateLeaveRequest.java`, `CreateLeaveRequest`
+- **Thin community `Community 398`** (2 nodes): `LeaveSummaryResponse.java`, `LeaveSummaryResponse`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 399`** (2 nodes): `CancelLeaveRequest.java`, `CancelLeaveRequest`
+- **Thin community `Community 399`** (2 nodes): `LeaveResponse.java`, `LeaveResponse`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 400`** (2 nodes): `AopConfig`, `AopConfig.java`
+- **Thin community `Community 400`** (2 nodes): `ApproveLeaveRequest`, `ApproveLeaveRequest.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 401`** (2 nodes): `DealerPerformance`, `DealerPerformance.java`
+- **Thin community `Community 401`** (2 nodes): `CreateLeaveRequest.java`, `CreateLeaveRequest`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 402`** (2 nodes): `EscalationLog`, `EscalationLog.java`
+- **Thin community `Community 402`** (2 nodes): `CancelLeaveRequest.java`, `CancelLeaveRequest`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 403`** (2 nodes): `TimeEntry`, `TimeEntry.java`
+- **Thin community `Community 403`** (2 nodes): `AopConfig`, `AopConfig.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 404`** (2 nodes): `UserActivity.java`, `UserActivity`
+- **Thin community `Community 404`** (2 nodes): `DealerPerformance`, `DealerPerformance.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 405`** (2 nodes): `Asset`, `Asset.java`
+- **Thin community `Community 405`** (2 nodes): `EscalationLog`, `EscalationLog.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 406`** (2 nodes): `FeedPollVote`, `FeedPollVote.java`
+- **Thin community `Community 406`** (2 nodes): `TimeEntry`, `TimeEntry.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 407`** (2 nodes): `Sequence.java`, `Sequence`
+- **Thin community `Community 407`** (2 nodes): `UserActivity.java`, `UserActivity`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 408`** (2 nodes): `DriveFolder`, `DriveFolder.java`
+- **Thin community `Community 408`** (2 nodes): `Asset`, `Asset.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 409`** (2 nodes): `FeedReaction`, `FeedReaction.java`
+- **Thin community `Community 409`** (2 nodes): `FeedPollVote`, `FeedPollVote.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 410`** (2 nodes): `Product.java`, `Product`
+- **Thin community `Community 410`** (2 nodes): `Sequence.java`, `Sequence`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 411`** (2 nodes): `Leave.java`, `Leave`
+- **Thin community `Community 411`** (2 nodes): `DriveFolder`, `DriveFolder.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 412`** (2 nodes): `AuditLog`, `AuditLog.java`
+- **Thin community `Community 412`** (2 nodes): `FeedReaction`, `FeedReaction.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 413`** (2 nodes): `ReviewCycle`, `ReviewCycle.java`
+- **Thin community `Community 413`** (2 nodes): `Product.java`, `Product`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 414`** (2 nodes): `ContractBillingCycle.java`, `ContractBillingCycle`
+- **Thin community `Community 414`** (2 nodes): `Leave.java`, `Leave`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 415`** (2 nodes): `StockTransaction.java`, `StockTransaction`
+- **Thin community `Community 415`** (2 nodes): `AuditLog`, `AuditLog.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 416`** (2 nodes): `Notification.java`, `Notification`
+- **Thin community `Community 416`** (2 nodes): `ReviewCycle`, `ReviewCycle.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 417`** (2 nodes): `VendorPart.java`, `VendorPart`
+- **Thin community `Community 417`** (2 nodes): `ContractBillingCycle.java`, `ContractBillingCycle`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 418`** (2 nodes): `TechnicianSkill.java`, `TechnicianSkill`
+- **Thin community `Community 418`** (2 nodes): `StockTransaction.java`, `StockTransaction`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 419`** (2 nodes): `CurrencyConfig`, `CurrencyConfig.java`
+- **Thin community `Community 419`** (2 nodes): `Notification.java`, `Notification`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 420`** (2 nodes): `EscalationRule`, `EscalationRule.java`
+- **Thin community `Community 420`** (2 nodes): `VendorPart.java`, `VendorPart`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 421`** (2 nodes): `OfficeLocation.java`, `OfficeLocation`
+- **Thin community `Community 421`** (2 nodes): `TechnicianSkill.java`, `TechnicianSkill`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 422`** (2 nodes): `Batch.java`, `Batch`
+- **Thin community `Community 422`** (2 nodes): `CurrencyConfig`, `CurrencyConfig.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 423`** (2 nodes): `SignatureRequest`, `SignatureRequest.java`
+- **Thin community `Community 423`** (2 nodes): `EscalationRule`, `EscalationRule.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 424`** (2 nodes): `WebFormSubmission.java`, `WebFormSubmission`
+- **Thin community `Community 424`** (2 nodes): `TermsTemplate`, `TermsTemplate.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 425`** (2 nodes): `KbCategory`, `KbCategory.java`
+- **Thin community `Community 425`** (2 nodes): `OfficeLocation.java`, `OfficeLocation`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 426`** (2 nodes): `CalendarEvent`, `CalendarEvent.java`
+- **Thin community `Community 426`** (2 nodes): `Batch.java`, `Batch`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 427`** (2 nodes): `Lead.java`, `Lead`
+- **Thin community `Community 427`** (2 nodes): `SignatureRequest`, `SignatureRequest.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 428`** (2 nodes): `Account`, `Account.java`
+- **Thin community `Community 428`** (2 nodes): `WebFormSubmission.java`, `WebFormSubmission`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 429`** (2 nodes): `ProductMapping.java`, `ProductMapping`
+- **Thin community `Community 429`** (2 nodes): `KbCategory`, `KbCategory.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 430`** (2 nodes): `AssetCategory`, `AssetCategory.java`
+- **Thin community `Community 430`** (2 nodes): `CalendarEvent`, `CalendarEvent.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 431`** (2 nodes): `WorkOrderGeoEvent.java`, `WorkOrderGeoEvent`
+- **Thin community `Community 431`** (2 nodes): `Lead.java`, `Lead`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 432`** (2 nodes): `TrainingRecord.java`, `TrainingRecord`
+- **Thin community `Community 432`** (2 nodes): `Account`, `Account.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 433`** (2 nodes): `Opportunity.java`, `Opportunity`
+- **Thin community `Community 433`** (2 nodes): `ProductMapping.java`, `ProductMapping`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 434`** (2 nodes): `Shift.java`, `Shift`
+- **Thin community `Community 434`** (2 nodes): `AssetCategory`, `AssetCategory.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 435`** (2 nodes): `Holiday.java`, `Holiday`
+- **Thin community `Community 435`** (2 nodes): `WorkOrderGeoEvent.java`, `WorkOrderGeoEvent`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 436`** (2 nodes): `ContractVisit.java`, `ContractVisit`
+- **Thin community `Community 436`** (2 nodes): `TrainingRecord.java`, `TrainingRecord`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 437`** (2 nodes): `ProposalVersion.java`, `ProposalVersion`
+- **Thin community `Community 437`** (2 nodes): `Opportunity.java`, `Opportunity`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 438`** (2 nodes): `LandingPage`, `LandingPage.java`
+- **Thin community `Community 438`** (2 nodes): `Shift.java`, `Shift`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 439`** (2 nodes): `PortalSession`, `PortalSession.java`
+- **Thin community `Community 439`** (2 nodes): `Holiday.java`, `Holiday`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 440`** (2 nodes): `WebhookEvent.java`, `WebhookEvent`
+- **Thin community `Community 440`** (2 nodes): `ContractVisit.java`, `ContractVisit`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 441`** (2 nodes): `DriveFile`, `DriveFile.java`
+- **Thin community `Community 441`** (2 nodes): `ProposalVersion.java`, `ProposalVersion`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 442`** (2 nodes): `UserShiftAssignment.java`, `UserShiftAssignment`
+- **Thin community `Community 442`** (2 nodes): `LandingPage`, `LandingPage.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 443`** (2 nodes): `Project`, `Project.java`
+- **Thin community `Community 443`** (2 nodes): `PortalSession`, `PortalSession.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 444`** (2 nodes): `Stock.java`, `Stock`
+- **Thin community `Community 444`** (2 nodes): `WebhookEvent.java`, `WebhookEvent`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 445`** (2 nodes): `TaskComment`, `TaskComment.java`
+- **Thin community `Community 445`** (2 nodes): `DriveFile`, `DriveFile.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 446`** (2 nodes): `EngineerLocation.java`, `EngineerLocation`
+- **Thin community `Community 446`** (2 nodes): `UserShiftAssignment.java`, `UserShiftAssignment`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 447`** (2 nodes): `DriveFileVersion`, `DriveFileVersion.java`
+- **Thin community `Community 447`** (2 nodes): `Project`, `Project.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 448`** (2 nodes): `Dealer`, `Dealer.java`
+- **Thin community `Community 448`** (2 nodes): `Stock.java`, `Stock`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 449`** (2 nodes): `ChatMessage.java`, `ChatMessage`
+- **Thin community `Community 449`** (2 nodes): `ProposalCounter`, `ProposalCounter.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 450`** (2 nodes): `ChatGroup.java`, `ChatGroup`
+- **Thin community `Community 450`** (2 nodes): `TaskComment`, `TaskComment.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 451`** (2 nodes): `KbArticle`, `KbArticle.java`
+- **Thin community `Community 451`** (2 nodes): `EngineerLocation.java`, `EngineerLocation`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 452`** (2 nodes): `LeadAssignmentConfig.java`, `LeadAssignmentConfig`
+- **Thin community `Community 452`** (2 nodes): `DriveFileVersion`, `DriveFileVersion.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 453`** (2 nodes): `AttendanceRegularization`, `AttendanceRegularization.java`
+- **Thin community `Community 453`** (2 nodes): `Dealer`, `Dealer.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 454`** (2 nodes): `ServiceRequest.java`, `ServiceRequest`
+- **Thin community `Community 454`** (2 nodes): `ChatMessage.java`, `ChatMessage`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 455`** (2 nodes): `StockReservation.java`, `StockReservation`
+- **Thin community `Community 455`** (2 nodes): `ChatGroup.java`, `ChatGroup`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 456`** (2 nodes): `ProposalStatus.java`, `ProposalStatus()`
+- **Thin community `Community 456`** (2 nodes): `KbArticle`, `KbArticle.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 457`** (2 nodes): `ProductStatus.java`, `ProductStatus()`
+- **Thin community `Community 457`** (2 nodes): `LeadAssignmentConfig.java`, `LeadAssignmentConfig`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 458`** (2 nodes): `ProposalSource.java`, `ProposalSource()`
+- **Thin community `Community 458`** (2 nodes): `AttendanceRegularization`, `AttendanceRegularization.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 459`** (2 nodes): `Ascendons Brand Identity`, `Ascendons Brand Logo`
+- **Thin community `Community 459`** (2 nodes): `ServiceRequest.java`, `ServiceRequest`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 460`** (1 nodes): `insert-test-products.js`
+- **Thin community `Community 460`** (2 nodes): `StockReservation.java`, `StockReservation`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 461`** (1 nodes): `fix-attendance-duplicates.js`
+- **Thin community `Community 461`** (2 nodes): `ProposalStatus.java`, `ProposalStatus()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 462`** (1 nodes): `postcss.config.mjs`
+- **Thin community `Community 462`** (2 nodes): `ProductStatus.java`, `ProductStatus()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 463`** (1 nodes): `next-env.d.ts`
+- **Thin community `Community 463`** (2 nodes): `ProposalSource.java`, `ProposalSource()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 464`** (1 nodes): `next.config.ts`
+- **Thin community `Community 464`** (2 nodes): `Ascendons Brand Identity`, `Ascendons Brand Logo`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 465`** (1 nodes): `account.ts`
+- **Thin community `Community 465`** (1 nodes): `insert-test-products.js`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 466`** (1 nodes): `contact.ts`
+- **Thin community `Community 466`** (1 nodes): `fix-attendance-duplicates.js`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 467`** (1 nodes): `product.ts`
+- **Thin community `Community 467`** (1 nodes): `postcss.config.mjs`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 468`** (1 nodes): `opportunity.ts`
+- **Thin community `Community 468`** (1 nodes): `next-env.d.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 469`** (1 nodes): `common.ts`
+- **Thin community `Community 469`** (1 nodes): `next.config.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 470`** (1 nodes): `auditLog.ts`
+- **Thin community `Community 470`** (1 nodes): `account.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 471`** (1 nodes): `role.ts`
+- **Thin community `Community 471`** (1 nodes): `contact.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 472`** (1 nodes): `activity.ts`
+- **Thin community `Community 472`** (1 nodes): `product.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 473`** (1 nodes): `profile.ts`
+- **Thin community `Community 473`** (1 nodes): `opportunity.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 474`** (1 nodes): `organization.ts`
+- **Thin community `Community 474`** (1 nodes): `common.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 475`** (1 nodes): `user-activity.ts`
+- **Thin community `Community 475`** (1 nodes): `auditLog.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 476`** (1 nodes): `auth.ts`
+- **Thin community `Community 476`** (1 nodes): `role.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 477`** (1 nodes): `field-service.ts`
+- **Thin community `Community 477`** (1 nodes): `activity.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 478`** (1 nodes): `catalog.ts`
+- **Thin community `Community 478`** (1 nodes): `profile.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 479`** (1 nodes): `error.tsx`
+- **Thin community `Community 479`** (1 nodes): `organization.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 480`** (1 nodes): `page.tsx`
+- **Thin community `Community 480`** (1 nodes): `user-activity.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 481`** (1 nodes): `page.tsx`
+- **Thin community `Community 481`** (1 nodes): `auth.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 482`** (1 nodes): `page.tsx`
+- **Thin community `Community 482`** (1 nodes): `field-service.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 483`** (1 nodes): `page.tsx`
+- **Thin community `Community 483`** (1 nodes): `catalog.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 484`** (1 nodes): `page.tsx`
+- **Thin community `Community 484`** (1 nodes): `error.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
 - **Thin community `Community 485`** (1 nodes): `page.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 486`** (1 nodes): `TopBar.tsx`
+- **Thin community `Community 486`** (1 nodes): `page.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
 - **Thin community `Community 487`** (1 nodes): `page.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
 - **Thin community `Community 488`** (1 nodes): `page.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 489`** (1 nodes): `amplify-dependent-resources-ref.d.ts`
+- **Thin community `Community 489`** (1 nodes): `page.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 490`** (1 nodes): `EmptyState.tsx`
+- **Thin community `Community 490`** (1 nodes): `page.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 491`** (1 nodes): `AttendanceCharts.tsx`
+- **Thin community `Community 491`** (1 nodes): `TopBar.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 492`** (1 nodes): `LeaveSummaryCard.tsx`
+- **Thin community `Community 492`** (1 nodes): `page.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 493`** (1 nodes): `tabs.tsx`
+- **Thin community `Community 493`** (1 nodes): `page.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 494`** (1 nodes): `card.tsx`
+- **Thin community `Community 494`** (1 nodes): `amplify-dependent-resources-ref.d.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 495`** (1 nodes): `label.tsx`
+- **Thin community `Community 495`** (1 nodes): `EmptyState.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 496`** (1 nodes): `dialog.tsx`
+- **Thin community `Community 496`** (1 nodes): `AttendanceCharts.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 497`** (1 nodes): `badge.tsx`
+- **Thin community `Community 497`** (1 nodes): `LeaveSummaryCard.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 498`** (1 nodes): `button.tsx`
+- **Thin community `Community 498`** (1 nodes): `tabs.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 499`** (1 nodes): `select.tsx`
+- **Thin community `Community 499`** (1 nodes): `card.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 500`** (1 nodes): `textarea.tsx`
+- **Thin community `Community 500`** (1 nodes): `label.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 501`** (1 nodes): `input.tsx`
+- **Thin community `Community 501`** (1 nodes): `dialog.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 502`** (1 nodes): `SortableLeadCard.tsx`
+- **Thin community `Community 502`** (1 nodes): `badge.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 503`** (1 nodes): `ObjectPermissionRow.tsx`
+- **Thin community `Community 503`** (1 nodes): `button.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 504`** (1 nodes): `CountryStateSelector.tsx`
+- **Thin community `Community 504`** (1 nodes): `select.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 505`** (1 nodes): `profiles.ts`
+- **Thin community `Community 505`** (1 nodes): `textarea.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 506`** (1 nodes): `drive.ts`
+- **Thin community `Community 506`** (1 nodes): `input.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 507`** (1 nodes): `proposals.ts`
+- **Thin community `Community 507`** (1 nodes): `SortableLeadCard.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 508`** (1 nodes): `projects.ts`
+- **Thin community `Community 508`** (1 nodes): `ObjectPermissionRow.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 509`** (1 nodes): `performance.ts`
+- **Thin community `Community 509`** (1 nodes): `CountryStateSelector.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 510`** (1 nodes): `reports.ts`
+- **Thin community `Community 510`** (1 nodes): `profiles.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 511`** (1 nodes): `toast.ts`
+- **Thin community `Community 511`** (1 nodes): `drive.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 512`** (1 nodes): `timesheets.ts`
+- **Thin community `Community 512`** (1 nodes): `proposals.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 513`** (1 nodes): `leads.ts`
+- **Thin community `Community 513`** (1 nodes): `projects.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 514`** (1 nodes): `forms.ts`
+- **Thin community `Community 514`** (1 nodes): `performance.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 515`** (1 nodes): `opportunities.ts`
+- **Thin community `Community 515`** (1 nodes): `reports.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 516`** (1 nodes): `calendar.ts`
+- **Thin community `Community 516`** (1 nodes): `toast.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 517`** (1 nodes): `auditLogs.ts`
+- **Thin community `Community 517`** (1 nodes): `timesheets.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 518`** (1 nodes): `dealers.ts`
+- **Thin community `Community 518`** (1 nodes): `leads.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 519`** (1 nodes): `feed.ts`
+- **Thin community `Community 519`** (1 nodes): `forms.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 520`** (1 nodes): `products.ts`
+- **Thin community `Community 520`** (1 nodes): `opportunities.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 521`** (1 nodes): `surveys.ts`
+- **Thin community `Community 521`** (1 nodes): `calendar.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 522`** (1 nodes): `onboarding.ts`
+- **Thin community `Community 522`** (1 nodes): `auditLogs.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 523`** (1 nodes): `dispatch.ts`
+- **Thin community `Community 523`** (1 nodes): `dealers.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 524`** (1 nodes): `knowledge-base.ts`
+- **Thin community `Community 524`** (1 nodes): `feed.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 525`** (1 nodes): `user-activity.ts`
+- **Thin community `Community 525`** (1 nodes): `products.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 526`** (1 nodes): `accounts.ts`
+- **Thin community `Community 526`** (1 nodes): `surveys.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 527`** (1 nodes): `roles.ts`
+- **Thin community `Community 527`** (1 nodes): `onboarding.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 528`** (1 nodes): `users.ts`
+- **Thin community `Community 528`** (1 nodes): `dispatch.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 529`** (1 nodes): `me.ts`
+- **Thin community `Community 529`** (1 nodes): `knowledge-base.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 530`** (1 nodes): `contacts.ts`
+- **Thin community `Community 530`** (1 nodes): `user-activity.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 531`** (1 nodes): `procurement.ts`
+- **Thin community `Community 531`** (1 nodes): `accounts.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 532`** (1 nodes): `leadAssignment.ts`
+- **Thin community `Community 532`** (1 nodes): `roles.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 533`** (1 nodes): `esignature.ts`
+- **Thin community `Community 533`** (1 nodes): `users.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 534`** (1 nodes): `auth.ts`
+- **Thin community `Community 534`** (1 nodes): `me.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 535`** (1 nodes): `field-service.ts`
+- **Thin community `Community 535`** (1 nodes): `contacts.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 536`** (1 nodes): `activities.ts`
+- **Thin community `Community 536`** (1 nodes): `procurement.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 537`** (1 nodes): `locations.ts`
+- **Thin community `Community 537`** (1 nodes): `leadAssignment.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 538`** (1 nodes): `regularization.ts`
+- **Thin community `Community 538`** (1 nodes): `esignature.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 539`** (1 nodes): `holidays.ts`
+- **Thin community `Community 539`** (1 nodes): `auth.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 540`** (1 nodes): `invitation.ts`
+- **Thin community `Community 540`** (1 nodes): `field-service.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 541`** (1 nodes): `analytics.ts`
+- **Thin community `Community 541`** (1 nodes): `activities.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 542`** (1 nodes): `reports.ts`
+- **Thin community `Community 542`** (1 nodes): `locations.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 543`** (1 nodes): `permissions.ts`
+- **Thin community `Community 543`** (1 nodes): `regularization.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 544`** (1 nodes): `leaves.ts`
+- **Thin community `Community 544`** (1 nodes): `holidays.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 545`** (1 nodes): `officeLocations.ts`
+- **Thin community `Community 545`** (1 nodes): `invitation.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 546`** (1 nodes): `leave-policy.ts`
+- **Thin community `Community 546`** (1 nodes): `analytics.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 547`** (1 nodes): `attendance.ts`
+- **Thin community `Community 547`** (1 nodes): `reports.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 548`** (1 nodes): `organization.ts`
+- **Thin community `Community 548`** (1 nodes): `permissions.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 549`** (1 nodes): `shifts.ts`
+- **Thin community `Community 549`** (1 nodes): `leaves.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 550`** (1 nodes): `countries-states.ts`
+- **Thin community `Community 550`** (1 nodes): `officeLocations.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 551`** (1 nodes): `index.js`
+- **Thin community `Community 551`** (1 nodes): `leave-policy.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 552`** (1 nodes): `index.js`
+- **Thin community `Community 552`** (1 nodes): `attendance.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 553`** (1 nodes): `index.js`
+- **Thin community `Community 553`** (1 nodes): `organization.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 554`** (1 nodes): `inventoryApi.js`
+- **Thin community `Community 554`** (1 nodes): `shifts.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 555`** (1 nodes): `api.js`
+- **Thin community `Community 555`** (1 nodes): `countries-states.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 556`** (1 nodes): `mongodb-indexes.js`
+- **Thin community `Community 556`** (1 nodes): `index.js`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 557`** (1 nodes): `FormFieldType.java`
+- **Thin community `Community 557`** (1 nodes): `index.js`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 558`** (1 nodes): `ServiceRequestSource.java`
+- **Thin community `Community 558`** (1 nodes): `index.js`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 559`** (1 nodes): `ChecklistItemStatus.java`
+- **Thin community `Community 559`** (1 nodes): `inventoryApi.js`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 560`** (1 nodes): `LeadStatus.java`
+- **Thin community `Community 560`** (1 nodes): `api.js`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 561`** (1 nodes): `WorkOrderType.java`
+- **Thin community `Community 561`** (1 nodes): `mongodb-indexes.js`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 562`** (1 nodes): `UserRole.java`
+- **Thin community `Community 562`** (1 nodes): `FormFieldType.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 563`** (1 nodes): `ContractType.java`
+- **Thin community `Community 563`** (1 nodes): `ServiceRequestSource.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 564`** (1 nodes): `DriveFileType.java`
+- **Thin community `Community 564`** (1 nodes): `ChecklistItemStatus.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 565`** (1 nodes): `GeofenceShape.java`
+- **Thin community `Community 565`** (1 nodes): `LeadStatus.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 566`** (1 nodes): `WorkOrderPriority.java`
+- **Thin community `Community 566`** (1 nodes): `WorkOrderType.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 567`** (1 nodes): `SignatureStatus.java`
+- **Thin community `Community 567`** (1 nodes): `UserRole.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 568`** (1 nodes): `TimeEntryType.java`
+- **Thin community `Community 568`** (1 nodes): `ContractType.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 569`** (1 nodes): `ReportChartType.java`
+- **Thin community `Community 569`** (1 nodes): `DriveFileType.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 570`** (1 nodes): `ProjectStatus.java`
+- **Thin community `Community 570`** (1 nodes): `GeofenceShape.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 571`** (1 nodes): `ContractVisitStatus.java`
+- **Thin community `Community 571`** (1 nodes): `WorkOrderPriority.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 572`** (1 nodes): `GRNQualityStatus.java`
+- **Thin community `Community 572`** (1 nodes): `SignatureStatus.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 573`** (1 nodes): `ReviewStatus.java`
+- **Thin community `Community 573`** (1 nodes): `TimeEntryType.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 574`** (1 nodes): `WorkOrderStatus.java`
+- **Thin community `Community 574`** (1 nodes): `ReportChartType.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 575`** (1 nodes): `TaskStatus.java`
+- **Thin community `Community 575`** (1 nodes): `ProjectStatus.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 576`** (1 nodes): `TaskPriority.java`
+- **Thin community `Community 576`** (1 nodes): `ContractVisitStatus.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 577`** (1 nodes): `FeedPostType.java`
+- **Thin community `Community 577`** (1 nodes): `GRNQualityStatus.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 578`** (1 nodes): `EscalationTrigger.java`
+- **Thin community `Community 578`** (1 nodes): `ReviewStatus.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 579`** (1 nodes): `SignOffMethod.java`
+- **Thin community `Community 579`** (1 nodes): `WorkOrderStatus.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 580`** (1 nodes): `EngineerAvailability.java`
+- **Thin community `Community 580`** (1 nodes): `TaskStatus.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 581`** (1 nodes): `RecurrenceFrequency.java`
+- **Thin community `Community 581`** (1 nodes): `TaskPriority.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 582`** (1 nodes): `OnboardingType.java`
+- **Thin community `Community 582`** (1 nodes): `FeedPostType.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 583`** (1 nodes): `PartsRequestStatus.java`
+- **Thin community `Community 583`** (1 nodes): `EscalationTrigger.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 584`** (1 nodes): `DealerTier.java`
+- **Thin community `Community 584`** (1 nodes): `SignOffMethod.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 585`** (1 nodes): `TrainingType.java`
+- **Thin community `Community 585`** (1 nodes): `EngineerAvailability.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 586`** (1 nodes): `ReportDataSource.java`
+- **Thin community `Community 586`** (1 nodes): `RecurrenceFrequency.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 587`** (1 nodes): `DealerStatus.java`
+- **Thin community `Community 587`** (1 nodes): `OnboardingType.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 588`** (1 nodes): `RFQStatus.java`
+- **Thin community `Community 588`** (1 nodes): `TermsType.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 589`** (1 nodes): `CalendarEventStatus.java`
+- **Thin community `Community 589`** (1 nodes): `PartsRequestStatus.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 590`** (1 nodes): `ReviewerType.java`
+- **Thin community `Community 590`** (1 nodes): `DealerTier.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 591`** (1 nodes): `ShiftType.java`
+- **Thin community `Community 591`** (1 nodes): `TrainingType.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 592`** (1 nodes): `OpportunityStage.java`
+- **Thin community `Community 592`** (1 nodes): `ReportDataSource.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 593`** (1 nodes): `AssetCategoryType.java`
+- **Thin community `Community 593`** (1 nodes): `DealerStatus.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 594`** (1 nodes): `UserStatus.java`
+- **Thin community `Community 594`** (1 nodes): `RFQStatus.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 595`** (1 nodes): `AttendanceType.java`
+- **Thin community `Community 595`** (1 nodes): `CalendarEventStatus.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 596`** (1 nodes): `GstType.java`
+- **Thin community `Community 596`** (1 nodes): `ReviewerType.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 597`** (1 nodes): `CalendarEventType.java`
+- **Thin community `Community 597`** (1 nodes): `ShiftType.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 598`** (1 nodes): `ActivityType.java`
+- **Thin community `Community 598`** (1 nodes): `OpportunityStage.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 599`** (1 nodes): `ActivityPriority.java`
+- **Thin community `Community 599`** (1 nodes): `AssetCategoryType.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 600`** (1 nodes): `ContractStatus.java`
+- **Thin community `Community 600`** (1 nodes): `UserStatus.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 601`** (1 nodes): `OnboardingTaskAssignee.java`
+- **Thin community `Community 601`** (1 nodes): `AttendanceType.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 602`** (1 nodes): `KbArticleStatus.java`
+- **Thin community `Community 602`** (1 nodes): `GstType.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 603`** (1 nodes): `LeadSource.java`
+- **Thin community `Community 603`** (1 nodes): `CalendarEventType.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 604`** (1 nodes): `AssetStatus.java`
+- **Thin community `Community 604`** (1 nodes): `ActivityType.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 605`** (1 nodes): `ProficiencyLevel.java`
+- **Thin community `Community 605`** (1 nodes): `ActivityPriority.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 606`** (1 nodes): `CompanySize.java`
+- **Thin community `Community 606`** (1 nodes): `ContractStatus.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 607`** (1 nodes): `VendorStatus.java`
+- **Thin community `Community 607`** (1 nodes): `OnboardingTaskAssignee.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 608`** (1 nodes): `SurveyQuestionType.java`
+- **Thin community `Community 608`** (1 nodes): `KbArticleStatus.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 609`** (1 nodes): `ServiceRequestStatus.java`
+- **Thin community `Community 609`** (1 nodes): `LeadSource.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 610`** (1 nodes): `Industry.java`
+- **Thin community `Community 610`** (1 nodes): `AssetStatus.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 611`** (1 nodes): `BreakType.java`
+- **Thin community `Community 611`** (1 nodes): `ProficiencyLevel.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 612`** (1 nodes): `BillingCycle.java`
+- **Thin community `Community 612`** (1 nodes): `CompanySize.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 613`** (1 nodes): `EscalationLevel.java`
+- **Thin community `Community 613`** (1 nodes): `VendorStatus.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 614`** (1 nodes): `ActivityStatus.java`
+- **Thin community `Community 614`** (1 nodes): `SurveyQuestionType.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 615`** (1 nodes): `LocationType.java`
+- **Thin community `Community 615`** (1 nodes): `ServiceRequestStatus.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 616`** (1 nodes): `AttendanceStatus.java`
+- **Thin community `Community 616`** (1 nodes): `Industry.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 617`** (1 nodes): `ValidUntilConstraint.java`
+- **Thin community `Community 617`** (1 nodes): `BreakType.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 618`** (1 nodes): `fix-user-duplicates.js`
+- **Thin community `Community 618`** (1 nodes): `BillingCycle.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 619`** (1 nodes): `seed_roles.js`
+- **Thin community `Community 619`** (1 nodes): `EscalationLevel.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 620`** (1 nodes): `debug-notifications.js`
+- **Thin community `Community 620`** (1 nodes): `ActivityStatus.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 621`** (1 nodes): `fix-user-duplicates-exec.js`
+- **Thin community `Community 621`** (1 nodes): `LocationType.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 622`** (1 nodes): `Backend README`
+- **Thin community `Community 622`** (1 nodes): `AttendanceStatus.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 623`** (1 nodes): `File Icon SVG`
+- **Thin community `Community 623`** (1 nodes): `ValidUntilConstraint.java`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 624`** (1 nodes): `Globe Icon SVG`
+- **Thin community `Community 624`** (1 nodes): `fix-user-duplicates.js`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 625`** (1 nodes): `Window Icon SVG`
+- **Thin community `Community 625`** (1 nodes): `seed_roles.js`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 626`** (1 nodes): `debug-notifications.js`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 627`** (1 nodes): `fix-user-duplicates-exec.js`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 628`** (1 nodes): `Backend README`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 629`** (1 nodes): `File Icon SVG`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 630`** (1 nodes): `Globe Icon SVG`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 631`** (1 nodes): `Window Icon SVG`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `DateTimeUtil` connect `Community 12` to `Community 1`?**
-  _High betweenness centrality (0.036) - this node is a cross-community bridge._
-- **Why does `handleDelete()` connect `Community 2` to `Community 0`, `Community 1`?**
+- **Why does `handleSubmit()` connect `Community 2` to `Community 0`, `Community 1`, `Community 3`, `Community 4`, `Community 6`, `Community 8`, `Community 10`, `Community 16`, `Community 18`, `Community 19`?**
   _High betweenness centrality (0.034) - this node is a cross-community bridge._
-- **Why does `handleSubmit()` connect `Community 2` to `Community 0`, `Community 1`, `Community 3`, `Community 4`, `Community 5`, `Community 8`, `Community 11`, `Community 13`, `Community 16`?**
+- **Why does `handleDelete()` connect `Community 2` to `Community 0`, `Community 1`, `Community 4`, `Community 5`, `Community 16`, `Community 19`?**
   _High betweenness centrality (0.031) - this node is a cross-community bridge._
-- **Are the 109 inferred relationships involving `GET()` (e.g. with `proxy()` and `loadData()`) actually correct?**
-  _`GET()` has 109 INFERRED edges - model-reasoned connections that need verification._
+- **Why does `GET()` connect `Community 3` to `Community 0`, `Community 1`, `Community 2`, `Community 5`, `Community 7`, `Community 9`, `Community 10`, `Community 11`, `Community 13`, `Community 14`, `Community 16`, `Community 49`?**
+  _High betweenness centrality (0.025) - this node is a cross-community bridge._
+- **Are the 108 inferred relationships involving `GET()` (e.g. with `proxy()` and `loadData()`) actually correct?**
+  _`GET()` has 108 INFERRED edges - model-reasoned connections that need verification._
 - **Are the 31 inferred relationships involving `handleSubmit()` (e.g. with `.success()` and `.error()`) actually correct?**
   _`handleSubmit()` has 31 INFERRED edges - model-reasoned connections that need verification._
-- **Are the 67 inferred relationships involving `getDescription()` (e.g. with `.searchRoles()` and `.searchProfiles()`) actually correct?**
-  _`getDescription()` has 67 INFERRED edges - model-reasoned connections that need verification._
+- **Are the 68 inferred relationships involving `getDescription()` (e.g. with `.searchRoles()` and `.searchProfiles()`) actually correct?**
+  _`getDescription()` has 68 INFERRED edges - model-reasoned connections that need verification._
 - **Are the 20 inferred relationships involving `handleDelete()` (e.g. with `.deleteEvent()` and `.deleteProduct()`) actually correct?**
   _`handleDelete()` has 20 INFERRED edges - model-reasoned connections that need verification._
