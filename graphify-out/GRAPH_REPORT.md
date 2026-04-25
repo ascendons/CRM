@@ -1,12 +1,12 @@
 # Graph Report - /Users/pankajthakur/IdeaProjects/CRM  (2026-04-25)
 
 ## Corpus Check
-- 1107 files · ~803,331 words
+- 1107 files · ~804,575 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 5233 nodes · 10076 edges · 640 communities detected
-- Extraction: 54% EXTRACTED · 46% INFERRED · 0% AMBIGUOUS · INFERRED: 4628 edges (avg confidence: 0.8)
+- 5232 nodes · 10061 edges · 640 communities detected
+- Extraction: 54% EXTRACTED · 46% INFERRED · 0% AMBIGUOUS · INFERRED: 4627 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Community Hubs (Navigation)
@@ -653,9 +653,9 @@
 
 ## God Nodes (most connected - your core abstractions)
 1. `GET()` - 109 edges
-2. `handleSubmit()` - 82 edges
+2. `handleSubmit()` - 81 edges
 3. `getDescription()` - 69 edges
-4. `handleDelete()` - 64 edges
+4. `handleDelete()` - 63 edges
 5. `loadData()` - 61 edges
 6. `add()` - 53 edges
 7. `email()` - 50 edges
@@ -679,75 +679,75 @@
 
 ### Community 0 - "Community 0"
 Cohesion: 0.01
-Nodes (69): ActivityController, AnalyticsController, AssetCategoryController, AssetController, AttendanceController, AttendanceRegularizationController, AuthController, BulkOperationsController (+61 more)
+Nodes (70): ActivityController, AnalyticsController, AssetCategoryController, AssetController, AttendanceController, AttendanceRegularizationController, AuthController, BulkOperationsController (+62 more)
 
 ### Community 1 - "Community 1"
 Cohesion: 0.01
-Nodes (56): ActivityService, AssetCategoryService, AssetWarrantyExpiryScheduler, AttendanceRegularizationService, BulkShiftAssignmentService, CalendarEventService, ChatService, ChecklistService (+48 more)
+Nodes (55): AssetCategoryService, AttendanceRegularizationService, BulkShiftAssignmentService, CalendarEventService, ChatAuthorizationService, ChatAuthorizationServiceTest, ChatService, ChecklistService (+47 more)
 
 ### Community 2 - "Community 2"
 Cohesion: 0.01
-Nodes (200): AccountController, ApiResponse, handleCreateGroup(), handleInputChange(), handleSendMessage(), loadInitialData(), handleSaveChanges(), handleSubmit() (+192 more)
+Nodes (192): AccountController, ApiResponse, handleCreateGroup(), handleInputChange(), loadInitialData(), handleCheckIn(), loadOfficeLocations(), handleCheckOut() (+184 more)
 
 ### Community 3 - "Community 3"
 Cohesion: 0.01
-Nodes (26): AttendanceRegularizationRepository, BatchController, BatchRepository, BatchService, InventoryAnalyticsService, InventoryMapper, handleSubmit(), setAddress() (+18 more)
+Nodes (35): AttributeTypeDetector, TypeDetectionResult, BatchController, BatchRepository, BatchService, getPrice(), getProductName(), handleCustomSelect() (+27 more)
 
 ### Community 4 - "Community 4"
-Cohesion: 0.02
-Nodes (24): AttributeTypeDetector, TypeDetectionResult, DealerIdGeneratorService, DealerRepository, DealerService, DiscountType(), DriveFileRepository, DynamicProductCatalogController (+16 more)
+Cohesion: 0.01
+Nodes (48): AuthControllerTest, AuthService, ChatGroupRepository, ChatGroupService, ChatMessageRepository, Contact, ContactRepository, CrmIntegrationTest (+40 more)
 
 ### Community 5 - "Community 5"
 Cohesion: 0.02
-Nodes (20): AuthControllerTest, AuthService, ChatAuthorizationService, ChatAuthorizationServiceTest, ChatGroupRepository, ChatGroupService, ChatMessageRepository, Contact (+12 more)
+Nodes (21): Activity, AttendanceReportService, AttendanceRepository, CalendarEventRepository, LeaveRepository, ObjectiveRepository, OkrService, add() (+13 more)
 
 ### Community 6 - "Community 6"
 Cohesion: 0.02
-Nodes (21): Activity, AttendanceReportService, AttendanceRepository, CalendarEventRepository, handleRevoke(), loadInvitations(), LeaveRepository, add() (+13 more)
+Nodes (14): ActivityTrackingAspect, EntityInfo, AuditLogController, AuditLogRepository, AuditLogService, formatDate(), loadLogs(), fetchActivities() (+6 more)
 
 ### Community 7 - "Community 7"
 Cohesion: 0.02
-Nodes (35): CrmIntegrationTest, DataExportController, ExportRequestResponse, clearAllFilters(), fetchAvailableFilters(), handleFilterChange(), if(), DynamicProductIdGeneratorService (+27 more)
+Nodes (12): ActivityRepository, ActivityService, loadTrends(), OpportunityRepository, OpportunityService, getActiveProposal(), loadActivities(), onActivitySaved() (+4 more)
 
 ### Community 8 - "Community 8"
 Cohesion: 0.02
-Nodes (13): ActivityTrackingAspect, EntityInfo, AuditLogController, AuditLogRepository, AuditLogService, loadLogs(), fetchActivities(), loadUser() (+5 more)
+Nodes (41): AssetWarrantyExpiryScheduler, getAttendanceForDate(), CreateReservationDialog(), extractPriceFromAttributes(), fetchWarehouses(), handleSubmit(), resetForm(), handleDragEnd() (+33 more)
 
 ### Community 9 - "Community 9"
 Cohesion: 0.03
-Nodes (37): getAttendanceForDate(), CreateReservationDialog(), extractPriceFromAttributes(), fetchWarehouses(), handleSubmit(), resetForm(), handleDragEnd(), handleDragOver() (+29 more)
+Nodes (19): EffectivePermissionsResponse, ModulePermissions, ObjectPermissions, PermissionDetail, handleSave(), FieldPermission, ObjectPermission, SystemPermissions (+11 more)
 
 ### Community 10 - "Community 10"
-Cohesion: 0.04
-Nodes (19): DealerOrderRepository, DealerPerformanceRepository, DealerPerformanceService, EffectivePermissionsResponse, ModulePermissions, ObjectPermissions, PermissionDetail, handleSave() (+11 more)
+Cohesion: 0.03
+Nodes (43): daysDifferenceIST(), formatDateIST(), formatDateLongIST(), formatDateTimeFullIST(), formatDateTimeIST(), formatDateTimeLongIST(), formatDistanceIST(), formatForAPIIST() (+35 more)
 
 ### Community 11 - "Community 11"
-Cohesion: 0.03
-Nodes (31): AttendanceIdGeneratorService, AttendanceService, handleEndBreak(), handleStartBreak(), updateTimer(), handleCheckIn(), loadOfficeLocations(), handleCheckOut() (+23 more)
+Cohesion: 0.04
+Nodes (12): AssetIdGeneratorService, AssetService, Contract, PenaltyConfig, SlaConfig, ContractIdGeneratorService, ContractRepository, ContractService (+4 more)
 
 ### Community 12 - "Community 12"
 Cohesion: 0.03
-Nodes (45): formatDate(), daysDifferenceIST(), formatDateIST(), formatDateLongIST(), formatDateTimeFullIST(), formatDateTimeIST(), formatDateTimeLongIST(), formatDistanceIST() (+37 more)
+Nodes (14): DealerIdGeneratorService, DealerOrderRepository, DealerPerformanceRepository, DealerPerformanceService, DealerRepository, DealerService, handleRevoke(), loadInvitations() (+6 more)
 
 ### Community 13 - "Community 13"
 Cohesion: 0.03
-Nodes (17): CurrencyScheduler, CurrencyService, LeadAssignmentConfigService, LeadAssignmentEventListener, LeadAssignmentService, addDays(), addField(), getMonthGrid() (+9 more)
+Nodes (15): AttendanceRegularizationRepository, addDays(), addField(), getMonthGrid(), handleReset(), handleSave(), loadPolicy(), loadRegularizations() (+7 more)
 
 ### Community 14 - "Community 14"
-Cohesion: 0.03
-Nodes (5): BaseTenantService, LeadRepository, LeastLoadedAssignmentStrategy, ProposalExpiryScheduler, ProposalRepository
+Cohesion: 0.04
+Nodes (4): BaseTenantService, LeadRepository, ProposalExpiryScheduler, ProposalRepository
 
 ### Community 15 - "Community 15"
-Cohesion: 0.03
-Nodes (2): ActivityRepository, UserRepository
+Cohesion: 0.05
+Nodes (19): AttendanceIdGeneratorService, AttendanceService, handleEndBreak(), handleStartBreak(), updateTimer(), GpsSpoofingDetector, LocationHistory, SpoofingDetectionResult (+11 more)
 
 ### Community 16 - "Community 16"
-Cohesion: 0.05
-Nodes (11): handleEnableInventory(), handleInventorySuccess(), handleSelectAll(), handleSelectOne(), EscalationLogRepository, EscalationRuleRepository, EscalationService, SlaBreachScheduler (+3 more)
+Cohesion: 0.04
+Nodes (8): CurrencyScheduler, CurrencyService, LeadAssignmentConfigService, LeadAssignmentEventListener, LeadAssignmentService, LeastLoadedAssignmentStrategy, PurchaseOrderRepository, TradingPurchaseOrderController
 
 ### Community 17 - "Community 17"
-Cohesion: 0.06
-Nodes (8): getPrice(), getProductName(), handleCustomSelect(), handleKeyDown(), handleSearch(), handleSelect(), ProductRepository, ProductService
+Cohesion: 0.05
+Nodes (11): handleEnableInventory(), handleInventorySuccess(), handleSelectAll(), handleSelectOne(), EscalationLogRepository, EscalationRuleRepository, EscalationService, SlaBreachScheduler (+3 more)
 
 ### Community 18 - "Community 18"
 Cohesion: 0.06
@@ -755,183 +755,183 @@ Nodes (7): DispatchAssignmentRepository, DispatchService, EngineerLocationReposi
 
 ### Community 19 - "Community 19"
 Cohesion: 0.07
-Nodes (6): BackendApplication, loadTemplates(), InvoiceTemplateService, MultiTenancyMigration, OrganizationRepository, runReport()
+Nodes (5): AssetRepository, KbArticleIdGeneratorService, KbArticleRepository, KbService, loadArticle()
 
 ### Community 20 - "Community 20"
-Cohesion: 0.11
-Nodes (3): AssetIdGeneratorService, AssetRepository, AssetService
+Cohesion: 0.07
+Nodes (6): BackendApplication, loadTemplates(), InvoiceTemplateService, MultiTenancyMigration, OrganizationRepository, runReport()
 
 ### Community 21 - "Community 21"
+Cohesion: 0.09
+Nodes (3): WarehouseIdGeneratorService, WarehouseRepository, WarehouseService
+
+### Community 22 - "Community 22"
 Cohesion: 0.13
 Nodes (3): PerformanceController, PerformanceReviewRepository, PerformanceService
 
-### Community 22 - "Community 22"
-Cohesion: 0.09
-Nodes (1): AccountRepository
-
 ### Community 23 - "Community 23"
-Cohesion: 0.17
-Nodes (2): PartsRequestRepository, PartsRequestService
+Cohesion: 0.11
+Nodes (3): ContractVisitController, ContractVisitRepository, PurchaseOrderApprovalService
 
 ### Community 24 - "Community 24"
-Cohesion: 0.18
-Nodes (5): Contract, PenaltyConfig, SlaConfig, ContractIdGeneratorService, ContractService
+Cohesion: 0.09
+Nodes (1): AccountRepository
 
 ### Community 25 - "Community 25"
 Cohesion: 0.12
 Nodes (9): AppLayout(), CatalogPage(), PermissionGuard(), PermissionProvider(), usePermissionContext(), ProtectedRoute(), useDynamicCatalog(), useCachedPermissions() (+1 more)
 
 ### Community 26 - "Community 26"
-Cohesion: 0.12
-Nodes (1): PurchaseOrderRepository
-
-### Community 27 - "Community 27"
-Cohesion: 0.13
-Nodes (1): OpportunityRepository
-
-### Community 28 - "Community 28"
-Cohesion: 0.16
-Nodes (2): RateContractRepository, RateContractService
-
-### Community 29 - "Community 29"
 Cohesion: 0.16
 Nodes (2): ESignatureService, SignatureRequestRepository
 
-### Community 30 - "Community 30"
+### Community 27 - "Community 27"
 Cohesion: 0.25
 Nodes (1): LeadScoringService
 
-### Community 31 - "Community 31"
+### Community 28 - "Community 28"
 Cohesion: 0.26
 Nodes (1): WebhookEventService
 
-### Community 32 - "Community 32"
-Cohesion: 0.17
-Nodes (3): ContractVisitController, ContractVisitRepository, ContractVisitService
+### Community 29 - "Community 29"
+Cohesion: 0.15
+Nodes (2): DriveFileRepository, StorageService
 
-### Community 33 - "Community 33"
-Cohesion: 0.17
-Nodes (1): ProductMappingRepository
+### Community 30 - "Community 30"
+Cohesion: 0.15
+Nodes (1): StockRepository
 
-### Community 34 - "Community 34"
+### Community 31 - "Community 31"
 Cohesion: 0.17
 Nodes (1): ShiftRepository
 
-### Community 35 - "Community 35"
+### Community 32 - "Community 32"
 Cohesion: 0.2
 Nodes (2): GRNRepository, GRNService
 
-### Community 36 - "Community 36"
-Cohesion: 0.21
-Nodes (2): SurveyResponseRepository, SurveyService
+### Community 33 - "Community 33"
+Cohesion: 0.18
+Nodes (1): ProductMappingRepository
 
-### Community 37 - "Community 37"
+### Community 34 - "Community 34"
 Cohesion: 0.25
 Nodes (1): PredefinedProfiles
 
-### Community 38 - "Community 38"
+### Community 35 - "Community 35"
+Cohesion: 0.16
+Nodes (2): HalfDayType(), LeaveBalanceRepository
+
+### Community 36 - "Community 36"
 Cohesion: 0.2
 Nodes (11): AWS Amplify CLI, Amplify Command Hooks, Amplify Command Hooks README, Amplify CLI README, create-next-app CLI Tool, Frontend README (Next.js), Geist Font Family, Next.js Framework (+3 more)
 
-### Community 39 - "Community 39"
+### Community 37 - "Community 37"
+Cohesion: 0.2
+Nodes (1): ProjectTaskRepository
+
+### Community 38 - "Community 38"
 Cohesion: 0.2
 Nodes (1): RFQRepository
 
-### Community 40 - "Community 40"
+### Community 39 - "Community 39"
 Cohesion: 0.22
 Nodes (1): OrganizationInvitationRepository
 
-### Community 41 - "Community 41"
+### Community 40 - "Community 40"
 Cohesion: 0.39
 Nodes (1): PredefinedRoles
 
-### Community 42 - "Community 42"
+### Community 41 - "Community 41"
 Cohesion: 0.39
 Nodes (1): ProposalIdGeneratorService
 
-### Community 43 - "Community 43"
+### Community 42 - "Community 42"
 Cohesion: 0.25
 Nodes (0): 
 
+### Community 43 - "Community 43"
+Cohesion: 0.25
+Nodes (4): ChatController, ChatMessagePayload, TypingEvent, handleSendMessage()
+
 ### Community 44 - "Community 44"
+Cohesion: 0.25
+Nodes (1): TechnicianSkillRepository
+
+### Community 45 - "Community 45"
 Cohesion: 0.29
 Nodes (1): EmailNotificationService
 
-### Community 45 - "Community 45"
+### Community 46 - "Community 46"
 Cohesion: 0.25
 Nodes (7): InvoiceConfig, Organization, OrganizationSettings, SecuritySettings, SubscriptionInfo, UsageLimits, UsageMetrics
 
-### Community 46 - "Community 46"
-Cohesion: 0.29
-Nodes (2): PurchaseOrderDetails(), getStatusColor()
-
 ### Community 47 - "Community 47"
-Cohesion: 0.29
-Nodes (1): LeaveBalanceRepository
+Cohesion: 0.33
+Nodes (4): extractSubdomain(), getCurrentSubdomain(), validateSubdomain(), checkSubdomain()
 
 ### Community 48 - "Community 48"
 Cohesion: 0.29
-Nodes (3): ChatController, ChatMessagePayload, TypingEvent
+Nodes (2): PurchaseOrderDetails(), getStatusColor()
 
 ### Community 49 - "Community 49"
 Cohesion: 0.29
-Nodes (1): TechnicianSkillRepository
+Nodes (1): UserShiftAssignmentRepository
 
 ### Community 50 - "Community 50"
 Cohesion: 0.29
 Nodes (1): ProjectRepository
 
 ### Community 51 - "Community 51"
-Cohesion: 0.29
-Nodes (1): UserShiftAssignmentRepository
+Cohesion: 0.33
+Nodes (2): DataExportController, ExportRequestResponse
 
 ### Community 52 - "Community 52"
-Cohesion: 0.33
-Nodes (2): isPasswordExpired(), isPasswordExpiringSoon()
+Cohesion: 0.29
+Nodes (1): OnboardingInstanceRepository
 
 ### Community 53 - "Community 53"
 Cohesion: 0.33
-Nodes (0): 
+Nodes (2): isPasswordExpired(), isPasswordExpiringSoon()
 
 ### Community 54 - "Community 54"
 Cohesion: 0.33
-Nodes (4): DailyAttendanceDashboardResponse, DepartmentStatsDto, RecentActivityDto, UserAttendanceStatusDTO
+Nodes (0): 
 
 ### Community 55 - "Community 55"
 Cohesion: 0.33
-Nodes (1): ServiceRequestRepository
+Nodes (4): DailyAttendanceDashboardResponse, DepartmentStatsDto, RecentActivityDto, UserAttendanceStatusDTO
 
 ### Community 56 - "Community 56"
-Cohesion: 0.4
-Nodes (1): DriveFolderRepository
-
-### Community 57 - "Community 57"
-Cohesion: 0.4
-Nodes (1): SecurityConfig
-
-### Community 58 - "Community 58"
-Cohesion: 0.33
-Nodes (5): OrganizationDetailsResponse, OrganizationProfileUpdateRequest, OrganizationSettingsUpdateRequest, OrganizationUsageResponse, SubdomainAvailabilityResponse
-
-### Community 59 - "Community 59"
 Cohesion: 0.33
 Nodes (1): LandingPageRepository
 
+### Community 57 - "Community 57"
+Cohesion: 0.33
+Nodes (1): ServiceRequestRepository
+
+### Community 58 - "Community 58"
+Cohesion: 0.4
+Nodes (1): DriveFolderRepository
+
+### Community 59 - "Community 59"
+Cohesion: 0.4
+Nodes (1): SecurityConfig
+
 ### Community 60 - "Community 60"
 Cohesion: 0.33
-Nodes (1): VendorRepository
+Nodes (5): OrganizationDetailsResponse, OrganizationProfileUpdateRequest, OrganizationSettingsUpdateRequest, OrganizationUsageResponse, SubdomainAvailabilityResponse
 
 ### Community 61 - "Community 61"
 Cohesion: 0.33
-Nodes (5): CustomerAddress, DiscountConfig, PaymentMilestone, Proposal, ProposalLineItem
+Nodes (1): VendorRepository
 
 ### Community 62 - "Community 62"
 Cohesion: 0.33
-Nodes (5): PermissionOverride, User, UserProfile, UserSecurity, UserSettings
+Nodes (5): CustomerAddress, DiscountConfig, PaymentMilestone, Proposal, ProposalLineItem
 
 ### Community 63 - "Community 63"
-Cohesion: 0.4
-Nodes (0): 
+Cohesion: 0.33
+Nodes (5): PermissionOverride, User, UserProfile, UserSecurity, UserSettings
 
 ### Community 64 - "Community 64"
 Cohesion: 0.4
@@ -939,43 +939,43 @@ Nodes (0):
 
 ### Community 65 - "Community 65"
 Cohesion: 0.4
-Nodes (4): AttendanceAnalyticsResponse, DepartmentComparisonDto, EmployeePerformanceDto, TrendDataPoint
+Nodes (0): 
 
 ### Community 66 - "Community 66"
 Cohesion: 0.4
-Nodes (4): UserProfileDTO, UserResponse, UserSecurityDTO, UserSettingsDTO
+Nodes (4): AttendanceAnalyticsResponse, DepartmentComparisonDto, EmployeePerformanceDto, TrendDataPoint
 
 ### Community 67 - "Community 67"
 Cohesion: 0.4
-Nodes (3): DailyAttendanceDetailDTO, DayAttendanceDto, MonthlyAttendanceReportResponse
+Nodes (4): UserProfileDTO, UserResponse, UserSecurityDTO, UserSettingsDTO
 
 ### Community 68 - "Community 68"
 Cohesion: 0.4
-Nodes (4): FieldPermissionDTO, ObjectPermissionDTO, ProfileResponse, SystemPermissionsDTO
+Nodes (3): DailyAttendanceDetailDTO, DayAttendanceDto, MonthlyAttendanceReportResponse
 
 ### Community 69 - "Community 69"
 Cohesion: 0.4
-Nodes (4): CreateProfileRequest, FieldPermissionDTO, ObjectPermissionDTO, SystemPermissionsDTO
+Nodes (4): FieldPermissionDTO, ObjectPermissionDTO, ProfileResponse, SystemPermissionsDTO
 
 ### Community 70 - "Community 70"
 Cohesion: 0.4
-Nodes (4): FieldPermissionDTO, ObjectPermissionDTO, SystemPermissionsDTO, UpdateProfileRequest
+Nodes (4): CreateProfileRequest, FieldPermissionDTO, ObjectPermissionDTO, SystemPermissionsDTO
 
 ### Community 71 - "Community 71"
 Cohesion: 0.4
-Nodes (4): CreateProposalRequest, DiscountConfigDTO, LineItemDTO, PaymentMilestoneDTO
+Nodes (4): FieldPermissionDTO, ObjectPermissionDTO, SystemPermissionsDTO, UpdateProfileRequest
 
 ### Community 72 - "Community 72"
 Cohesion: 0.4
-Nodes (1): KbCategoryRepository
+Nodes (4): CreateProposalRequest, DiscountConfigDTO, LineItemDTO, PaymentMilestoneDTO
 
 ### Community 73 - "Community 73"
 Cohesion: 0.4
-Nodes (1): VendorPartRepository
+Nodes (1): KbCategoryRepository
 
 ### Community 74 - "Community 74"
 Cohesion: 0.4
-Nodes (1): WorkOrderChecklistRepository
+Nodes (1): VendorPartRepository
 
 ### Community 75 - "Community 75"
 Cohesion: 0.4
@@ -998,16 +998,16 @@ Cohesion: 0.67
 Nodes (2): getRfqStatus(), RfqDetailPage()
 
 ### Community 80 - "Community 80"
-Cohesion: 0.5
-Nodes (0): 
+Cohesion: 0.67
+Nodes (2): handleAttributeChange(), handleSave()
 
 ### Community 81 - "Community 81"
 Cohesion: 0.5
 Nodes (0): 
 
 ### Community 82 - "Community 82"
-Cohesion: 0.67
-Nodes (2): handleAttributeChange(), handleSave()
+Cohesion: 0.5
+Nodes (0): 
 
 ### Community 83 - "Community 83"
 Cohesion: 0.5
@@ -1071,47 +1071,47 @@ Nodes (1): DriveFileVersionRepository
 
 ### Community 98 - "Community 98"
 Cohesion: 0.5
-Nodes (1): LeadAssignmentConfigRepository
+Nodes (1): SurveyResponseRepository
 
 ### Community 99 - "Community 99"
 Cohesion: 0.5
-Nodes (1): AssetCategoryRepository
+Nodes (1): WorkOrderChecklistRepository
 
 ### Community 100 - "Community 100"
 Cohesion: 0.5
-Nodes (1): PingController
+Nodes (1): LeadAssignmentConfigRepository
 
 ### Community 101 - "Community 101"
 Cohesion: 0.5
-Nodes (1): KbArticleIdGeneratorService
+Nodes (1): AssetCategoryRepository
 
 ### Community 102 - "Community 102"
 Cohesion: 0.5
-Nodes (3): ApprovalStep, LineItem, PurchaseOrder
+Nodes (1): PingController
 
 ### Community 103 - "Community 103"
 Cohesion: 0.5
-Nodes (3): ChecklistItem, ProjectTask, RecurrenceRule
+Nodes (3): ApprovalStep, LineItem, PurchaseOrder
 
 ### Community 104 - "Community 104"
 Cohesion: 0.5
-Nodes (3): FormField, SubmitAction, WebForm
+Nodes (3): ChecklistItem, ProjectTask, RecurrenceRule
 
 ### Community 105 - "Community 105"
 Cohesion: 0.5
-Nodes (3): Attendance, AttendanceLocation, BreakRecord
+Nodes (3): FormField, SubmitAction, WebForm
 
 ### Community 106 - "Community 106"
 Cohesion: 0.5
-Nodes (3): DynamicProduct, ProductAttribute, SourceMetadata
+Nodes (3): Attendance, AttendanceLocation, BreakRecord
 
 ### Community 107 - "Community 107"
 Cohesion: 0.5
-Nodes (2): LeaveBalance, LeaveTypeBalance
+Nodes (3): DynamicProduct, ProductAttribute, SourceMetadata
 
 ### Community 108 - "Community 108"
 Cohesion: 0.5
-Nodes (0): 
+Nodes (2): LeaveBalance, LeaveTypeBalance
 
 ### Community 109 - "Community 109"
 Cohesion: 0.5
@@ -1127,18 +1127,18 @@ Nodes (0):
 
 ### Community 112 - "Community 112"
 Cohesion: 0.5
-Nodes (1): ValidUntilValidator
+Nodes (0): 
 
 ### Community 113 - "Community 113"
 Cohesion: 0.5
-Nodes (1): LeadAssignmentStrategy
+Nodes (1): ValidUntilValidator
 
 ### Community 114 - "Community 114"
 Cohesion: 0.5
-Nodes (0): 
+Nodes (1): LeadAssignmentStrategy
 
 ### Community 115 - "Community 115"
-Cohesion: 0.67
+Cohesion: 0.5
 Nodes (0): 
 
 ### Community 116 - "Community 116"
@@ -1147,11 +1147,11 @@ Nodes (0):
 
 ### Community 117 - "Community 117"
 Cohesion: 0.67
-Nodes (1): EditProductPage()
+Nodes (0): 
 
 ### Community 118 - "Community 118"
 Cohesion: 0.67
-Nodes (0): 
+Nodes (1): EditProductPage()
 
 ### Community 119 - "Community 119"
 Cohesion: 0.67
@@ -1167,11 +1167,11 @@ Nodes (0):
 
 ### Community 122 - "Community 122"
 Cohesion: 0.67
-Nodes (1): handleSave()
+Nodes (0): 
 
 ### Community 123 - "Community 123"
 Cohesion: 0.67
-Nodes (0): 
+Nodes (1): handleSave()
 
 ### Community 124 - "Community 124"
 Cohesion: 0.67
@@ -1179,303 +1179,303 @@ Nodes (0):
 
 ### Community 125 - "Community 125"
 Cohesion: 0.67
-Nodes (1): BackendApplicationTests
+Nodes (1): handleSubmit()
 
 ### Community 126 - "Community 126"
 Cohesion: 0.67
-Nodes (2): BreakDto, DetailedDailyAttendanceDto
+Nodes (0): 
 
 ### Community 127 - "Community 127"
 Cohesion: 0.67
-Nodes (2): EligibleRoleInfo, LeadAssignmentConfigResponse
+Nodes (1): BackendApplicationTests
 
 ### Community 128 - "Community 128"
 Cohesion: 0.67
-Nodes (2): AttributeResponse, DynamicProductResponse
+Nodes (2): BreakDto, DetailedDailyAttendanceDto
 
 ### Community 129 - "Community 129"
 Cohesion: 0.67
-Nodes (2): RolePermissionsDTO, RoleResponse
+Nodes (2): EligibleRoleInfo, LeadAssignmentConfigResponse
 
 ### Community 130 - "Community 130"
 Cohesion: 0.67
-Nodes (2): SystemPermissionsDTO, UserPermissionsResponse
+Nodes (2): AttributeResponse, DynamicProductResponse
 
 ### Community 131 - "Community 131"
 Cohesion: 0.67
-Nodes (2): PartItem, PartsRequestResponse
+Nodes (2): RolePermissionsDTO, RoleResponse
 
 ### Community 132 - "Community 132"
 Cohesion: 0.67
-Nodes (2): EngineerScheduleResponse, SlotResponse
+Nodes (2): SystemPermissionsDTO, UserPermissionsResponse
 
 ### Community 133 - "Community 133"
 Cohesion: 0.67
-Nodes (2): LineItemResponse, PurchaseOrderResponse
+Nodes (2): PartItem, PartsRequestResponse
 
 ### Community 134 - "Community 134"
 Cohesion: 0.67
-Nodes (2): BulkAssignmentResult, FailedAssignment
+Nodes (2): EngineerScheduleResponse, SlotResponse
 
 ### Community 135 - "Community 135"
 Cohesion: 0.67
-Nodes (2): CreateRoleRequest, RolePermissionsDTO
+Nodes (2): LineItemResponse, PurchaseOrderResponse
 
 ### Community 136 - "Community 136"
 Cohesion: 0.67
-Nodes (2): ModulePermission, UpdateModulePermissionsRequest
+Nodes (2): BulkAssignmentResult, FailedAssignment
 
 ### Community 137 - "Community 137"
 Cohesion: 0.67
-Nodes (2): SlotRequest, UpdateScheduleRequest
+Nodes (2): CreateRoleRequest, RolePermissionsDTO
 
 ### Community 138 - "Community 138"
 Cohesion: 0.67
-Nodes (2): CreateDealerOrderRequest, OrderItemDto
+Nodes (2): ModulePermission, UpdateModulePermissionsRequest
 
 ### Community 139 - "Community 139"
 Cohesion: 0.67
-Nodes (2): RolePermissionsDTO, UpdateRoleRequest
+Nodes (2): SlotRequest, UpdateScheduleRequest
 
 ### Community 140 - "Community 140"
 Cohesion: 0.67
-Nodes (2): FilterRequest, ProductSearchRequest
+Nodes (2): CreateDealerOrderRequest, OrderItemDto
 
 ### Community 141 - "Community 141"
 Cohesion: 0.67
-Nodes (2): CreatePartsRequestRequest, PartItem
+Nodes (2): RolePermissionsDTO, UpdateRoleRequest
 
 ### Community 142 - "Community 142"
 Cohesion: 0.67
-Nodes (2): CreateGRNRequest, LineItemDto
+Nodes (2): FilterRequest, ProductSearchRequest
 
 ### Community 143 - "Community 143"
 Cohesion: 0.67
-Nodes (2): CreateRateContractRequest, LineItemDto
+Nodes (2): CreatePartsRequestRequest, PartItem
 
 ### Community 144 - "Community 144"
 Cohesion: 0.67
-Nodes (2): CreateRFQRequest, RFQItemDto
+Nodes (2): CreateGRNRequest, LineItemDto
 
 ### Community 145 - "Community 145"
 Cohesion: 0.67
-Nodes (2): LineQuoteDto, RecordVendorResponseRequest
+Nodes (2): CreateRateContractRequest, LineItemDto
 
 ### Community 146 - "Community 146"
 Cohesion: 0.67
-Nodes (2): ReceiveGoodsRequest, ReceiveItemRequest
+Nodes (2): CreateRFQRequest, RFQItemDto
 
 ### Community 147 - "Community 147"
 Cohesion: 0.67
-Nodes (2): AddressDto, CreateWarehouseRequest
+Nodes (2): LineQuoteDto, RecordVendorResponseRequest
 
 ### Community 148 - "Community 148"
 Cohesion: 0.67
-Nodes (2): CreatePurchaseOrderRequest, LineItemRequest
+Nodes (2): ReceiveGoodsRequest, ReceiveItemRequest
 
 ### Community 149 - "Community 149"
 Cohesion: 0.67
-Nodes (2): LeaveBalanceResponse, LeaveTypeBalanceDto
+Nodes (2): AddressDto, CreateWarehouseRequest
 
 ### Community 150 - "Community 150"
 Cohesion: 0.67
-Nodes (1): FeedReactionRepository
+Nodes (2): CreatePurchaseOrderRequest, LineItemRequest
 
 ### Community 151 - "Community 151"
 Cohesion: 0.67
-Nodes (1): ProposalCounterRepository
+Nodes (2): LeaveBalanceResponse, LeaveTypeBalanceDto
 
 ### Community 152 - "Community 152"
 Cohesion: 0.67
-Nodes (1): FeedPollVoteRepository
+Nodes (1): FeedReactionRepository
 
 ### Community 153 - "Community 153"
 Cohesion: 0.67
-Nodes (1): WorkOrderChecklistResponseRepository
+Nodes (1): ProposalCounterRepository
 
 ### Community 154 - "Community 154"
 Cohesion: 0.67
-Nodes (1): WebFormSubmissionRepository
+Nodes (1): FeedPollVoteRepository
 
 ### Community 155 - "Community 155"
 Cohesion: 0.67
-Nodes (1): LeavePolicyRepository
+Nodes (1): WorkOrderChecklistResponseRepository
 
 ### Community 156 - "Community 156"
 Cohesion: 0.67
-Nodes (1): CurrencyConfigRepository
+Nodes (1): LeavePolicyRepository
 
 ### Community 157 - "Community 157"
 Cohesion: 0.67
-Nodes (1): JacksonConfig
+Nodes (1): CurrencyConfigRepository
 
 ### Community 158 - "Community 158"
 Cohesion: 0.67
-Nodes (1): CacheConfig
+Nodes (1): JacksonConfig
 
 ### Community 159 - "Community 159"
 Cohesion: 0.67
-Nodes (1): TimeZoneConfig
+Nodes (1): CacheConfig
 
 ### Community 160 - "Community 160"
 Cohesion: 0.67
-Nodes (1): RestTemplateConfig
+Nodes (1): TimeZoneConfig
 
 ### Community 161 - "Community 161"
 Cohesion: 0.67
-Nodes (1): TenantContextMissingException
+Nodes (1): RestTemplateConfig
 
 ### Community 162 - "Community 162"
 Cohesion: 0.67
-Nodes (1): RegularizationIdGeneratorService
+Nodes (1): TenantContextMissingException
 
 ### Community 163 - "Community 163"
 Cohesion: 0.67
-Nodes (1): ActivityIdGeneratorService
+Nodes (1): RegularizationIdGeneratorService
 
 ### Community 164 - "Community 164"
 Cohesion: 0.67
-Nodes (1): TrainingRecordRepository
+Nodes (1): ActivityIdGeneratorService
 
 ### Community 165 - "Community 165"
 Cohesion: 0.67
-Nodes (1): OpportunityIdGeneratorService
+Nodes (1): TrainingRecordRepository
 
 ### Community 166 - "Community 166"
 Cohesion: 0.67
-Nodes (1): ProductIdGeneratorService
+Nodes (1): OpportunityIdGeneratorService
 
 ### Community 167 - "Community 167"
 Cohesion: 0.67
-Nodes (1): TaskIdGeneratorService
+Nodes (1): ProductIdGeneratorService
 
 ### Community 168 - "Community 168"
 Cohesion: 0.67
-Nodes (1): LeaveIdGeneratorService
+Nodes (1): TaskIdGeneratorService
 
 ### Community 169 - "Community 169"
 Cohesion: 0.67
-Nodes (1): ContactIdGeneratorService
+Nodes (1): LeaveIdGeneratorService
 
 ### Community 170 - "Community 170"
 Cohesion: 0.67
-Nodes (1): ServiceRequestIdGeneratorService
+Nodes (1): ContactIdGeneratorService
 
 ### Community 171 - "Community 171"
 Cohesion: 0.67
-Nodes (1): ProjectIdGeneratorService
+Nodes (1): OfficeLocationIdGeneratorService
 
 ### Community 172 - "Community 172"
 Cohesion: 0.67
-Nodes (1): LeadIdGeneratorService
+Nodes (1): ServiceRequestIdGeneratorService
 
 ### Community 173 - "Community 173"
 Cohesion: 0.67
-Nodes (2): DashboardStats, GrowthTrends
+Nodes (1): ProjectIdGeneratorService
 
 ### Community 174 - "Community 174"
 Cohesion: 0.67
-Nodes (1): ShiftIdGeneratorService
+Nodes (1): LeadIdGeneratorService
 
 ### Community 175 - "Community 175"
 Cohesion: 0.67
-Nodes (2): EngineerSchedule, ScheduleSlot
+Nodes (1): ShiftIdGeneratorService
 
 ### Community 176 - "Community 176"
 Cohesion: 0.67
-Nodes (2): ChecklistItem, WorkOrderChecklist
+Nodes (2): EngineerSchedule, ScheduleSlot
 
 ### Community 177 - "Community 177"
 Cohesion: 0.67
-Nodes (2): ItemResponse, WorkOrderChecklistResponse
+Nodes (2): ChecklistItem, WorkOrderChecklist
 
 ### Community 178 - "Community 178"
 Cohesion: 0.67
-Nodes (2): Survey, SurveyQuestion
+Nodes (2): ItemResponse, WorkOrderChecklistResponse
 
 ### Community 179 - "Community 179"
 Cohesion: 0.67
-Nodes (2): FeedPost, PollOption
+Nodes (2): Survey, SurveyQuestion
 
 ### Community 180 - "Community 180"
 Cohesion: 0.67
-Nodes (2): DispatchAssignment, GpsPoint
+Nodes (2): FeedPost, PollOption
 
 ### Community 181 - "Community 181"
 Cohesion: 0.67
-Nodes (2): RateContract, RateContractItem
+Nodes (2): DispatchAssignment, GpsPoint
 
 ### Community 182 - "Community 182"
 Cohesion: 0.67
-Nodes (2): DealerOrder, OrderItem
+Nodes (2): RateContract, RateContractItem
 
 ### Community 183 - "Community 183"
 Cohesion: 0.67
-Nodes (2): InstanceTask, OnboardingInstance
+Nodes (2): DealerOrder, OrderItem
 
 ### Community 184 - "Community 184"
 Cohesion: 0.67
-Nodes (2): Answer, SurveyResponse
+Nodes (2): InstanceTask, OnboardingInstance
 
 ### Community 185 - "Community 185"
 Cohesion: 0.67
-Nodes (2): KeyResult, Objective
+Nodes (2): Answer, SurveyResponse
 
 ### Community 186 - "Community 186"
 Cohesion: 0.67
-Nodes (2): OnboardingTemplate, TemplateTask
+Nodes (2): KeyResult, Objective
 
 ### Community 187 - "Community 187"
 Cohesion: 0.67
-Nodes (2): PartsRequest, RequestedPart
+Nodes (2): OnboardingTemplate, TemplateTask
 
 ### Community 188 - "Community 188"
 Cohesion: 0.67
-Nodes (2): ReportFilter, SavedReport
+Nodes (2): PartsRequest, RequestedPart
 
 ### Community 189 - "Community 189"
 Cohesion: 0.67
-Nodes (2): GRN, GRNLineItem
+Nodes (2): ReportFilter, SavedReport
 
 ### Community 190 - "Community 190"
 Cohesion: 0.67
-Nodes (0): 
+Nodes (2): GRN, GRNLineItem
 
 ### Community 191 - "Community 191"
 Cohesion: 0.67
-Nodes (0): 
+Nodes (1): UserInactiveException
 
 ### Community 192 - "Community 192"
 Cohesion: 0.67
-Nodes (1): UserInactiveException
+Nodes (1): ResourceNotFoundException
 
 ### Community 193 - "Community 193"
 Cohesion: 0.67
-Nodes (1): ResourceNotFoundException
+Nodes (1): UnauthorizedException
 
 ### Community 194 - "Community 194"
 Cohesion: 0.67
-Nodes (1): UnauthorizedException
+Nodes (1): DuplicateResourceException
 
 ### Community 195 - "Community 195"
 Cohesion: 0.67
-Nodes (1): DuplicateResourceException
+Nodes (1): BadRequestException
 
 ### Community 196 - "Community 196"
 Cohesion: 0.67
-Nodes (1): BadRequestException
+Nodes (1): UserAlreadyExistsException
 
 ### Community 197 - "Community 197"
 Cohesion: 0.67
-Nodes (1): UserAlreadyExistsException
+Nodes (1): BusinessException
 
 ### Community 198 - "Community 198"
 Cohesion: 0.67
-Nodes (1): BusinessException
+Nodes (1): LeadCreatedEvent
 
 ### Community 199 - "Community 199"
-Cohesion: 0.67
-Nodes (1): LeadCreatedEvent
+Cohesion: 1.0
+Nodes (0): 
 
 ### Community 200 - "Community 200"
 Cohesion: 1.0
@@ -3240,53 +3240,55 @@ Nodes (1): Window Icon SVG
 ## Knowledge Gaps
 - **402 isolated node(s):** `testStaples`, `AddressDTO`, `AttendanceAnalyticsResponse`, `TrendDataPoint`, `EmployeePerformanceDto` (+397 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **Thin community `Community 200`** (2 nodes): `RootLayout()`, `layout.tsx`
+- **Thin community `Community 199`** (2 nodes): `RootLayout()`, `layout.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 201`** (2 nodes): `page.tsx`, `Home()`
+- **Thin community `Community 200`** (2 nodes): `page.tsx`, `Home()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 202`** (2 nodes): `TestPage()`, `page.tsx`
+- **Thin community `Community 201`** (2 nodes): `TestPage()`, `page.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 203`** (2 nodes): `WorkOrderDetailPage()`, `page.tsx`
+- **Thin community `Community 202`** (2 nodes): `WorkOrderDetailPage()`, `page.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 204`** (2 nodes): `CustomerPortalPage()`, `page.tsx`
+- **Thin community `Community 203`** (2 nodes): `CustomerPortalPage()`, `page.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 205`** (2 nodes): `ThemeContext.tsx`, `ThemeProvider()`
+- **Thin community `Community 204`** (2 nodes): `ThemeContext.tsx`, `ThemeProvider()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 206`** (2 nodes): `NewProductPage()`, `page.tsx`
+- **Thin community `Community 205`** (2 nodes): `NewProductPage()`, `page.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 207`** (2 nodes): `NewContractPage()`, `page.tsx`
+- **Thin community `Community 206`** (2 nodes): `NewContractPage()`, `page.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 208`** (2 nodes): `NewLeavePage()`, `page.tsx`
+- **Thin community `Community 207`** (2 nodes): `NewLeavePage()`, `page.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 209`** (2 nodes): `LeaveDetailPage()`, `page.tsx`
+- **Thin community `Community 208`** (2 nodes): `LeaveDetailPage()`, `page.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 210`** (2 nodes): `NewProjectPage()`, `page.tsx`
+- **Thin community `Community 209`** (2 nodes): `NewProjectPage()`, `page.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 211`** (2 nodes): `GanttPage()`, `page.tsx`
+- **Thin community `Community 210`** (2 nodes): `GanttPage()`, `page.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 212`** (2 nodes): `KanbanPage()`, `page.tsx`
+- **Thin community `Community 211`** (2 nodes): `KanbanPage()`, `page.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 213`** (2 nodes): `ContactDetailPage()`, `page.tsx`
+- **Thin community `Community 212`** (2 nodes): `ContactDetailPage()`, `page.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 214`** (2 nodes): `EditContactPage()`, `page.tsx`
+- **Thin community `Community 213`** (2 nodes): `EditContactPage()`, `page.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 215`** (2 nodes): `UserDetailPage()`, `page.tsx`
+- **Thin community `Community 214`** (2 nodes): `UserDetailPage()`, `page.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 216`** (2 nodes): `UserPermissionsPage()`, `page.tsx`
+- **Thin community `Community 215`** (2 nodes): `UserPermissionsPage()`, `page.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 217`** (2 nodes): `UnauthorizedPage()`, `page.tsx`
+- **Thin community `Community 216`** (2 nodes): `UnauthorizedPage()`, `page.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 218`** (2 nodes): `PortalHomePage()`, `page.tsx`
+- **Thin community `Community 217`** (2 nodes): `PortalHomePage()`, `page.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 219`** (2 nodes): `NewTicketPage()`, `page.tsx`
+- **Thin community `Community 218`** (2 nodes): `NewTicketPage()`, `page.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 220`** (2 nodes): `DashboardPage()`, `page.tsx`
+- **Thin community `Community 219`** (2 nodes): `DashboardPage()`, `page.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 221`** (2 nodes): `handleNotificationClick()`, `NotificationPanel.tsx`
+- **Thin community `Community 220`** (2 nodes): `handleNotificationClick()`, `NotificationPanel.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 222`** (2 nodes): `TeamPage()`, `page.tsx`
+- **Thin community `Community 221`** (2 nodes): `TeamPage()`, `page.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 223`** (2 nodes): `AccountDetailPage()`, `page.tsx`
+- **Thin community `Community 222`** (2 nodes): `AccountDetailPage()`, `page.tsx`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 223`** (2 nodes): `EditAccountPage()`, `page.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
 - **Thin community `Community 224`** (2 nodes): `NewArticlePage()`, `page.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
@@ -4124,11 +4126,11 @@ Nodes (1): Window Icon SVG
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `handleSubmit()` connect `Community 2` to `Community 0`, `Community 1`, `Community 5`, `Community 8`, `Community 10`, `Community 11`, `Community 13`, `Community 17`, `Community 18`, `Community 21`?**
-  _High betweenness centrality (0.034) - this node is a cross-community bridge._
-- **Why does `handleDelete()` connect `Community 2` to `Community 0`, `Community 1`, `Community 4`, `Community 13`, `Community 17`?**
-  _High betweenness centrality (0.031) - this node is a cross-community bridge._
-- **Why does `GET()` connect `Community 7` to `Community 0`, `Community 1`, `Community 2`, `Community 4`, `Community 5`, `Community 6`, `Community 9`, `Community 11`, `Community 13`, `Community 14`?**
+- **Why does `GET()` connect `Community 4` to `Community 0`, `Community 1`, `Community 2`, `Community 3`, `Community 5`, `Community 8`, `Community 12`, `Community 14`, `Community 15`, `Community 16`, `Community 51`, `Community 21`?**
+  _High betweenness centrality (0.027) - this node is a cross-community bridge._
+- **Why does `loadData()` connect `Community 2` to `Community 0`, `Community 1`, `Community 4`, `Community 5`, `Community 37`, `Community 8`, `Community 13`, `Community 15`, `Community 16`, `Community 19`?**
+  _High betweenness centrality (0.022) - this node is a cross-community bridge._
+- **Why does `handleDelete()` connect `Community 2` to `Community 0`, `Community 1`, `Community 3`, `Community 13`, `Community 22`, `Community 29`?**
   _High betweenness centrality (0.021) - this node is a cross-community bridge._
 - **Are the 108 inferred relationships involving `GET()` (e.g. with `proxy()` and `loadData()`) actually correct?**
   _`GET()` has 108 INFERRED edges - model-reasoned connections that need verification._

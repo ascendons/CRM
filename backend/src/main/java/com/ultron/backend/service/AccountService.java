@@ -1,11 +1,16 @@
 package com.ultron.backend.service;
 
 import com.ultron.backend.domain.entity.Account;
+import com.ultron.backend.domain.entity.Contact;
+import com.ultron.backend.domain.entity.Opportunity;
+import com.ultron.backend.domain.enums.OpportunityStage;
 import com.ultron.backend.dto.request.CreateAccountRequest;
 import com.ultron.backend.dto.request.UpdateAccountRequest;
 import com.ultron.backend.dto.response.AccountResponse;
 import com.ultron.backend.exception.UserAlreadyExistsException;
 import com.ultron.backend.repository.AccountRepository;
+import com.ultron.backend.repository.ContactRepository;
+import com.ultron.backend.repository.OpportunityRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
@@ -28,6 +33,8 @@ public class AccountService extends BaseTenantService {
     private final AccountRepository accountRepository;
     private final AccountIdGeneratorService accountIdGenerator;
     private final UserService userService;
+    private final ContactRepository contactRepository;
+    private final OpportunityRepository opportunityRepository;
 
     /**
      * Create a new account
@@ -100,12 +107,7 @@ public class AccountService extends BaseTenantService {
                 .creditStatus(request.getCreditStatus())
                 .creditLimit(request.getCreditLimit())
                 .currency(request.getCurrency())
-                .totalOpportunities(0)
-                .wonOpportunities(0)
-                .lostOpportunities(0)
-                .totalRevenue(BigDecimal.ZERO)
-                .lifetimeValue(BigDecimal.ZERO)
-                .totalContacts(0)
+                // Metrics computed dynamically from related entities
                 .ownerId(createdByUserId)
                 .ownerName(createdByName)
                 .accountStatus("Active")
@@ -356,8 +358,27 @@ public class AccountService extends BaseTenantService {
 
     /**
      * Map Account entity to AccountResponse DTO
+     * Computes metrics dynamically from related entities
      */
     private AccountResponse mapToResponse(Account account) {
+        String tenantId = account.getTenantId();
+
+        // Compute metrics dynamically from related entities
+        List<Contact> contacts = contactRepository.findByAccountIdAndTenantIdAndIsDeletedFalse(account.getId(), tenantId);
+        List<Opportunity> opportunities = opportunityRepository.findByAccountIdAndTenantIdAndIsDeletedFalse(account.getId(), tenantId);
+
+        int totalContacts = contacts.size();
+        int totalOpportunities = opportunities.size();
+        int wonOpportunities = (int) opportunities.stream().filter(o -> o.getStage() == OpportunityStage.CLOSED_WON).count();
+        int lostOpportunities = (int) opportunities.stream().filter(o -> o.getStage() == OpportunityStage.CLOSED_LOST).count();
+        BigDecimal totalRevenue = opportunities.stream()
+                .filter(o -> o.getStage() == OpportunityStage.CLOSED_WON)
+                .map(o -> o.getAmount() != null ? o.getAmount() : BigDecimal.ZERO)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal lifetimeValue = opportunities.stream()
+                .map(o -> o.getAmount() != null ? o.getAmount() : BigDecimal.ZERO)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
         return AccountResponse.builder()
                 .id(account.getId())
                 .accountId(account.getAccountId())
@@ -400,12 +421,12 @@ public class AccountService extends BaseTenantService {
                 .creditStatus(account.getCreditStatus())
                 .creditLimit(account.getCreditLimit())
                 .currency(account.getCurrency())
-                .totalOpportunities(account.getTotalOpportunities())
-                .wonOpportunities(account.getWonOpportunities())
-                .lostOpportunities(account.getLostOpportunities())
-                .totalRevenue(account.getTotalRevenue())
-                .lifetimeValue(account.getLifetimeValue())
-                .totalContacts(account.getTotalContacts())
+                .totalOpportunities(totalOpportunities)
+                .wonOpportunities(wonOpportunities)
+                .lostOpportunities(lostOpportunities)
+                .totalRevenue(totalRevenue)
+                .lifetimeValue(lifetimeValue)
+                .totalContacts(totalContacts)
                 .ownerId(account.getOwnerId())
                 .ownerName(account.getOwnerName())
                 .lastActivityDate(account.getLastActivityDate())

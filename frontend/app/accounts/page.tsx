@@ -338,8 +338,8 @@ export default function AccountsPage() {
                   paginatedAccounts.map((account) => (
                     <tr
                       key={account.id}
-                      className="hover:bg-slate-50  transition-colors group cursor-pointer"
                       onClick={() => router.push(`/accounts/${account.id}`)}
+                      className="hover:bg-primary/5 transition-colors group cursor-pointer border-b border-slate-100 last:border-0"
                     >
                       <td className="px-6 py-4" onClick={(e) => e.stopPropagation()}>
                         <div className="flex items-center">
@@ -353,15 +353,16 @@ export default function AccountsPage() {
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
-                          <div className="h-9 w-9 rounded bg-emerald-100  flex items-center justify-center text-emerald-700  font-bold text-sm ring-1 ring-slate-200 ">
+                          <div className="h-9 w-9 rounded bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center text-white font-bold text-sm shadow-sm">
                             {account.accountName?.[0]?.toUpperCase() || "A"}
                           </div>
-                          <div>
-                            <p className="text-sm font-semibold text-slate-900 ">
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-semibold text-slate-900 group-hover:text-primary transition-colors">
                               {account.accountName}
                             </p>
-                            <p className="text-xs text-slate-500 ">{account.website || "-"}</p>
+                            <p className="text-xs text-slate-500 truncate">{account.website || "-"}</p>
                           </div>
+                          <ChevronRight className="h-4 w-4 text-slate-300 opacity-0 group-hover:opacity-100 transition-opacity" />
                         </div>
                       </td>
                       <td className="px-6 py-4">
@@ -371,12 +372,12 @@ export default function AccountsPage() {
                         </span>
                       </td>
                       <td className="px-6 py-4 text-sm font-semibold text-slate-900 ">
-                        {formatCurrency(account.totalRevenue)}
+                        {account.totalRevenue ? formatCurrency(account.totalRevenue) : "-"}
                       </td>
                       <td className="px-6 py-4 text-sm text-slate-600 ">
                         <div className="flex items-center gap-1">
                           <Users className="h-4 w-4 text-slate-400" />
-                          {account.totalContacts ?? 0}
+                          {account.totalContacts ? account.totalContacts : "-"}
                         </div>
                       </td>
                       <td className="px-6 py-4">

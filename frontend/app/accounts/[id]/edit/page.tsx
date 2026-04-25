@@ -2,10 +2,12 @@
 
 import { use, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { Account, UpdateAccountRequest } from "@/types/account";
 import { accountsService } from "@/lib/accounts";
 import { authService } from "@/lib/auth";
 import { CountryStateSelector } from "@/components/common/CountryStateSelector";
+import { ChevronRight } from "lucide-react";
 
 export default function EditAccountPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -120,21 +122,34 @@ export default function EditAccountPage({ params }: { params: Promise<{ id: stri
 
   if (!account) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading...</p>
+      <div className="flex items-center justify-center bg-slate-50 min-h-[calc(100vh-4rem)]">
+        <div className="relative text-center space-y-4">
+          <div className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin mx-auto"></div>
+          <p className="text-slate-500 font-medium">Loading...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Edit Account</h1>
-          <p className="mt-2 text-gray-600">Update account information</p>
+    <div className="min-h-screen bg-slate-100">
+      <main className="max-w-6xl mx-auto px-6 py-6">
+        {/* Breadcrumbs */}
+        <div className="flex items-center gap-2 text-sm text-slate-500 mb-6">
+          <Link href="/accounts" className="hover:text-primary">Accounts</Link>
+          <ChevronRight className="h-4 w-4" />
+          {account && (
+            <>
+              <Link href={`/accounts/${account.id}`} className="hover:text-primary">{account.accountName}</Link>
+              <ChevronRight className="h-4 w-4" />
+            </>
+          )}
+          <span className="text-slate-900 font-medium">Edit</span>
+        </div>
+
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-slate-900">Edit Account</h1>
+          <p className="text-slate-500 mt-1">Update account information</p>
         </div>
 
         {error && (
@@ -143,13 +158,13 @@ export default function EditAccountPage({ params }: { params: Promise<{ id: stri
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow p-6 space-y-8">
+        <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 space-y-6">
           {/* Basic Information */}
           <div>
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Basic Information</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <h2 className="text-base font-semibold text-slate-900 mb-3">Basic Information</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-xs font-medium text-slate-600 mb-1">
                   Account Name <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -158,19 +173,17 @@ export default function EditAccountPage({ params }: { params: Promise<{ id: stri
                   required
                   value={formData.accountName || ""}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary text-sm"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Parent Account
-                </label>
+                <label className="block text-xs font-medium text-slate-600 mb-1">Parent Account</label>
                 <select
                   name="parentAccountId"
                   value={formData.parentAccountId || ""}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary text-sm"
                 >
                   <option value="">Select Parent Account...</option>
                   {parentAccounts
@@ -184,12 +197,12 @@ export default function EditAccountPage({ params }: { params: Promise<{ id: stri
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Account Type</label>
+                <label className="block text-xs font-medium text-slate-600 mb-1">Account Type</label>
                 <select
                   name="accountType"
                   value={formData.accountType || ""}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary text-sm"
                 >
                   <option value="">Select...</option>
                   <option value="Customer">Customer</option>
@@ -202,12 +215,12 @@ export default function EditAccountPage({ params }: { params: Promise<{ id: stri
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Industry</label>
+                <label className="block text-xs font-medium text-slate-600 mb-1">Industry</label>
                 <select
                   name="industry"
                   value={formData.industry || ""}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary text-sm"
                 >
                   <option value="">Select...</option>
                   <option value="TECHNOLOGY">Technology</option>
@@ -232,12 +245,12 @@ export default function EditAccountPage({ params }: { params: Promise<{ id: stri
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Company Size</label>
+                <label className="block text-xs font-medium text-slate-600 mb-1">Company Size</label>
                 <select
                   name="companySize"
                   value={formData.companySize || ""}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary text-sm"
                 >
                   <option value="">Select...</option>
                   <option value="MICRO">Micro (1-10 employees)</option>
@@ -249,28 +262,24 @@ export default function EditAccountPage({ params }: { params: Promise<{ id: stri
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Annual Revenue
-                </label>
+                <label className="block text-xs font-medium text-slate-600 mb-1">Annual Revenue</label>
                 <input
                   type="number"
                   name="annualRevenue"
                   value={formData.annualRevenue || ""}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary text-sm"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Number of Employees
-                </label>
+                <label className="block text-xs font-medium text-slate-600 mb-1">Number of Employees</label>
                 <input
                   type="number"
                   name="numberOfEmployees"
                   value={formData.numberOfEmployees || ""}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary text-sm"
                 />
               </div>
             </div>
@@ -278,38 +287,38 @@ export default function EditAccountPage({ params }: { params: Promise<{ id: stri
 
           {/* Contact Information */}
           <div>
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Contact Information</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <h2 className="text-base font-semibold text-slate-900 mb-3">Contact Information</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Phone</label>
+                <label className="block text-xs font-medium text-slate-600 mb-1">Phone</label>
                 <input
                   type="tel"
                   name="phone"
                   value={formData.phone || ""}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary text-sm"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Website</label>
+                <label className="block text-xs font-medium text-slate-600 mb-1">Website</label>
                 <input
                   type="url"
                   name="website"
                   value={formData.website || ""}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary text-sm"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                <label className="block text-xs font-medium text-slate-600 mb-1">Email</label>
                 <input
                   type="email"
                   name="email"
                   value={formData.email || ""}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary text-sm"
                 />
               </div>
             </div>
@@ -317,42 +326,42 @@ export default function EditAccountPage({ params }: { params: Promise<{ id: stri
 
           {/* Billing Address */}
           <div>
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Billing Address</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Street</label>
+            <h2 className="text-base font-semibold text-slate-900 mb-3">Billing Address</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="md:col-span-3">
+                <label className="block text-xs font-medium text-slate-600 mb-1">Street</label>
                 <input
                   type="text"
                   name="billingStreet"
                   value={formData.billingStreet || ""}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary text-sm"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">City</label>
+                <label className="block text-xs font-medium text-slate-600 mb-1">City</label>
                 <input
                   type="text"
                   name="billingCity"
                   value={formData.billingCity || ""}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary text-sm"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Postal Code</label>
+                <label className="block text-xs font-medium text-slate-600 mb-1">Postal Code</label>
                 <input
                   type="text"
                   name="billingPostalCode"
                   value={formData.billingPostalCode || ""}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary text-sm"
                 />
               </div>
 
-              <div className="md:col-span-2">
+              <div className="md:col-span-3">
                 <CountryStateSelector
                   countryValue={formData.billingCountry || ""}
                   stateValue={formData.billingState || ""}
@@ -367,42 +376,42 @@ export default function EditAccountPage({ params }: { params: Promise<{ id: stri
 
           {/* Shipping Address */}
           <div>
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Shipping Address</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Street</label>
+            <h2 className="text-base font-semibold text-slate-900 mb-3">Shipping Address</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="md:col-span-3">
+                <label className="block text-xs font-medium text-slate-600 mb-1">Street</label>
                 <input
                   type="text"
                   name="shippingStreet"
                   value={formData.shippingStreet || ""}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary text-sm"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">City</label>
+                <label className="block text-xs font-medium text-slate-600 mb-1">City</label>
                 <input
                   type="text"
                   name="shippingCity"
                   value={formData.shippingCity || ""}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary text-sm"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Postal Code</label>
+                <label className="block text-xs font-medium text-slate-600 mb-1">Postal Code</label>
                 <input
                   type="text"
                   name="shippingPostalCode"
                   value={formData.shippingPostalCode || ""}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary text-sm"
                 />
               </div>
 
-              <div className="md:col-span-2">
+              <div className="md:col-span-3">
                 <CountryStateSelector
                   countryValue={formData.shippingCountry || ""}
                   stateValue={formData.shippingState || ""}
@@ -417,40 +426,38 @@ export default function EditAccountPage({ params }: { params: Promise<{ id: stri
 
           {/* Business Information */}
           <div>
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Business Information</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <h2 className="text-base font-semibold text-slate-900 mb-3">Business Information</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Ticker Symbol
-                </label>
+                <label className="block text-xs font-medium text-slate-600 mb-1">Ticker Symbol</label>
                 <input
                   type="text"
                   name="tickerSymbol"
                   value={formData.tickerSymbol || ""}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary text-sm"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">SIC Code</label>
+                <label className="block text-xs font-medium text-slate-600 mb-1">SIC Code</label>
                 <input
                   type="text"
                   name="sicCode"
                   value={formData.sicCode || ""}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary text-sm"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Tax ID</label>
+                <label className="block text-xs font-medium text-slate-600 mb-1">Tax ID</label>
                 <input
                   type="text"
                   name="taxId"
                   value={formData.taxId || ""}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary text-sm"
                 />
               </div>
             </div>
@@ -458,31 +465,16 @@ export default function EditAccountPage({ params }: { params: Promise<{ id: stri
 
           {/* Social Media */}
           <div>
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Social Media</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <h2 className="text-base font-semibold text-slate-900 mb-3">Social Media</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  LinkedIn Page
-                </label>
+                <label className="block text-xs font-medium text-slate-600 mb-1">LinkedIn Page</label>
                 <input
                   type="url"
                   name="linkedInPage"
                   value={formData.linkedInPage || ""}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Twitter Handle
-                </label>
-                <input
-                  type="text"
-                  name="twitterHandle"
-                  value={formData.twitterHandle || ""}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary text-sm"
                 />
               </div>
             </div>
@@ -490,17 +482,15 @@ export default function EditAccountPage({ params }: { params: Promise<{ id: stri
 
           {/* Financial Information */}
           <div>
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Financial Information</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <h2 className="text-base font-semibold text-slate-900 mb-3">Financial Information</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Payment Terms
-                </label>
+                <label className="block text-xs font-medium text-slate-600 mb-1">Payment Terms</label>
                 <select
                   name="paymentTerms"
                   value={formData.paymentTerms || ""}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary text-sm"
                 >
                   <option value="">Select...</option>
                   <option value="Net 30">Net 30</option>
@@ -512,14 +502,12 @@ export default function EditAccountPage({ params }: { params: Promise<{ id: stri
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Credit Status
-                </label>
+                <label className="block text-xs font-medium text-slate-600 mb-1">Credit Status</label>
                 <select
                   name="creditStatus"
                   value={formData.creditStatus || ""}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary text-sm"
                 >
                   <option value="">Select...</option>
                   <option value="Excellent">Excellent</option>
@@ -531,23 +519,23 @@ export default function EditAccountPage({ params }: { params: Promise<{ id: stri
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Credit Limit</label>
+                <label className="block text-xs font-medium text-slate-600 mb-1">Credit Limit</label>
                 <input
                   type="number"
                   name="creditLimit"
                   value={formData.creditLimit || ""}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary text-sm"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Currency</label>
+                <label className="block text-xs font-medium text-slate-600 mb-1">Currency</label>
                 <select
                   name="currency"
                   value={formData.currency || ""}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary text-sm"
                 >
                   <option value="">Select...</option>
                   <option value="INR">INR</option>
@@ -564,26 +552,26 @@ export default function EditAccountPage({ params }: { params: Promise<{ id: stri
 
           {/* Additional Information */}
           <div>
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Additional Information</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+            <h2 className="text-base font-semibold text-slate-900 mb-3">Additional Information</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="md:col-span-3">
+                <label className="block text-xs font-medium text-slate-600 mb-1">Description</label>
                 <textarea
                   name="description"
                   value={formData.description || ""}
                   onChange={handleChange}
-                  rows={4}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  rows={2}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary text-sm"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Rating</label>
+                <label className="block text-xs font-medium text-slate-600 mb-1">Rating</label>
                 <select
                   name="rating"
                   value={formData.rating || ""}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary text-sm"
                 >
                   <option value="">Select...</option>
                   <option value="Hot">Hot</option>
@@ -593,49 +581,47 @@ export default function EditAccountPage({ params }: { params: Promise<{ id: stri
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Tags (comma-separated)
-                </label>
+                <label className="block text-xs font-medium text-slate-600 mb-1">Tags (comma-separated)</label>
                 <input
                   type="text"
                   defaultValue={account.tags?.join(", ")}
                   onChange={handleTagsChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary text-sm"
                 />
               </div>
 
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Notes</label>
+              <div className="md:col-span-3">
+                <label className="block text-xs font-medium text-slate-600 mb-1">Notes</label>
                 <textarea
                   name="notes"
                   value={formData.notes || ""}
                   onChange={handleChange}
-                  rows={4}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  rows={2}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary text-sm"
                 />
               </div>
             </div>
           </div>
 
           {/* Form Actions */}
-          <div className="flex gap-4 pt-6 border-t">
+          <div className="flex gap-4 pt-4 border-t border-slate-200">
             <button
               type="submit"
               disabled={loading}
-              className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+              className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover disabled:bg-slate-300 disabled:cursor-not-allowed transition-colors text-sm font-medium"
             >
               {loading ? "Saving..." : "Save Changes"}
             </button>
             <button
               type="button"
               onClick={() => router.push(`/accounts/${account.id}`)}
-              className="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+              className="px-6 py-2 bg-white border border-slate-200 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors text-sm font-medium"
             >
               Cancel
             </button>
           </div>
         </form>
-      </div>
+      </main>
     </div>
   );
 }

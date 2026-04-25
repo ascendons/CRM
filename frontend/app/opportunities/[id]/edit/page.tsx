@@ -2,6 +2,7 @@
 
 import { use, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { Opportunity, UpdateOpportunityRequest, OpportunityStage } from "@/types/opportunity";
 import { opportunitiesService } from "@/lib/opportunities";
 import { accountsService } from "@/lib/accounts";
@@ -9,6 +10,7 @@ import { contactsService } from "@/lib/contacts";
 import { Account } from "@/types/account";
 import { Contact } from "@/types/contact";
 import { authService } from "@/lib/auth";
+import { ChevronRight } from "lucide-react";
 
 export default function EditOpportunityPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -148,21 +150,34 @@ export default function EditOpportunityPage({ params }: { params: Promise<{ id: 
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading opportunity...</p>
+      <div className="flex items-center justify-center bg-slate-50 min-h-[calc(100vh-4rem)]">
+        <div className="relative text-center space-y-4">
+          <div className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin mx-auto"></div>
+          <p className="text-slate-500 font-medium">Loading opportunity...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Edit Opportunity</h1>
-          <p className="mt-2 text-gray-600">Update opportunity information</p>
+    <div className="min-h-screen bg-slate-100">
+      <main className="max-w-6xl mx-auto px-6 py-6">
+        {/* Breadcrumbs */}
+        <div className="flex items-center gap-2 text-sm text-slate-500 mb-6">
+          <Link href="/opportunities" className="hover:text-primary">Opportunities</Link>
+          <ChevronRight className="h-4 w-4" />
+          {formData.opportunityName && (
+            <>
+              <Link href={`/opportunities/${id}`} className="hover:text-primary">{formData.opportunityName}</Link>
+              <ChevronRight className="h-4 w-4" />
+            </>
+          )}
+          <span className="text-slate-900 font-medium">Edit</span>
+        </div>
+
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-slate-900">Edit Opportunity</h1>
+          <p className="text-slate-500 mt-1">Update opportunity information</p>
         </div>
 
         {error && (
@@ -171,13 +186,13 @@ export default function EditOpportunityPage({ params }: { params: Promise<{ id: 
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow p-6 space-y-8">
+        <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 space-y-6">
           {/* Basic Information */}
           <div>
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Basic Information</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+            <h2 className="text-base font-semibold text-slate-900 mb-3">Basic Information</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="md:col-span-3">
+                <label className="block text-xs font-medium text-slate-600 mb-1">
                   Opportunity Name <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -186,12 +201,12 @@ export default function EditOpportunityPage({ params }: { params: Promise<{ id: 
                   required
                   value={formData.opportunityName}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary text-sm"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-slate-600 mb-1">
                   Stage <span className="text-red-500">*</span>
                 </label>
                 <select
@@ -199,7 +214,7 @@ export default function EditOpportunityPage({ params }: { params: Promise<{ id: 
                   required
                   value={formData.stage}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary"
                 >
                   <option value={OpportunityStage.PROSPECTING}>Prospecting</option>
                   <option value={OpportunityStage.QUALIFICATION}>Qualification</option>
@@ -212,7 +227,7 @@ export default function EditOpportunityPage({ params }: { params: Promise<{ id: 
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-slate-600 mb-1">
                   Amount <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -223,12 +238,12 @@ export default function EditOpportunityPage({ params }: { params: Promise<{ id: 
                   min="0"
                   value={formData.amount}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-slate-600 mb-1">
                   Probability (%) <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -239,12 +254,12 @@ export default function EditOpportunityPage({ params }: { params: Promise<{ id: 
                   max="100"
                   value={formData.probability}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-slate-600 mb-1">
                   Expected Close Date <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -253,12 +268,12 @@ export default function EditOpportunityPage({ params }: { params: Promise<{ id: 
                   required
                   value={formData.expectedCloseDate}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-slate-600 mb-1">
                   Actual Close Date
                 </label>
                 <input
@@ -266,7 +281,7 @@ export default function EditOpportunityPage({ params }: { params: Promise<{ id: 
                   name="actualCloseDate"
                   value={formData.actualCloseDate}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary"
                 />
               </div>
             </div>
@@ -274,10 +289,10 @@ export default function EditOpportunityPage({ params }: { params: Promise<{ id: 
 
           {/* Account & Contact */}
           <div>
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Account & Contact</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <h2 className="text-base font-semibold text-slate-900 mb-3">Account & Contact</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-slate-600 mb-1">
                   Account <span className="text-red-500">*</span>
                 </label>
                 <select
@@ -285,7 +300,7 @@ export default function EditOpportunityPage({ params }: { params: Promise<{ id: 
                   required
                   value={formData.accountId}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary"
                 >
                   <option value="">Select Account...</option>
                   {accounts.map((account) => (
@@ -297,14 +312,14 @@ export default function EditOpportunityPage({ params }: { params: Promise<{ id: 
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-slate-600 mb-1">
                   Primary Contact
                 </label>
                 <select
                   name="primaryContactId"
                   value={formData.primaryContactId}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary"
                 >
                   <option value="">Select Contact...</option>
                   {contacts.map((contact) => (
@@ -319,15 +334,15 @@ export default function EditOpportunityPage({ params }: { params: Promise<{ id: 
 
           {/* Sales Information */}
           <div>
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Sales Information</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <h2 className="text-base font-semibold text-slate-900 mb-3">Sales Information</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Type</label>
+                <label className="block text-sm font-medium text-slate-600 mb-1">Type</label>
                 <select
                   name="type"
                   value={formData.type}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary"
                 >
                   <option value="">Select Type...</option>
                   <option value="New Business">New Business</option>
@@ -337,18 +352,18 @@ export default function EditOpportunityPage({ params }: { params: Promise<{ id: 
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Lead Source</label>
+                <label className="block text-sm font-medium text-slate-600 mb-1">Lead Source</label>
                 <input
                   type="text"
                   name="leadSource"
                   value={formData.leadSource}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-slate-600 mb-1">
                   Campaign Source
                 </label>
                 <input
@@ -356,29 +371,29 @@ export default function EditOpportunityPage({ params }: { params: Promise<{ id: 
                   name="campaignSource"
                   value={formData.campaignSource}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Next Step</label>
+                <label className="block text-sm font-medium text-slate-600 mb-1">Next Step</label>
                 <input
                   type="text"
                   name="nextStep"
                   value={formData.nextStep}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary"
                 />
               </div>
 
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                <label className="block text-sm font-medium text-slate-600 mb-1">Description</label>
                 <textarea
                   name="description"
                   value={formData.description}
                   onChange={handleChange}
                   rows={4}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary"
                 />
               </div>
             </div>
@@ -386,10 +401,10 @@ export default function EditOpportunityPage({ params }: { params: Promise<{ id: 
 
           {/* Financial Details */}
           <div>
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Financial Details</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <h2 className="text-base font-semibold text-slate-900 mb-3">Financial Details</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-slate-600 mb-1">
                   Forecast Amount
                 </label>
                 <input
@@ -399,23 +414,23 @@ export default function EditOpportunityPage({ params }: { params: Promise<{ id: 
                   min="0"
                   value={formData.forecastAmount}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Currency</label>
+                <label className="block text-sm font-medium text-slate-600 mb-1">Currency</label>
                 <input
                   type="text"
                   name="currency"
                   value={formData.currency}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-slate-600 mb-1">
                   Discount Amount
                 </label>
                 <input
@@ -425,12 +440,12 @@ export default function EditOpportunityPage({ params }: { params: Promise<{ id: 
                   min="0"
                   value={formData.discountAmount}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Total Amount</label>
+                <label className="block text-sm font-medium text-slate-600 mb-1">Total Amount</label>
                 <input
                   type="number"
                   name="totalAmount"
@@ -438,7 +453,7 @@ export default function EditOpportunityPage({ params }: { params: Promise<{ id: 
                   min="0"
                   value={formData.totalAmount}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary"
                 />
               </div>
             </div>
@@ -446,10 +461,10 @@ export default function EditOpportunityPage({ params }: { params: Promise<{ id: 
 
           {/* Products & Services */}
           <div>
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Products & Services</h2>
-            <div className="grid grid-cols-1 gap-6">
+            <h2 className="text-base font-semibold text-slate-900 mb-3">Products & Services</h2>
+            <div className="grid grid-cols-1 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-slate-600 mb-1">
                   Products (comma-separated)
                 </label>
                 <input
@@ -457,12 +472,12 @@ export default function EditOpportunityPage({ params }: { params: Promise<{ id: 
                   defaultValue={formData.products?.join(", ")}
                   onChange={(e) => handleArrayChange("products", e.target.value)}
                   placeholder="Product A, Product B, Product C"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-slate-600 mb-1">
                   Services (comma-separated)
                 </label>
                 <input
@@ -470,12 +485,12 @@ export default function EditOpportunityPage({ params }: { params: Promise<{ id: 
                   defaultValue={formData.services?.join(", ")}
                   onChange={(e) => handleArrayChange("services", e.target.value)}
                   placeholder="Service A, Service B, Service C"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-slate-600 mb-1">
                   Solution Offered
                 </label>
                 <textarea
@@ -483,7 +498,7 @@ export default function EditOpportunityPage({ params }: { params: Promise<{ id: 
                   value={formData.solutionOffered}
                   onChange={handleChange}
                   rows={4}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary"
                 />
               </div>
             </div>
@@ -491,10 +506,10 @@ export default function EditOpportunityPage({ params }: { params: Promise<{ id: 
 
           {/* Competition */}
           <div>
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Competition</h2>
-            <div className="grid grid-cols-1 gap-6">
+            <h2 className="text-base font-semibold text-slate-900 mb-3">Competition</h2>
+            <div className="grid grid-cols-1 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-slate-600 mb-1">
                   Competitors (comma-separated)
                 </label>
                 <input
@@ -502,12 +517,12 @@ export default function EditOpportunityPage({ params }: { params: Promise<{ id: 
                   defaultValue={formData.competitors?.join(", ")}
                   onChange={(e) => handleArrayChange("competitors", e.target.value)}
                   placeholder="Competitor A, Competitor B, Competitor C"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-slate-600 mb-1">
                   Competitive Advantage
                 </label>
                 <textarea
@@ -515,13 +530,13 @@ export default function EditOpportunityPage({ params }: { params: Promise<{ id: 
                   value={formData.competitiveAdvantage}
                   onChange={handleChange}
                   rows={4}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary"
                 />
               </div>
 
               {formData.stage === OpportunityStage.CLOSED_LOST && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-slate-600 mb-1">
                     Loss Reason
                   </label>
                   <textarea
@@ -529,7 +544,7 @@ export default function EditOpportunityPage({ params }: { params: Promise<{ id: 
                     value={formData.lossReason}
                     onChange={handleChange}
                     rows={3}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
+                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary"
                   />
                 </div>
               )}
@@ -538,10 +553,10 @@ export default function EditOpportunityPage({ params }: { params: Promise<{ id: 
 
           {/* Decision Process */}
           <div>
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Decision Process</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <h2 className="text-base font-semibold text-slate-900 mb-3">Decision Process</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-slate-600 mb-1">
                   Decision Maker
                 </label>
                 <input
@@ -549,12 +564,12 @@ export default function EditOpportunityPage({ params }: { params: Promise<{ id: 
                   name="decisionMaker"
                   value={formData.decisionMaker}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-slate-600 mb-1">
                   Decision Criteria
                 </label>
                 <input
@@ -562,12 +577,12 @@ export default function EditOpportunityPage({ params }: { params: Promise<{ id: 
                   name="decisionCriteria"
                   value={formData.decisionCriteria}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-slate-600 mb-1">
                   Budget Confirmed
                 </label>
                 <input
@@ -575,12 +590,12 @@ export default function EditOpportunityPage({ params }: { params: Promise<{ id: 
                   name="budgetConfirmed"
                   value={formData.budgetConfirmed}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-slate-600 mb-1">
                   Decision Timeframe
                 </label>
                 <input
@@ -588,7 +603,7 @@ export default function EditOpportunityPage({ params }: { params: Promise<{ id: 
                   name="decisionTimeframe"
                   value={formData.decisionTimeframe}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary"
                 />
               </div>
             </div>
@@ -596,10 +611,10 @@ export default function EditOpportunityPage({ params }: { params: Promise<{ id: 
 
           {/* Additional */}
           <div>
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Additional Information</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <h2 className="text-base font-semibold text-slate-900 mb-3">Additional Information</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-slate-600 mb-1">
                   Delivery Status
                 </label>
                 <input
@@ -607,12 +622,12 @@ export default function EditOpportunityPage({ params }: { params: Promise<{ id: 
                   name="deliveryStatus"
                   value={formData.deliveryStatus}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-slate-600 mb-1">
                   Payment Terms
                 </label>
                 <input
@@ -620,12 +635,12 @@ export default function EditOpportunityPage({ params }: { params: Promise<{ id: 
                   name="paymentTerms"
                   value={formData.paymentTerms}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary"
                 />
               </div>
 
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-slate-600 mb-1">
                   Tags (comma-separated)
                 </label>
                 <input
@@ -633,42 +648,42 @@ export default function EditOpportunityPage({ params }: { params: Promise<{ id: 
                   defaultValue={formData.tags?.join(", ")}
                   onChange={(e) => handleArrayChange("tags", e.target.value)}
                   placeholder="tag1, tag2, tag3"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary"
                 />
               </div>
 
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Notes</label>
+                <label className="block text-sm font-medium text-slate-600 mb-1">Notes</label>
                 <textarea
                   name="notes"
                   value={formData.notes}
                   onChange={handleChange}
                   rows={4}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary"
                 />
               </div>
             </div>
           </div>
 
           {/* Form Actions */}
-          <div className="flex gap-4 pt-6 border-t">
+          <div className="flex gap-4 pt-4 border-t border-slate-200">
             <button
               type="submit"
               disabled={submitting}
-              className="px-6 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+              className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover disabled:bg-slate-300 disabled:cursor-not-allowed transition-colors text-sm font-medium"
             >
-              {submitting ? "Updating..." : "Update Opportunity"}
+              {submitting ? "Updating..." : "Save Changes"}
             </button>
             <button
               type="button"
-              onClick={() => router.back()}
-              className="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+              onClick={() => router.push(`/opportunities/${id}`)}
+              className="px-6 py-2 bg-white border border-slate-200 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors text-sm font-medium"
             >
               Cancel
             </button>
           </div>
         </form>
-      </div>
+      </main>
     </div>
   );
 }
