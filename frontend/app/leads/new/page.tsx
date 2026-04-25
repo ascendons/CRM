@@ -13,28 +13,80 @@ import { Contact, CreateContactRequest } from "@/types/contact";
 import { Account } from "@/types/account";
 import { ApiError } from "@/lib/api-client";
 import { CreateContactModal } from "@/components/leads/CreateContactModal";
+import {
+  User,
+  Building2,
+  Tag,
+  MapPin,
+  FileText,
+  ChevronRight,
+  ChevronLeft,
+  Check,
+  Mail,
+  Phone,
+  Linkedin,
+  Globe,
+  Users,
+  Briefcase,
+  TrendingUp,
+  Calendar,
+  X,
+  Search,
+  Loader2,
+  Sparkles,
+} from "lucide-react";
+
+const STEPS = [
+  { id: "company", label: "Company", icon: Building2 },
+  { id: "contact", label: "Contact", icon: User },
+  { id: "classification", label: "Classification", icon: Tag },
+  { id: "address", label: "Address", icon: MapPin },
+];
+
+const LEAD_SOURCES = [
+  { value: LeadSource.WEBSITE, label: "Website", icon: Globe },
+  { value: LeadSource.REFERRAL, label: "Referral", icon: Users },
+  { value: LeadSource.LINKEDIN, label: "LinkedIn", icon: Linkedin },
+  { value: LeadSource.COLD_CALL, label: "Cold Call", icon: Phone },
+  { value: LeadSource.TRADE_SHOW, label: "Trade Show", icon: Briefcase },
+  { value: LeadSource.PARTNER, label: "Partner", icon: Users },
+  { value: LeadSource.ADVERTISING, label: "Advertising", icon: TrendingUp },
+  { value: LeadSource.EMAIL_CAMPAIGN, label: "Email Campaign", icon: Mail },
+  { value: LeadSource.IMPORT, label: "Import", icon: FileText },
+  { value: LeadSource.OTHER, label: "Other", icon: Sparkles },
+];
+
+const INDUSTRIES = [
+  { value: Industry.RENEWABLE_ENERGY, label: "Renewable Energy", icon: TrendingUp },
+  { value: Industry.SOLAR, label: "Solar", icon: Sparkles },
+  { value: Industry.TECHNOLOGY, label: "Technology", icon: Globe },
+  { value: Industry.MANUFACTURING, label: "Manufacturing", icon: Building2 },
+  { value: Industry.HEALTHCARE, label: "Healthcare", icon: Users },
+  { value: Industry.FINANCE, label: "Finance", icon: TrendingUp },
+  { value: Industry.RETAIL, label: "Retail", icon: Building2 },
+  { value: Industry.EDUCATION, label: "Education", icon: Users },
+  { value: Industry.CONSULTING, label: "Consulting", icon: Briefcase },
+  { value: Industry.GOVERNMENT, label: "Government", icon: Building2 },
+];
 
 export default function NewLeadPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [currentStep, setCurrentStep] = useState(0);
+  const [direction, setDirection] = useState<"forward" | "backward">("forward");
+  const [isTransitioning, setIsTransitioning] = useState(false);
 
-  // Company selection mode: 'new' or 'existing'
-  const [companyMode, setCompanyMode] = useState<'new' | 'existing'>('new');
+  // Company selection mode
+  const [companyMode, setCompanyMode] = useState<"new" | "existing">("new");
   const [selectedAccountId, setSelectedAccountId] = useState<string | null>(null);
   const [selectedAccount, setSelectedAccount] = useState<Account | null>(null);
-
-  // Contacts for selected account
   const [contactsForAccount, setContactsForAccount] = useState<Contact[]>([]);
   const [selectedContactId, setSelectedContactId] = useState<string | null>(null);
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
   const [loadingContacts, setLoadingContacts] = useState(false);
-
-  // Create contact modal
   const [showCreateContactModal, setShowCreateContactModal] = useState(false);
-
-  // Account search state
   const [accountSuggestions, setAccountSuggestions] = useState<Account[]>([]);
   const [allAccounts, setAllAccounts] = useState<Account[]>([]);
   const [isSearchingAccount, setIsSearchingAccount] = useState(false);
@@ -42,8 +94,11 @@ export default function NewLeadPage() {
   const [searchTimeout, setSearchTimeout] = useState<NodeJS.Timeout | null>(null);
   const [companySearchQuery, setCompanySearchQuery] = useState("");
 
+  // Auto-save state
+  const [isSaving, setIsSaving] = useState(false);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
+
   useEffect(() => {
-    // Check authentication
     if (!authService.isAuthenticated()) {
       router.push("/login");
       return;
@@ -80,13 +135,13 @@ export default function NewLeadPage() {
     accountId: undefined,
   });
 
-  // Fetch contacts when account is selected
   useEffect(() => {
     if (selectedAccountId) {
       setLoadingContacts(true);
-      contactsService.getContactsByAccount(selectedAccountId)
+      contactsService
+        .getContactsByAccount(selectedAccountId)
         .then(setContactsForAccount)
-        .catch(err => {
+        .catch((err) => {
           console.error("Failed to fetch contacts", err);
           setContactsForAccount([]);
         })
@@ -98,21 +153,19 @@ export default function NewLeadPage() {
     setSelectedContact(null);
   }, [selectedAccountId]);
 
-  const handleCompanyModeChange = (mode: 'new' | 'existing') => {
+  const handleCompanyModeChange = (mode: "new" | "existing") => {
     setCompanyMode(mode);
     setCompanySearchQuery("");
     setAllAccounts([]);
     setAccountSuggestions([]);
     setShowSuggestions(false);
-    if (mode === 'new') {
-      // Clear company selection
+    if (mode === "new") {
       setSelectedAccountId(null);
       setSelectedAccount(null);
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
         companyName: "",
         accountId: undefined,
-        // Keep contact fields but clear account-linked ones
         firstName: "",
         lastName: "",
         email: "",
@@ -121,8 +174,7 @@ export default function NewLeadPage() {
         department: "",
       }));
     } else {
-      // For existing company, clear form fields except basic
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
         firstName: "",
         lastName: "",
@@ -146,8 +198,7 @@ export default function NewLeadPage() {
       [name]: value,
     }));
 
-    // Handle Company Name search (only for 'new' mode - existing mode uses dropdown)
-    if (name === "companyName" && companyMode === 'new') {
+    if (name === "companyName" && companyMode === "new") {
       setShowSuggestions(true);
       if (searchTimeout) clearTimeout(searchTimeout);
 
@@ -170,7 +221,6 @@ export default function NewLeadPage() {
       }
     }
 
-    // Clear field error when user types
     if (errors[name]) {
       setErrors((prev) => {
         const newErrors = { ...prev };
@@ -206,7 +256,7 @@ export default function NewLeadPage() {
   };
 
   const handleContactSelect = (contactId: string) => {
-    const contact = contactsForAccount.find(c => c.id === contactId);
+    const contact = contactsForAccount.find((c) => c.id === contactId);
     if (contact) {
       setSelectedContactId(contactId);
       setSelectedContact(contact);
@@ -224,16 +274,54 @@ export default function NewLeadPage() {
 
   const handleCreateContact = () => {
     if (selectedAccountId && selectedAccount) {
-      router.push(`/contacts/new?accountId=${selectedAccountId}&accountName=${encodeURIComponent(selectedAccount.accountName)}`);
+      router.push(
+        `/contacts/new?accountId=${selectedAccountId}&accountName=${encodeURIComponent(
+          selectedAccount.accountName
+        )}`
+      );
     }
   };
 
-  // Hide suggestions if clicked outside
   useEffect(() => {
     const handleClickOutside = () => setShowSuggestions(false);
     document.addEventListener("click", handleClickOutside);
     return () => document.removeEventListener("click", handleClickOutside);
   }, []);
+
+  const goToStep = (step: number) => {
+    if (step < currentStep) {
+      setDirection("backward");
+    } else {
+      setDirection("forward");
+    }
+    setIsTransitioning(true);
+    setTimeout(() => {
+      setCurrentStep(step);
+      setIsTransitioning(false);
+    }, 200);
+  };
+
+  const nextStep = () => {
+    if (currentStep < STEPS.length - 1) {
+      setDirection("forward");
+      setIsTransitioning(true);
+      setTimeout(() => {
+        setCurrentStep((prev) => prev + 1);
+        setIsTransitioning(false);
+      }, 200);
+    }
+  };
+
+  const prevStep = () => {
+    if (currentStep > 0) {
+      setDirection("backward");
+      setIsTransitioning(true);
+      setTimeout(() => {
+        setCurrentStep((prev) => prev - 1);
+        setIsTransitioning(false);
+      }, 200);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -258,643 +346,955 @@ export default function NewLeadPage() {
     }
   };
 
+  const calculateProgress = () => {
+    const requiredFields = ["firstName", "lastName", "email", "phone", "companyName"];
+    const filled = requiredFields.filter((field) => formData[field as keyof CreateLeadRequest]).length;
+    return Math.round((filled / requiredFields.length) * 100);
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
       {/* Header */}
-      <div className="bg-white shadow">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div className="bg-white/80 backdrop-blur-sm border-b border-slate-200 sticky top-0 z-20">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3">
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Create New Lead</h1>
-              <p className="mt-1 text-sm text-gray-500">Add a new lead to your CRM</p>
+              <h1 className="text-xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
+                Create New Lead
+              </h1>
+              <p className="text-sm text-slate-500 mt-0.5">Add a new lead to your pipeline</p>
             </div>
             <Link
               href="/leads"
-              className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+              className="flex items-center gap-2 px-3 py-1.5 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-all"
             >
-              ← Back to Leads
+              <ChevronLeft className="h-4 w-4" />
+              Back to Leads
             </Link>
           </div>
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <form onSubmit={handleSubmit} className="space-y-6">
+      {/* Progress Steps */}
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4">
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 mb-4">
+          {/* Progress Bar */}
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-medium text-slate-600">
+              Step {currentStep + 1} of {STEPS.length}
+            </span>
+            <span className="text-xs font-semibold text-blue-600">
+              {calculateProgress()}% Complete
+            </span>
+          </div>
+          <div className="w-full bg-slate-100 rounded-full h-1.5 mb-4 overflow-hidden">
+            <div
+              className="h-full bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full transition-all duration-500 ease-out"
+              style={{ width: `${calculateProgress()}%` }}
+            />
+          </div>
+
+          {/* Step Indicators */}
+          <div className="flex items-center justify-between">
+            {STEPS.map((step, index) => {
+              const isActive = currentStep === index;
+              const isComplete = currentStep > index;
+              const Icon = step.icon;
+              return (
+                <button
+                  key={step.id}
+                  onClick={() => index < currentStep && goToStep(index)}
+                  disabled={index > currentStep}
+                  className={`flex flex-col items-center gap-1 transition-all ${
+                    index > currentStep
+                      ? "opacity-40 cursor-not-allowed"
+                      : "cursor-pointer"
+                  }`}
+                >
+                  <div
+                    className={`h-10 w-10 rounded-lg flex items-center justify-center transition-all duration-300 ${
+                      isComplete
+                        ? "bg-emerald-500 text-white shadow-lg shadow-emerald-200"
+                        : isActive
+                        ? "bg-blue-600 text-white shadow-lg shadow-blue-200 ring-4 ring-blue-100"
+                        : "bg-slate-100 text-slate-400"
+                    }`}
+                  >
+                    {isComplete ? <Check className="h-4 w-4" /> : <Icon className="h-4 w-4" />}
+                  </div>
+                  <span
+                    className={`text-xs font-medium ${
+                      isActive ? "text-blue-600" : isComplete ? "text-emerald-600" : "text-slate-400"
+                    }`}
+                  >
+                    {step.label}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Form */}
+        <form onSubmit={handleSubmit}>
           {/* Error Message */}
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl mb-6 flex items-center gap-2">
+              <X className="h-4 w-4" />
               {error}
             </div>
           )}
 
-          {/* Company Selection Mode */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Company Selection</h2>
-            <div className="flex gap-4 mb-4">
-              <label className="flex items-center cursor-pointer">
-                <input
-                  type="radio"
-                  name="companyMode"
-                  value="new"
-                  checked={companyMode === 'new'}
-                  onChange={() => handleCompanyModeChange('new')}
-                  className="mr-2"
-                />
-                <span className="text-sm text-gray-700">Create lead for new company</span>
-              </label>
-              <label className="flex items-center cursor-pointer">
-                <input
-                  type="radio"
-                  name="companyMode"
-                  value="existing"
-                  checked={companyMode === 'existing'}
-                  onChange={() => handleCompanyModeChange('existing')}
-                  className="mr-2"
-                />
-                <span className="text-sm text-gray-700">Create lead for existing company</span>
-              </label>
-            </div>
-
-            {/* Company Selection for Existing */}
-            {companyMode === 'existing' && (
-              <div className="space-y-4">
-                <div className="relative" onClick={(e) => e.stopPropagation()}>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Select Company <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="Click to search companies..."
-                    value={companySearchQuery}
-                    onChange={(e) => {
-                      setCompanySearchQuery(e.target.value);
-                      setSelectedAccount(null);
-                      setSelectedAccountId(null);
-                      // Filter locally if suggestions already loaded
-                      if (accountSuggestions.length > 0) {
-                        const query = e.target.value.toLowerCase();
-                        const filtered = allAccounts.filter(acc =>
-                          acc.accountName.toLowerCase().includes(query)
-                        );
-                        setAccountSuggestions(filtered);
-                        setShowSuggestions(true);
-                      }
-                    }}
-                    onClick={async () => {
-                      if (!showSuggestions) {
-                        setIsSearchingAccount(true);
-                        try {
-                          const results = await accountsService.getAllAccounts();
-                          setAccountSuggestions(results);
-                          setAllAccounts(results);
-                        } catch (err) {
-                          console.error("Failed to fetch accounts", err);
-                        } finally {
-                          setIsSearchingAccount(false);
-                          setShowSuggestions(true);
-                        }
-                      }
-                    }}
-                    onFocus={() => {
-                      if (!showSuggestions && allAccounts.length === 0) {
-                        setIsSearchingAccount(true);
-                        accountsService.getAllAccounts()
-                          .then(results => {
-                            setAccountSuggestions(results);
-                            setAllAccounts(results);
-                          })
-                          .catch(err => console.error("Failed to fetch accounts", err))
-                          .finally(() => {
-                            setIsSearchingAccount(false);
-                            setShowSuggestions(true);
-                          });
-                      } else if (allAccounts.length > 0) {
-                        setShowSuggestions(true);
-                      }
-                    }}
-                    autoComplete="off"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                  />
-                  {isSearchingAccount && (
-                    <div className="absolute right-3 top-9">
-                      <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+          {/* Step Content */}
+          <div
+            className={`transition-all duration-200 ${
+              isTransitioning ? "opacity-0 translate-x-4" : "opacity-100 translate-x-0"
+            }`}
+          >
+            {/* Step 1: Company */}
+            {currentStep === 0 && (
+              <div className="space-y-3">
+                {/* Company Selection */}
+                <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 hover:shadow-md transition-shadow">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="h-8 w-8 rounded-lg bg-indigo-100 flex items-center justify-center">
+                      <Building2 className="h-4 w-4 text-indigo-600" />
                     </div>
-                  )}
+                    <div>
+                      <h2 className="text-base font-semibold text-slate-900">Company Selection</h2>
+                      <p className="text-sm text-slate-500">Choose new or existing company</p>
+                    </div>
+                  </div>
 
-                  {/* Account Suggestions Dropdown */}
-                  {showSuggestions && accountSuggestions.length > 0 && (
-                    <div className="absolute z-10 w-full mt-1 bg-white rounded-md shadow-lg border border-gray-200 max-h-60 overflow-auto">
-                      <ul className="py-1 text-sm text-gray-700">
-                        {accountSuggestions.map((account) => (
-                          <li
-                            key={account.id}
-                            className="px-4 py-2 hover:bg-blue-50 cursor-pointer border-b last:border-0"
-                            onClick={() => handleAccountSelect(account)}
-                          >
-                            <div className="font-medium text-gray-900">{account.accountName}</div>
-                            <div className="flex gap-2 text-xs text-gray-500 mt-0.5">
-                              {account.industry && <span>{account.industry.replace("_", " ")}</span>}
-                              {account.industry && account.companySize && <span>•</span>}
-                              {account.companySize && (
-                                <span>{account.companySize.replace("_", " ")}</span>
-                              )}
-                              {account.website && <span>•</span>}
-                              {account.website && <span>{account.website}</span>}
+                  <div className="flex gap-4 mb-4">
+                    <button
+                      type="button"
+                      onClick={() => handleCompanyModeChange("new")}
+                      className={`flex-1 p-4 rounded-xl border-2 transition-all ${
+                        companyMode === "new"
+                          ? "border-blue-500 bg-blue-50"
+                          : "border-slate-200 hover:border-slate-300"
+                      }`}
+                    >
+                      <div className="flex flex-col items-center gap-2">
+                        <div
+                          className={`h-10 w-10 rounded-lg flex items-center justify-center ${
+                            companyMode === "new" ? "bg-blue-500 text-white" : "bg-slate-100 text-slate-400"
+                          }`}
+                        >
+                          <Sparkles className="h-6 w-6" />
+                        </div>
+                        <span
+                          className={`font-medium ${
+                            companyMode === "new" ? "text-blue-700" : "text-slate-600"
+                          }`}
+                        >
+                          New Company
+                        </span>
+                      </div>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleCompanyModeChange("existing")}
+                      className={`flex-1 p-4 rounded-xl border-2 transition-all ${
+                        companyMode === "existing"
+                          ? "border-blue-500 bg-blue-50"
+                          : "border-slate-200 hover:border-slate-300"
+                      }`}
+                    >
+                      <div className="flex flex-col items-center gap-2">
+                        <div
+                          className={`h-10 w-10 rounded-lg flex items-center justify-center ${
+                            companyMode === "existing"
+                              ? "bg-blue-500 text-white"
+                              : "bg-slate-100 text-slate-400"
+                          }`}
+                        >
+                          <Building2 className="h-6 w-6" />
+                        </div>
+                        <span
+                          className={`font-medium ${
+                            companyMode === "existing" ? "text-blue-700" : "text-slate-600"
+                          }`}
+                        >
+                          Existing Company
+                        </span>
+                      </div>
+                    </button>
+                  </div>
+
+                  {companyMode === "existing" && (
+                    <div className="space-y-3">
+                      <div className="relative" onClick={(e) => e.stopPropagation()}>
+                        <label className="block text-sm font-medium text-slate-700 mb-2">
+                          Select Company <span className="text-red-500">*</span>
+                        </label>
+                        <div className="relative">
+                          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                          <input
+                            type="text"
+                            placeholder="Search companies..."
+                            value={companySearchQuery}
+                            onChange={(e) => {
+                              setCompanySearchQuery(e.target.value);
+                              setSelectedAccount(null);
+                              setSelectedAccountId(null);
+                              if (accountSuggestions.length > 0) {
+                                const query = e.target.value.toLowerCase();
+                                const filtered = allAccounts.filter((acc) =>
+                                  acc.accountName.toLowerCase().includes(query)
+                                );
+                                setAccountSuggestions(filtered);
+                                setShowSuggestions(true);
+                              }
+                            }}
+                            onClick={async () => {
+                              if (!showSuggestions) {
+                                setIsSearchingAccount(true);
+                                try {
+                                  const results = await accountsService.getAllAccounts();
+                                  setAccountSuggestions(results);
+                                  setAllAccounts(results);
+                                } catch (err) {
+                                  console.error("Failed to fetch accounts", err);
+                                } finally {
+                                  setIsSearchingAccount(false);
+                                  setShowSuggestions(true);
+                                }
+                              }
+                            }}
+                            onFocus={() => {
+                              if (!showSuggestions && allAccounts.length === 0) {
+                                setIsSearchingAccount(true);
+                                accountsService
+                                  .getAllAccounts()
+                                  .then((results) => {
+                                    setAccountSuggestions(results);
+                                    setAllAccounts(results);
+                                  })
+                                  .catch((err) => console.error("Failed to fetch accounts", err))
+                                  .finally(() => {
+                                    setIsSearchingAccount(false);
+                                    setShowSuggestions(true);
+                                  });
+                              } else if (allAccounts.length > 0) {
+                                setShowSuggestions(true);
+                              }
+                            }}
+                            autoComplete="off"
+                            className="w-full pl-9 pr-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500"
+                          />
+                          {isSearchingAccount && (
+                            <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-blue-500 animate-spin" />
+                          )}
+                        </div>
+
+                        {showSuggestions && accountSuggestions.length > 0 && (
+                          <div className="absolute z-10 w-full mt-1 bg-white rounded-xl shadow-lg border border-slate-200 max-h-60 overflow-auto">
+                            <ul className="py-1 text-sm text-slate-700">
+                              {accountSuggestions.map((account) => (
+                                <li
+                                  key={account.id}
+                                  className="px-4 py-3 hover:bg-blue-50 cursor-pointer border-b last:border-0 transition-colors"
+                                  onClick={() => handleAccountSelect(account)}
+                                >
+                                  <div className="font-medium text-slate-900">{account.accountName}</div>
+                                  <div className="flex gap-2 text-xs text-slate-500 mt-0.5">
+                                    {account.industry && <span>{account.industry.replace("_", " ")}</span>}
+                                    {account.industry && account.companySize && <span>•</span>}
+                                    {account.companySize && <span>{account.companySize.replace("_", " ")}</span>}
+                                  </div>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                      </div>
+
+                      {selectedAccount && (
+                        <div className="p-4 bg-blue-50 rounded-xl border border-blue-200">
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <h3 className="font-medium text-slate-900">{selectedAccount.accountName}</h3>
+                              <p className="text-sm text-slate-500 mt-1">
+                                {selectedAccount.industry?.replace("_", " ")} •{" "}
+                                {selectedAccount.companySize?.replace("_", " ")}
+                              </p>
                             </div>
-                          </li>
-                        ))}
-                      </ul>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setSelectedAccount(null);
+                                setSelectedAccountId(null);
+                                setCompanySearchQuery("");
+                                setFormData((prev) => ({ ...prev, accountId: undefined }));
+                              }}
+                              className="text-slate-400 hover:text-slate-600"
+                            >
+                              <X className="h-4 w-4" />
+                            </button>
+                          </div>
+
+                          <div className="mt-4 pt-4 border-t border-blue-200">
+                            <label className="block text-sm font-medium text-slate-700 mb-2">
+                              Select Contact
+                            </label>
+                            {loadingContacts ? (
+                              <div className="flex items-center text-sm text-slate-500">
+                                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                                Loading contacts...
+                              </div>
+                            ) : (
+                              <div className="relative">
+                                <select
+                                  value={selectedContactId || ""}
+                                  onChange={(e) => {
+                                    if (e.target.value === "__create_new__") {
+                                      setShowCreateContactModal(true);
+                                    } else {
+                                      handleContactSelect(e.target.value);
+                                    }
+                                  }}
+                                  className="w-full px-3 py-1.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 appearance-none bg-white"
+                                >
+                                  <option value="">Select a contact</option>
+                                  {contactsForAccount.map((contact) => (
+                                    <option key={contact.id} value={contact.id}>
+                                      {contact.firstName} {contact.lastName}
+                                      {contact.jobTitle ? ` - ${contact.jobTitle}` : ""}
+                                    </option>
+                                  ))}
+                                  <option value="__create_new__">+ Create New Contact</option>
+                                </select>
+                                <ChevronRight className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 rotate-90 pointer-events-none" />
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
 
-                {/* Selected Company Display */}
-                {selectedAccount && (
-                  <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <h3 className="font-medium text-gray-900">{selectedAccount.accountName}</h3>
-                        <p className="text-sm text-gray-500 mt-1">
-                          {selectedAccount.industry?.replace("_", " ")} • {selectedAccount.companySize?.replace("_", " ")}
-                          {selectedAccount.website && ` • ${selectedAccount.website}`}
-                        </p>
+                {/* Company Info for New Mode */}
+                {companyMode === "new" && (
+                  <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 hover:shadow-md transition-shadow">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="h-8 w-8 rounded-lg bg-emerald-100 flex items-center justify-center">
+                        <Building2 className="h-4 w-4 text-emerald-600" />
                       </div>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setSelectedAccount(null);
-                          setSelectedAccountId(null);
-                          setCompanySearchQuery("");
-                          setFormData(prev => ({ ...prev, accountId: undefined }));
-                        }}
-                        className="text-gray-400 hover:text-gray-600"
-                      >
-                        ✕
-                      </button>
+                      <div>
+                        <h2 className="text-base font-semibold text-slate-900">Company Details</h2>
+                        <p className="text-sm text-slate-500">Enter company information</p>
+                      </div>
                     </div>
 
-                    {/* Contact Selection */}
-                    <div className="mt-4 pt-4 border-t border-blue-200">
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Select Contact
-                      </label>
-                      {loadingContacts ? (
-                        <div className="flex items-center text-sm text-gray-500">
-                          <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mr-2"></div>
-                          Loading contacts...
-                        </div>
-                      ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <div className="space-y-1 md:col-span-2">
+                        <label className="block text-sm font-medium text-slate-700">
+                          Company Name <span className="text-red-500">*</span>
+                        </label>
                         <div className="relative">
-                          <select
-                            value={selectedContactId || ""}
-                            onChange={(e) => {
-                              if (e.target.value === "__create_new__") {
-                                setShowCreateContactModal(true);
-                              } else {
-                                handleContactSelect(e.target.value);
-                              }
+                          <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                          <input
+                            type="text"
+                            name="companyName"
+                            value={formData.companyName}
+                            onChange={handleChange}
+                            onFocus={() => {
+                              if (formData.companyName.trim().length >= 2) setShowSuggestions(true);
                             }}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 appearance-none bg-white"
-                          >
-                            <option value="">Select a contact</option>
-                            {contactsForAccount.map((contact) => (
-                              <option key={contact.id} value={contact.id}>
-                                {contact.firstName} {contact.lastName}
-                                {contact.jobTitle ? ` - ${contact.jobTitle}` : ""}
-                              </option>
-                            ))}
-                            <option value="__create_new__">+ Create New Contact</option>
-                          </select>
-                          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
-                            <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                              <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clipRule="evenodd" />
-                            </svg>
-                          </div>
+                            autoComplete="off"
+                            required
+                            placeholder="Acme Corporation"
+                            className={`w-full pl-9 pr-3 py-2 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all ${
+                              errors.companyName ? "border-red-300 bg-red-50" : "border-slate-200"
+                            }`}
+                          />
                         </div>
-                      )}
+                        {errors.companyName && (
+                          <p className="text-sm text-red-600">{errors.companyName}</p>
+                        )}
+
+                        {showSuggestions && accountSuggestions.length > 0 && (
+                          <div className="absolute z-10 w-full mt-1 bg-white rounded-xl shadow-lg border border-slate-200 max-h-60 overflow-auto">
+                            <ul className="py-1 text-sm text-slate-700">
+                              {accountSuggestions.map((account) => (
+                                <li
+                                  key={account.id}
+                                  className="px-4 py-3 hover:bg-blue-50 cursor-pointer border-b last:border-0 transition-colors"
+                                  onClick={() => handleAccountSelect(account)}
+                                >
+                                  <div className="font-medium text-slate-900">{account.accountName}</div>
+                                  <div className="flex gap-2 text-xs text-slate-500 mt-0.5">
+                                    {account.industry && <span>{account.industry.replace("_", " ")}</span>}
+                                  </div>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="block text-sm font-medium text-slate-700">GST Number</label>
+                        <input
+                          type="text"
+                          name="gstNumber"
+                          value={formData.gstNumber || ""}
+                          onChange={handleChange}
+                          placeholder="29ABCDE1234F1Z5"
+                          className="w-full px-3 py-1.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="block text-sm font-medium text-slate-700">Industry</label>
+                        <select
+                          name="industry"
+                          value={formData.industry || ""}
+                          onChange={handleChange}
+                          className="w-full px-3 py-1.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500"
+                        >
+                          <option value="">Select Industry</option>
+                          {Object.values(Industry).map((ind) => (
+                            <option key={ind} value={ind}>
+                              {ind.replace("_", " ")}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="block text-sm font-medium text-slate-700">Company Size</label>
+                        <select
+                          name="companySize"
+                          value={formData.companySize || ""}
+                          onChange={handleChange}
+                          className="w-full px-3 py-1.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500"
+                        >
+                          <option value="">Select Size</option>
+                          <option value={CompanySize.MICRO}>1-10 employees</option>
+                          <option value={CompanySize.SMALL}>11-50 employees</option>
+                          <option value={CompanySize.MEDIUM}>51-200 employees</option>
+                          <option value={CompanySize.LARGE}>201-500 employees</option>
+                          <option value={CompanySize.ENTERPRISE}>500+ employees</option>
+                        </select>
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="block text-sm font-medium text-slate-700">
+                          Number of Employees
+                        </label>
+                        <input
+                          type="number"
+                          name="numberOfEmployees"
+                          value={formData.numberOfEmployees || ""}
+                          onChange={handleChange}
+                          placeholder="50"
+                          className="w-full px-3 py-1.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="block text-sm font-medium text-slate-700">
+                          Annual Revenue <span className="text-red-500">*</span>
+                        </label>
+                        <div className="relative">
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">₹</span>
+                          <input
+                            type="number"
+                            name="annualRevenue"
+                            value={formData.annualRevenue || ""}
+                            onChange={handleChange}
+                            required
+                            placeholder="1000000"
+                            className={`w-full pl-7 pr-3 py-2 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all ${
+                              errors.annualRevenue ? "border-red-300 bg-red-50" : "border-slate-200"
+                            }`}
+                          />
+                        </div>
+                        {errors.annualRevenue && (
+                          <p className="text-sm text-red-600">{errors.annualRevenue}</p>
+                        )}
+                      </div>
                     </div>
                   </div>
                 )}
               </div>
             )}
-          </div>
 
-          {/* Basic Information */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Basic Information</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  First Name <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  name="firstName"
-                  value={formData.firstName}
-                  onChange={handleChange}
-                  required
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 ${
-                    errors.firstName ? "border-red-500" : "border-gray-300"
-                  }`}
-                />
-                {errors.firstName && (
-                  <p className="mt-1 text-sm text-red-600">{errors.firstName}</p>
-                )}
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Last Name <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  name="lastName"
-                  value={formData.lastName}
-                  onChange={handleChange}
-                  required
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 ${
-                    errors.lastName ? "border-red-500" : "border-gray-300"
-                  }`}
-                />
-                {errors.lastName && <p className="mt-1 text-sm text-red-600">{errors.lastName}</p>}
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Email <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  required
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 ${
-                    errors.email ? "border-red-500" : "border-gray-300"
-                  }`}
-                />
-                {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Phone <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="tel"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  placeholder="+919876543210"
-                  required
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 ${
-                    errors.phone ? "border-red-500" : "border-gray-300"
-                  }`}
-                />
-                {errors.phone && <p className="mt-1 text-sm text-red-600">{errors.phone}</p>}
-              </div>
-
-              {companyMode === 'new' && (
-                <div className="md:col-span-2 relative" onClick={(e) => e.stopPropagation()}>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Company Name <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    name="companyName"
-                    value={formData.companyName}
-                    onChange={handleChange}
-                    onFocus={() => {
-                      if (formData.companyName.trim().length >= 2) setShowSuggestions(true);
-                    }}
-                    autoComplete="off"
-                    required
-                    className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 ${
-                      errors.companyName ? "border-red-500" : "border-gray-300"
-                    }`}
-                  />
-                  {isSearchingAccount && (
-                    <div className="absolute right-3 top-9">
-                      <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+            {/* Step 2: Contact */}
+            {currentStep === 1 && (
+              <div className="space-y-3">
+                {/* Contact Information */}
+                <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 hover:shadow-md transition-shadow">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="h-8 w-8 rounded-lg bg-blue-100 flex items-center justify-center">
+                      <User className="h-4 w-4 text-blue-600" />
                     </div>
-                  )}
-
-                  {/* Account Suggestions Dropdown */}
-                  {showSuggestions && accountSuggestions.length > 0 && (
-                    <div className="absolute z-10 w-full mt-1 bg-white rounded-md shadow-lg border border-gray-200 max-h-60 overflow-auto">
-                      <ul className="py-1 text-sm text-gray-700">
-                        {accountSuggestions.map((account) => (
-                          <li
-                            key={account.id}
-                            className="px-4 py-2 hover:bg-blue-50 cursor-pointer border-b last:border-0"
-                            onClick={() => handleAccountSelect(account)}
-                          >
-                            <div className="font-medium text-gray-900">{account.accountName}</div>
-                            <div className="flex gap-2 text-xs text-gray-500 mt-0.5">
-                              {account.industry && <span>{account.industry.replace("_", " ")}</span>}
-                              {account.industry && account.companySize && <span>•</span>}
-                              {account.companySize && (
-                                <span>{account.companySize.replace("_", " ")}</span>
-                              )}
-                              {account.website && <span>•</span>}
-                              {account.website && <span>{account.website}</span>}
-                            </div>
-                          </li>
-                        ))}
-                      </ul>
+                    <div>
+                      <h2 className="text-base font-semibold text-slate-900">Contact Information</h2>
+                      <p className="text-sm text-slate-500">
+                        {selectedContact ? "Contact auto-filled from existing contact" : "Enter the lead's contact details"}
+                      </p>
                     </div>
-                  )}
+                  </div>
 
-                  {errors.companyName && (
-                    <p className="mt-1 text-sm text-red-600">{errors.companyName}</p>
-                  )}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <label className="block text-sm font-medium text-slate-700">
+                        First Name <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        name="firstName"
+                        value={formData.firstName}
+                        onChange={handleChange}
+                        required
+                        placeholder="John"
+                        className={`w-full px-3 py-1.5 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all ${
+                          errors.firstName ? "border-red-300 bg-red-50" : "border-slate-200"
+                        }`}
+                      />
+                      {errors.firstName && (
+                        <p className="text-sm text-red-600">{errors.firstName}</p>
+                      )}
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="block text-sm font-medium text-slate-700">
+                        Last Name <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        name="lastName"
+                        value={formData.lastName}
+                        onChange={handleChange}
+                        required
+                        placeholder="Doe"
+                        className={`w-full px-3 py-1.5 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all ${
+                          errors.lastName ? "border-red-300 bg-red-50" : "border-slate-200"
+                        }`}
+                      />
+                      {errors.lastName && (
+                        <p className="text-sm text-red-600">{errors.lastName}</p>
+                      )}
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="block text-sm font-medium text-slate-700">
+                        Email <span className="text-red-500">*</span>
+                      </label>
+                      <div className="relative">
+                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                        <input
+                          type="email"
+                          name="email"
+                          value={formData.email}
+                          onChange={handleChange}
+                          required
+                          placeholder="john.doe@company.com"
+                          className={`w-full pl-9 pr-3 py-2 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all ${
+                            errors.email ? "border-red-300 bg-red-50" : "border-slate-200"
+                          }`}
+                        />
+                      </div>
+                      {errors.email && (
+                        <p className="text-sm text-red-600">{errors.email}</p>
+                      )}
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="block text-sm font-medium text-slate-700">
+                        Phone <span className="text-red-500">*</span>
+                      </label>
+                      <div className="relative">
+                        <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                        <input
+                          type="tel"
+                          name="phone"
+                          value={formData.phone}
+                          onChange={handleChange}
+                          placeholder="+919876543210"
+                          required
+                          className={`w-full pl-9 pr-3 py-2 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all ${
+                            errors.phone ? "border-red-300 bg-red-50" : "border-slate-200"
+                          }`}
+                        />
+                      </div>
+                      {errors.phone && (
+                        <p className="text-sm text-red-600">{errors.phone}</p>
+                      )}
+                    </div>
+                  </div>
                 </div>
-              )}
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  GST Number (Optional)
-                </label>
-                <input
-                  type="text"
-                  name="gstNumber"
-                  value={formData.gstNumber || ""}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                  placeholder="e.g. 29ABCDE1234F1Z5"
-                />
+                {/* Job Details */}
+                <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 hover:shadow-md transition-shadow">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="h-8 w-8 rounded-lg bg-purple-100 flex items-center justify-center">
+                      <Briefcase className="h-4 w-4 text-purple-600" />
+                    </div>
+                    <div>
+                      <h2 className="text-base font-semibold text-slate-900">Job Details</h2>
+                      <p className="text-sm text-slate-500">Additional contact information</p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <label className="block text-sm font-medium text-slate-700">Job Title</label>
+                      <input
+                        type="text"
+                        name="jobTitle"
+                        value={formData.jobTitle}
+                        onChange={handleChange}
+                        placeholder="Sales Manager"
+                        className="w-full px-3 py-1.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="block text-sm font-medium text-slate-700">Department</label>
+                      <input
+                        type="text"
+                        name="department"
+                        value={formData.department}
+                        onChange={handleChange}
+                        placeholder="Sales"
+                        className="w-full px-3 py-1.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="block text-sm font-medium text-slate-700">
+                        LinkedIn Profile
+                      </label>
+                      <div className="relative">
+                        <Linkedin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                        <input
+                          type="url"
+                          name="linkedInProfile"
+                          value={formData.linkedInProfile}
+                          onChange={handleChange}
+                          placeholder="linkedin.com/in/johndoe"
+                          className="w-full pl-9 pr-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="block text-sm font-medium text-slate-700">Website</label>
+                      <div className="relative">
+                        <Globe className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                        <input
+                          type="url"
+                          name="website"
+                          value={formData.website}
+                          onChange={handleChange}
+                          placeholder="https://example.com"
+                          className="w-full pl-9 pr-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
+            )}
+
+            {/* Step 3: Classification */}
+            {currentStep === 2 && (
+              <div className="space-y-3">
+                {/* Lead Source */}
+                <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 hover:shadow-md transition-shadow">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="h-8 w-8 rounded-lg bg-amber-100 flex items-center justify-center">
+                      <Tag className="h-4 w-4 text-amber-600" />
+                    </div>
+                    <div>
+                      <h2 className="text-base font-semibold text-slate-900">Lead Source</h2>
+                      <p className="text-sm text-slate-500">How did you find this lead?</p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+                    {LEAD_SOURCES.map((source) => {
+                      const Icon = source.icon;
+                      const isSelected = formData.leadSource === source.value;
+                      return (
+                        <button
+                          key={source.value}
+                          type="button"
+                          onClick={() =>
+                            setFormData((prev) => ({ ...prev, leadSource: source.value }))
+                          }
+                          className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all ${
+                            isSelected
+                              ? "border-amber-500 bg-amber-50 shadow-md"
+                              : "border-slate-200 hover:border-slate-300 hover:bg-slate-50"
+                          }`}
+                        >
+                          <div
+                            className={`h-10 w-10 rounded-lg flex items-center justify-center ${
+                              isSelected ? "bg-amber-500 text-white" : "bg-slate-100 text-slate-500"
+                            }`}
+                          >
+                            <Icon className="h-4 w-4" />
+                          </div>
+                          <span
+                            className={`text-xs font-medium ${
+                              isSelected ? "text-amber-700" : "text-slate-600"
+                            }`}
+                          >
+                            {source.label}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Revenue & Timeline */}
+                <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 hover:shadow-md transition-shadow">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="h-8 w-8 rounded-lg bg-emerald-100 flex items-center justify-center">
+                      <TrendingUp className="h-4 w-4 text-emerald-600" />
+                    </div>
+                    <div>
+                      <h2 className="text-base font-semibold text-slate-900">Revenue & Timeline</h2>
+                      <p className="text-sm text-slate-500">Expected business value</p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <label className="block text-sm font-medium text-slate-700">
+                        Expected Revenue <span className="text-red-500">*</span>
+                      </label>
+                      <div className="relative">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">₹</span>
+                        <input
+                          type="number"
+                          name="expectedRevenue"
+                          value={formData.expectedRevenue || ""}
+                          onChange={handleChange}
+                          required
+                          placeholder="500000"
+                          className={`w-full pl-7 pr-3 py-2 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all ${
+                            errors.expectedRevenue ? "border-red-300 bg-red-50" : "border-slate-200"
+                          }`}
+                        />
+                      </div>
+                      {errors.expectedRevenue && (
+                        <p className="text-sm text-red-600">{errors.expectedRevenue}</p>
+                      )}
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="block text-sm font-medium text-slate-700">
+                        Expected Close Date
+                      </label>
+                      <div className="relative">
+                        <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                        <input
+                          type="date"
+                          name="expectedCloseDate"
+                          value={formData.expectedCloseDate || ""}
+                          onChange={handleChange}
+                          className="w-full pl-9 pr-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Additional Info */}
+                <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 hover:shadow-md transition-shadow">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="h-8 w-8 rounded-lg bg-slate-100 flex items-center justify-center">
+                      <FileText className="h-4 w-4 text-slate-600" />
+                    </div>
+                    <div>
+                      <h2 className="text-base font-semibold text-slate-900">Additional Notes</h2>
+                      <p className="text-sm text-slate-500">Any additional information</p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-1">
+                    <textarea
+                      name="description"
+                      value={formData.description}
+                      onChange={handleChange}
+                      rows={4}
+                      maxLength={2000}
+                      className="w-full px-3 py-1.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                      placeholder="Add any additional notes about this lead..."
+                    />
+                    <p className="text-sm text-slate-500 text-right">
+                      {formData.description?.length || 0} / 2000 characters
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Step 4: Address */}
+            {currentStep === 3 && (
+              <div className="space-y-3">
+                {/* Address */}
+                <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 hover:shadow-md transition-shadow">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="h-8 w-8 rounded-lg bg-rose-100 flex items-center justify-center">
+                      <MapPin className="h-4 w-4 text-rose-600" />
+                    </div>
+                    <div>
+                      <h2 className="text-base font-semibold text-slate-900">Address Information</h2>
+                      <p className="text-sm text-slate-500">Lead's location details</p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <CountryStateSelector
+                      countryValue={formData.country || ""}
+                      stateValue={formData.state || ""}
+                      onCountryChange={(val) => setFormData((prev) => ({ ...prev, country: val }))}
+                      onStateChange={(val) => setFormData((prev) => ({ ...prev, state: val }))}
+                    />
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <div className="space-y-1">
+                        <label className="block text-sm font-medium text-slate-700">City</label>
+                        <input
+                          type="text"
+                          name="city"
+                          value={formData.city}
+                          onChange={handleChange}
+                          placeholder="Mumbai"
+                          className="w-full px-3 py-1.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="block text-sm font-medium text-slate-700">Postal Code</label>
+                        <input
+                          type="text"
+                          name="postalCode"
+                          value={formData.postalCode}
+                          onChange={handleChange}
+                          placeholder="400001"
+                          className="w-full px-3 py-1.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                        />
+                      </div>
+
+                      <div className="space-y-1 md:col-span-2">
+                        <label className="block text-sm font-medium text-slate-700">Street Address</label>
+                        <input
+                          type="text"
+                          name="streetAddress"
+                          value={formData.streetAddress}
+                          onChange={handleChange}
+                          placeholder="123 Business Park, Phase 2"
+                          className="w-full px-3 py-1.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Summary Card */}
+                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl border border-blue-200 p-6">
+                  <h3 className="text-base font-semibold text-slate-900 mb-4">Lead Summary</h3>
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <span className="text-slate-500">Name:</span>
+                      <span className="ml-2 font-medium text-slate-900">
+                        {formData.firstName} {formData.lastName}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-slate-500">Company:</span>
+                      <span className="ml-2 font-medium text-slate-900">{formData.companyName}</span>
+                    </div>
+                    <div>
+                      <span className="text-slate-500">Email:</span>
+                      <span className="ml-2 font-medium text-slate-900">{formData.email}</span>
+                    </div>
+                    <div>
+                      <span className="text-slate-500">Phone:</span>
+                      <span className="ml-2 font-medium text-slate-900">{formData.phone}</span>
+                    </div>
+                    <div>
+                      <span className="text-slate-500">Source:</span>
+                      <span className="ml-2 font-medium text-slate-900">
+                        {formData.leadSource?.replace("_", " ") || "Not specified"}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-slate-500">Expected Revenue:</span>
+                      <span className="ml-2 font-medium text-slate-900">
+                        {formData.expectedRevenue ? `₹${formData.expectedRevenue.toLocaleString()}` : "Not specified"}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
-          {/* Contact Details */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Contact Details</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Job Title</label>
-                <input
-                  type="text"
-                  name="jobTitle"
-                  value={formData.jobTitle}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Department</label>
-                <input
-                  type="text"
-                  name="department"
-                  value={formData.department}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  LinkedIn Profile
-                </label>
-                <input
-                  type="url"
-                  name="linkedInProfile"
-                  value={formData.linkedInProfile}
-                  onChange={handleChange}
-                  placeholder="https://linkedin.com/in/..."
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Website</label>
-                <input
-                  type="url"
-                  name="website"
-                  value={formData.website}
-                  onChange={handleChange}
-                  placeholder="https://example.com"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Company Information */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Company Information</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Industry</label>
-                <select
-                  name="industry"
-                  value={formData.industry || ""}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="">Select Industry</option>
-                  {Object.values(Industry).map((ind) => (
-                    <option key={ind} value={ind}>
-                      {ind.replace("_", " ")}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Company Size</label>
-                <select
-                  name="companySize"
-                  value={formData.companySize || ""}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="">Select Size</option>
-                  <option value={CompanySize.MICRO}>1-10 employees</option>
-                  <option value={CompanySize.SMALL}>11-50 employees</option>
-                  <option value={CompanySize.MEDIUM}>51-200 employees</option>
-                  <option value={CompanySize.LARGE}>201-500 employees</option>
-                  <option value={CompanySize.ENTERPRISE}>500+ employees</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Number of Employees
-                </label>
-                <input
-                  type="number"
-                  name="numberOfEmployees"
-                  value={formData.numberOfEmployees || ""}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Annual Revenue <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="number"
-                  name="annualRevenue"
-                  value={formData.annualRevenue || ""}
-                  onChange={handleChange}
-                  required
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 ${
-                    errors.annualRevenue ? "border-red-500" : "border-gray-300"
-                  }`}
-                />
-                {errors.annualRevenue && (
-                  <p className="mt-1 text-sm text-red-600">{errors.annualRevenue}</p>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Lead Classification */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Lead Classification</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Lead Source</label>
-                <select
-                  name="leadSource"
-                  value={formData.leadSource || ""}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="">Select Source</option>
-                  {Object.values(LeadSource).map((source) => (
-                    <option key={source} value={source}>
-                      {source.replace("_", " ")}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Expected Revenue <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="number"
-                  name="expectedRevenue"
-                  value={formData.expectedRevenue || ""}
-                  onChange={handleChange}
-                  required
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 ${
-                    errors.expectedRevenue ? "border-red-500" : "border-gray-300"
-                  }`}
-                />
-                {errors.expectedRevenue && (
-                  <p className="mt-1 text-sm text-red-600">{errors.expectedRevenue}</p>
-                )}
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Expected Close Date
-                </label>
-                <input
-                  type="date"
-                  name="expectedCloseDate"
-                  value={formData.expectedCloseDate || ""}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Address Information */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Address Information</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="md:col-span-2">
-                <CountryStateSelector
-                  countryValue={formData.country || ""}
-                  stateValue={formData.state || ""}
-                  onCountryChange={(val) => setFormData((prev) => ({ ...prev, country: val }))}
-                  onStateChange={(val) => setFormData((prev) => ({ ...prev, state: val }))}
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">City</label>
-                <input
-                  type="text"
-                  name="city"
-                  value={formData.city}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Postal Code</label>
-                <input
-                  type="text"
-                  name="postalCode"
-                  value={formData.postalCode}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Street Address
-                </label>
-                <input
-                  type="text"
-                  name="streetAddress"
-                  value={formData.streetAddress}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Additional Information */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Additional Information</h2>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Description / Notes
-              </label>
-              <textarea
-                name="description"
-                value={formData.description}
-                onChange={handleChange}
-                rows={4}
-                maxLength={2000}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                placeholder="Add any additional notes about this lead..."
-              />
-              <p className="mt-1 text-sm text-gray-500">
-                {formData.description?.length || 0} / 2000 characters
-              </p>
-            </div>
-          </div>
-
-          {/* Action Buttons */}
-          <div className="flex justify-end gap-4">
-            <Link
-              href="/leads"
-              className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
-            >
-              Cancel
-            </Link>
+          {/* Navigation Buttons */}
+          <div className="flex justify-between items-center mt-4">
             <button
-              type="submit"
-              disabled={loading}
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-blue-300 disabled:cursor-not-allowed"
+              type="button"
+              onClick={prevStep}
+              disabled={currentStep === 0}
+              className={`flex items-center gap-2 px-3 py-1.5 rounded-lg font-medium transition-all ${
+                currentStep === 0
+                  ? "text-slate-300 cursor-not-allowed"
+                  : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+              }`}
             >
-              {loading ? "Creating..." : "Create Lead"}
+              <ChevronLeft className="h-4 w-4" />
+              Previous
             </button>
+
+            <div className="flex items-center gap-4">
+              <Link
+                href="/leads"
+                className="px-6 py-3 text-slate-600 hover:text-slate-900 font-medium transition-all"
+              >
+                Cancel
+              </Link>
+
+              {currentStep < STEPS.length - 1 ? (
+                <button
+                  type="button"
+                  onClick={nextStep}
+                  className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-medium hover:shadow-lg hover:shadow-blue-200 transition-all"
+                >
+                  Next Step
+                  <ChevronRight className="h-4 w-4" />
+                </button>
+              ) : (
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-emerald-600 to-green-600 text-white rounded-xl font-medium hover:shadow-lg hover:shadow-emerald-200 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {loading ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Creating...
+                    </>
+                  ) : (
+                    <>
+                      <Check className="h-4 w-4" />
+                      Create Lead
+                    </>
+                  )}
+                </button>
+              )}
+            </div>
           </div>
         </form>
       </div>
@@ -905,7 +1305,6 @@ export default function NewLeadPage() {
           isOpen={showCreateContactModal}
           onClose={() => setShowCreateContactModal(false)}
           onSuccess={(contactId, contactData) => {
-            // Add the new contact to the contacts list
             const newContact: Contact = {
               id: contactId,
               contactId: "",
@@ -932,7 +1331,6 @@ export default function NewLeadPage() {
               meetingsHeld: 0,
             };
             setContactsForAccount([...contactsForAccount, newContact]);
-            // Auto-select the new contact
             handleContactSelect(contactId);
           }}
           accountId={selectedAccount.id}
