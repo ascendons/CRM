@@ -34,15 +34,25 @@ export default function DashboardStats({ refreshKey }: DashboardStatsProps) {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {[1, 2, 3, 4].map((i) => (
+          <div key={i} className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 animate-pulse">
+            <div className="flex items-center justify-between">
+              <div className="space-y-3">
+                <div className="h-4 w-24 bg-slate-200 rounded"></div>
+                <div className="h-8 w-16 bg-slate-200 rounded"></div>
+              </div>
+              <div className="h-12 w-12 bg-slate-200 rounded-xl"></div>
+            </div>
+          </div>
+        ))}
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="rounded-lg bg-red-50 border border-red-200 p-4">
+      <div className="rounded-xl bg-red-50 border border-red-200 p-4">
         <p className="text-sm text-red-800">{error}</p>
       </div>
     );
@@ -62,8 +72,8 @@ export default function DashboardStats({ refreshKey }: DashboardStatsProps) {
       label: "Total Contacts",
       value: stats.totalContacts,
       icon: Users,
-      bgColor: "bg-green-50",
-      iconColor: "text-green-600",
+      bgColor: "bg-emerald-50",
+      iconColor: "text-emerald-600",
     },
     {
       label: "Total Opportunities",
@@ -88,21 +98,19 @@ export default function DashboardStats({ refreshKey }: DashboardStatsProps) {
         return (
           <div
             key={metric.label}
-            className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow"
+            className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 hover:shadow-md transition-shadow"
           >
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600 mb-1">{metric.label}</p>
-                <p className="text-3xl font-bold text-gray-900">{metric.value.toLocaleString()}</p>
+                <p className="text-sm font-medium text-slate-500 mb-1">{metric.label}</p>
+                <p className="text-3xl font-bold text-slate-900">{metric.value.toLocaleString()}</p>
               </div>
-              <div
-                className={`h-12 w-12 ${metric.bgColor} rounded-xl flex items-center justify-center`}
-              >
+              <div className={`h-12 w-12 ${metric.bgColor} rounded-xl flex items-center justify-center`}>
                 <Icon className={`h-6 w-6 ${metric.iconColor}`} />
               </div>
             </div>
 
-            <div className="mt-4 flex items-center gap-1 text-sm text-green-600">
+            <div className="mt-4 flex items-center gap-1 text-sm text-emerald-600">
               <TrendingUp className="h-4 w-4" />
               <span className="font-medium">Active</span>
             </div>

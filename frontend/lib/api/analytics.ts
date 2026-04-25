@@ -1,5 +1,6 @@
 import { api } from "../api-client";
 import type { DashboardStats, GrowthTrends } from "@/types/organization";
+import type { OpportunityStatistics } from "@/types/opportunity";
 
 export const analyticsApi = {
   /**
@@ -17,5 +18,13 @@ export const analyticsApi = {
    */
   async getGrowthTrends(days: number = 30): Promise<GrowthTrends> {
     return api.get<GrowthTrends>(`/analytics/growth-trends?days=${days}`);
+  },
+
+  /**
+   * Get opportunity statistics for analytics
+   * Requires authentication
+   */
+  async getOpportunityStats(): Promise<OpportunityStatistics> {
+    return api.get<OpportunityStatistics>("/opportunities/statistics");
   },
 };
