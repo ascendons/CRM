@@ -9,12 +9,13 @@ import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 /**
- * Tracks the proposal reference number counter per organisation per financial year.
- * One document per (tenantId, financialYear) pair.
- * Counter increments atomically on each new proposal.
+ * Tracks reference number counters per organisation per financial year per document type.
+ * One document per (tenantId, financialYear, documentType) triple.
+ * documentType: "P" = Proposal, "RFQ" = Request for Quotation, "PO" = Purchase Order
+ * Counter increments atomically on each new document creation.
  */
 @Document(collection = "proposal_counters")
-@CompoundIndex(name = "tenant_fy_unique", def = "{'tenantId': 1, 'financialYear': 1}", unique = true)
+@CompoundIndex(name = "tenant_fy_type_unique", def = "{'tenantId': 1, 'financialYear': 1, 'documentType': 1}", unique = true)
 @Data
 @Builder
 @NoArgsConstructor
@@ -25,7 +26,8 @@ public class ProposalCounter {
     private String id;
 
     private String tenantId;
-    private String proposalPrefix;   // e.g. "RKE"
-    private String financialYear;    // e.g. "26"
-    private long   counter;          // current highest serial issued
+    private String proposalPrefix;  // e.g. "RKE" — locked at FY start, never overwritten
+    private String financialYear;   // e.g. "26"
+    private String documentType;    // "P", "RFQ", "PO"
+    private long   counter;         // current highest serial issued
 }
