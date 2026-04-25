@@ -28,6 +28,9 @@ public class LeadResponse {
     private String companyName;
     private String gstNumber;
 
+    // Account ID (when lead is linked to an existing company)
+    private String accountId;
+
     // Contact Details
     private String jobTitle;
     private String department;

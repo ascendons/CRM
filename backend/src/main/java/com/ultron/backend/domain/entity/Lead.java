@@ -41,6 +41,10 @@ public class Lead {
 
     private String phone;
     private String companyName;
+
+    // Link to Account (when creating lead for existing company)
+    private String accountId;
+
     private String gstNumber;
 
     // ===== Contact Details =====

@@ -45,6 +45,9 @@ public class UpdateLeadRequest {
     @Size(max = 50, message = "GST Number must be less than 50 characters")
     private String gstNumber;
 
+    // Account ID (when creating lead for existing company)
+    private String accountId;
+
     // Contact Details
     private String jobTitle;
     private String department;

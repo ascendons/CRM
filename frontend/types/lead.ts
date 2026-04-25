@@ -68,6 +68,7 @@ export interface Lead {
   phone: string;
   companyName: string;
   gstNumber?: string;
+  accountId?: string; // Link to Account when created for existing company
 
   // Contact Details
   jobTitle?: string;
@@ -136,6 +137,7 @@ export interface CreateLeadRequest {
 
   // Optional fields
   gstNumber?: string;
+  accountId?: string; // Link to Account
   jobTitle?: string;
   department?: string;
   mobilePhone?: string;

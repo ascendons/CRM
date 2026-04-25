@@ -96,6 +96,7 @@ public class LeadService extends BaseTenantService {
                 .phone(request.getPhone())
                 .companyName(request.getCompanyName())
                 .gstNumber(request.getGstNumber())
+                .accountId(request.getAccountId())
                 // Contact details
                 .jobTitle(request.getJobTitle())
                 .department(request.getDepartment())
@@ -150,6 +151,7 @@ public class LeadService extends BaseTenantService {
                     .department(savedLead.getDepartment())
                     .linkedInProfile(savedLead.getLinkedInProfile())
                     .website(savedLead.getWebsite())
+                    .accountId(savedLead.getAccountId())
                     .mailingStreet(savedLead.getStreetAddress())
                     .mailingCity(savedLead.getCity())
                     .mailingState(savedLead.getState())
@@ -408,6 +410,9 @@ public class LeadService extends BaseTenantService {
         }
         if (request.getGstNumber() != null) {
             lead.setGstNumber(request.getGstNumber());
+        }
+        if (request.getAccountId() != null) {
+            lead.setAccountId(request.getAccountId());
         }
 
         // Update contact details
@@ -1039,6 +1044,7 @@ public class LeadService extends BaseTenantService {
                 .phone(lead.getPhone())
                 .companyName(lead.getCompanyName())
                 .gstNumber(lead.getGstNumber())
+                .accountId(lead.getAccountId())
                 // Contact details
                 .jobTitle(lead.getJobTitle())
                 .department(lead.getDepartment())
