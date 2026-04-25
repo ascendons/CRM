@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { leadsService } from "@/lib/leads";
 import { authService } from "@/lib/auth";
-import { Lead, LeadStatus, formatLeadName } from "@/types/lead";
+import { Lead, LeadStatus, LeadSource, Industry, formatLeadName } from "@/types/lead";
 import { EmptyState } from "@/components/EmptyState";
 import ConfirmModal from "@/components/ConfirmModal";
 import { showToast } from "@/lib/toast";
@@ -27,6 +27,15 @@ import {
   LayoutList,
   KanbanSquare,
   Filter,
+  MoreVertical,
+  Edit3,
+  UserCheck,
+  ExternalLink,
+  DollarSign,
+  Tag as TagIcon,
+  Calendar,
+  X,
+  FileText,
 } from "lucide-react";
 import { LeadKanbanBoard } from "@/components/leads/LeadKanbanBoard";
 import { MultiSelectDropdown } from "@/components/common/MultiSelectDropdown";
@@ -39,14 +48,19 @@ export default function LeadsPage() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<LeadStatus[]>([]);
-  const [viewMode, setViewMode] = useState<"list" | "kanban">("kanban");
+  const [viewMode, setViewMode] = useState<"list" | "kanban">(() => {
+    if (typeof window !== "undefined") {
+      return (localStorage.getItem("leads_view_mode") as "list" | "kanban") || "kanban";
+    }
+    return "kanban";
+  });
   const [error, setError] = useState("");
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
 
-  // Sorting state
+  // Sorting state - default to createdAt desc (newest first)
   const [sortColumn, setSortColumn] = useState<string>("createdAt");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
 
@@ -54,6 +68,16 @@ export default function LeadsPage() {
   const [selectedLeads, setSelectedLeads] = useState<string[]>([]);
   const [showBulkDeleteModal, setShowBulkDeleteModal] = useState(false);
   const [bulkActionLoading, setBulkActionLoading] = useState(false);
+
+  // Additional filters
+  const [sourceFilter, setSourceFilter] = useState<LeadSource[]>([]);
+  const [industryFilter, setIndustryFilter] = useState<Industry[]>([]);
+  const [dateFrom, setDateFrom] = useState<string>("");
+  const [dateTo, setDateTo] = useState<string>("");
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+
+  // Quick actions menu state
+  const [openActionsMenu, setOpenActionsMenu] = useState<string | null>(null);
 
   // Assign modal state
   const [showAssignModal, setShowAssignModal] = useState(false);
@@ -82,9 +106,17 @@ export default function LeadsPage() {
     loadLeads();
   }, [router]);
 
+  // Save view mode preference to localStorage
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("leads_view_mode", viewMode);
+    }
+  }, [viewMode]);
+
   const filterLeads = useCallback(() => {
     let filtered = [...leads];
 
+    // Enhanced search across all fields
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
       filtered = filtered.filter(
@@ -93,16 +125,43 @@ export default function LeadsPage() {
           lead.lastName.toLowerCase().includes(term) ||
           lead.email.toLowerCase().includes(term) ||
           lead.companyName.toLowerCase().includes(term) ||
-          lead.leadId.toLowerCase().includes(term)
+          lead.leadId.toLowerCase().includes(term) ||
+          lead.jobTitle?.toLowerCase().includes(term) ||
+          lead.industry?.toLowerCase().includes(term) ||
+          lead.assignedUserName?.toLowerCase().includes(term) ||
+          lead.leadSource?.toLowerCase().includes(term) ||
+          lead.city?.toLowerCase().includes(term)
       );
     }
 
+    // Status filter
     if (statusFilter.length > 0) {
       filtered = filtered.filter((lead) => statusFilter.includes(lead.leadStatus));
     }
 
+    // Lead source filter
+    if (sourceFilter.length > 0) {
+      filtered = filtered.filter((lead) => lead.leadSource && sourceFilter.includes(lead.leadSource));
+    }
+
+    // Industry filter
+    if (industryFilter.length > 0) {
+      filtered = filtered.filter((lead) => lead.industry && industryFilter.includes(lead.industry));
+    }
+
+    // Date range filter
+    if (dateFrom) {
+      const fromDate = new Date(dateFrom);
+      filtered = filtered.filter((lead) => new Date(lead.createdAt) >= fromDate);
+    }
+    if (dateTo) {
+      const toDate = new Date(dateTo);
+      toDate.setHours(23, 59, 59, 999);
+      filtered = filtered.filter((lead) => new Date(lead.createdAt) <= toDate);
+    }
+
     setFilteredLeads(filtered);
-  }, [leads, searchTerm, statusFilter]);
+  }, [leads, searchTerm, statusFilter, sourceFilter, industryFilter, dateFrom, dateTo]);
 
   useEffect(() => {
     filterLeads();
@@ -131,6 +190,70 @@ export default function LeadsPage() {
     setCurrentPage(1);
   };
 
+  const handleSourceChange = (sources: string[]) => {
+    setSourceFilter(sources as LeadSource[]);
+    setCurrentPage(1);
+  };
+
+  const handleIndustryChange = (industries: string[]) => {
+    setIndustryFilter(industries as Industry[]);
+    setCurrentPage(1);
+  };
+
+  const handleDateFromChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setDateFrom(e.target.value);
+    setCurrentPage(1);
+  };
+
+  const handleDateToChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setDateTo(e.target.value);
+    setCurrentPage(1);
+  };
+
+  const clearAllFilters = () => {
+    setStatusFilter([]);
+    setSourceFilter([]);
+    setIndustryFilter([]);
+    setDateFrom("");
+    setDateTo("");
+    setSearchTerm("");
+    setCurrentPage(1);
+  };
+
+  const hasActiveFilters = statusFilter.length > 0 || sourceFilter.length > 0 || industryFilter.length > 0 || dateFrom || dateTo || searchTerm;
+
+  // Export to CSV
+  const handleExport = () => {
+    const exportData = selectedLeads.length > 0
+      ? sortedLeads.filter(l => selectedLeads.includes(l.id))
+      : sortedLeads;
+
+    const headers = ["Lead ID", "Name", "Email", "Phone", "Company", "Industry", "Status", "Lead Source", "Expected Revenue", "Created Date", "Assigned To"];
+    const rows = exportData.map(lead => [
+      lead.leadId,
+      `${lead.firstName} ${lead.lastName}`,
+      lead.email,
+      lead.phone,
+      lead.companyName,
+      lead.industry?.replace("_", " ") || "",
+      lead.leadStatus.replace("_", " "),
+      lead.leadSource?.replace("_", " ") || "",
+      lead.expectedRevenue?.toString() || "",
+      new Date(lead.createdAt).toLocaleDateString(),
+      lead.assignedUserName || "Unassigned",
+    ]);
+
+    const csvContent = [headers.join(","), ...rows.map(row => row.map(cell => `"${cell}"`).join(","))].join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `leads_export_${new Date().toISOString().split("T")[0]}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+    showToast.success(`Exported ${exportData.length} lead(s)`);
+  };
+
   const handleSort = (column: string) => {
     if (sortColumn === column) {
       setSortDirection(sortDirection === "asc" ? "desc" : "asc");
@@ -155,10 +278,6 @@ export default function LeadsPage() {
           aValue = a.companyName.toLowerCase();
           bValue = b.companyName.toLowerCase();
           break;
-        case "score":
-          aValue = a.leadScore || 0;
-          bValue = b.leadScore || 0;
-          break;
         case "status":
           aValue = a.leadStatus;
           bValue = b.leadStatus;
@@ -166,6 +285,18 @@ export default function LeadsPage() {
         case "createdAt":
           aValue = new Date(a.createdAt).getTime();
           bValue = new Date(b.createdAt).getTime();
+          break;
+        case "source":
+          aValue = a.leadSource || "";
+          bValue = b.leadSource || "";
+          break;
+        case "revenue":
+          aValue = a.expectedRevenue || 0;
+          bValue = b.expectedRevenue || 0;
+          break;
+        case "industry":
+          aValue = a.industry || "";
+          bValue = b.industry || "";
           break;
         default:
           return 0;
@@ -282,9 +413,24 @@ export default function LeadsPage() {
                   <KanbanSquare className="h-4 w-4" />
                 </button>
               </div>
-              <button className="flex items-center gap-2 px-4 py-2 bg-white  border border-slate-200  text-slate-700  rounded-xl text-sm font-semibold hover:bg-slate-50  transition-colors shadow-sm">
-                <Download className="h-4 w-4" />
-                Export
+              <button
+                  onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+                  className={`flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 text-slate-700 rounded-xl text-sm font-semibold hover:bg-slate-50 transition-colors shadow-sm ${showAdvancedFilters ? 'ring-2 ring-primary' : ''}`}
+                >
+                  <Filter className="h-4 w-4" />
+                  Filters
+                  {hasActiveFilters && (
+                    <span className="h-5 w-5 bg-primary text-white text-xs rounded-full flex items-center justify-center">
+                      {[...statusFilter, ...sourceFilter, ...industryFilter, dateFrom, dateTo].filter(Boolean).length}
+                    </span>
+                  )}
+                </button>
+              <button
+                  onClick={handleExport}
+                  className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 text-slate-700 rounded-xl text-sm font-semibold hover:bg-slate-50 transition-colors shadow-sm"
+                >
+                  <Download className="h-4 w-4" />
+                  Export{selectedLeads.length > 0 && ` (${selectedLeads.length})`}
               </button>
               <Link
                 href="/leads/new"
@@ -389,6 +535,59 @@ export default function LeadsPage() {
               )}
             </div>
           </div>
+
+          {/* Advanced Filters Panel */}
+          {showAdvancedFilters && (
+            <div className="p-4 border-t border-slate-200 bg-slate-50 rounded-b-xl animate-fade-in">
+              <div className="flex flex-wrap items-center gap-4">
+                <MultiSelectDropdown
+                  label="Source"
+                  options={Object.values(LeadSource).map((source) => ({
+                    label: source.replace("_", " "),
+                    value: source,
+                  }))}
+                  selectedValues={sourceFilter}
+                  onChange={handleSourceChange}
+                />
+                <MultiSelectDropdown
+                  label="Industry"
+                  options={Object.values(Industry).map((ind) => ({
+                    label: ind.replace("_", " "),
+                    value: ind,
+                  }))}
+                  selectedValues={industryFilter}
+                  onChange={handleIndustryChange}
+                />
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-slate-500">From:</span>
+                  <input
+                    type="date"
+                    value={dateFrom}
+                    onChange={handleDateFromChange}
+                    className="px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                  />
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-slate-500">To:</span>
+                  <input
+                    type="date"
+                    value={dateTo}
+                    onChange={handleDateToChange}
+                    className="px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                  />
+                </div>
+                {hasActiveFilters && (
+                  <button
+                    onClick={clearAllFilters}
+                    className="flex items-center gap-1 px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                  >
+                    <X className="h-4 w-4" />
+                    Clear All
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Error State */}
@@ -423,7 +622,11 @@ export default function LeadsPage() {
                       {[
                         { key: "name", label: "Lead Name" },
                         { key: "company", label: "Company" },
-                        { key: "score", label: "Lead Score" },
+                        { key: "email", label: "Email" },
+                        { key: "phone", label: "Phone" },
+                        { key: "industry", label: "Industry" },
+                        { key: "source", label: "Source" },
+                        { key: "revenue", label: "Revenue" },
                         { key: "status", label: "Status" },
                         { key: "assignedTo", label: "Assigned To" },
                         { key: "createdAt", label: "Created" },
@@ -504,18 +707,20 @@ export default function LeadsPage() {
                               {lead.companyName}
                             </div>
                           </td>
-                          <td className="px-6 py-4">
-                            <div className="flex items-center gap-2">
-                              <div className="flex-1 h-2 w-16 bg-slate-100  rounded-full overflow-hidden">
-                                <div
-                                  className={`h-full rounded-full ${lead.leadScore && lead.leadScore > 70 ? "bg-emerald-500" : lead.leadScore && lead.leadScore > 40 ? "bg-yellow-500" : "bg-red-500"}`}
-                                  style={{ width: `${lead.leadScore || 0}%` }}
-                                ></div>
-                              </div>
-                              <span className="text-xs font-bold text-slate-700 ">
-                                {lead.leadScore || 0}
-                              </span>
-                            </div>
+                          <td className="px-6 py-4 text-sm text-slate-600">
+                            {lead.email}
+                          </td>
+                          <td className="px-6 py-4 text-sm text-slate-600">
+                            {lead.phone || "-"}
+                          </td>
+                          <td className="px-6 py-4 text-sm text-slate-600">
+                            {lead.industry?.replace("_", " ") || "-"}
+                          </td>
+                          <td className="px-6 py-4 text-sm text-slate-600">
+                            {lead.leadSource?.replace("_", " ") || "-"}
+                          </td>
+                          <td className="px-6 py-4 text-sm font-medium text-slate-700">
+                            {lead.expectedRevenue ? `$${lead.expectedRevenue.toLocaleString()}` : "-"}
                           </td>
                           <td className="px-6 py-4">
                             <span

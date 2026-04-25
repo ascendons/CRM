@@ -26,6 +26,7 @@ import toast from "react-hot-toast";
 import { LogActivityModal } from "./LogActivityModal";
 import { activitiesService } from "@/lib/activities";
 import { CreateActivityRequest } from "@/types/activity";
+import { DollarSign } from "lucide-react";
 
 interface LeadKanbanBoardProps {
   leads: Lead[];
@@ -83,6 +84,9 @@ function KanbanColumn({
     id: id,
   });
 
+  // Calculate revenue total
+  const totalRevenue = leads.reduce((sum, lead) => sum + (lead.expectedRevenue || 0), 0);
+
   return (
     <div
       ref={setNodeRef}
@@ -100,9 +104,17 @@ function KanbanColumn({
             {leads.length}
           </span>
         </div>
-        <div
-          className={`h-1 w-full rounded-full mt-2 ${color.replace("text", "bg").replace("50", "500").split(" ")[0]}`}
-        ></div>
+        <div className="flex items-center justify-between mt-2">
+          <div
+            className={`h-1 flex-1 rounded-full ${color.replace("text", "bg").replace("50", "500").split(" ")[0]}`}
+          ></div>
+          {totalRevenue > 0 && (
+            <span className="flex items-center gap-1 text-xs font-medium text-emerald-600 ml-3">
+              <DollarSign className="h-3 w-3" />
+              {totalRevenue.toLocaleString()}
+            </span>
+          )}
+        </div>
       </div>
 
       {/* Column Content - Sortable Context */}

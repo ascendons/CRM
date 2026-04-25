@@ -662,32 +662,6 @@ export default function LeadDetailPage() {
           {/* Sidebar */}
           <div className="space-y-6">
             {/* Lead Score */}
-            <div className="bg-white rounded-lg shadow p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Lead Score</h2>
-              <div className="flex items-center justify-center">
-                <div className="text-center">
-                  <div
-                    className={`w-24 h-24 flex items-center justify-center rounded-full text-4xl font-bold ${getLeadGradeColor(
-                      lead.leadGrade || "D"
-                    )}`}
-                  >
-                    {lead.leadScore || 0}
-                  </div>
-                  <p className="mt-2 text-sm text-gray-600">Grade: {lead.leadGrade || "D"}</p>
-                </div>
-              </div>
-              <div className="mt-4 space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Demographic Score:</span>
-                  <span className="font-medium">{lead.demographicScore || 0} / 40</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Behavioral Score:</span>
-                  <span className="font-medium">{lead.behavioralScore || 0} / 60</span>
-                </div>
-              </div>
-            </div>
-
             {/* Assigned Sales Person */}
             <div className="bg-white rounded-lg shadow p-6">
               <div className="flex items-center justify-between mb-4">
