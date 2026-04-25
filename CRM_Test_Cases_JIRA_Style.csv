@@ -1,0 +1,556 @@
+Issue Type,Summary,Module,Page/Screen,Route,Feature/Action,Steps to Test,Expected Result,Priority,Access Roles,Labels
+Story,CRM - Create Lead,/leads,New Lead Page,/leads/new,"Create Lead","1. Navigate to /leads/new
+2. Fill company details (new mode)
+3. Fill contact information
+4. Select lead source
+5. Fill expected revenue/close date
+6. Submit","Lead is created, user redirected to lead detail page, success toast shown",High,"Admin, Manager, Sales Rep",crm,lead
+Story,CRM - Edit Lead,/leads/[id],Lead Detail Page,/leads/[id],"Edit Lead","1. Click edit on lead detail page
+2. Modify any field
+3. Save","Lead updated, changes reflected immediately",High,"Admin, Manager, Sales Rep",crm,lead
+Story,CRM - Delete Lead,/leads/[id],Lead Detail Page,/leads/[id],"Delete Lead","1. Click delete on lead detail
+2. Confirm deletion","Lead soft-deleted, removed from list view",High,"Admin, Manager, Sales Rep",crm,lead
+Story,CRM - Convert Lead to Account,/leads/[id],Lead Detail Page,/leads/[id],"Convert Lead to Account/Contact","1. Open lead with status New/Qualified
+2. Click Convert button
+3. Select convert options (create account/contact/both)
+4. Confirm","New Account and/or Contact created, lead marked as Converted",High,"Admin, Manager, Sales Rep",crm,lead
+Story,CRM - Convert Lead to Contact Only,/leads/[id],Lead Detail Page,/leads/[id],"Convert Lead to Contact Only","1. Open lead
+2. Click Convert
+3. Choose Contact only option
+4. Confirm","New Contact created and linked, lead marked as Converted",High,"Admin, Manager, Sales Rep",crm,lead
+Story,CRM - Lead Bulk Actions,/leads,Lead List Page,/leads,"Bulk Actions (Delete/Assign/Status Change)","1. Select multiple leads via checkbox
+2. Click Bulk Actions dropdown
+3. Choose action (delete/assign owner/change status)
+4. Apply","Action applied to all selected leads",Medium,"Admin, Manager, Sales Rep",crm,lead
+Story,CRM - Lead Import,/leads,Lead List Page,/leads,"Import Leads (CSV)","1. Click Import button
+2. Upload CSV file with lead data
+3. Map fields to columns
+4. Start import","Leads created from CSV, import report shown",Medium,"Admin, Manager",crm,lead,import
+Story,CRM - Lead Export,/leads,Lead List Page,/leads,"Export Leads (CSV/Excel)","1. Click Export button
+2. Select format (CSV/Excel)
+3. Choose columns to include
+4. Download","File downloaded with lead data",Medium,"Admin, Manager, Sales Rep",crm,lead,export
+Story,CRM - Lead Search,/leads,Lead List Page,/leads,"Search Leads","1. Type in search box
+2. Filter by name/email/company","Leads matching search term displayed instantly",High,"Admin, Manager, Sales Rep",crm,lead,search
+Story,CRM - Lead Pick List,/leads,Lead Conversion Dialog,/leads/[id],"Lead Pick List (Assign Owner)","1. Click Assign Owner in lead detail
+2. Search or select from list
+3. Save","Owner updated on lead",Medium,"Admin, Manager, Sales Rep",crm,lead,assignment
+Story,CRM - Create Opportunity,/opportunities,Opportunity Pipeline,/opportunities,"Create Opportunity","1. Click New button
+2. Fill opportunity details (name, amount, stage, close date)
+3. Link to account/contact
+4. Save","Opportunity created, appears in pipeline",High,"Admin, Manager, Sales Rep",crm,opportunity
+Story,CRM - Edit Opportunity,/opportunities/[id],Opportunity Detail,/opportunities/[id],"Edit Opportunity","1. Open opportunity
+2. Edit any field
+3. Save","Changes saved and reflected",High,"Admin, Manager, Sales Rep",crm,opportunity
+Story,CRM - Stage Progress,/opportunities,Pipeline Board,/opportunities,"Stage Progress (Drag-Drop)","1. View pipeline board
+2. Drag opportunity card to next stage
+3. Confirm stage change","Stage updated, probability may auto-change",High,"Admin, Manager, Sales Rep",crm,opportunity,pipeline
+Story,CRM - Close Won,/opportunities/[id],Opportunity Detail,/opportunities/[id],"Close Won","1. Open won opportunity
+2. Click Close Won button
+3. Confirm","Opportunity marked Closed Won, revenue counted in dashboard",High,"Admin, Manager, Sales Rep",crm,opportunity
+Story,CRM - Close Lost,/opportunities/[id],Opportunity Detail,/opportunities/[id],"Close Lost","1. Open opportunity
+2. Click Close Lost button
+3. Select lost reason
+4. Confirm","Opportunity marked Closed Lost",High,"Admin, Manager, Sales Rep",crm,opportunity
+Story,CRM - Top Deal Widget,/dashboard,Dashboard,/dashboard,"Top Deal Widget","1. View dashboard
+2. Observe Top Deal widget
+3. Click refresh if available","Highest amount open opportunity displayed",High,"Admin, Manager",crm,opportunity,dashboard
+Story,CRM - Create Contact,/contacts,New Contact Page,/contacts/new,"Create Contact","1. Navigate to /contacts/new
+2. Fill all fields
+3. Link to account
+4. Save","Contact created, shown in contact list",High,"Admin, Manager, Sales Rep",crm,contact
+Story,CRM - Edit Contact,/contacts/[id],Contact Detail,/contacts/[id],"Edit Contact","1. Open contact
+2. Edit fields
+3. Save","Contact updated",High,"Admin, Manager, Sales Rep",crm,contact
+Story,CRM - Delete Contact,/contacts/[id],Contact Detail,/contacts/[id],"Delete Contact","1. Click delete on contact
+2. Confirm","Contact soft-deleted, hidden from list",High,"Admin, Manager, Sales Rep",crm,contact
+Story,CRM - Link Contact to Account,/contacts/[id],Contact Detail,/contacts/[id],"Link Contact to Account","1. Edit contact
+2. Select Account from dropdown
+3. Save","Contact linked, account name shown on contact",High,"Admin, Manager, Sales Rep",crm,contact,account
+Story,CRM - Primary Contact Toggle,/contacts/[id],Contact Detail,/contacts/[id],"Primary Contact Toggle","1. Open contact linked to account
+2. Toggle Primary Contact checkbox
+3. Save","Contact marked/unmarked as primary for that account",Medium,"Admin, Manager, Sales Rep",crm,contact
+Story,CRM - Merge Contacts,/contacts,Contact List,/contacts,"Merge Contacts","1. Select two contacts
+2. Click Merge action
+3. Choose primary record
+4. Confirm","Contacts merged into one, duplicate removed",Medium,"Admin, Manager",crm,contact,merge
+Story,CRM - Create Account,/accounts,New Account Page,/accounts/new,"Create Account","1. Navigate to /accounts/new
+2. Fill account details
+3. Save","Account created",High,"Admin, Manager, Sales Rep",crm,account
+Story,CRM - Edit Account,/accounts/[id],Account Detail,/accounts/[id],"Edit Account","1. Open account
+2. Edit fields
+3. Save","Account updated",High,"Admin, Manager, Sales Rep",crm,account
+Story,CRM - Delete Account,/accounts/[id],Account Detail,/accounts/[id],"Delete Account","1. Click delete
+2. Confirm","Account soft-deleted",High,"Admin, Manager, Sales Rep",crm,account
+Story,CRM - Parent Account Hierarchy,/accounts/[id],Account Detail,/accounts/[id],"Parent Account Hierarchy","1. Edit account
+2. Select Parent Account
+3. Save","Account nested under parent in hierarchy view",Medium,"Admin, Manager, Sales Rep",crm,account,hierarchy
+Story,CRM - Related Contacts on Account,/accounts/[id],Account Detail,/accounts/[id],"View Related Contacts","1. Open account detail
+2. Scroll to Contacts section","All contacts linked to this account listed",Medium,"Admin, Manager, Sales Rep",crm,account,contact
+Story,CRM - Related Opportunities on Account,/accounts/[id],Account Detail,/accounts/[id],"View Related Opportunities","1. Open account detail
+2. Scroll to Opportunities section","All opportunities linked to this account listed",Medium,"Admin, Manager, Sales Rep",crm,account,opportunity
+Story,CRM - Create Activity,/activities,New Activity,/activities/new,"Create Activity (Task)","1. Navigate to /activities/new
+2. Select type (Task/Email/Call/Meeting/Note)
+3. Fill details, link to entity
+4. Set due date and priority
+5. Save","Activity created, appears in activity list",High,"Admin, Manager, Sales Rep",crm,activity
+Story,CRM - Edit Activity,/activities/[id],Activity Detail,/activities/[id],"Edit Activity","1. Open activity
+2. Edit any field
+3. Save","Activity updated",High,"Admin, Manager, Sales Rep",crm,activity
+Story,CRM - Delete Activity,/activities/[id],Activity Detail,/activities/[id],"Delete Activity","1. Click delete
+2. Confirm","Activity soft-deleted",High,"Admin, Manager, Sales Rep",crm,activity
+Story,CRM - Activity Status Change,/activities/[id],Activity Detail,/activities/[id],"Change Activity Status","1. Open activity
+2. Change status (Open → In Progress → Completed)
+3. Save","Status updated, shown in list",High,"Admin, Manager, Sales Rep",crm,activity,status
+Story,CRM - Bulk Complete Activities,/activities/list,Activity List,/activities/list,"Bulk Complete Activities","1. Select multiple tasks
+2. Click Bulk Complete
+3. Confirm","All selected activities marked Complete",Medium,"Admin, Manager, Sales Rep",crm,activity,bulk
+Story,CRM - Overdue Activities,/activities/list,Activity List,/activities/list,"Overdue Activities Indicator","1. View activity list
+2. Identify overdue items (highlighted red/orange)
+3. Filter overdue only","Overdue activities shown with visual indicator",High,"Admin, Manager, Sales Rep",crm,activity,overdue
+Story,ACTIVITY - Calendar Month View,/calendar,Calendar Page,/calendar,"Calendar Month View","1. Navigate to /calendar
+2. View default month view
+3. Click on dates to see events","Month grid displayed, events shown on dates",High,"Admin, Manager, Sales Rep, Employee",activity,calendar
+Story,ACTIVITY - Calendar Week View,/calendar,Calendar Page,/calendar,"Calendar Week View","1. Click Week toggle
+2. View events for the week","Week grid with hourly slots, events placed correctly",High,"Admin, Manager, Sales Rep, Employee",activity,calendar
+Story,ACTIVITY - Calendar Day View,/calendar,Calendar Page,/calendar,"Calendar Day View","1. Click Day toggle
+2. View events for the day","Day grid with detailed hourly view",High,"Admin, Manager, Sales Rep, Employee",activity,calendar
+Story,ACTIVITY - Event Creation from Calendar,/calendar,Calendar Page,/calendar,"Create Event from Calendar","1. Click on time slot
+2. Fill event details
+3. Save","Event created and shown on calendar",High,"Admin, Manager, Sales Rep, Employee",activity,calendar
+Story,ACTIVITY - Attendee Invite,/calendar/[id],Event Edit,/calendar/[id],"Add Attendees to Event","1. Create/edit event
+2. Click Add Attendee
+3. Select users
+4. Save","Attendees added, they can see event",High,"Admin, Manager, Sales Rep, Employee",activity,calendar
+Story,ACTIVITY - Lead Picker in Calendar,/calendar/new,Event Create,/calendar/new,"Lead Picker in Event","1. Create event
+2. Use Lead picker to link a lead
+3. Save","Event linked to selected lead",Medium,"Admin, Manager, Sales Rep",activity,calendar,lead
+Story,ACTIVITY - Employee Selector,/calendar/new,Event Create,/calendar/new,"Admin: Select Employees as Attendees","1. Admin creates event
+2. Uses employee selector dropdown
+3. Select multiple employees
+4. Save","Selected employees added as attendees",Medium,"Admin",activity,calendar
+Story,ACTIVITY - Drag-Drop Reschedule,/calendar,Calendar Page,/calendar,"Drag-Drop Reschedule","1. Drag event to new time/date slot
+2. Drop
+3. Confirm change","Event time updated",High,"Admin, Manager, Sales Rep, Employee",activity,calendar
+Story,ACTIVITY - My Events Filter,/calendar,Calendar Page,/calendar,"My Events Filter","1. Toggle My Events only
+2. View calendar","Only events where current user is attendee/creator shown",High,"Admin, Manager, Sales Rep, Employee",activity,calendar,filter
+Story,PRODUCTS - Create Product,/products,New Product Page,/products/new,"Create Product","1. Navigate to /products/new
+2. Fill product details (name, SKU, price)
+3. Add attributes
+4. Save","Product created in catalog",High,"Admin, Manager",products
+Story,PRODUCTS - Product Image Upload,/products/[id],Product Edit,/products/[id],"Product Image Upload","1. Edit product
+2. Upload image
+3. Save","Image displayed on product detail",Medium,"Admin, Manager",products,image
+Story,PRODUCTS - Dynamic Attributes,/products/[id],Product Edit,/products/[id],"Product Dynamic Attributes","1. Edit product
+2. Add custom attributes (color, size, etc.)
+3. Save","Attributes shown in product detail and search",Medium,"Admin, Manager",products,attributes
+Story,PRODUCTS - Product Search,/products/search,Product Search Page,/products/search,"Product Search with Filters","1. Enter search term
+2. Filter by category/price/attributes
+3. Sort results","Matching products with filters applied shown",High,"Admin, Manager, Sales Rep",products,search
+Story,PRODUCTS - Add to Proposal from Search,/products/search,Product Search Page,/products/search,"Add Product to Proposal from Search","1. Search products
+2. Click Add to Proposal on a product
+3. Select or create proposal
+4. Confirm","Product added to proposal line items",High,"Admin, Manager, Sales Rep",products,proposal
+Story,PRODUCTS - Price Books,/products/price-books,Price Books Page,/products/price-books,"Manage Price Books","1. Navigate to price books
+2. Create/edit price book
+3. Assign products with special pricing
+4. Save","Price book created with special prices",Medium,"Admin, Manager",products,pricebook
+Story,ANALYTICS - Dashboard Statistics,/dashboard,Dashboard,/dashboard,"View Dashboard Statistics","1. Navigate to /dashboard
+2. View statistics cards
+3. Observe growth trends chart","Stats cards show correct counts and trends",High,"Admin, Manager",analytics,dashboard
+Story,ANALYTICS - Growth Trends Chart,/dashboard,Dashboard,/dashboard,"View Growth Trends","1. View dashboard
+2. Observe line/bar chart for growth trends
+3. Hover for tooltips","Chart renders with data, tooltips work",High,"Admin, Manager",analytics,chart
+Story,ANALYTICS - Pipeline Summary,/dashboard,Dashboard,/dashboard,"View Pipeline Summary on Dashboard","1. View dashboard
+2. Observe pipeline summary widget","Stage counts shown with values",High,"Admin, Manager",analytics,pipeline
+Story,ANALYTICS - Lead Conversion Funnel,/analytics/leads,Lead Analytics,/analytics/leads,"Lead Conversion Funnel","1. Navigate to /analytics/leads
+2. View funnel chart
+3. Hover for counts","Funnel shows conversion at each stage",High,"Admin, Manager",analytics,lead,funnel
+Story,ANALYTICS - Lead Source Performance,/analytics/leads,Lead Analytics,/analytics/leads,"Lead Source Performance","1. View lead source chart
+2. Filter by date range","Lead source bar/pie chart with counts",High,"Admin, Manager",analytics,lead,source
+Story,ANALYTICS - Lead Aging Report,/analytics/leads,Lead Analytics,/analytics/leads,"Lead Aging Report","1. Navigate to lead analytics
+2. Open aging report
+3. View by age buckets","Leads grouped by days open (0-7, 7-30, 30-60, 60+)",High,"Admin, Manager",analytics,lead,aging
+Story,ANALYTICS - Export Analytics to Excel,/analytics/leads,Analytics Pages,/analytics/leads,"Export Analytics (Excel/PDF/CSV)","1. Navigate to any analytics page
+2. Click Export
+3. Choose format
+4. Download","File downloaded with analytics data",Medium,"Admin, Manager",analytics,export
+Story,ANALYTICS - Revenue Forecast,/analytics/opportunities,Opportunity Analytics,/analytics/opportunities,"Revenue Forecast","1. Navigate to /analytics/opportunities
+2. View revenue forecast chart
+3. Adjust date range","Forecast displayed based on pipeline",High,"Admin, Manager",analytics,opportunity,forecast
+Story,ANALYTICS - Win/Loss Analysis,/analytics/opportunities,Opportunity Analytics,/analytics/opportunities,"Win/Loss Analysis","1. View win/loss chart
+2. Filter by period","Closed Won vs Closed Lost with reasons",High,"Admin, Manager",analytics,opportunity,winloss
+Story,ADMIN - Create Role,/admin/roles/new,New Role Page,/admin/roles/new,"Create Role","1. Navigate to /admin/roles/new
+2. Enter role name and details
+3. Assign permissions
+4. Save","Role created in system",High,Admin,admin,role
+Story,ADMIN - Edit Role,/admin/roles/[id]/edit,Role Edit Page,/admin/roles/[id]/edit,"Edit Role","1. Open role for edit
+2. Change name/permissions
+3. Save","Role updated",High,Admin,admin,role
+Story,ADMIN - Delete Role,/admin/roles,Role List,/admin/roles,"Delete Role","1. Click delete on role
+2. Confirm (if no child roles)","Role soft-deleted",High,Admin,admin,role
+Story,ADMIN - Copy Role,/admin/roles,Role List,/admin/roles,"Copy Role (Duplicate)","1. Click copy icon on role
+2. Enter new role name
+3. Confirm","New role created with same permissions",High,Admin,admin,role,copy
+Story,ADMIN - Activate/Deactivate Role,/admin/roles,Role List,/admin/roles,"Activate or Deactivate Role","1. Click activate/deactivate toggle
+2. Confirm","Role status changes, affected users lose/gain access",High,Admin,admin,role,status
+Story,ADMIN - Filter Roles by Level,/admin/roles,Role List,/admin/roles,"Filter Roles by Hierarchy Level","1. Use level dropdown filter
+2. Select Level 0 / Level 1 etc.","Only roles at selected level shown",Medium,Admin,admin,role,filter
+Story,ADMIN - Export Roles CSV,/admin/roles,Role List,/admin/roles,"Export Roles to CSV","1. Click Export button
+2. Download CSV","CSV file with all roles downloaded",Medium,Admin,admin,role,export
+Story,ADMIN - View Role Permission Matrix,/admin/roles/[id]/permissions,Role Permissions Page,/admin/roles/[id]/permissions,"View Role Permission Matrix","1. Open role permissions
+2. View module-permission grid","All modules and their permission states shown",High,Admin,admin,role,permissionmatrix
+Story,ADMIN - Assign Module Access to Role,/admin/roles/[id]/permissions,Role Permissions Page,/admin/roles/[id]/permissions,"Assign Module Access to Role","1. Toggle module access on/off
+2. Save","Module access updated for role",High,Admin,admin,role,permissionmatrix
+Story,ADMIN - Create User,/admin/users/new,New User Page,/admin/users/new,"Create User","1. Navigate to /admin/users/new
+2. Fill user details
+3. Assign role/profile
+4. Save","User created, can login",High,Admin,admin,user
+Story,ADMIN - Edit User,/admin/users/[id]/edit,User Edit Page,/admin/users/[id]/edit,"Edit User","1. Open user for edit
+2. Modify fields
+3. Save","User updated",High,Admin,admin,user
+Story,ADMIN - Delete User,/admin/users/[id],User Detail Page,/admin/users/[id],"Delete User","1. Click delete on user
+2. Confirm","User soft-deleted",High,Admin,admin,user
+Story,ADMIN - Activate/Deactivate User,/admin/users/[id],User Detail Page,/admin/users/[id],"Activate or Deactivate User","1. Click activate/deactivate
+2. Confirm","User account status changes",High,Admin,admin,user,status
+Story,ADMIN - Reset User Password,/admin/users/[id],User Detail Page,/admin/users/[id],"Reset User Password","1. Click Reset Password
+2. New password generated/sent
+3. Confirm","Password reset email sent to user",High,Admin,admin,user,password
+Story,ADMIN - Assign Role to User,/admin/users/[id]/edit,User Edit Page,/admin/users/[id]/edit,"Assign Role/Profile to User","1. Edit user
+2. Select role from dropdown
+3. Save","User role updated, permissions apply on next login",High,Admin,admin,user,role
+Story,ADMIN - Bulk Import Users,/admin/users,User List,/admin/users,"Bulk Import Users (CSV)","1. Click Import
+2. Upload CSV
+3. Map fields
+4. Start import","Users created from CSV",Medium,Admin,admin,user,import
+Story,ADMIN - Organization Module Settings,/admin/settings,Organization Settings,/admin/settings,"Enable/Disable Modules per Organization","1. Open settings → Modules tab
+2. Toggle modules on/off
+3. Save","Module access updated for entire organization",High,Admin,admin,org,module
+Story,ADMIN - Create Profile,/admin/profiles/new,New Profile Page,/admin/profiles/new,"Create Profile","1. Navigate to /admin/profiles/new
+2. Enter profile name
+3. Set permissions
+4. Save","Profile created",High,Admin,admin,profile
+Story,ADMIN - Clone Profile,/admin/profiles/[id],Profile Detail,/admin/profiles/[id],"Clone Profile","1. Click clone on profile
+2. Enter new profile name
+3. Confirm","New profile with same permissions created",High,Admin,admin,profile,copy
+Story,ADMIN - View Permission Matrix,/admin/permissions,Permission Matrix Page,/admin/permissions,"View Full Permission Matrix","1. Navigate to /admin/permissions
+2. View grid (modules × permissions)
+3. Filter by module or role","Matrix displayed with all module-role intersections",High,Admin,admin,permission
+Story,ADMIN - View Audit Logs,/admin/audit-logs,Audit Logs Page,/admin/audit-logs,"View Audit Logs","1. Navigate to /admin/audit-logs
+2. View log entries
+3. Filter by user/action/date","Audit trail shown with filters applied",High,Admin,admin,audit
+Story,ADMIN - Filter Audit Logs,/admin/audit-logs,Audit Logs Page,/admin/audit-logs,"Filter Audit Logs","1. Apply filter (user, action type, entity, date range)
+2. View results","Only matching audit entries shown",High,Admin,admin,audit,filter
+Story,ADMIN - Export Audit Logs,/admin/audit-logs,Audit Logs Page,/admin/audit-logs,"Export Audit Logs","1. Click Export
+2. Choose format
+3. Download","Audit logs exported",Medium,Admin,admin,audit,export
+Story,FIELD_SERVICE - Create Work Order,/work-orders/new,New Work Order Page,/work-orders/new,"Create Work Order","1. Navigate to /work-orders/new
+2. Fill details, assign technician
+3. Set priority and SLA
+4. Save","Work order created",High,"Admin, Manager, Technician",field,workorder
+Story,FIELD_SERVICE - Edit Work Order,/work-orders/[id],Work Order Detail,/work-orders/[id],"Edit Work Order","1. Open work order
+2. Edit fields
+3. Save","Work order updated",High,"Admin, Manager, Technician",field,workorder
+Story,FIELD_SERVICE - Assign Technician,/work-orders/[id],Work Order Detail,/work-orders/[id],"Assign Technician to Work Order","1. Edit work order
+2. Select technician from dropdown
+3. Save","Technician assigned, notified",High,"Admin, Manager",field,workorder,technician
+Story,FIELD_SERVICE - Work Order Status Workflow,/work-orders/[id],Work Order Detail,/work-orders/[id],"Work Order Status Workflow","1. Update status (Pending → In Progress → Completed)
+2. Add notes
+3. Save","Status changed, timestamp recorded",High,"Admin, Manager, Technician",field,workorder,status
+Story,FIELD_SERVICE - SLA Tracking,/work-orders,Work Order List,/work-orders,"SLA Tracking / Overdue Highlighting","1. View work order list
+2. Identify SLA-breached items (red indicator)
+3. Filter overdue only","Overdue work orders highlighted",High,"Admin, Manager",field,workorder,sla
+Story,FIELD_SERVICE - Work Order Kanban Board,/work-orders/board,Work Order Board,/work-orders/board,"Kanban Board View","1. Navigate to /work-orders/board
+2. View kanban columns
+3. Drag card between columns","Work orders in columns, drag-drop changes status",High,"Admin, Manager, Technician",field,workorder,kanban
+Story,FIELD_SERVICE - Create Asset,/assets/new,New Asset Page,/assets/new,"Create Asset","1. Navigate to /assets/new
+2. Fill asset details
+3. Link to account/location
+4. Save","Asset created",High,"Admin, Manager, Technician",field,asset
+Story,FIELD_SERVICE - Edit Asset,/assets/[id],Asset Detail,/assets/[id],"Edit Asset","1. Open asset
+2. Edit fields
+3. Save","Asset updated",High,"Admin, Manager, Technician",field,asset
+Story,FIELD_SERVICE - Maintenance Schedule,/assets/[id],Asset Detail,/assets/[id],"Set Maintenance Schedule","1. Edit asset
+2. Set maintenance date/recurrence
+3. Save","Maintenance schedule recorded, alerts triggered",Medium,"Admin, Manager",field,asset,maintenance
+Story,FIELD_SERVICE - Technician Dashboard,/technician/dashboard,Technician Dashboard,/technician/dashboard,"Technician Dashboard View","1. Login as technician
+2. View dashboard
+3. See assigned work orders
+4. View today's schedule","Technician's work orders and schedule shown",High,Technician,field,technician,dashboard
+Story,FIELD_SERVICE - Update Work Order Status (Technician),/technician/work-orders/[id],Work Order Detail,/technician/work-orders/[id],"Technician Updates Work Order Status","1. Open assigned work order
+2. Update status
+3. Add completion notes
+4. Save","Status updated, admin notified",High,Technician,field,technician,workorder
+Story,HR - Mark Attendance (In/Out),/attendance,Attendance Page,/attendance,"Daily Attendance Marking","1. Navigate to /attendance
+2. Click In button at start of day
+3. Click Out button at end of day","Attendance recorded with timestamps",High,"Admin, Manager, Employee",hr,attendance
+Story,HR - View Attendance Calendar,/attendance,Attendance Page,/attendance,"View Attendance Calendar","1. Navigate to /attendance
+2. View calendar view
+3. Click on date for details","Attendance calendar with in/out markers shown",Medium,"Admin, Manager, Employee",hr,attendance,calendar
+Story,HR - Admin: View All Employee Attendance,/attendance,Attendance Page (Admin),/attendance,"Admin: View All Employee Attendance","1. Login as admin
+2. Navigate to /attendance
+3. Select employee filter
+4. View attendance","Attendance of all or selected employees shown",High,"Admin, Manager",hr,attendance,admin
+Story,HR - Apply Leave,/leaves,Leave Management,/leaves,"Apply Leave","1. Navigate to /leaves
+2. Click Apply Leave
+3. Select leave type, dates, reason
+4. Submit","Leave request created, approver notified",High,"Admin, Manager, Employee",hr,leave
+Story,HR - Approve/Reject Leave,/leaves/[id],Leave Detail,/leaves/[id],"Approve or Reject Leave","1. Open leave request
+2. Review details
+3. Approve or Reject with comment
+4. Confirm","Status updated, applicant notified",High,"Admin, Manager",hr,leave,approval
+Story,HR - Leave Balance View,/leaves,Leave Management,/leaves,"View Leave Balance","1. Navigate to /leaves
+2. View leave balance section","Available leave for each type shown",High,"Admin, Manager, Employee",hr,leave,balance
+Story,HR - Shift Management,/shifts,Shift Management Page,/shifts,"Create/Edit Shifts","1. Navigate to /shifts
+2. Create new shift or edit existing
+3. Set timing and weekly off
+4. Save","Shift created with timing",High,"Admin, Manager",hr,shift
+Story,HR - Assign Employees to Shift,/shifts/[id],Shift Detail,/shifts/[id],"Assign Employees to Shift","1. Open shift
+2. Assign employees via dropdown
+3. Save","Employees assigned to shift",High,"Admin, Manager",hr,shift
+Story,HR - Holiday Calendar,/holidays,Holiday Calendar,/holidays,"Add/Edit Holiday","1. Navigate to /holidays
+2. Add holiday with name and date
+3. Save","Holiday added to calendar and excluded from attendance",High,"Admin, Manager",hr,holiday
+Story,HR - Employee Management,/employees,Employee List,/employees,"Add/Edit Employee","1. Navigate to /employees
+2. Add new employee or edit existing
+3. Fill department, designation, reporting manager
+4. Save","Employee record created/updated",High,"Admin, Manager",hr,employee
+Story,PROCUREMENT - Create RFQ,/rfqs/new,New RFQ Page,/rfqs/new,"Create RFQ","1. Navigate to /rfqs/new
+2. Select vendor(s)
+3. Add line items
+4. Set terms & conditions
+5. Send","RFQ created and sent to vendor(s)",High,"Admin, Manager, Purchase",procurement,rfq
+Story,PROCUREMENT - Compare Quotations,/rfqs/compare,RFQ Comparison,/rfqs/compare,"Compare Vendor Quotations","1. Open RFQ with received quotations
+2. Navigate to compare view
+3. Review side-by-side
+4. Select best quote(s)","Quotations compared with price/delivery/payment columns",High,"Admin, Manager, Purchase",procurement,rfq,comparison
+Story,PROCUREMENT - Create Purchase Order,/purchase-orders/new,New Purchase Order,/purchase-orders/new,"Create Purchase Order","1. Navigate to /purchase-orders/new
+2. Link to RFQ (optional)
+3. Select vendor
+4. Add line items
+5. Set GST/discount
+6. Submit for approval","PO created with status Draft/Pending Approval",High,"Admin, Manager, Purchase",procurement,po
+Story,PROCUREMENT - Approve/Reject PO,/purchase-orders/[id],PO Detail,/purchase-orders/[id],"Approve or Reject PO","1. Open PO pending approval
+2. Review line items and totals
+3. Approve or Reject with comment
+4. Confirm","PO status updated to Approved or Rejected",High,"Admin, Manager, Purchase",procurement,po,approval
+Story,PROCUREMENT - Create Vendor,/vendors/new,New Vendor Page,/vendors/new,"Create Vendor","1. Navigate to /vendors/new
+2. Fill vendor details, GST/TAN/PAN
+3. Set payment terms and credit limit
+4. Save","Vendor created",High,"Admin, Manager, Purchase",procurement,vendor
+Story,PROCUREMENT - Vendor Performance Rating,/vendors/[id],Vendor Detail,/vendors/[id],"Vendor Performance Rating","1. Open vendor
+2. View/update performance rating
+3. Save","Rating recorded on vendor profile",Medium,"Admin, Manager, Purchase",procurement,vendor,rating
+Story,PROJECTS - Create Project,/projects/new,New Project Page,/projects/new,"Create Project","1. Navigate to /projects/new
+2. Enter project name, description, timeline
+3. Assign team members
+4. Set budget
+5. Save","Project created",High,"Admin, Manager, Employee",projects
+Story,PROJECTS - Add Tasks to Project,/projects/[id]/tasks,Project Tasks Tab,/projects/[id]/tasks,"Add/Edit/Delete Tasks","1. Open project
+2. Navigate to tasks tab
+3. Create task with assignee, due date, priority
+4. Save","Tasks created under project",High,"Admin, Manager, Employee",projects,task
+Story,PROJECTS - Sub-Tasks,/projects/[id]/tasks,Task Detail,/projects/[id]/tasks,"Create Sub-Tasks","1. Create a task
+2. Add sub-tasks under it
+3. Save","Sub-tasks linked to parent task",Medium,"Admin, Manager, Employee",projects,task,subtask
+Story,PROJECTS - Project Dashboard (Gantt),/projects/[id],Project Dashboard,/projects/[id],"View Project Gantt/Dashboard","1. Open project
+2. View Gantt or dashboard tab
+3. Observe progress % and timelines","Gantt chart and progress metrics shown",Medium,"Admin, Manager, Employee",projects,gantt
+Story,KNOWLEDGE_BASE - Create Article,/knowledge/new,New Article Page,/knowledge/new,"Create Knowledge Article","1. Navigate to /knowledge/new
+2. Write article with rich text editor
+3. Add images/videos
+4. Assign category
+5. Publish","Article created and published",High,"Admin, Manager",knowledge,article
+Story,KNOWLEDGE_BASE - Article Versioning,/knowledge/[id],Article Detail,/knowledge/[id],"View Article Version History","1. Open existing article
+2. View version history
+3. Compare versions","Old versions listed and restorable",Medium,"Admin, Manager",knowledge,article,version
+Story,WEB_FORMS - Form Builder,/web-forms,Form Builder,/web-forms,"Create Form with All Field Types","1. Create form
+2. Add all field types (text, dropdown, checkbox, rating, file upload, etc.)
+3. Set validation rules
+4. Preview
+5. Publish","Form created with all field types functional",High,"Admin, Manager",webforms,formbuilder
+Story,WEB_FORMS - View Responses,/web-forms/responses,Form Responses,/web-forms/responses,"View and Filter Form Responses","1. Open form responses
+2. Filter by date/form/status
+3. View individual response detail","Responses listed with filters applied",High,"Admin, Manager",webforms,response
+Story,WEB_FORMS - Export Responses,/web-forms/responses,Form Responses,/web-forms/responses,"Export Form Responses","1. Click Export
+2. Choose format (CSV/Excel)
+3. Download","Responses exported to file",Medium,"Admin, Manager",webforms,export
+Story,DEALERS - Create Dealer,/dealers/new,New Dealer Page,/dealers/new,"Create Dealer","1. Navigate to /dealers/new
+2. Fill dealer details
+3. Set credit limit, payment terms
+4. Save","Dealer created",High,"Admin, Manager",dealers
+Story,DEALERS - Dealer Hierarchy,/dealers/[id],Dealer Detail,/dealers/[id],"Parent-Dealer Relationship","1. Edit dealer
+2. Select parent dealer
+3. Save","Dealer linked in hierarchy",Medium,"Admin, Manager",dealers,hierarchy
+Story,DEALERS - View Dealer Orders,/dealers/[id]/orders,Dealer Orders,/dealers/[id]/orders,"View Dealer Purchase History","1. Open dealer
+2. Navigate to orders tab
+3. View order history and outstanding","Orders listed with status and outstanding amount",Medium,"Admin, Manager, Dealer",dealers,order
+Story,INVENTORY - Stock Adjustment,/inventory,Stock Management,/inventory,"Stock Adjustment","1. Navigate to /inventory
+2. Select product
+3. Adjust quantity (+/-)
+4. Add reason/notes
+5. Save","Stock quantity updated, adjustment logged",High,"Admin, Manager",inventory,stock
+Story,INVENTORY - Stock Transfer,/inventory/warehouses,Warehouse Management,/inventory/warehouses,"Stock Transfer Between Warehouses","1. Navigate to warehouse
+2. Select product
+3. Transfer to another warehouse/location
+4. Confirm","Stock moved, both locations updated",High,"Admin, Manager",inventory,transfer
+Story,INVENTORY - Low Stock Alerts,/inventory,Stock Management,/inventory,"Low Stock Alerts","1. View inventory
+2. Identify low stock items (highlighted)
+3. Set alert thresholds","Low stock items flagged with visual indicator",High,"Admin, Manager",inventory,alert
+Story,DRIVE - Upload Files,/drive,Drive Page,/drive,"Upload Files to Drive","1. Navigate to /drive
+2. Click Upload
+3. Select file(s)
+4. Choose folder destination
+5. Confirm","Files uploaded to drive",High,"Admin, Manager, Employee",drive,upload
+Story,DRIVE - Share Files,/drive,Drive Page,/drive,"Share Files/Directories","1. Select file or folder
+2. Click Share
+3. Choose users and permission level (Read/Write/Admin)
+4. Confirm","File shared with selected users",High,"Admin, Manager, Employee",drive,share
+Story,DRIVE - File Preview,/drive/[id],File Detail,/drive/[id],"Preview Files (PDF/Images/Docs)","1. Click on file
+2. Preview opens in viewer","File preview shown in modal",High,"Admin, Manager, Employee",drive,preview
+Story,DRIVE - Drive Admin: Storage Quota,/drive/admin,Drive Admin,/drive/admin,"Set Storage Quota per User","1. Navigate to /drive/admin
+2. Set quota for user
+3. Save","Quota applied to user",Medium,Admin,drive,admin
+Story,FEED - Create Announcement,/feed,Announcements Page,/feed,"Create Announcement","1. Click Create Announcement
+2. Write content with rich text + images
+3. Set priority and target audience
+4. Schedule/publish","Announcement posted, shown to target users",High,"Admin, Manager",feed,announcement
+Story,FEED - Pin Announcement,/feed/[id],Announcement Detail,/feed/[id],"Pin/Unpin Announcement","1. Open announcement
+2. Click Pin button
+3. Confirm","Announcement pinned to top of feed",Medium,"Admin, Manager",feed,announcement,pin
+Story,FEED - Activity Stream (Real-time),/feed/activity,Activity Feed,/feed/activity,"Real-time Activity Stream","1. View activity feed
+2. New activities appear automatically (WebSocket)
+3. Like/react to a post
+4. Comment on a post","New posts appear in real-time, reactions work",High,All Roles,feed,realtime
+Story,PORTAL - Customer View Quotes,/portal/quotes,Customer Portal Quotes,/portal/quotes,"View Quotes in Portal","1. Login as customer
+2. Navigate to quotes
+3. View quote details
+4. Accept/Reject quote","Quotes shown, accept/reject works",High,Customer,portal,quote
+Story,PORTAL - Submit Support Ticket,/portal/tickets/new,Support Tickets,/portal/tickets/new,"Submit Support Ticket","1. Login as customer
+2. Click Create Ticket
+3. Fill subject, description
+4. Submit","Ticket created, support team notified",High,Customer,portal,ticket
+Story,AUTH - User Login,/login,Login Page,/login,"Login with Email/Password","1. Enter email and password
+2. Click Login
+3. (Optional) Select organization for multi-tenant","Logged in, redirected to dashboard",High,All Roles,auth,login
+Story,AUTH - Forgot Password,/forgot-password,Forgot Password Page,/forgot-password,"Request Password Reset","1. Click Forgot Password
+2. Enter email
+3. Receive reset email/OTP
+4. Set new password
+5. Login with new password","Password reset, can login with new password",High,All Roles,auth,password
+Story,AUTH - Change Password,/change-password,Change Password Page,/change-password,"Change Own Password","1. Enter current password
+2. Enter new password (twice)
+3. Password strength shown
+4. Submit","Password changed, all sessions may be invalidated",High,All Roles,auth,password
+Story,AUTH - Organization Registration,/register,Registration Page,/register,"Register New Organization","1. Navigate to /register
+2. Enter org name, admin user details
+3. Select plan
+4. Submit
+5. Verify email","Org created, admin user created, welcome email sent",High,All Roles,auth,registration
+Story,AUTH - User Profile Update,/profile,User Profile Page,/profile,"View and Edit Own Profile","1. Navigate to /profile
+2. Edit personal info, photo
+3. Update preferences (timezone, language)
+4. Save","Profile updated",High,All Roles,auth,profile
+Story,ESIGN - Upload Document for Signing,/esign,Document Signing,/esign,"Upload Document for Signing","1. Navigate to /esign
+2. Upload PDF/document
+3. Add signature fields
+4. Add signers
+5. Send for signing","Document sent to signers",High,"Admin, Manager, Sales Rep",esign
+Story,ESIGN - Sign Document,/esign/requests/[id],Signature Request Detail,/esign/requests/[id],"Sign Document (Digital Signature)","1. Open signature request
+2. Draw/type/upload signature
+3. Confirm signing
+4. Submit","Document marked as signed",High,"Admin, Manager, Sales Rep, Customer",esign
+Story,ESIGN - Track Signing Status,/esign/requests,Signature Requests,/esign/requests,"Track Signing Status","1. Navigate to /esign/requests
+2. View pending, signed, expired
+3. Send reminder to signers
+4. Cancel request","Signing status tracked, reminders sent",High,"Admin, Manager, Sales Rep",esign
+Story,PROPOSALS - Create Proposal,/proposals/new,New Proposal Page,/proposals/new,"Create Proposal","1. Navigate to /proposals/new
+2. Select template or blank
+3. Add line items (products/services/text)
+4. Apply GST/discount
+5. Preview
+6. Save","Proposal created",High,"Admin, Manager, Sales Rep",proposals
+Story,PROPOSALS - Generate Invoice,/proposals/[id],Proposal Detail,/proposals/[id],"Generate Invoice from Proposal","1. Open proposal
+2. Click Generate Invoice
+3. Confirm
+4. Edit invoice details if needed","Invoice created from proposal with line items",High,"Admin, Manager, Sales Rep",proposals,invoice
+Story,PROPOSALS - Export Proposal to PDF,/proposals/[id]/preview,Proposal Preview,/proposals/[id]/preview,"Export Proposal to PDF","1. Open proposal preview
+2. Click Download PDF
+3. File downloads","PDF generated with proposal content",High,"Admin, Manager, Sales Rep",proposals,pdf
+Story,PROPOSALS - Send Proposal via Email,/proposals/[id]/preview,Proposal Preview,/proposals/[id]/preview,"Send Proposal via Email","1. Click Send Email
+2. Enter recipient email(s)
+3. Add personal message
+4. Send","Email sent with proposal link/PDF",High,"Admin, Manager, Sales Rep",proposals,email
+Story,TRADING - Create Trading Quote,/trading/quotes/new,Trading Quotes,/trading/quotes/new,"Create Trading Quote Request","1. Navigate to /trading/quotes/new
+2. Select vendor(s)
+3. Add line items
+4. Set terms
+5. Send","Quote request sent to vendor",High,"Admin, Manager, Purchase",trading,quote
+Story,TRADING - Convert Quote to PO,/trading/quotes/[id],Quote Detail,/trading/quotes/[id],"Convert Quote to Purchase Order","1. Open accepted quote
+2. Click Convert to PO
+3. Review and adjust details
+4. Submit","Purchase order created from quote",High,"Admin, Manager, Purchase",trading,po
+Story,TRADING - Create Trading Invoice,/trading/invoices/new,Trading Invoices,/trading/invoices/new,"Create Trading Invoice","1. Navigate to /trading/invoices/new
+2. Link to PO/Quote
+3. Add line items and GST
+4. Save","Invoice created",High,"Admin, Manager, Purchase",trading,invoice
+Story,NOTIFICATIONS - View All Notifications,/notifications,Notification Center,/notifications,"View All Notifications","1. Navigate to /notifications
+2. View all notifications
+3. Click to mark as read","Notifications listed, click marks as read",High,All Roles,notifications
+Story,NOTIFICATIONS - Real-time Push,/notifications,Notification Bell,/notifications,"Real-time Push Notifications","1. Receive notification (system event)
+2. Bell badge updates in real-time
+3. Notification shown in notification center","Push notification appears immediately",High,All Roles,notifications,realtime
+Story,NOTIFICATIONS - Email Notifications Toggle,/settings/notifications,Notification Settings,/settings/notifications,"Toggle Email Notifications","1. Go to notification settings
+2. Toggle email notifications on/off for each type
+3. Save","Setting saved, emails sent or withheld accordingly",Medium,All Roles,notifications,email
+Story,CHAT - Real-time Messaging,/chat,Chat Page,/chat,"Real-time 1:1 Chat","1. Open chat with another user
+2. Send message
+3. Recipient receives in real-time","Message sent and received instantly",High,All Roles,chat,realtime
+Story,CHAT - Group Chat,/chat,Chat Page,/chat,"Group Chat","1. Create or join group chat
+2. Send messages
+3. All members receive","Messages broadcast to all group members",High,All Roles,chat,group
+Story,CHAT - File Attachments in Chat,/chat,Chat Page,/chat,"Send Attachments in Chat","1. In chat, click attach icon
+2. Select file
+3. Send","File attached and sent in chat",Medium,All Roles,chat,attachment
+Story,CHAT - Online Status Indicator,/chat,Chat Page,/chat,"Online Status Display","1. View chat contact list
+2. See green/gray dot on contacts
+3. Refresh to update","Online/offline status shown for contacts",Medium,All Roles,chat,online
+Story,CHAT - Search Messages,/chat/history,Chat History,/chat/history,"Search Chat History","1. Navigate to /chat/history
+2. Enter search term
+3. View matching messages","Messages matching search term displayed",Medium,All Roles,chat,search
+Story,REPORTS - Create Custom Report,/reports/new,Report Builder,/reports/new,"Create Custom Report","1. Navigate to /reports/new
+2. Select data source (entity)
+3. Choose fields to include
+4. Add filters and sort
+5. Save and run","Report created and data displayed",High,"Admin, Manager",reports
+Story,REPORTS - Schedule Report,/reports/[id],Report Detail,/reports/[id],"Schedule Report Delivery","1. Edit report
+2. Set schedule (daily/weekly/monthly)
+3. Add email recipients
+4. Enable","Report runs on schedule and emails to recipients",Medium,"Admin, Manager",reports,schedule
+Story,REPORTS - Export Report,/reports/[id],Report Detail,/reports/[id],"Export Report to CSV/Excel/PDF","1. Open report
+2. Click Export
+3. Choose format
+4. Download","Report data exported to selected format",High,"Admin, Manager",reports,export
+Story,SETTINGS - User Preferences,/settings/preferences,User Preferences,/settings/preferences,"Update User Preferences","1. Navigate to /settings/preferences
+2. Change timezone, language, date format, currency
+3. Save","Preferences applied throughout app",Medium,All Roles,settings,preferences
+Story,SETTINGS - API Keys,/settings/api-keys,API Keys Page,/settings/api-keys,"Generate and Revoke API Keys","1. Navigate to /settings/api-keys
+2. Generate new key
+3. Copy key
+4. Revoke old key
+5. Save","API key generated and can be used for API calls",High,Admin,settings,apikey
+Story,MOBILE - Mobile Dashboard,/mobile,Mobile Dashboard,/mobile,"Mobile Dashboard View","1. Open app on mobile
+2. View dashboard with stats
+3. Access quick actions","Dashboard loads on mobile with stats cards",High,"Field Sales, Technician",mobile
+Story,MOBILE - Quick Lead Entry,/mobile/leads/new,Mobile Lead Entry,/mobile/leads/new,"Quick Lead Entry on Mobile","1. On mobile, tap Quick Lead
+2. Fill mandatory fields
+3. Submit","Lead created from mobile",High,"Field Sales, Technician",mobile,lead
+Story,MOBILE - Mark Attendance on Mobile,/mobile/attendance,Mobile Attendance,/mobile/attendance,"Mark Attendance on Mobile","1. On mobile, open attendance
+2. Tap In/Out
+3. (Optional) capture photo or location","Attendance marked on mobile",High,"Field Sales, Technician",mobile,attendance
+Story,MOBILE - View Work Orders on Mobile,/mobile/work-orders,Mobile Work Orders,/mobile/work-orders,"View Assigned Work Orders on Mobile","1. Open mobile work orders
+2. View list of assigned orders
+3. Tap one to see details","Work orders shown on mobile",High,"Field Sales, Technician",mobile,workorder
+Story,MOBILE - Update Work Order Status (Mobile),/mobile/work-orders/[id],Mobile Work Order Detail,/mobile/work-orders/[id],"Update Work Order Status from Mobile","1. Open work order on mobile
+2. Update status, add notes, capture signature
+3. Submit","Status updated from mobile",High,"Field Sales, Technician",mobile,workorder

@@ -6,6 +6,7 @@ import com.ultron.backend.domain.enums.ServiceRequestStatus;
 import com.ultron.backend.domain.enums.WorkOrderStatus;
 import com.ultron.backend.dto.request.CreateEscalationRuleRequest;
 import com.ultron.backend.exception.ResourceNotFoundException;
+import com.ultron.backend.multitenancy.TenantContext;
 import com.ultron.backend.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -103,12 +104,19 @@ public class EscalationService extends BaseTenantService {
     public void evaluateAllRules() {
         log.debug("Running escalation evaluation");
 
-        // Collect distinct tenants from active rules
+        // EscalationRule is a system-wide config - query directly without tenant filter
         ruleRepository.findAll().stream()
                 .filter(r -> r.isActive() && !r.isDeleted())
-                .map(EscalationRule::getTenantId)
-                .distinct()
-                .forEach(this::evaluateTenant);
+                .collect(Collectors.toList())
+                .forEach(rule -> {
+                    try {
+                        // Set tenant context for each rule's evaluation
+                        TenantContext.setTenantId(rule.getTenantId());
+                        evaluateTenant(rule.getTenantId());
+                    } finally {
+                        TenantContext.clear();
+                    }
+                });
     }
 
     private void evaluateTenant(String tenantId) {
