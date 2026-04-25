@@ -422,7 +422,7 @@ export default function DailyAttendancePage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <button
               onClick={() => handleCheckIn("OFFICE")}
-              disabled={actionLoading || !currentLocation}
+              disabled={actionLoading || !currentLocation || officeLocations.length === 0}
               className="flex flex-col items-center gap-3 p-6 border-2 border-blue-600 text-blue-600 rounded-xl hover:bg-blue-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
             >
               <span className="material-symbols-outlined text-4xl">business</span>

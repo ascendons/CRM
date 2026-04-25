@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 @RequiredArgsConstructor
@@ -19,6 +20,8 @@ import java.time.LocalDateTime;
 public class LeavePolicyService extends BaseTenantService {
 
     private final LeavePolicyRepository leavePolicyRepository;
+
+    private final ConcurrentHashMap<String, Object> tenantLocks = new ConcurrentHashMap<>();
 
     /**
      * Get leave policy for current tenant
@@ -29,12 +32,16 @@ public class LeavePolicyService extends BaseTenantService {
         String tenantId = getCurrentTenantId();
         log.info("Fetching leave policy for tenant: {}", tenantId);
 
-        return leavePolicyRepository.findByTenantId(tenantId)
-                .orElseGet(() -> {
-                    log.info("No leave policy found for tenant: {}, creating default", tenantId);
-                    LeavePolicy defaultPolicy = LeavePolicy.createDefaultPolicy(tenantId);
-                    return leavePolicyRepository.save(defaultPolicy);
-                });
+        // Lock per tenant to prevent race condition on policy creation
+        Object lock = tenantLocks.computeIfAbsent(tenantId, k -> new Object());
+        synchronized (lock) {
+            return leavePolicyRepository.findByTenantId(tenantId)
+                    .orElseGet(() -> {
+                        log.info("No leave policy found for tenant: {}, creating default", tenantId);
+                        LeavePolicy defaultPolicy = LeavePolicy.createDefaultPolicy(tenantId);
+                        return leavePolicyRepository.save(defaultPolicy);
+                    });
+        }
     }
 
     /**
@@ -46,6 +53,16 @@ public class LeavePolicyService extends BaseTenantService {
         String tenantId = getCurrentTenantId();
         log.info("Updating leave policy for tenant: {} by user: {}", tenantId, userId);
 
+        Object lock = tenantLocks.get(tenantId);
+        if (lock != null) {
+            synchronized (lock) {
+                return doUpdatePolicy(policy, userId, tenantId);
+            }
+        }
+        return doUpdatePolicy(policy, userId, tenantId);
+    }
+
+    private LeavePolicy doUpdatePolicy(LeavePolicy policy, String userId, String tenantId) {
         LeavePolicy existing = leavePolicyRepository.findByTenantId(tenantId)
                 .orElseThrow(() -> new BusinessException("Leave policy not found"));
 
