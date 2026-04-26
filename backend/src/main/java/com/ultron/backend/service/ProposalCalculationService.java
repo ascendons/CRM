@@ -132,10 +132,10 @@ public class ProposalCalculationService {
         // Amount after discount
         BigDecimal amountAfterDiscount = lineSubtotal.subtract(lineDiscount);
 
-        // Override tax rate if GST is enabled
+        // Override tax rate based on GST type configuration
         BigDecimal appliedTaxRate = item.getTaxRate() != null ? item.getTaxRate() : BigDecimal.ZERO;
-        if (gstType != null && (gstType == com.ultron.backend.domain.enums.GstType.IGST || gstType == com.ultron.backend.domain.enums.GstType.CGST_SGST)) {
-            appliedTaxRate = BigDecimal.valueOf(18.0);
+        if (gstType != null && gstType.isGstEnabled()) {
+            appliedTaxRate = BigDecimal.valueOf(gstType.getTotalRate());
             item.setTaxRate(appliedTaxRate);
         }
 
