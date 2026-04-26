@@ -1,15 +1,17 @@
 package com.ultron.backend.service;
 
 import com.ultron.backend.domain.entity.Notification;
-import com.ultron.backend.domain.entity.User;
 import com.ultron.backend.dto.response.NotificationDTO;
 import com.ultron.backend.multitenancy.TenantContext;
 import com.ultron.backend.repository.NotificationRepository;
-import com.ultron.backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
@@ -22,7 +24,7 @@ public class NotificationService {
 
     private final NotificationRepository notificationRepository;
     private final SimpMessagingTemplate messagingTemplate;
-    private final UserRepository userRepository;
+    private final MongoTemplate mongoTemplate;
 
     public NotificationDTO createAndSendNotification(String targetUserId, String title, String message, String type, String actionUrl) {
         String tenantId = TenantContext.getTenantId();
@@ -78,64 +80,86 @@ public class NotificationService {
     }
 
     /**
-     * Mark a notification as read.
-     * SECURITY: Only the notification owner can mark it as read.
-     *
-     * @param notificationId The notification to mark as read
-     * @param authenticatedUserId The authenticated user making the request
+     * Mark a notification as read using MongoTemplate for reliable update.
      */
     public void markAsRead(String notificationId, String authenticatedUserId) {
         String tenantId = TenantContext.getTenantId();
 
-        Notification notification = notificationRepository.findById(notificationId)
-                .orElse(null);
+        log.info("markAsRead called: notificationId={}, userId={}, tenantId={}", notificationId, authenticatedUserId, tenantId);
 
+        // First verify the notification exists
+        Notification notification = notificationRepository.findById(notificationId).orElse(null);
         if (notification == null) {
             log.warn("Notification {} not found", notificationId);
             return;
         }
 
-        // Security check: Verify tenant match
+        // Security checks
         if (!notification.getTenantId().equals(tenantId)) {
             log.warn("User {} attempted to access notification from different tenant", authenticatedUserId);
             throw new SecurityException("Access denied");
         }
 
-        // Security check: Verify user owns this notification
         if (!notification.getTargetUserId().equals(authenticatedUserId)) {
             log.warn("User {} attempted to mark notification {} belonging to user {} as read",
                     authenticatedUserId, notificationId, notification.getTargetUserId());
             throw new SecurityException("Not authorized to modify this notification");
         }
 
-        if (!notification.isRead()) {
-            notification.setRead(true);
-            notificationRepository.save(notification);
-            log.debug("Notification {} marked as read by user {}", notificationId, authenticatedUserId);
-        }
+        // Use MongoTemplate with explicit collection and $set operator
+        Query query = Query.query(Criteria.where("_id").is(notificationId));
+        Update update = new Update();
+        update.set("isRead", true);
+        // Also set it with $set to ensure it works regardless of field existence
+        var result = mongoTemplate.updateFirst(query, update, Notification.class);
+
+        log.info("markAsRead result: notificationId={}, modified={}", notificationId, result.getModifiedCount());
+
+        // Also update via repository save to ensure entity is properly persisted
+        notification.setRead(true);
+        notificationRepository.save(notification);
+        log.info("After repository.save - notification {} isRead={}", notificationId, notification.isRead());
     }
 
     /**
      * Mark all notifications as read for the authenticated user.
-     * SECURITY: Uses authenticated user ID, not a parameter that could be manipulated.
-     *
-     * @param authenticatedUserId The authenticated user making the request
      */
     public void markAllAsRead(String authenticatedUserId) {
         String tenantId = TenantContext.getTenantId();
+
+        log.info("markAllAsRead called: userId={}, tenantId={}", authenticatedUserId, tenantId);
+
+        // Get all unread notifications
         var unreadNotifications = notificationRepository.findByTenantIdAndTargetUserIdAndIsReadFalse(
                 tenantId, authenticatedUserId);
 
+        log.info("Found {} unread notifications", unreadNotifications.size());
+
         if (!unreadNotifications.isEmpty()) {
+            // Update via MongoTemplate for reliability
+            Query query = Query.query(
+                    Criteria.where("tenantId").is(tenantId)
+                            .and("targetUserId").is(authenticatedUserId)
+                            .and("isRead").is(false)
+            );
+            Update update = new Update();
+            update.set("isRead", true);
+            var result = mongoTemplate.updateMulti(query, update, Notification.class);
+            log.info("markAllAsRead via MongoTemplate: modifiedCount={}", result.getModifiedCount());
+
+            // Also update via repository
             for (Notification n : unreadNotifications) {
                 n.setRead(true);
             }
             notificationRepository.saveAll(unreadNotifications);
-            log.debug("Marked {} notifications as read for user {}", unreadNotifications.size(), authenticatedUserId);
+            log.info("markAllAsRead via repository: saved {} notifications", unreadNotifications.size());
         }
     }
 
     private NotificationDTO mapToDTO(Notification notification) {
+        boolean isReadValue = notification.isRead();
+        log.debug("mapToDTO: notificationId={}, isRead={}", notification.getId(), isReadValue);
+
         return NotificationDTO.builder()
                 .id(notification.getId())
                 .targetUserId(notification.getTargetUserId())
@@ -143,7 +167,7 @@ public class NotificationService {
                 .message(notification.getMessage())
                 .type(notification.getType())
                 .actionUrl(notification.getActionUrl())
-                .isRead(notification.isRead())
+                .isRead(isReadValue)
                 .createdAt(notification.getCreatedAt())
                 .build();
     }

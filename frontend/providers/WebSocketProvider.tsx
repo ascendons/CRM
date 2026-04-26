@@ -37,6 +37,14 @@ export interface TypingIndicator {
   timestamp: string;
 }
 
+export interface NotificationSettings {
+  leaveApproved: boolean;
+  attendanceAlerts: boolean;
+  taskReminders: boolean;
+  systemAnnouncements: boolean;
+  chatMessages: boolean;
+}
+
 interface WebSocketContextType {
   connected: boolean;
   chatMessages: ChatMessage[];
@@ -47,10 +55,23 @@ interface WebSocketContextType {
   subscribeToChat: (recipientId: string) => void;
   fetchChatHistory: (recipientId: string, recipientType?: string) => Promise<void>;
   markNotificationAsRead: (notificationId: string) => void;
+  markAllNotificationsAsRead: () => void;
   unreadNotificationCount: number;
   unreadMessageCount: number;
   unreadMessageCounts: Record<string, number>;
   clearUnreadMessages: (senderId?: string) => void;
+  // Loading states
+  loadingNotifications: boolean;
+  loadingMoreNotifications: boolean;
+  setLoadingNotifications: (loading: boolean) => void;
+  // Pagination
+  hasMoreNotifications: boolean;
+  fetchMoreNotifications: () => Promise<void>;
+  // Refresh notifications from server
+  refreshNotifications: () => Promise<void>;
+  // Notification settings
+  notificationSettings: NotificationSettings;
+  updateNotificationSettings: (key: keyof NotificationSettings, value: boolean) => void;
 }
 
 const WebSocketContext = createContext<WebSocketContextType | undefined>(undefined);
@@ -72,6 +93,22 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
   const [unreadMessageCounts, setUnreadMessageCounts] = useState<Record<string, number>>({});
   const [typingUsers, setTypingUsers] = useState<Record<string, TypingIndicator>>({});
   const clientRef = useRef<Client | null>(null);
+
+  // Notification loading & pagination
+  const [loadingNotifications, setLoadingNotifications] = useState(false);
+  const [loadingMoreNotifications, setLoadingMoreNotifications] = useState(false);
+  const [hasMoreNotifications, setHasMoreNotifications] = useState(true);
+  const [notificationPage, setNotificationPage] = useState(0);
+  const NOTIFICATION_PAGE_SIZE = 20;
+
+  // Notification settings
+  const [notificationSettings, setNotificationSettings] = useState<NotificationSettings>({
+    leaveApproved: true,
+    attendanceAlerts: true,
+    taskReminders: true,
+    systemAnnouncements: true,
+    chatMessages: true,
+  });
 
   // Track active subscriptions
   const chatSubscriptions = useRef<Map<string, StompSubscription>>(new Map());
@@ -220,6 +257,7 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
         });
 
         // Fetch initial notifications using generic fetch to backend rest API
+        setLoadingNotifications(true);
         fetchNotifications(token);
       },
       onStompError: (frame) => {
@@ -242,22 +280,102 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
     clientRef.current = stompClient;
   };
 
-  const fetchNotifications = async (token: string) => {
+  const fetchNotifications = async (token: string, page = 0, append = false) => {
     try {
       const backendUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api/v1";
-      const res = await fetch(`${backendUrl}/notifications?page=0&size=50`, {
+      const res = await fetch(`${backendUrl}/notifications?page=${page}&size=${NOTIFICATION_PAGE_SIZE}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (res.ok) {
         const data = await res.json();
         if (data.content) {
-          setNotifications(data.content);
+          setNotifications((prev) => {
+            if (append) {
+              // Deduplicate
+              const existingIds = new Set(prev.map((n) => n.id));
+              const newNotifications = data.content.filter((n: Notification) => !existingIds.has(n.id));
+              return [...prev, ...newNotifications];
+            }
+            // Preserve local read status when refreshing
+            const existingReadIds = new Set(
+              prev.filter((n) => n.isRead).map((n) => n.id)
+            );
+            const mergedNotifications = data.content.map((n: Notification) => {
+              if (existingReadIds.has(n.id)) {
+                return { ...n, isRead: true };
+              }
+              return n;
+            });
+            return mergedNotifications;
+          });
+          setHasMoreNotifications(!data.last);
+          setNotificationPage(page);
         }
       }
     } catch (e) {
-      console.error("Failed to fetch initial notifications", e);
+      console.error("Failed to fetch notifications", e);
+    } finally {
+      setLoadingNotifications(false);
+      setLoadingMoreNotifications(false);
     }
   };
+
+  const fetchMoreNotifications = async () => {
+    if (loadingMoreNotifications || !hasMoreNotifications) return;
+    setLoadingMoreNotifications(true);
+    const token = authService.getToken();
+    if (token) {
+      await fetchNotifications(token, notificationPage + 1, true);
+    }
+  };
+
+  const refreshNotifications = async () => {
+    const token = authService.getToken();
+    if (token) {
+      setLoadingNotifications(true);
+      // Reset pagination and fetch fresh data (not append)
+      setNotificationPage(0);
+      await fetchNotifications(token, 0, false);
+      setLoadingNotifications(false);
+    }
+  };
+
+  const markAllNotificationsAsRead = async () => {
+    // Optimistic update - mark all as read locally
+    setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
+
+    const token = authService.getToken();
+    const backendUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api/v1";
+    try {
+      await fetch(`${backendUrl}/notifications/read-all`, {
+        method: "PUT",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+    } catch (e) {
+      console.error("Failed to mark all as read", e);
+    }
+  };
+
+  const updateNotificationSettings = (key: keyof NotificationSettings, value: boolean) => {
+    setNotificationSettings((prev) => ({ ...prev, [key]: value }));
+    // Optionally persist to backend
+    localStorage.setItem("notificationSettings", JSON.stringify({
+      ...notificationSettings,
+      [key]: value,
+    }));
+  };
+
+  // Load notification settings from localStorage on mount
+  useEffect(() => {
+    const saved = localStorage.getItem("notificationSettings");
+    if (saved) {
+      try {
+        setNotificationSettings(JSON.parse(saved));
+      } catch {
+        // ignore
+      }
+    }
+  }, []);
 
   const fetchChatHistory = async (recipientId: string, recipientType: string = "USER") => {
     try {
@@ -412,10 +530,19 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
         subscribeToChat,
         fetchChatHistory,
         markNotificationAsRead,
+        markAllNotificationsAsRead,
         unreadNotificationCount,
         unreadMessageCount,
         unreadMessageCounts,
         clearUnreadMessages,
+        loadingNotifications,
+        loadingMoreNotifications,
+        setLoadingNotifications,
+        hasMoreNotifications,
+        fetchMoreNotifications,
+        refreshNotifications,
+        notificationSettings,
+        updateNotificationSettings,
       }}
     >
       {children}

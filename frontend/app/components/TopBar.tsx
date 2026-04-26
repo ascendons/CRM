@@ -33,6 +33,7 @@ const TOP_LEVEL_ROUTES = new Set([
   "/drive",
   "/attendance",
   "/knowledge-base",
+  "/notifications",
 ]);
 
 interface TopBarProps {
@@ -45,9 +46,14 @@ export default function TopBar({ onMobileMenuClick, pageTitle }: TopBarProps) {
   const pathname = usePathname();
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
-  const { unreadNotificationCount, unreadMessageCount, clearUnreadMessages } = useWebSocket();
+  const { unreadNotificationCount, unreadMessageCount, clearUnreadMessages, refreshNotifications } = useWebSocket();
 
   const showBack = !TOP_LEVEL_ROUTES.has(pathname);
+
+  const handleNotificationsClick = () => {
+    refreshNotifications();
+    setIsNotificationsOpen(true);
+  };
 
   return (
     <>
@@ -121,13 +127,15 @@ export default function TopBar({ onMobileMenuClick, pageTitle }: TopBarProps) {
 
           {/* Notifications Button */}
           <button
-            onClick={() => setIsNotificationsOpen(true)}
+            onClick={handleNotificationsClick}
             className="p-2 text-slate-700 hover:bg-slate-100 rounded-lg relative transition-colors"
             title="Notifications"
           >
             <span className="material-symbols-outlined">notifications</span>
             {unreadNotificationCount > 0 && (
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 border-2 border-white rounded-full"></span>
+              <span className="absolute -top-0.5 -right-0.5 inline-flex items-center justify-center px-1.5 py-0.5 text-[10px] font-bold leading-none text-white bg-red-500 rounded-full min-w-[18px] min-h-[18px]">
+                {unreadNotificationCount > 9 ? "9+" : unreadNotificationCount}
+              </span>
             )}
           </button>
 
