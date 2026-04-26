@@ -114,11 +114,6 @@ public class NotificationService {
         var result = mongoTemplate.updateFirst(query, update, Notification.class);
 
         log.info("markAsRead result: notificationId={}, modified={}", notificationId, result.getModifiedCount());
-
-        // Also update via repository save to ensure entity is properly persisted
-        notification.setRead(true);
-        notificationRepository.save(notification);
-        log.info("After repository.save - notification {} isRead={}", notificationId, notification.isRead());
     }
 
     /**
@@ -146,13 +141,6 @@ public class NotificationService {
             update.set("isRead", true);
             var result = mongoTemplate.updateMulti(query, update, Notification.class);
             log.info("markAllAsRead via MongoTemplate: modifiedCount={}", result.getModifiedCount());
-
-            // Also update via repository
-            for (Notification n : unreadNotifications) {
-                n.setRead(true);
-            }
-            notificationRepository.saveAll(unreadNotifications);
-            log.info("markAllAsRead via repository: saved {} notifications", unreadNotifications.size());
         }
     }
 
