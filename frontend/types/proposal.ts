@@ -26,8 +26,10 @@ export enum DiscountType {
 
 export enum GstType {
   NONE = "NONE",
-  IGST = "IGST",
-  CGST_SGST = "CGST_SGST",
+  CGST_SGST_9 = "CGST_SGST_9",
+  CGST_SGST_2_5 = "CGST_SGST_2_5",
+  IGST_18 = "IGST_18",
+  IGST_5 = "IGST_5",
 }
 
 export interface ProposalLineItem {

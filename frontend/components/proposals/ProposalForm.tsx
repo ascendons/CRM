@@ -1558,11 +1558,13 @@ export default function ProposalForm({
               disabled={isReadOnly}
             >
               <option value={GstType.NONE}>No GST</option>
-              <option value={GstType.IGST}>Inter-State — IGST (18%)</option>
-              <option value={GstType.CGST_SGST}>Intra-State — CGST (9%) + SGST (9%)</option>
+              <option value={GstType.CGST_SGST_9}>Intra-State — CGST (9%) + SGST (9%)</option>
+              <option value={GstType.CGST_SGST_2_5}>Intra-State — CGST (2.5%) + SGST (2.5%)</option>
+              <option value={GstType.IGST_18}>Inter-State — IGST (18%)</option>
+              <option value={GstType.IGST_5}>Inter-State — IGST (5%)</option>
             </select>
             <p className="mt-2 text-xs text-gray-500">
-              Selecting IGST or CGST+SGST applies 18% tax to all line items.
+              Tax rate is automatically applied based on GST type selection.
             </p>
           </div>
           <div className="mt-4">
